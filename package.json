@@ -1,0 +1,41 @@
+{
+    "name": "scribejs",
+    "version": "0.5.0",
+    "description": "Convert W3C’s RRSAgent IRC bot output into minutes in Markdown",
+    "main": "index.js",
+    "keywords": [
+        "W3C",
+        "scribe",
+        "minute taking"
+    ],
+    "author": "Ivan Herman, <ivan@w3.org> (https://www.w3.org/People/Ivan/)",
+    "url": "https://www.w3.org/People/Ivan/",
+    "files": [
+        "run",
+        "convert.js"
+    ],
+    "bugs": {
+        "url": "https://github.com/w3c/scribejs/issues",
+        "email": "ivan@w3.org"
+    },
+    "bin": {
+        "scribejs": "./index.js"
+    },
+    "license": "W3C Software License",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/w3c/scribejs.git"
+    },
+    "engines": {
+        "node": ">=6.9.2"
+    },
+    "preferGlobal": "true",
+    "dependencies": {
+        "cli.args": "0.0.7",
+        "fs": "0.0.1-security",
+        "moment": "^2.17.1",
+        "node-fetch": "^1.6.3",
+        "underscore": "^1.8.3",
+        "url": "^0.11.0"
+    }
+}
