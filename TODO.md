@@ -1,7 +1,7 @@
 ## Current status
 
 * Tool does a reasonable output on some test irc log, needs to test it with more
-* The markdown is currently sent to the standard output. Should be decided where next...
+* The markdown is currently sent to the standard output. The -o option does not work yet, and I should explore whether it is possible to dump the file on a github repo programatically.
 
 ## To do
 
