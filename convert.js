@@ -13,16 +13,34 @@ exports.to_markdown = (inp, body) => {
 	* Returns an object {label, content}, where 'label' may be null
 	*/
 	function get_label(line) {
-		let reg = line.match(/^(\w+):(.*)$/)
+		let reg = line.trim().match(/^(\w+):(.*)$/)
 		if(reg === null) {
 			return {
 				label: null,
 				content: line
 			}
 		} else {
-			return {
-				label:   reg[1].trim(),
-				content: reg[2].trim()
+			let possible_label   = reg[1].trim();
+			let possible_content = reg[2].trim();
+			// There are some funny cases, however...
+			if(["http", "https", "email", "ftp"].includes(possible_label)) {
+				// Ignore the label...
+				return {
+					label:   null,
+					content: line
+				}
+			} else if(possible_label === "...") {
+				//this seems to be a recurring error: scribe continuation lines are preceded by
+				// "...:" instead of purely "...""
+				return {
+					label:   null,
+					content: "... " + reg[2].trim()
+				}
+			} else {
+				return {
+					label:   reg[1].trim(),
+					content: reg[2].trim()
+				}
 			}
 		}
 	}
@@ -65,35 +83,27 @@ exports.to_markdown = (inp, body) => {
 		   .map((line) => line.slice(line.indexOf(' ') + 1))
 		   .map((line) => {
 			   sp = line.indexOf(' ');
-			   return {
+			   retval = {
 				   // Note that I remove the '<' and the '>' characters
 				   // leaving only the real nickname
 				   nick:    line.slice(1,sp-1),
-				   content: line.slice(sp+1)
-			   }
+				   content: line.slice(sp+1).trim()
+			   };
+			   retval.content_lower = retval.content.toLowerCase();
+			   return retval;
 		   })
 		   .filter((line_object) => (line_object.nick !== 'RRSAgent' && line_object.nick !== 'Zakim'))
 		   .filter((line_object) => {
-			   let lower  = line_object.content.toLowerCase();
 			   return !(
-				   lower.startsWith("q+") ||
-				   lower.startsWith("q-") ||
-				   lower.startsWith("q?") ||
-				   lower.startsWith("ack")
-			   )
-		   })
-		   .filter((line_object) => {
-			   let lower  = line_object.content.toLowerCase();
-			   return !(
-				   lower.startsWith("agenda+") ||
-				   lower.startsWith("agenda?")
-			   )
-		   })
-		   .filter((line_object) => {
-			   return !(
-				   line_object.content.startsWith("trackbot,") ||
-				   line_object.content.startsWith("zakim,")    ||
-				   line_object.content.startsWith("rrsagent,")
+				   line_object.content_lower.startsWith("q+")        ||
+				   line_object.content_lower.startsWith("q-")        ||
+				   line_object.content_lower.startsWith("q?")        ||
+				   line_object.content_lower.startsWith("ack")       ||
+				   line_object.content_lower.startsWith("agenda+")   ||
+				   line_object.content_lower.startsWith("agenda?")   ||
+				   line_object.content_lower.startsWith("trackbot,") ||
+				   line_object.content_lower.startsWith("zakim,")    ||
+				   line_object.content_lower.startsWith("rrsagent,")
 			   )
 		   })
 		   .filter((line_object) => (line_object.content.match(/^\w+ has joined #\w+/) === null))
@@ -131,13 +141,14 @@ exports.to_markdown = (inp, body) => {
 			scribe:  [],
 			meeting: ""
 		};
+
 		/**
 		* Extract a list of nick names (used for present, regrets, and guests)
 		* All of these have a common structure: 'XXX+' means add nicknames, 'XXX:' means set them.
 		*/
 		// Care should be taken to trim everything, to keep the nick names clean of extra spaces...
 		function people(category, line) {
-			let lower    = line.content.toLowerCase().trim();
+			let lower    = line.content_lower.trim();
 			let cutIndex = category.length;
 			if(lower.startsWith(category) === true) {
 				// bingo, we have to extract the content
@@ -245,20 +256,34 @@ See [Agenda]($headers.agenda) and [IRC Log](${inp})
 		// this will be the output
 		let content_md     = "\n---\n"
 		let TOC = "## Content:\n"
-		let resolutions = "\n---\n### [Resolutions:](id:res)"
+		let resolutions = ""
+		// let resolutions = "\n---\n### [Resolutions:](id:res)"
 
 		/**
 		* Table of content handling: a (Sub)topic's is set a label as well as a reference into a table of content
-		* structure that grows as we go
+		* structure that grows as we go.
+		* Sections (and the TOC entries) are automatically numbered
 		*/
-		let counter     = 1;
-		let current_toc = 1;
+		let counter            = 1;
+		let sec_number_level_1 = 0;
+		let sec_number_level_2 = 0;
+		let numbering          = "";
+		let header_level       = "";
+		let toc_spaces         = "";
 		function add_toc(content, level) {
-			let header_level = (level === 1) ? "### " : "#### "
-			let toc_level    = (level === 1) ? "" : "    "
+			if(level === 1) {
+				numbering = ++sec_number_level_1;
+				sec_number_level_2  = 0;
+				header_level = "### ";
+				toc_spaces   = "";
+			} else {
+				numbering = sec_number_level_1 + "." + (++sec_number_level_2);
+				header_level = "#### ";
+				toc_spaces   = "    ";
+			}
 			let id = "section" + counter++;
-			content_md = content_md.concat("\n\n", `${header_level}[${content}](id:${id})`)
-			TOC = TOC.concat(`${toc_level}* [${content}](#${id})\n`)
+			content_md = content_md.concat("\n\n", `${header_level}[${numbering}. ${content}](id:${id})`)
+			TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${content}](#${id})\n`)
 		}
 
 		/**
@@ -283,63 +308,64 @@ See [Agenda]($headers.agenda) and [IRC Log](${inp})
 			if(scribe !== null) {
 				// This is a scribe change command; the current scribe must be updated,
 				// and the line ignored
-				current_scribe = scribe;
+				current_scribe = scribe.toLowerCase();
 				return;
 			}
 			// Separate the label from the rest
 			let {label, content} = get_label(line_object.content)
 
-			// 1. This is a line written by the scribe:
-			if(line_object.nick === current_scribe) {
-				if(label !== null) {
-					// A new person is talking...
-					content_md = content_md.concat("\n\n**", label, ":** ", content)
-					within_scribed_content = true;
-					// All done with the line!
-					return;
-				} else {
-					let dots = content.startsWith("...") ? 3 : (content.startsWith("…") ? 1 : 0);
-					if(dots > 0) {
-						// This is a continuation line
-						if(within_scribed_content) {
-							// We are in the middle of a full paragraph for one person, safe to simply add
-							// the text to the previous line without any further ado
-							content_md = content_md.concat(" ", content.slice(dots))
-						} else {
-							// For some reasons, there was a previous line that interrupted the normal flow,
-							// a new paragraph should be started
-							content_md = content_md.concat("\n\n", content.slice(dots))
-							within_scribed_content = true;
-						}
-						// All done with the line!
-						return;
-					}
-				}
-			}
-
-			// If we get there, this is not a regular scribed content. Note that this
-			// may include the scribe doing something else than scribing; e.g., adding a proposed
-			// resolution.
-			within_scribed_content = false;
+			// First handle special entries that must be handled regardless
+			// of whether it was typed in by the scribe or not.
 			if(label !== null && label.toLowerCase() === "topic") {
+				within_scribed_content = false;
 				add_toc(content, 1)
 			} else if(label !== null && label.toLowerCase() === "subtopic") {
+				within_scribed_content = false;
 				add_toc(content, 2)
 			} else if(label !== null && ["proposed", "proposal"].includes(label.toLowerCase())) {
+				within_scribed_content = false;
 				content_md = content_md.concat(`\n\n*(${line_object.nick})* **Proposed resolution: ${content}**`)
 			} else if(label !== null && ["resolved", "resolution"].includes(label.toLowerCase())) {
+				within_scribed_content = false;
 				add_resolution(content)
 			} else {
-				// This is a fall back: somebody (not the scribe) makes a note on IRC
-				content_md = content_md.concat("\n\n> *", line_object.nick, "*: ", line_object.content)
+				// Done with the special entries, filter the scribe entries
+				if(line_object.nick.toLowerCase() === current_scribe) {
+					if(label !== null) {
+						// A new person is talking...
+						content_md = content_md.concat("\n\n**", label, ":** ", content)
+						within_scribed_content = true;
+						// All done with the line!
+						return;
+					} else {
+						let dots = content.startsWith("...") ? 3 : (content.startsWith("…") ? 1 : 0);
+						if(dots > 0) {
+							// This is a continuation line
+							if(within_scribed_content) {
+								// We are in the middle of a full paragraph for one person, safe to simply add
+								// the text to the previous line without any further ado
+								content_md = content_md.concat(" ", content.slice(dots))
+							} else {
+								// For some reasons, there was a previous line that interrupted the normal flow,
+								// a new paragraph should be started
+								content_md = content_md.concat("\n\n", content.slice(dots))
+								within_scribed_content = true;
+							}
+						}
+					}
+				} else {
+					within_scribed_content = false;
+					// This is a fall back: somebody (not the scribe) makes a note on IRC
+					content_md = content_md.concat("\n\n> *", line_object.nick, "*: ", line_object.content)
+				}
 			}
 		});
 
 		// Endgame: pulling the TOC, the real minutes and, possibly, the resolutions together
 		if(rcounter > 1) {
 			// There has been at least one resolution
-			TOC = TOC.concat("* [Resolutions](#res)\n")
-			return TOC + content_md + resolutions
+			TOC = TOC.concat(`* [${++sec_number_level_1}. Resolutions](#res)\n`)
+			return TOC + content_md + `\n---\n### [${sec_number_level_1}. Resolutions](id:res)` + resolutions
 		} else {
 			return TOC + content_md
 		}

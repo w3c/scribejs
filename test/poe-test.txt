@@ -1,0 +1,171 @@
+12:15:22 <RRSAgent> RRSAgent has joined #poe
+12:15:22 <RRSAgent> logging to http://www.w3.org/2017/02/20-poe-irc
+12:15:24 <trackbot> RRSAgent, make logs public
+12:15:24 <Zakim> Zakim has joined #poe
+12:15:26 <trackbot> Zakim, this will be
+12:15:26 <Zakim> I don't understand 'this will be', trackbot
+12:15:27 <trackbot> Meeting: Permissions and Obligations Expression Working Group Teleconference
+12:15:27 <trackbot> Date: 20 February 2017
+12:17:11 <ivan> Agenda: https://www.w3.org/2016/poe/wiki/Meetings:Telecon20170130
+12:19:14 <renato> renato has joined #poe
+12:19:37 <renato> trackbot, start meeting
+12:19:40 <trackbot> RRSAgent, make logs public
+12:19:43 <trackbot> Zakim, this will be
+12:19:43 <trackbot> Meeting: Permissions and Obligations Expression Working Group Teleconference
+12:19:43 <trackbot> Date: 20 February 2017
+12:19:43 <Zakim> I don't understand 'this will be', trackbot
+12:19:51 <renato> RRSAgent, make logs public
+12:20:03 <renato> Agenda: https://www.w3.org/2016/poe/wiki/Meetings:Telecon20170220
+12:20:08 <renato> Chair: Ben
+12:20:14 <renato> present+ renato
+12:20:24 <renato> Regrets: philA
+12:28:21 <michaelS> michaelS has joined #poe
+12:32:18 <benws_> benws_ has joined #poe
+12:34:27 <victor> victor has joined #poe
+12:34:31 <Sabrina> Sabrina has joined #poe
+12:34:33 <victor> present+ victor
+12:34:37 <victor> Hi all!
+12:34:44 <michaelS> present+
+12:34:47 <Sabrina> present+ sabrina
+12:34:48 <michaelS> scribe: michaelS
+12:34:54 <michaelS> scribenick: michaelS
+12:35:04 <simonstey> simonstey has joined #poe
+12:35:04 <michaelS> topic: last week's minutes
+12:35:15 <benws_> present+
+12:35:27 <michaelS> No objections were raised
+12:35:38 <michaelS> benws_: minutes are approved
+12:35:48 <renato> http://w3c.github.io/poe/model/
+12:35:49 <michaelS> topic: deliverables
+12:35:51 <benws_> q+
+12:36:05 <michaelS> subtopic: deliverables - Information Model
+12:36:13 <michaelS> http://w3c.github.io/poe/model/
+12:37:21 <michaelS> benws_: this is a technical document - it starts talking about things which are not relevant for the model, e.g. policy conflicts
+12:37:47 <michaelS> ... hard to understand and read. How could we order the document better, put important things at the top
+12:38:09 <michaelS> ... second issue: policy conflict.
+12:38:44 <michaelS> ... unstand what it aims at. But the examples shown there don't raise a conflict by his view.
+12:39:34 <michaelS> renato: the reason for the conflict is: "use" is a wider term than "print"
+12:40:39 <michaelS> benws_: what about a policy with "use" and a high payment and a "print" action only and a cheap payment?
+12:42:00 <michaelS> renato: this example shows a conflict between permission and prohibition in the policies contradicting each other.
+12:42:14 <ivan> q+
+12:42:18 <ivan> ack benws_
+12:42:24 <benws_> q-
+12:42:30 <michaelS> ... it is about what takes precedence: permission or prohibition
+12:43:55 <michaelS> ivan: refered to what benws_ said: wouldn't it be better to call this "precedence" than "conflict" ?
+12:44:36 <renato> https://github.com/w3c/poe/issues/76
+12:44:50 <michaelS> renato: (searching the POE issue list on Github) this was covered by issue 76
+12:45:49 <benws_> q?
+12:45:52 <michaelS> ... the "conflict" is in fact more about a strategy to solve conflicting things.
+12:46:05 <benws_> q?
+12:46:15 <ivan> ack ivan
+12:47:08 <michaelS> ivan: explained formalities: this action is issuing an updated version of an existing document
+12:47:54 <renato> Proposal: Publish new working draft of "ODRL Information Model" https://w3c.github.io/poe/model/
+12:48:02 <ivan> +1
+12:48:03 <renato> +1
+12:48:08 <michaelS> +1
+12:48:10 <benws_> +1
+12:48:10 <Sabrina> +1
+12:48:12 <simonstey> 0
+12:48:24 <victor> +1
+12:49:43 <michaelS> simonstey: explaint his abstaining: there are still some open issue, e.g. regarding unclear relations
+12:49:55 <michaelS> s/explaint/explained
+12:50:13 <ivan> q+
+12:51:13 <michaelS> renato: the Information Model is based on UML, not on OWL
+12:52:01 <michaelS> renato: and simonstey discussed some details - agreed this needs further review
+12:52:17 <benws_> q?
+12:53:07 <benws_> q+
+12:54:00 <michaelS> ivan: supported the view "this is not the final draft", things may still be modified.
+12:54:05 <benws_> q?
+12:54:16 <renato> Last published on 21 July 2016
+12:54:17 <benws_> ack i
+12:55:07 <michaelS> ... shares simonstey view that XML is only an implementation of the Information Model and not driving it.
+12:55:40 <michaelS> benws_: who is using ODRL with which format?
+12:55:41 <ivan> q+
+12:56:16 <michaelS> renato: AP uses XML and also Thomson Reuters, David Compton said XML is used
+12:56:34 <simonstey> https://www.w3.org/2016/04/25-poe-minutes
+12:58:16 <michaelS> benws_: would be in favour of an RDF-based canonical specification
+12:58:28 <benws_> q?
+12:58:29 <simonstey> https://www.w3.org/2016/05/09-poe-minutes
+12:58:31 <ivan> ack benws_
+12:58:39 <michaelS> ... we should look at that again after having published this draft
+12:58:41 <benws_> ack b
+12:58:51 <benws_> ack i
+12:59:07 <benws_> +1
+12:59:39 <michaelS> ivan: saw no problem to have XML implementations and its specific syntax, but this must not drive the information model
+13:00:17 <michaelS> renato: the Information Model is based on UML and not on XML!!
+13:01:13 <michaelS> ivan: then the conflict is: UML model vs RDF model. These models cannot be mixed. And UML is not even mentioned anywhere in the Information Model document
+13:01:39 <benws_> q?
+13:01:57 <renato> Resolution: Publish new working draft of "ODRL Information Model" https://w3c.github.io/poe/model/
+13:02:25 <michaelS> subtopic: deliverables - Vocabulary Document
+13:02:45 <renato> https://github.com/w3c/poe/issues/101
+13:03:02 <michaelS> renato: a few small updates were done - but some issues are still open, e.g. 101
+13:03:45 <michaelS> ... the ontology was improved.
+13:03:46 <benws_> q?
+13:04:15 <michaelS> benws_: discussion about normative vs non-normative
+13:04:41 <michaelS> ... phila had proposed to have only a few normative terms
+13:04:55 <ivan> +1 to Ben
+13:05:07 <michaelS> ... in the current version of the document we have no explicit "normative" terms and many non-normative terms
+13:05:42 <michaelS> renato: agreed to apply this change in a future version
+13:06:15 <michaelS> benws_: what are the criteria for making something normative
+13:06:19 <ivan> q+
+13:06:32 <michaelS> renato: based on statistics from usages of ODRL
+13:06:35 <benws_> q?
+13:07:07 <michaelS> ivan: renato's argument is very pragmatic - does not support it.
+13:07:47 <michaelS> ... the normative terms should build a scafolding and the non-normative terms may be added
+13:07:56 <benws_> q?
+13:08:02 <michaelS> q+
+13:08:34 <renato> q+
+13:08:36 <michaelS> benws_: in the Action terms use and transfer should be normative
+13:08:45 <michaelS> q-
+13:08:46 <benws_> ack iv
+13:09:44 <michaelS> renato: that's another way to find the normative terms.
+13:11:02 <michaelS> ivan: an distinction should be "core" and "additional" terms - this should be based on the information model
+13:11:12 <benws_> q?
+13:11:18 <renato> q-
+13:11:22 <renato> Proposal: Publish new working draft of "ODRL Vocabulary & Expression" https://w3c.github.io/poe/vocab/
+13:11:30 <ivan> +1
+13:11:31 <renato> +1
+13:11:35 <Sabrina> +1
+13:11:37 <benws_> +1
+13:11:41 <simonstey> +1
+13:11:45 <michaelS> +1
+13:11:45 <victor> +1
+13:12:08 <michaelS> Resolution: Publish new working draft of "ODRL Vocabulary & Expression" https://w3c.github.io/poe/vocab/
+13:12:28 <simonstey> http://w3c.github.io/poe/ucr/
+13:12:37 <simonstey> https://www.w3.org/2016/11/07-poe-minutes#resolution02
+13:12:44 <michaelS> subtopic: deliverables - Use Case & Requirements
+13:13:20 <michaelS> simonstey: gave an overview: went over UC and checked relationships to Requirements - edited some of them
+13:14:16 <michaelS> ... requirements which are already covered where "retired" - by strikthrough
+13:14:20 <benws_> q?
+13:15:28 <michaelS> victor: asked: how long will the Wiki page with use cases exist?
+13:15:36 <benws_> q?
+13:15:53 <michaelS> ivan: forever - but it will be frozen at the end of the standardisation work
+13:16:17 <ivan> q+
+13:16:45 <ivan> ack iv
+13:16:50 <michaelS> simonstey: did some small edits in the UC Wiki doc to fix errors
+13:17:47 <benws_> q?
+13:18:05 <renato> Proposal: Publish new working draft of "POE Use Cases and Requirements" https://w3c.github.io/poe/ucr/
+13:18:09 <simonstey> +1
+13:18:12 <renato> +1
+13:18:13 <Sabrina> +1
+13:18:15 <benws_> +1
+13:18:20 <ivan> +1
+13:18:22 <michaelS> +1
+13:18:39 <victor> +1 (again, I have not read it since long, but I rely on future changes to improve possibles areas)
+13:18:52 <michaelS> Resolution: Publish new working draft of "POE Use Cases and Requirements" https://w3c.github.io/poe/ucr/
+13:19:31 <michaelS> benws_: three new drafts is a real progress
+13:19:52 <michaelS> renato: what needs to be done to publish the document ?
+13:20:17 <michaelS> ivan: the document have to be checked against the W3C publishing rules
+13:21:31 <ivan> https://www.w3.org/pubrules/
+13:21:42 <michaelS> ivan and simonstey discussed how to validated documents against the pub rules
+13:24:59 <michaelS> ivan: all three drafts should be checked by this rule checking system
+13:25:45 <simonstey> action-20
+13:25:46 <trackbot> action-20 -- Benedict Whittam Smith to Provide a list of roles that appear e.g. contracting party, acknowledging party -- due 2016-08-08 -- OPEN
+13:25:46 <trackbot> https://www.w3.org/2016/poe/track/actions/20
+13:25:54 <michaelS> Topic: Other business - actions
+13:27:24 <michaelS> topic: London face-to-face
+13:28:16 <michaelS> renato: the ODRL Community will be invited as observers
+13:28:39 <michaelS> benws_: Thomson Reuters will host the meeting
+13:29:56 <renato> RRSAgent, make logs public
+13:31:25 <renato> RRSAgent, make logs public
+13:37:18 <ivan> rrsagent, draft minutes
+13:37:18 <RRSAgent> I have made the request to generate http://www.w3.org/2017/02/20-poe-minutes.html ivan

@@ -72,7 +72,7 @@ function dispose_output(md_content) {
 */
 // Error handling must be added!!!
 const url     = require('url');
-const convert = require('convert');
+const convert = require('./convert');
 if( url.parse(inp).protocol !== null ) {
 	// This is a resource on the Web that must be fetched
 	const fetch  = require('node-fetch');
