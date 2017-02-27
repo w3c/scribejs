@@ -2,6 +2,7 @@
 // Get the configuration data
 const config = require('./conf').get_config();
 // console.log(JSON.stringify(config))
+// process.exit(0)
 
 /************************************************************/
 

@@ -4,25 +4,29 @@
 const _      = require('underscore');
 const moment = require('moment');
 const fs     = require('fs');
+const path   = require('path');
 
 
 exports.get_config = () => {
-	function json_conf_file(fname) {
+	function json_conf_file(fname, warn) {
 		let file_c = null;
 		try {
 			file_c = fs.readFileSync(fname, "utf-8")
 		} catch(e) {
-			console.error(`Warning: no such file: ${fname}!\n`)
+			if(warn) console.error(`Warning: no such file: ${fname}!\n`)
 			return {};
 		}
 		try {
-			return JSON.parse(file_c);
+			retval = JSON.parse(file_c);
+			if(retval.date !== undefined && retval.date !== null) {
+				retval.date = moment(retval.date);
+			}
+			return retval;
 		} catch(e) {
 			console.error(e);
 			return {};
 		}
 	}
-
 
 	function month_date(date) {
 		/**
@@ -80,9 +84,11 @@ exports.get_config = () => {
 	if(args.i !== undefined) argument_config.input = args.i;
 
 	// See if there is a json configuration file whose that is explicitly provided:
-	let file_config = (args.c !== undefined) ? json_conf_file(args.c) : {};
+	let file_config = (args.c !== undefined) ? json_conf_file(args.c, true) : {};
+	let user_config = (process.env.HOME !== undefined) ? json_conf_file(path.join(process.env.HOME, ".scribejs.json"), false) : {};
 
-	retval = _.extend(default_config, file_config, argument_config);
+	retval = _.extend(default_config, user_config, file_config, argument_config);
+
 	// Some final cleanup:
 	if(retval.group !== null && retval.input === null) {
 		// Set the default IRC URL
@@ -92,7 +98,7 @@ exports.get_config = () => {
 	// Some assertion type thing should be raised here: if the input is not set, nothing should happen!
 	if(retval.input === undefined || retval.input === null || retval.input === "") {
 		// There is nothing to do!!
-		console.error("Error: no input is given!");
+		console.error("Scribejs error: no input is provided");
 		process.exit(-1);
 	}
 	return retval
