@@ -7,6 +7,23 @@ const fs     = require('fs');
 
 
 exports.get_config = () => {
+	function json_conf_file(fname) {
+		let file_c = null;
+		try {
+			file_c = fs.readFileSync(fname, "utf-8")
+		} catch(e) {
+			console.error(`Warning: no such file: ${fname}!\n`)
+			return {};
+		}
+		try {
+			return JSON.parse(file_c);
+		} catch(e) {
+			console.error(e);
+			return {};
+		}
+	}
+
+
 	function month_date(date) {
 		/**
 		* Extract the month and date numbers from a (moment) date object.
@@ -63,23 +80,9 @@ exports.get_config = () => {
 	if(args.i !== undefined) argument_config.input = args.i;
 
 	// See if there is a json configuration file whose that is explicitly provided:
-	let file_config = {};
-	if(args.c !== undefined) {
-		let file_c = null;
-		try {
-			file_c = fs.readFileSync(args.c, "utf-8")
-		} catch(e) {
-			console.error(`Warning: no such file: ${args.c}!\n`)
-		}
-		try {
-			file_config = JSON.parse(file_c);
-		} catch(e) {
-			console.error(e);
-			file_config = {};
-		}
-	}
+	let file_config = (args.c !== undefined) ? json_conf_file(args.c) : {};
 
-	retval = _.extend(default_config, argument_config, file_config);
+	retval = _.extend(default_config, file_config, argument_config);
 	// Some final cleanup:
 	if(retval.group !== null && retval.input === null) {
 		// Set the default IRC URL

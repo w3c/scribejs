@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-
 // Get the configuration data
 const config = require('./conf').get_config();
+// console.log(JSON.stringify(config))
 
 /************************************************************/
 
@@ -26,7 +26,7 @@ if( url.parse(config.input).protocol !== null ) {
 	fetch(config.input)
 		.then((response) => {
 			if(response.ok) {
-				response.text()
+				return response.text()
 			} else {
 				throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
 			}
@@ -42,11 +42,11 @@ if( url.parse(config.input).protocol !== null ) {
 	// This is a local file that must be read
 	const fs = require('fs');
 	fs.readFile(config.input, 'utf-8', (err,body) => {
-		if(err) throw err;
-		dispose_output(convert.to_markdown(config.input, body));
-	})
-	.catch((err) => {
-		console.error(`Problem reading ${config.input}; ${err.message}`)
-		process.exit(-1);
+		if(err) {
+			console.error(`Problem reading ${config.input}; ${err}`)
+			process.exit(-1);
+		} else {
+			dispose_output(convert.to_markdown(config.input, body));
+		}
 	})
 }
