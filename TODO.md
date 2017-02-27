@@ -6,3 +6,4 @@
 ## To do
 
 * Manage the output. Is it realistic at all to push things to github automatically?
+* Possibility to use a configuration file as part of an input, rather than command line arguments only
