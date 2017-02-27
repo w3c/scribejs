@@ -12,11 +12,24 @@ The script has been rewritten from scratch on top of node.js. The "entry point" 
          Default: today
 -w wg:   Name of the IRC channel used by the group.
          Default: dpub (just for testing…)
--i file: Local file name for the IRC log. If not set, the date
+-i file: Local file name or a full URL for the IRC log. If not set, the date
          and the wg is used to retrieve the IRC log from W3C’s date
 		 space using the conventions of RRSAgent
+-c file: Local configuration file in JSON format (see below). Command line
+         arguments have a higher priority.
 -o file: Where to put the output; otherwise goes to the standard
          output
+```
+
+Some of the values that can be set on a command line can also be collected in a JSON file. The keys are as follows (see the description of the command line for their explanation). Use only those keys that have a meaningful value.
+
+```JSON
+{
+	"date"   : "[Date in ISO Format]",
+	"group"  : "[Group's name]",
+	"input"  : "[Input]",
+	"output" : "[Output file name]"
+}
 ```
 
 
