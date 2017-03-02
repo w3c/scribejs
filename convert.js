@@ -199,6 +199,7 @@ exports.to_markdown = (inp, body) => {
 			return true;
 		}
 
+		// filter out all irc log lines that are related to header information
 		let processed_lines = _.chain(lines)
 			.filter((line) => !people("present", line))
 			.filter((line) => !people("regrets", line))
@@ -217,6 +218,74 @@ exports.to_markdown = (inp, body) => {
 	};
 
 	/**
+	* Handle the s/../.. type lines, ie, make changes on the contents
+	*/
+	function perform_changes(lines) {
+		let change_requests    = [];
+		let get_change_request = (str) => {
+			return str.match(/^s\/([\w ]+)\/([\w ]*)\/{0,1}(g|G){0,1}/) ||
+			       str.match(/^s\|([\w ]+)\|([\w ]*)\|{0,1}(g|G){0,1}/)
+		};
+		const marker           = "----CHANGEREQUESTXYZ----";
+
+		retval = _.chain(lines)
+			// Because the change is to work on the preceding values, the
+			// array has to be traversed upside down...
+			.reverse()
+		  	.map((line,index) => {
+				// Find the change requests, extract the values to a separate array
+				// and place a marker to remove the original request
+				// (Removing it right away is not a good idea, because things are based on
+				// the array index later...)
+				let r = get_change_request(line.content);
+	  			if(r !== null) {
+	  				// store the regex results
+	  				change_requests.push({
+	  					lineno : index,
+	  					from   : r[1],
+	  					to     : r[2],
+	  					g      : r[3] === "g",
+	  					G      : r[3] === "G",
+						valid  : true
+	  				});
+	  				line.content = marker
+	  			}
+	  			return line
+			})
+			.map((line,index) => {
+				// See if a line has to be modifed by one of the change requests
+				if(line.content !== marker) {
+					_.forEach(change_requests, (change) => {
+						// One change request: the change should occur
+						// - in any case if the 'G' flag is on
+						// - if the index is beyond the change request position otherwise
+						if(change.valid && line.content.indexOf(change.from) !== -1) {
+							if(change.G || index >= change.lineno) {
+								// Yep, this is to be changed
+								line.content = line.content.replace(change.from, change.to);
+							}
+							// If this was not a form of 'global' change then its role is done
+							// and the request should be invalidated
+							if(!(change.G || change.g)) {
+								change.valid = false;
+							}
+						}
+					})
+				}
+				return line
+			})
+			// Remove the markers
+			.filter((line) => (line.content !== marker))
+			// return the array into its original order
+			.reverse()
+			// done:-)
+			.value();
+
+		// console.log(change_requests)
+		return retval;
+	};
+
+	/**
 	* Generate the Header part of the minutes: present, guests, regrets, chair, etc.
 	*
 	* Returns a string with the (markdown encoded) version of the header.
@@ -227,7 +296,7 @@ exports.to_markdown = (inp, body) => {
 # Meeting: ${headers.meeting}
 **Date:** ${headers.date}
 
-See [Agenda]($headers.agenda) and [IRC Log](${inp})
+See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 ## Attendees
 **Present:** ${headers.present}
 
@@ -371,6 +440,20 @@ See [Agenda]($headers.agenda) and [IRC Log](${inp})
 		}
 	}
 
+
+	// The real steps...
+	// 1. cleanup the content, ie, remove the bot commands and the like
+	// 2. separate the header information (present, chair, date, etc)
+	//    from the 'real' content. That real content is stored in an array
+	//    {nick, content} structures
 	let {headers, lines} = set_header(cleanup(body));
+
+	// 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
+	lines = perform_changes(lines)
+
+	// 4. Generate the header part of the minutes (using the 'headers' object)
+	// 5. Generate the content part, that also includes the TOC and the list of resolutions
+	//    (using the 'lines' array of objects)
+	// 6. Return the concatenation of the two
 	return (generate_header_md(headers) + generate_content_md(lines))
 }

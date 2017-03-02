@@ -1,0 +1,565 @@
+16:23:07 <RRSAgent> RRSAgent has joined #dpub
+16:23:07 <RRSAgent> logging to http://www.w3.org/2017/02/27-dpub-irc
+16:23:09 <trackbot> RRSAgent, make logs public
+16:23:09 <Zakim> Zakim has joined #dpub
+16:23:11 <trackbot> Zakim, this will be dpub
+16:23:11 <Zakim> ok, trackbot
+16:23:12 <trackbot> Meeting: Digital Publishing Interest Group Teleconference
+16:23:12 <trackbot> Date: 27 February 2017
+16:23:15 <ivan> Chair: Garth
+16:23:32 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Feb/0044.html
+16:23:48 <ivan> ivan has changed the topic to: agenda for 2017-02-27: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Feb/0044.html
+16:23:56 <ivan> Regrets: Nick
+16:47:42 <rdeltour> rdeltour has joined #dpub
+16:56:32 <Rick_Johnson> Rick_Johnson has joined #dpub
+16:56:40 <Rick_Johnson> present+ RIck_Johnson
+16:57:08 <leonardr> leonardr has joined #dpub
+16:57:27 <leonardr> present+ Leonard
+16:57:36 <Avneesh> Avneesh has joined #dpub
+16:58:05 <Avneesh> present+ Avneesh
+16:58:28 <ivan> Present+
+16:58:43 <HeatherF> HeatherF has joined #dpub
+16:59:16 <Vlad> Vlad has joined #dpub
+16:59:23 <BillMcCoy> BillMcCoy has joined #dpub
+16:59:51 <leonardr_> leonardr_ has joined #dpub
+17:00:01 <dauwhe> present+ dauwhe
+17:00:08 <Karen> present+ Karen
+17:00:10 <laudrain> laudrain has joined #dpub
+17:00:47 <laudrain> present+
+17:01:02 <Garth> Garth has joined #dpub
+17:01:06 <cmaden2> cmaden2 has joined #dpub
+17:01:14 <rdeltour> present+
+17:01:45 <Bill_Kasdorf> Bill_Kasdorf has joined #dpub
+17:01:58 <Bill_Kasdorf> present+ Bill_Kasdorf
+17:02:03 <cmaden2> present+ Chris_Maden
+17:02:22 <pkra> pkra has joined #dpub
+17:02:23 <clapierre1> clapierre1 has joined #DPUB
+17:02:37 <pkra>   present+ Peter Krautzberger
+17:02:55 <Karen> scribenick: Karen
+17:02:57 <pkra> *hides in the shadows*
+17:03:01 <Vlad> present+
+17:03:13 <clapierre> clapierre has joined #DPUB
+17:03:13 <Bert> present+
+17:03:13 <Bert> present+ Charles
+17:03:17 <Karen> Garth: we look to have a critical mass
+17:03:23 <astearns> present+
+17:03:27 <Karen> …Last Monday was a holiday in the states, so maybe that helped
+17:03:31 <Karen> …Minutes are in the agenda
+17:03:35 <Karen> …they looked ok to me
+17:03:40 <Karen> …any objections to minute approval?
+17:03:41 <Garth> q?
+17:03:51 <Karen> …Silence being consent, let's note that they minutes are approved
+17:03:52 <Karen> Topic: New participants
+17:04:03 <Karen> Garth: Looking at irc, I'll call out some of the new-comers we are expecting
+17:04:16 <Karen> …Jonathan Hevenstone from Atypon/Wiley membership
+17:04:25 <Karen> …hope he is here and will be contributing shortly
+17:04:28 <dkaplan3> present+ Deborah_Kaplan
+17:04:29 <Karen> …and Nick Brown from Ingram
+17:04:35 <Karen> Nick: yes, I am here
+17:04:44 <Karen> Garth: want to give us a brief introduction
+17:04:56 <Karen> Nick: I work with Ingram, specifically Vital Source
+17:05:02 <Karen> …work on our ereader applications
+17:05:11 <Karen> …we are huge proponents of EPUB
+17:05:18 <Karen> …work closely with Rick Johnson whom you know
+17:05:23 <Karen> Garth: welcome aboard
+17:05:29 <Karen> …And @ with Pearson
+17:05:34 <Karen> …she joined and sent regrets
+17:05:50 <Garth> q?
+17:05:59 <Karen> …his company Atypon was acquired by Wiley
+17:06:04 <Karen> Jonathan: I just joined
+17:06:11 <Karen> …is there a question about the involvement we will have?
+17:06:24 <Karen> Garth: you don't have to divulge secrets; just give us an introduction about you
+17:06:35 <Karen> Jonathan: I was involved in IDPF when we were developing the first EPUB spec
+17:06:44 <Karen> …working with Publishing Dementions, later acquired by Jouve
+17:06:47 <nickbrown> nickbrown has joined #dpub
+17:06:53 <Karen> …Atypon is a tech company acquired by Wiley in October
+17:06:55 <Karen> …we host about
+17:07:01 <Karen> …30 percent of world's journal articles
+17:07:09 <Karen> …in terms of current front list
+17:07:14 <Karen> …and will grow to 40 percent with Wiley
+17:07:15 <brady_duga> brady_duga has joined #dpub
+17:07:19 <david_stroup> david_stroup has joined #dpub
+17:07:23 <Karen> …online hosting, content development and monetization
+17:07:29 <brady_duga> present+ duga
+17:07:30 <brady_duga> present+ david_stroup
+17:07:29 <Garth> q?
+17:07:29 <Karen> …Some publishers have EPUB to download
+17:07:35 <Karen> …we don't provide solutions for viewing them
+17:07:52 <Karen> …we are launching a new in-browser, Readium based reader, to deliver journal articles in that format
+17:08:01 <Karen> …address light-way copyright and annotation
+17:08:05 <Karen> Garth: Welcome back into the fold
+17:08:07 <ivan> Present+ Jonathan
+17:08:09 <Karen> Jonathan: thanks, this is fun
+17:08:14 <ivan> zakim, who is here?
+17:08:14 <Zakim> Present: RIck_Johnson, Leonard, Avneesh, ivan, dauwhe, Karen, laudrain, rdeltour, Bill_Kasdorf, Chris_Maden, Peter, Krautzberger, Vlad, Bert, astearns, Deborah_Kaplan, duga,
+17:08:18 <Zakim> ... Jonathan
+17:08:18 <Zakim> On IRC I see david_stroup, brady_duga, nickbrown, clapierre, pkra, Bill_Kasdorf, cmaden2, Garth, laudrain, Leonard, BillMcCoy, Vlad, HeatherF, Avneesh, Rick_Johnson, rdeltour,
+17:08:18 <Zakim> ... Zakim, RRSAgent, dkaplan3, Karen, chaals, ivan, dauwhe, liam, astearns, plinss, Bert, trackbot, JakeA, bigbluehat, iank_
+17:08:27 <ivan> Present+ Nick_Brown
+17:08:39 <Karen> Garth: I'll give Carley from Pearson a chance to say high; but she sent regrets
+17:08:47 <ivan> Topic: Publishing Business Group update
+17:08:48 <ivan> Present+ BillMcCoy, Garth
+17:08:51 <Karen> …I believe Bill McCoy is on the call to give us an update on the PBG
+17:09:03 <Karen> BillMcCoy: The Publishing Business Group is formed
+17:09:14 <dauwhe> https://www.w3.org/community/publishingbg/
+17:09:19 <Karen> …if you are not sure if your org is eligible, just clicked the join link and we'll address it manually
+17:09:34 <Karen> …First Publishing BG meeting is 10:30am-2:30pm London time
+17:09:44 <Karen> …there is a list, but people are still arriving
+17:09:53 <Karen> …we have a special TPI program for eligible IDPF members
+17:10:07 <Karen> …we should start having email exchanges on the Publishing BG shortly
+17:10:19 <Karen> …the steering committee is active, which is the former IDPF board members
+17:10:31 <Karen> …ultimately the PBG will elect the steering committee
+17:10:34 <Karen> …Agenda is there
+17:10:43 <Karen> …Expect discussions about charter will take place on GitHub
+17:10:49 <ivan> details on the meeting in London: https://www.w3.org/wiki/PublishingBG/meeting/2017-03-13#March_13.2C_2017_Kick-Off_Meeting
+17:10:55 <Karen> …there will be people in Publishing BG who are not part of this group, mainly for historical reasons
+17:11:00 <Garth> q?
+17:11:02 <bigbluehat> Present+ Benjamin_Young
+17:11:12 <Karen> …to be as inclusive as possible, would be good if the charter discussions happened in GitHub
+17:11:18 <Karen> …Do you want more details?
+17:11:26 <Karen> Garth: any input as to how the Business Group
+17:11:38 <Karen> …which is expected to provide input to the charter of the WG
+17:11:44 <Karen> …how that process will go, and timing thereof?
+17:11:45 <Karen> s/Garth/GarthConboy/G
+17:12:00 <Karen> BillMcCoy: Chartering of a WG at W3C has many steps, unlike the CG and BGs
+17:12:11 <Karen> …a WG has a number of more steps, including consent of all the W3C members
+17:12:33 <Karen> …we want to get that done as soon as possible, but we want to be inclusive to the whole publishing community
+17:12:36 <Karen> …a balancing act
+17:12:44 <Karen> …this group is ready to move on with the strawman draft charter
+17:12:51 <Karen> …there seems to be significant consensus
+17:13:05 <Karen> …but key factor is to get broader feedback from the community that has not been here for the past two years
+17:13:12 <Karen> …have the charter be attractive to the broader industry
+17:13:17 <Karen> …I don't think it will be that long
+17:13:22 <Karen> …this group has done an excellent job
+17:13:33 <Karen> …I hope the BG can get to a 'looks good to us'
+17:13:36 <Garth> q?
+17:13:37 <Karen> …I'm an optimist
+17:13:42 <Leonard> Q+
+17:13:55 <Karen> …hope we can get to this step quickly and get a new WG in place this spring, which is what I think everyone wants to happen
+17:14:03 <Karen> Leonard: Bill, do have any thoughts on how you see conflicts?
+17:14:14 <Karen> …you'd like to hope no bumps in the road
+17:14:25 <Karen> …but on off chance there is a conflict between BG and those who have been working already
+17:14:36 <Karen> …towards this effort, do you have a feeling on how those would be resolved?
+17:14:51 <Karen> BillMcCoy: we have chairs, self-nominated from among the steering committee
+17:15:10 <Karen> …those co-chairs are Paul Belfonti, Rick Johnson and Cristina Mussinelli
+17:15:17 <Karen> …so not a question of which group
+17:15:23 <ivan> s|Belfonti|Belfanti|
+17:15:24 <Karen> …or one of people seeing it for the first time next week
+17:15:30 <Karen> …different perspectives
+17:15:42 <Garth> ack Leo
+17:15:43 <Karen> …from those who have been working on it v those who just arrived
+17:16:00 <Karen> …as you know, the draft charter has been sent to the W3C Advisory Committee
+17:16:05 <Karen> …we want to broaden the perspective
+17:16:10 <dauwhe> q+
+17:16:11 <Karen> …process of consensus is magical
+17:16:31 <Karen> …but I'm confident for Paul, Rick, Cristina, Garth and Tzviya working with Ivan and me
+17:16:48 <Karen> …I hope we get better than rough consensus, but will be pleasantly surprised if we do
+17:16:56 <Karen> Garth: I'm even more of an optimist and will second that
+17:16:56 <dauwhe> q?
+17:17:01 <Garth> q?
+17:17:07 <Karen> …if no more commentary on business group or process stuff
+17:17:15 <Garth> ack dau
+17:17:17 <Karen> Dave: We had some earlier details about 11:30- 2:30
+17:17:22 <Karen> …wiki says 11:30-2:30
+17:17:24 <Karen> +1
+17:17:49 <Karen> Karen: the wiki is correct
+17:18:26 <Bill_Kasdorf> Karen, I think you mis-typed above, it says the wiki says 11:30
+17:18:42 <Karen> s/11:30/10:30am Start
+17:18:53 <Karen> Garth: yes, 10:30am start
+17:18:59 <Karen> Bill: hope everyone can attend
+17:19:08 <ivan> Topic: remaining Technical Issues
+17:19:10 <BillMcCoy> publishing business group home page: https://www.w3.org/community/publishingbg/
+17:19:12 <Karen> Garth: wold be good to publish a less drafty charter
+17:19:21 <Karen> …last week we had two action items jointly on Leonard and David's plate
+17:19:27 <Karen> …online offline and manifest
+17:19:34 <Karen> …chit chat on mailing list this morning
+17:19:38 <Karen> …David's comment
+17:19:41 <BillMcCoy> march 13 kickoff meeting agenda: https://www.w3.org/wiki/PublishingBG/meeting/2017-03-13#March_13.2C_2017_Kick-Off_Meeting
+17:19:45 <Karen> …pull link to draft charter under section 2
+17:19:48 <Karen> …bullet 4 and 5
+17:19:59 <Karen> …the one talking about offline, second one talking about manifest
+17:20:05 <Karen> …I saw the email from David, and will be quiet
+17:20:09 <Karen> …and not propose language
+17:20:16 <Karen> …the current text in the draft charter
+17:20:18 <ivan> current github issue on online/offline: https://github.com/w3c/dpub-pwp/issues/41
+17:20:24 <Karen> …says [reads]
+17:20:43 <Karen> …email from Dave this morning was let's stay the course and leave that alone
+17:20:43 <Garth> q?
+17:20:49 <ivan> q+
+17:20:49 <Karen> …I don't think that is in the camp Leonard is in
+17:20:50 <Leonard> Q+
+17:20:56 <Garth> q?
+17:20:56 <BillMcCoy> side note that W3C is co-sponsoring the EPUB Summit Europe 2017 on march 8-9 in Brussels still time to register see https://www.edrlab.org/epub-summit-2017/
+17:21:00 <Karen> …not sure if you have synched on this, proposed language
+17:21:03 <Karen> ack Ivan
+17:21:10 <Karen> Ivan: I see question update on irc
+17:21:15 <Karen> …at this moment if we can set a priority
+17:21:21 <Karen> …of the @draft
+17:21:32 <Karen> …I think we have to be in a position of publishing that as well as the ucr asap
+17:21:41 <Karen> …to make it a better document input to the charter process
+17:21:45 <Karen> …that is my priority
+17:21:52 <Karen> …taking into account all things Bill explained
+17:22:05 <Karen> …I am uneasy to touch the charter until the business group is up and running
+17:22:16 <Karen> …I would be uneasy to change things significantly on the charter
+17:22:19 <dauwhe> q+
+17:22:21 <Karen> Garth: maybe an ignorant comment
+17:22:34 <Karen> …I thought the online/offline had been agreed to in the PWP document; is that untrue?
+17:22:37 <Karen> Ivan: It's untrue
+17:22:49 <Karen> …we had a discussion two weeks ago; nothing has changed in PWP document
+17:23:01 <Karen> Garth: I thought it was totally on the charter?
+17:23:07 <Karen> …and not the PWP document
+17:23:19 <Karen> Ivan: It started with some questions that Leonard asked about the PWP document
+17:23:27 <Karen> Leonard: it has gone back and forth
+17:23:37 <Karen> …some stuff copied one from the other document but it's not in synch
+17:23:48 <Garth> q?
+17:23:54 <Karen> …I thought we were going to agree on language in charter and back it into PWP doc; but I don't care which way we go
+17:24:09 <Karen> Ivan: I thought it was the opposite; get the PWP text right and then moving that to the charter
+17:24:17 <Karen> …but I think it can lead to non-technical issues
+17:24:35 <Karen> Leonard: I would rather have the charter text better so that the BG is reading something this group is happy with
+17:24:40 <Karen> Garth: I think there is some possibility
+17:24:55 <Karen> …'that this looks good to us' from business group
+17:25:06 <Karen> …charter is more consumable than PWP and will get more consumption for that reason
+17:25:12 <Karen> …perhaps I neglected to ask you
+17:25:23 <Karen> …Leonard, is there language on the charter language that you and Dave agree upon?
+17:25:36 <Karen> Leonard: that was fine for me; I can completely live with what is there today
+17:25:38 <Garth> q?
+17:25:42 <Garth> ack Leo
+17:25:47 <Garth> ack dau
+17:25:52 <Karen> Garth: that sounds like a halleluia
+17:26:07 <Karen> …I read and that is what it says
+17:26:12 <Karen> …so if Leonard and Dave are happy
+17:26:23 <Karen> …then let's go with what we have there, and maybe we can declare victory
+17:26:31 <Garth> q?
+17:26:33 <Karen> …and I believe Dave is correct that we do match between charter and PWP
+17:26:48 <Karen> …don't want to be quiet for any further disagreement
+17:26:57 <Karen> …Let's note we have reached resolution in online and offline documents
+17:27:04 <Karen> …That brings us to the manifest discussion
+17:27:05 <Karen> Subtopic: Manifests
+17:27:12 <Karen> Garth: the other one that Dave and Leonard were going to synch on
+17:27:24 <Karen> …again, let me read a few sentences from the draft charter [reads]
+17:27:54 <Karen> …there was discussion two weeks ago about @ and presentation
+17:27:59 <Garth> q?
+17:28:02 <Karen> …or trim that paragraph ever so slightly
+17:28:04 <Karen> …any input
+17:28:17 <Karen> Dave: I apologize for not reaching out to Leonard to work on that language
+17:28:20 <Leonard> Mea culpa from me too...
+17:28:25 <Karen> Garth: happy to open up for some discussion now
+17:28:34 <Karen> …on that
+17:28:43 <Leonard> Q+
+17:28:47 <Karen> …my two cents worth is whether manifest is "M" or "m" as loose term
+17:28:48 <dauwhe> q+
+17:28:53 <Karen> …needs to be something about sequence somewhere
+17:29:02 <Karen> …one can argue about sequence and presentation
+17:29:13 <Karen> …I believe that was Leonard's proposal to drop sequence and presentation
+17:29:21 <Karen> …I expect we'll dig into that when we have the WG going
+17:29:27 <Karen> Leonard: my issue remains
+17:29:43 <Karen> …we can talk about sequence and presentation in the context of metadata and manifest
+17:30:03 <Karen> …but constituent resources implies images and fonts and data that have nothing to do with sequence and presentation
+17:30:13 <Karen> …I would put a period after presentation
+17:30:23 <hadrien> hadrien has joined #dpub
+17:30:30 <Karen> …and end after sequence and presentation…full stop
+17:30:36 <Karen> Dave: I'm fine with that, too
+17:30:51 <Karen> …manifest will need various information besides raw accounting of constituent resources
+17:30:55 <Karen> Leonard: Let me write something in irc
+17:30:56 <Karen> +1
+17:30:58 <BillMcCoy> I just recommend that we do this all via github issues not via this meeting
+17:31:08 <Karen> Garth: I propose we take a 25 second break for that post to come in
+17:31:17 <BillMcCoy> take it now and put it in as a github issue??
+17:31:20 <Karen> Garth: Appreciate Bill's comment, but I want to take it now
+17:31:25 <Karen> …and get it back into the draft
+17:31:27 <Leonard> "The metadata and manifest will also incorporate information about the sequence and presentation of the content"
+17:31:27 <Karen> …ok, Bill
+17:31:33 <BillMcCoy> so that draft changes come via github issues...
+17:31:41 <Garth> q?
+17:31:41 <Karen> Leonard: take as is, or word smith ok
+17:31:47 <Karen> Ivan: Make it clear that this includes the fact that
+17:31:58 <Karen> …resource of publication [full stop] and then your phrase
+17:32:06 <Karen> Leonard: yes, that was implied
+17:32:07 <dauwhe> q-
+17:32:10 <Leonard> Q-
+17:32:10 <Karen> Garth: That looks fine to me
+17:32:11 <Garth> q?
+17:32:16 <Bill_Kasdorf> +1
+17:32:16 <Karen> …This is great
+17:32:20 <ivan> q+ to practicalities
+17:32:21 <ivan> Topic: Publishing Practicalities on Charter
+17:32:21 <Karen> Garth: Let's get that change into the charter
+17:32:36 <Karen> …and then we have both offline and Leonard or Ivan, who wants to do the charter change?
+17:32:43 <Karen> ack Ivan
+17:32:43 <Zakim> ivan, you wanted to practicalities
+17:32:51 <Karen> Ivan: I will do this change on the charter tomorrow morning my time
+17:32:56 <Karen> …and some minor organizational things
+17:33:05 <Karen> …and I'll check if same language is used on draft
+17:33:09 <Karen> …make sure they are both in synch
+17:33:18 <Karen> …eager to see these be as mature as possible
+17:33:21 <Karen> Garth: Great
+17:33:42 <Karen> …if we can not re-open the online/offline and manifest discussions until we get to charter review or the real WG
+17:33:48 <Avneesh> q+
+17:33:55 <dkaplan3> q+
+17:33:55 <Karen> …Do we have an update from the Accessibility TF from the recharter update?
+17:33:58 <dkaplan3> q-
+17:33:58 <Garth> q?
+17:33:59 <Karen> ack Avneesh
+17:34:14 <Karen> Avneesh: Yes, so we have defined the task further; it was posted to the mailing list
+17:34:19 <Karen> …we have not received all responses
+17:34:30 <Karen> …but we have received some and it looks like it is moving towards resolution
+17:34:36 <Karen> …some people traveling to CSUN
+17:34:45 <Karen> …may be why responses are slow
+17:34:48 <Karen> s/slow
+17:35:00 <Karen> Garth: You would get consensus in the TF and then propose language to the larger group?
+17:35:06 <Karen> Avneesh: yes, that is the plan
+17:35:16 <Garth> q?
+17:35:23 <dkaplan3> q+
+17:35:25 <Karen> George: Avneesh and I have agreed on what we think is the right language
+17:35:33 <Karen> …Charles, Deborah, others, happy to have you chime in
+17:35:40 <Karen> …but want to make sure others have a chance to look at it
+17:35:46 <ivan> q+
+17:35:57 <Karen> Garth: If that can be driven forward in next couple of days, and then put on agenda for a week from today
+17:36:10 <Garth> q?
+17:36:10 <dkaplan3> q-
+17:36:14 <Karen> …or let us know we don't have to talk about; or as agenda, that would be awesome
+17:36:16 <Karen> ack Dave
+17:36:23 <Karen> Deborah: that should be fine
+17:36:29 <Karen> …conversations on email list this morning
+17:36:32 <Karen> …should not be a problem
+17:36:33 <Garth> q?
+17:36:36 <Karen> …just have to make things shorter
+17:36:41 <Karen> Garth: Short is always good
+17:36:53 <Karen> …Ivan, I was going to ask him to talk logistics about getting these docs public
+17:36:58 <Karen> Ivan: essentially yes
+17:37:06 <Karen> …the changes we discussed earlier reflect consensus
+17:37:15 <Karen> …so I will put into the main branch tomorrow morning
+17:37:22 <Leonard> +1
+17:37:26 <Karen> …but I would like to put the Accessibility into a separate pull request
+17:37:34 <Karen> …and not put that directly into the main branch
+17:37:40 <Karen> …put into a separate branch
+17:37:43 <Karen> …The other question is that
+17:37:56 <Karen> …the discussion we are having for the Accessibility is really relevant for the draft
+17:38:00 <Karen> …I think the draft is ok
+17:38:19 <Karen> …we are word smithing here to be appropriate, but not really appropriate for the draft
+17:38:26 <Karen> …shall I talk about practicalities?
+17:38:38 <Karen> Garth: Next agenda item is next steps, so yes, Ivan
+17:38:46 <Karen> Ivan: the charter we have discussed it will be there
+17:39:00 <Karen> …at this moment I know there are two open issues in the issue list
+17:39:08 <Karen> …which I propose this group not get into too much
+17:39:17 <Karen> …they are much more business rather than technical questions
+17:39:23 <Karen> …Bill McCoy can tell me if I am right or not
+17:39:39 <Karen> …one issue is around the exact position of WP v EPUB 4
+17:39:46 <Karen> …what do we mean by backward compatibility
+17:39:58 <Karen> …which I expect will be a larger discussion with BG and AC
+17:40:05 <Karen> …we should not touch that right now
+17:40:10 <Karen> …Other comment that came up
+17:40:15 <Karen> …comments on issue of DRM
+17:40:24 <Karen> …I welcome you to look at the few issues there
+17:40:36 <Karen> …again, I think this is more up the alley of the BG
+17:40:40 <Karen> …am I right, Bill?
+17:40:53 <Karen> Bill: not sure what the engagement will be, but I do agree the BG is the right place for the discussion
+17:40:58 <Garth> q?
+17:41:02 <Karen> …since we don't have the BG rolling, it's more hypothetical
+17:41:07 <Karen> …I don't disagree with you
+17:41:22 <Karen> Garth: maybe I'm taking more happy pills than Bill on EPUB4 backward compatability
+17:41:30 <Karen> …it has somewhat petered out
+17:41:36 <Karen> …maybe we are close to a resolution on that
+17:41:40 <Karen> Ivan: I am less optimistic
+17:41:43 <Karen> …I think everyone is waiting
+17:41:59 <dauwhe> q+
+17:42:05 <Karen> …one of people who started the discussion is Daniel Glazman, who realizes where this conversation will take place
+17:42:08 <Karen> Garth: we shall see
+17:42:16 <Garth> q?
+17:42:18 <Karen> …Daniel is not shy about disagreeing with me
+17:42:20 <Karen> Ivan: agreed
+17:42:26 <Karen> Garth: Who else...
+17:42:26 <Garth> ack ivan
+17:42:33 <Karen> Ivan: I will go on with the other documents
+17:42:35 <Karen> …let's get Dave
+17:42:40 <Karen> ack Dave
+17:42:49 <Karen> Dave: Another question about the scope of the EPUB3 CG
+17:42:55 <Karen> …what branch will be acceptable
+17:43:01 <Karen> Ivan: to come back to the other two documents
+17:43:13 <Karen> …those two are ready to be published as drafts
+17:43:22 <Karen> …we had short discussion about whether they should be drafts or notes
+17:43:27 <Karen> …Dave said should not be a note
+17:43:38 <Karen> …I am lukewarm on both sides, just important to have them be published
+17:43:46 <Karen> …I will go through the documents, mainly editorially
+17:43:55 <Karen> …Respect comes up with a few things
+17:43:56 <Garth> q?
+17:44:05 <Leonard> Q+
+17:44:13 <Karen> …I will get both docs into a format that can be published right away and we should have a resolution to publihs
+17:44:21 <Garth> ack dau
+17:44:23 <Karen> …and then I take care of it with the W3C web master
+17:44:27 <Karen> Garth: Dave?
+17:44:35 <Karen> …Leonard, go ahead
+17:44:35 <Karen> Topic: Section 3.2 in the charter (API-s)
+17:44:44 <Karen> Leonard: I will add to tracker; but we have not discussed 3.2
+17:44:51 <Karen> …whether we leave them in the initial charter or not
+17:44:57 <Karen> …under potential rec track deliverables
+17:45:07 <Karen> …someone has a comment on whether we go down that path at all
+17:45:10 <Karen> ivan: the someone is me
+17:45:26 <Karen> Leonard: we don't want charter to go out with that editorial note; so do we leave or remove 3.2
+17:45:39 <Garth> q?
+17:45:46 <Karen> Garth: my proposal that this is biting off more than we want to in this group, so we should remove, but open to other opinions
+17:45:50 <ivan> q+
+17:45:51 <Karen> Leonard: I agree with you
+17:45:52 <Garth> ack Leo
+17:46:00 <Karen> ..we should remove from charter, no active interest and we have enough to do
+17:46:01 <Rick_Johnson> +1 to remove for now
+17:46:04 <Karen> …we can always add work
+17:46:08 <Karen> ack Ivan
+17:46:16 <Karen> Ivan: point is we cannot add to group just like that
+17:46:24 <Karen> …what we put into charter later requires rechartering
+17:46:41 <Leonard> Q+
+17:46:44 <Karen> …at the moment the text stays the following deliverables may be...[reads]
+17:46:59 <Karen> …the goal was, it leaves the door open but makes it dependent on some incubation coming in
+17:47:04 <Karen> …with that, I would propose leaving it in
+17:47:10 <Karen> …it may not fly with W3M or whomever
+17:47:15 <Garth> q?
+17:47:16 <Karen> …but at this moment I would be uneasy to take it out
+17:47:23 <Karen> …getting it in again may be much more difficult
+17:47:27 <Garth> ack Leo
+17:47:28 <Karen> Leonard: I would say the other way around
+17:47:38 <Karen> …well, if we take it out, we can do that work elsewhere
+17:47:40 <ivan> q+
+17:47:51 <Karen> …not every piece of publications work has to be in a single WG
+17:47:56 <Karen> …we are in agreement on the main points
+17:48:06 <Karen> …if someone actually came with an incubation or proposal, let's start another WG
+17:48:17 <Karen> …they are not core to our goals; let them happen somewhere else
+17:48:20 <Garth> ack ivan
+17:48:28 <Karen> Ivan: In general, I would agree with you
+17:48:43 <Karen> …the problem is that the current set-up with IDPF members is that they can only join one WG
+17:48:54 <dauwhe> q+
+17:48:55 <Karen> Leonard: But these things are completely new things, never discussed by the IDPF
+17:49:07 <Karen> Ivan: that is true; is it outside the interest?
+17:49:14 <Garth> a?
+17:49:16 <Garth> q?
+17:49:16 <BillMcCoy> q+
+17:49:24 <Karen> Leonard: maybe but they should become involved and join as full members
+17:49:29 <Karen> Dave: seems to be some fragmentation
+17:49:39 <Karen> …to spin up new groups for them
+17:49:45 <Garth> ack dau
+17:49:50 <Karen> …not have 70 different CSS WGs for example
+17:50:05 <Karen> BillMcCoy: This would be a great thing to discuss with the new PBG
+17:50:13 <Karen> …at end of the day we have to have an achievable WG charter
+17:50:23 <Karen> …but would not be terrible if scope is bigger than what is accomplished
+17:50:26 <Karen> …I can see both sides
+17:50:34 <Karen> …but I don't want to see a parallel working group
+17:50:42 <Karen> …for things that should be part of Publishing@W3C
+17:50:43 <Garth> q?
+17:50:49 <Garth> ack Bill
+17:50:57 <Karen> …the spirit of the commitment is to participate in Publishing@W3C things
+17:51:03 <Leonard> Q+
+17:51:06 <Karen> …and understood that it would be more than was at IDPF
+17:51:16 <ivan> q+
+17:51:19 <Karen> …not fully in agreement with Leonard, but I am also not insisting that things in 3.2 stay
+17:51:22 <Karen> …will be logical
+17:51:26 <Garth> q?
+17:51:26 <Karen> …sorry for mushy answer
+17:51:32 <Karen> Garth: I am in a similar mushy place
+17:51:32 <Rick_Johnson> q+
+17:51:39 <ivan> q-
+17:51:39 <Karen> …no way we can get to PWP mission
+17:51:55 <Karen> …if the text is here, we may do this, I don't have a lot of religion one way or another
+17:52:03 <Leonard> Q-
+17:52:05 <Karen> …whether we get too dinged as being too wishy-washy for charter
+17:52:06 <Garth> q?
+17:52:11 <Karen> …or if concern of BG
+17:52:14 <Karen> ack Rick
+17:52:18 <Karen> Rick: mostly an observer to this
+17:52:27 <Karen> …I had said +1 in the thread and wanted to explain my thoughts
+17:52:32 <Karen> …we feel like we want to talk about this
+17:52:42 <Karen> …and if we keep it as a placeholder, it makes it easier to talk about it
+17:52:48 <Karen> …I think we are talking a bit in circles there
+17:53:00 <Karen> …if after we form, and we want to talk about, that is the level for discussion for the charter
+17:53:05 <Garth> q?
+17:53:09 <Karen> …let's not confuse it by having a place there now
+17:53:15 <Karen> Garth: so your plus one is to remove for now
+17:53:33 <Garth> q?
+17:53:35 <Karen> Rick: yes, remove for now, and if we want to talk about it, bring about it through harder process and talk about it afterward
+17:53:41 <Karen> George: I have my hand up
+17:54:01 <Karen> …if this is not in the charter and we want to move it into the discussion, is that all 'legal' in W3C?
+17:54:12 <Karen> Ivan: That is what I was saying, can be done later but only if we re-charter
+17:54:26 <Karen> Garth: is that true if we define these APIs as part of WP, does charter limit us?
+17:54:31 <Karen> Ivan: I think that would be pushing it
+17:54:40 <BillMcCoy> q+
+17:54:42 <Karen> …I think we would be forced to make a new charter or recharter or create a new WG
+17:54:52 <Karen> …think about fact that we are talking about IPR commitments
+17:54:52 <Garth> q?
+17:55:02 <Karen> …not seeing charter without those IPR commitments
+17:55:21 <Karen> …would not think about APIs, except for company like Google that has a lot of APIs
+17:55:26 <Karen> Garth: I cede to your wisdom
+17:55:35 <Karen> BillMcCoy: Maybe a more general statement about APIs
+17:55:46 <Karen> …currently sounds like we have concrete plans for two APIs
+17:55:54 <Karen> …maybe a more general statement
+17:55:54 <ivan> q+
+17:55:58 <ivan> ack brady_duga
+17:55:59 <Garth> ack Bill
+17:56:01 <Karen> …without stating clearly what we want to do
+17:56:02 <ivan> ack BillMcCoy
+17:56:06 <Karen> Garth: I have little religion on this
+17:56:13 <Karen> …but want to get to another topic shortly
+17:56:22 <Karen> Ivan: I don't think what Bill is saying will fly
+17:56:25 <BillMcCoy> I defer to Ivan on what will fly w/ AC
+17:56:29 <Karen> …knowing how AC is working these days
+17:56:41 <Karen> …we refer to the PWP draft; gives some sort of technical background
+17:56:43 <Karen> …which is now
+17:56:46 <Karen> …leading to the charter
+17:56:52 <Karen> …that PWP draft has nothing about APIs
+17:56:57 <Karen> …I am a little afraid it will not fly
+17:57:01 <Karen> …Listening to the reactions
+17:57:07 <Karen> …I am fine if we decide to take it out
+17:57:16 <Karen> …I am a little worried if there is really a need
+17:57:29 <Karen> …Maybe what Rick said, if there is really a need, then a rechartering of the group may be a good thing to do
+17:57:40 <Karen> …it would draw attention of other companies and participants to specific work
+17:57:44 <Karen> …maybe that is a good thing to do
+17:57:47 <Karen> …I am not bound to keeping it
+17:58:02 <Karen> Garth:  I am personally happy taking it out under that wisdom
+17:58:16 <Karen> …i don't see us wanting to think about it impacting our work on WP and the P portion thereof
+17:58:30 <Karen> …are there others on the call who disagree with taking it out for now with any verve?
+17:58:38 <Karen> …Let's count that as consensus and remove 3.2 for now
+17:58:40 <Garth> q?
+17:58:41 <Karen> …Lastly
+17:58:48 <Garth> ack ivan
+17:58:50 <Karen> …ack Ivan
+17:58:54 <Karen> [previou]
+17:58:55 <BillMcCoy> again I recommend removing it via github issue so the edit history is clear to both AC reps who've received advance notice and new PBG members
+17:58:59 <Rick_Johnson> q+
+17:58:59 <Rick_Johnson> Topic: F2F meeting
+17:59:01 <Karen> Garth: last on the agenda
+17:59:15 <Karen> …proposed F2F for this group in NYC following BEA
+17:59:22 <Karen> …not too many people want to participate in the F2F
+17:59:32 <Karen> …realistically the same folks from BEA
+17:59:37 <Karen> …and not stay over the weekend
+17:59:55 <Karen> …Friday/Saturday is equally problematic for our Jewish contingent
+18:00:00 <Karen> …result from poll thus far
+18:00:05 <Karen> …and encourage others to fill out
+18:00:12 <Karen> …we have ten in person and five remote interested
+18:00:18 <Karen> …Tzviya seems to be willing to attend
+18:00:20 <Garth> q?
+18:00:24 <Karen> …i think we should stay the course with this schedule
+18:00:28 <Rick_Johnson> q-
+18:00:31 <Karen> …but encourage other people to flesh it out
+18:00:42 <Karen> …Ivan and I will be on an agenda planning call next week
+18:00:49 <Garth> q?
+18:00:53 <Karen> …Let's get together this following Monday
+18:01:01 <Karen> George: the 5th and 6th?
+18:01:04 <Karen> Garth: yes
+18:01:09 <Karen> …let's talk again next Monday
+18:01:10 <nickbrown> nickbrown has left #dpub
+18:01:14 <clapierre> clapierre has left #dpub
+18:01:15 <Karen> rrsagent, draft minutes
+18:01:15 <RRSAgent> I have made the request to generate http://www.w3.org/2017/02/27-dpub-minutes.html Karen
+18:01:21 <laudrain> laudrain has left #dpub
+18:01:30 <ivan> zakim, who is here?
+18:01:30 <Zakim> Present: RIck_Johnson, Leonard, Avneesh, ivan, dauwhe, Karen, laudrain, rdeltour, Bill_Kasdorf, Chris_Maden, Peter, Krautzberger, Vlad, Bert, astearns, Deborah_Kaplan, duga,
+18:01:34 <Zakim> ... Jonathan, Nick_Brown, BillMcCoy, Benjamin_Young
+18:01:34 <Zakim> On IRC I see hadrien, david_stroup, pkra, Bill_Kasdorf, cmaden2, Garth, BillMcCoy, Vlad, HeatherF, Rick_Johnson, Zakim, RRSAgent, Karen, chaals, ivan, dauwhe, liam, astearns,
+18:01:34 <Zakim> ... plinss, Bert, trackbot, JakeA, bigbluehat, iank_
+18:02:02 <cmaden2> cmaden2 has left #dpub
+18:02:18 <ivan> trackbot, end telcon
+18:02:18 <trackbot> Zakim, list attendees
+18:02:19 <Zakim> As of this point the attendees have been RIck_Johnson, Leonard, Avneesh, ivan, dauwhe, Karen, laudrain, rdeltour, Bill_Kasdorf, Chris_Maden, Peter, Krautzberger, Vlad, Bert,
+18:02:21 <Zakim> ... astearns, Deborah_Kaplan, duga, Jonathan, Nick_Brown, BillMcCoy, Benjamin_Young
+18:02:26 <trackbot> RRSAgent, please draft minutes
+18:02:26 <RRSAgent> I have made the request to generate http://www.w3.org/2017/02/27-dpub-minutes.html trackbot
+18:02:27 <trackbot> RRSAgent, bye
+18:02:27 <RRSAgent> I see no action items
+18:02:29 <pkra> pkra has joined #dpub
