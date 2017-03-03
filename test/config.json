@@ -1,3 +1,5 @@
 {
-	"group" : "xxx"
+	"group" : "xxx",
+	"repo"  : "w3c/scribejs",
+	"path"  : "test/Minutes"
 }

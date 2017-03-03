@@ -2,15 +2,21 @@ const _ = require('underscore');
 
 /**
  * Conversion of an RRS output into markdown. This is the real "meat" of the module...
+ *
+ * @param {string} inp - the name of the input file. This is just used to be stored as a reference
+ * @param {string} body - the IRC log
+ * @returns {string} - the minutes in markdown
  */
 exports.to_markdown = (inp, body) => {
 	/**********************************************************************/
 	/*                        Helper functions                            */
 	/**********************************************************************/
 	/**
-	* Get a 'label', ie, find out if there is a 'XXX:' at the beginning
-	* Returns an object {label, content}, where 'label' may be null
-	*/
+	 * Get a 'label', ie, find out if there is a 'XXX:' at the beginning of a line
+	 *
+	 * @param {string} line - one line of text
+	 * @returns {object} - {label, content}, containing the (possibly null) label, separated from the rest
+	 */
 	function get_label(line) {
 		let reg = line.trim().match(/^(\w+):(.*)$/)
 		if(reg === null) {
@@ -45,9 +51,13 @@ exports.to_markdown = (inp, body) => {
 	}
 
 	/**
-	* Extract a labelled item, ie, something of the form "XXX: YYY", where
-	* "XXX:" is the 'label'
-	*/
+	 * Extract a labelled item, ie, something of the form "XXX: YYY", where
+	 * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is checked in lower case, too.
+	 *
+	 * @param {string} label - the label we are looking for
+	 * @param {object} line - a line object of the form {nick, content},
+	 * @returns {string} - the content without the label, or null if that label is not present
+	 */
 	function get_labelled_item(label, line) {
 		let lower = line.content.toLowerCase();
 		let label_length = label.length + 1;   // Accounting for the ':' character!
@@ -55,22 +65,29 @@ exports.to_markdown = (inp, body) => {
 	}
 
 	/**
-	* Extract the scribe's nick from the line
-	*/
+	 * Extract the scribe's nick from the line, ie, see if the label "scribenick" or "scribe" is used
+	 *
+	 * @param {object} line - a line object of the form {nick, content}
+	 * @returns {string} - the scribe name or null
+	 *
+	 */
 	let get_scribe = (line) => (get_labelled_item("scribenick",line) || get_labelled_item("scribe",line));
 
 	/**
-	* Cleanup actions on the incoming body:
-	*  - turn the body (which is one giant string) into an array of lines
-	*  - remove empty lines
-	*  - remove the starting time stamps
-	*  - turn lines into objects, separating the nick name and the content
-	*  - remove the lines coming from zakim or rrsagent
-	*  - remove zakim queue commands
-	*  - remove zakim agenda control commands
-	*  - remove bot commands ("zakim,", "rrsagent,", etc.)
-	*  - remove the "XXX has joined #YYY" type messages
-	*/
+	 * Cleanup actions on the incoming body:
+	 *  - turn the body (which is one giant string) into an array of lines
+	 *  - remove empty lines
+	 *  - remove the starting time stamps
+	 *  - turn lines into objects, separating the nick name and the content
+	 *  - remove the lines coming from zakim or rrsagent
+	 *  - remove zakim queue commands
+	 *  - remove zakim agenda control commands
+	 *  - remove bot commands ("zakim,", "rrsagent,", etc.)
+	 *  - remove the "XXX has joined #YYY" type messages
+	 *
+	 * @param {string} body - the full IRC log
+	 * @returns {array} - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
+	 */
 	function cleanup(body) {
 		// (the chaining feature of underscore is really helpful here...)
 		return _.chain(body.split(/\n/))
@@ -81,6 +98,7 @@ exports.to_markdown = (inp, body) => {
 		   //  palette of IRC client loggers, too.
 		   .map((line) => line.slice(line.indexOf(' ') + 1))
 		   .map((line) => {
+			   // This is where the IRC log lines are turned into objects, separating the nicknames.
 			   sp = line.indexOf(' ');
 			   retval = {
 				   // Note that I remove the '<' and the '>' characters
@@ -91,6 +109,7 @@ exports.to_markdown = (inp, body) => {
 			   retval.content_lower = retval.content.toLowerCase();
 			   return retval;
 		   })
+		   // Bunch of filters, removing the unnecessary lines
 		   .filter((line_object) => (line_object.nick !== 'RRSAgent' && line_object.nick !== 'Zakim'))
 		   .filter((line_object) => {
 			   return !(
@@ -112,21 +131,22 @@ exports.to_markdown = (inp, body) => {
 	};
 
 	/**
-	*  Fill in the header structure with
-	*   - present
-	*   - regrets
-	*   - guests
-	*   - chair
-	*   - agenda
-	*   - meeting
-	*   - date
-	*   - scribenick
-	* All these actions, except for 'scribenick' also remove the corresponding
-	* lines from the input.
-	*
-	* At the end of this process, lines with nick 'trackbot' are also removed
-	*/
-	// Beware: although using underscore functions, ie, very functional oriented ways, the
+	 *  Fill in the header structure with
+	 *   - present: comma separated IRC nicknames
+	 *   - regrets: comma separated IRC nicknames
+	 *   - guests: comma separated IRC nicknames
+	 *   - chair: string
+	 *   - agenda: string
+	 *   - meeting: string
+	 *   - date: string
+	 *   - scribenick: comma separated IRC nicknames
+	 * All these actions, except for 'scribenick', also remove the corresponding
+	 * lines from the IRC log array.
+	 *
+	 * @param {array} lines - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
+	 * @returns {object} - {header, lines}, where "header" is the header object, "lines" is the cleaned up IRC log
+	 */
+	// Beware: although using underscore functions, ie, very functional oriented style, the
 	// filters all have side effects in the sense of expanding the 'header structure'. Not
 	// very functional but, oh well...
 	function set_header(lines) {
@@ -142,9 +162,14 @@ exports.to_markdown = (inp, body) => {
 		};
 
 		/**
-		* Extract a list of nick names (used for present, regrets, and guests)
-		* All of these have a common structure: 'XXX+' means add nicknames, 'XXX:' means set them.
-		*/
+		 * Extract a list of nick names (used for present, regrets, and guests)
+		 * All of these have a common structure: 'XXX+' means add nicknames, 'XXX:' means set them.
+		 * If found, the relevant field in the header object is extended.
+		 *
+		 * @param {string} category - the 'label' to look for
+		 * @param {object} line - IRC line object
+		 * @returns {boolean} - true or false, depending on whether this is indeed a line with that category
+		 */
 		// Care should be taken to trim everything, to keep the nick names clean of extra spaces...
 		function people(category, line) {
 			let lower    = line.content_lower.trim();
@@ -175,8 +200,13 @@ exports.to_markdown = (inp, body) => {
 		}
 
 		/**
-		* Extract single items like "agenda:" or "chairs:"
-		*/
+		 * Extract single items like "agenda:" or "chairs:"
+		 * If found, the relevant field in the header object is set.
+		 *
+		 * @param {string} category - the 'label' to look for
+		 * @param {object} line - IRC line object
+		 * @returns {boolean} - true or false, depending on whether this is indeed a line with that category
+		 */
 		function single_item(category, line) {
 			let item = get_labelled_item(category, line);
 			if(item !== null) {
@@ -188,8 +218,11 @@ exports.to_markdown = (inp, body) => {
 		}
 
 		/**
-		* Handle the scribe(s)
-		*/
+		 * Handle the scribe(s): see if this is a scribe setting line. If so, extends the header.
+         *
+		 * @param {object} line - IRC line object
+		 * @returns {boolean} - always true (this function is used in a filter; this means that the line stays in the IRC log for now!)
+		 */
 		function handle_scribes(line) {
 			let scribenick = get_scribe(line);
 			if(scribenick !== null) {
@@ -217,10 +250,23 @@ exports.to_markdown = (inp, body) => {
 	};
 
 	/**
-	* Handle the s/../.. type lines, ie, make changes on the contents
-	*/
+	 * Handle the s/../.. type lines, ie, make changes on the contents
+	 *
+	 * @param {array} lines - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
+ 	 * @returns {array} - returns the lines with the possible changes done
+	 */
 	function perform_changes(lines) {
+		// This array will contain change request structures:
+		// lineno: the line number of the change request
+		// from, to: the change values
+		// g, G: booleans to signal whether these flag have been set
+		// valid: boolean that signals that this request is still valid
 		let change_requests    = [];
+
+		// This is the method used to see if it is a change request.
+		// Note that there are two possible syntaxes:
+		//   s/.../.../{gG}
+		//   s|...|...|{gG}
 		let get_change_request = (str) => {
 			return str.match(/^s\/([\w ]+)\/([\w ]*)\/{0,1}(g|G){0,1}/) ||
 			       str.match(/^s\|([\w ]+)\|([\w ]*)\|{0,1}(g|G){0,1}/)
@@ -231,7 +277,7 @@ exports.to_markdown = (inp, body) => {
 			// Because the change is to work on the preceding values, the
 			// array has to be traversed upside down...
 			.reverse()
-		  	.map((line,index) => {
+		  	.map((line, index) => {
 				// Find the change requests, extract the values to a separate array
 				// and place a marker to remove the original request
 				// (Removing it right away is not a good idea, because things are based on
@@ -285,11 +331,13 @@ exports.to_markdown = (inp, body) => {
 	};
 
 	/**
-	* Generate the Header part of the minutes: present, guests, regrets, chair, etc.
-	*
-	* Returns a string with the (markdown encoded) version of the header.
-	*
-	*/
+	 * Generate the Header part of the minutes: present, guests, regrets, chair, etc.
+	 *
+	 * Returns a string with the (markdown encoded) version of the header.
+	 *
+	 * @param {object} headers - the full header structure
+	 * @returns {string} - the header in Markdown
+	 */
 	function generate_header_md(headers) {
 		return `![W3C Logo](https://www.w3.org/Icons/w3c_home)
 # Meeting: ${headers.meeting}
@@ -310,22 +358,26 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 	}
 
 	/**
-	* Generate the real content. This is the real core of the conversion...
-	*
-	* The function returns a string containing the (markdown version of) the minutes.
-	*
-	* Following traditions
-	*  - the lines that are not written by the scribe are rendered differently (as a quote)
-	*  - lines beginning with a "..." or a "…" are considered as "continuation lines" by the scribe;
-	*    these are combined into a paragraph
-	*  - "Topic:" and "Subtopic:" produce section headers, and a corresponding TOC is also generated
-	*/
+	 * Generate the real content. This is the real core of the conversion...
+	 *
+	 * The function returns a string containing the (markdown version of) the minutes.
+	 *
+	 * Following traditions
+	 *  - the lines that are not written by the scribe are rendered differently (as a quote)
+	 *  - lines beginning with a "..." or a "…" are considered as "continuation lines" by the scribe;
+	 *    these are combined into a paragraph
+	 *  - "Topic:" and "Subtopic:" produce section headers, and a corresponding TOC is also generated
+	 *
+	 * @param {array} lines - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
+     * @returns {string} - the body of the minutes encoded in Markdown
+	 */
 	function generate_content_md(lines) {
 		// this will be the output
 		let content_md     = "\n---\n"
+		// this will be the table of contents
 		let TOC = "## Content:\n"
+		// this will be the list or resolutions
 		let resolutions = ""
-		// let resolutions = "\n---\n### [Resolutions:](id:res)"
 
 		/**
 		* Table of content handling: a (Sub)topic's is set a label as well as a reference into a table of content
@@ -438,7 +490,6 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 			return TOC + content_md
 		}
 	}
-
 
 	// The real steps...
 	// 1. cleanup the content, ie, remove the bot commands and the like

@@ -28,10 +28,15 @@ The keys are as follows (see the description of the command line for their expla
 
 ```JSON
 {
-	"date"   : "[Date in ISO Format]",
-	"group"  : "[Group's name]",
-	"input"  : "[Input]",
-	"output" : "[Output file name]"
+	"date"    : "[Date in ISO Format]",
+	"group"   : "[Group's name]",
+	"input"   : "[Input]",
+	"output"  : "[Output file name]",
+	"ghname"  : "[github login name]",
+	"ghemail" : "[github email]",
+	"ghtoken" : "[OAUTH personal access token]"
+	"repo"    : "[repository name, eg, 'w3c/scribejs']",
+	"path"    : "[path in the repository to the folder where the minutes are to be stored]"
 }
 ```
 

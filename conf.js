@@ -6,8 +6,24 @@ const moment = require('moment');
 const fs     = require('fs');
 const path   = require('path');
 
-
+/**
+ * Collect the full configuration information. This is a combination of four possible sources
+ * of increasing priority
+ * - default configuration (contains empty fields except for the date which set to 'today')
+ * - user configuration, ie, $HOME/.scribejs
+ * - configuration file provided via the command line
+ * - additional configuration options in the command line
+ *
+ * @returns {object} - full configuration. See the overal manual for the field definitions
+ */
 exports.get_config = () => {
+	/**
+	* Read a configuration file
+	*
+	* @param {string} fname - file name
+	* @param {boolean} warn - whether an error warning should be sent to the standard error if there are issues
+	* @returns {object} - the parsed JSON content
+	*/
 	function json_conf_file(fname, warn) {
 		let file_c = null;
 		try {
@@ -32,6 +48,9 @@ exports.get_config = () => {
 		/**
 		* Extract the month and date numbers from a (moment) date object.
 		* Care should be taken that the month and date numbers should be zero padded
+		*
+		* @param {moment} date
+		* @returns {object} - {month, day} (both zero padded)
 		*/
 		let zeropadding = (n) => {
 			if( n < 10 ) {
@@ -46,11 +65,14 @@ exports.get_config = () => {
 		}
 	};
 
+	/**
+	 * Return the URL to the input, namely the RSS IRC script URL on the HTTP Date space, namely
+	 *  https://www.w3.org/{year}/{month}/{day}-{wg}-irc.txt
+	 *
+	 * @param {moment} date
+	 * @param {string} wg - the name of the wg/ig used when RRSAgent generates the IRC log
+	 */
 	function set_input_url(date, wg) {
-		/**
-		* Return the URL to the input, namely the RSS IRC script URL on the HTTP Date space, namely
-		*  https://www.w3.org/{year}/{month}/{day}-{wg}-irc.txt
-		*/
 		let {month, day} = month_date(date);
 		let local  = day + "-" + wg + "-" + "irc.txt";
 		return "https://www.w3.org/" + date.year() + "/" + month + "/" + local;
@@ -87,6 +109,7 @@ exports.get_config = () => {
 	let file_config = (args.c !== undefined) ? json_conf_file(args.c, true) : {};
 	let user_config = (process.env.HOME !== undefined) ? json_conf_file(path.join(process.env.HOME, ".scribejs.json"), false) : {};
 
+	// This is the magic that combines the configuration in priority
 	retval = _.extend(default_config, user_config, file_config, argument_config);
 
 	// Some final cleanup:
