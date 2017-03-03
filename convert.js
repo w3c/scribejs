@@ -1,9 +1,8 @@
 const _ = require('underscore');
 
 /**
-* Conversion of an RRS output into markdown. This is the real "meat" of the module...
-*
-*/
+ * Conversion of an RRS output into markdown. This is the real "meat" of the module...
+ */
 exports.to_markdown = (inp, body) => {
 	/**********************************************************************/
 	/*                        Helper functions                            */
