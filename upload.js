@@ -108,7 +108,7 @@ Time of generation: ${moment()}
 myconf = {
 	'ghname'  : 'iherman',
 	'ghemail' : 'ivan@w3.org',
-	'ghtoken' : '39c6308c18bb9f39c457b36e6acc587914d17e14',
+	'ghtoken' : '1234567890-1234567892345678', // phony!!!
 	'repo'    : 'w3c/scribejs',
 	'path'    : 'test/Minutes'
 }
