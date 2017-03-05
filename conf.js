@@ -5,6 +5,11 @@ const _      = require('underscore');
 const moment = require('moment');
 const fs     = require('fs');
 const path   = require('path');
+const cli    = require('cli.args');
+
+let default_config = {
+	date   : moment(),
+}
 
 /**
  * Collect the full configuration information. This is a combination of four possible sources
@@ -88,41 +93,65 @@ exports.get_config = () => {
 		return "https://github.com/w3c/" + repo + "/minutes/" + date.year() + "/" + month + "/" + local;
 	};
 
-	/* ====================================================================== */
-	let default_config = {
-		group  : null,
-		date   : moment(),
-		input  : null,
-		output : null,
+	let argument_config = {};
+	// First step: get the command line arguments. There is an error handling for undefined variables
+	let args = {};
+	try {
+		args = cli(['date:','d:', 'group:', 'g:', 'config:', 'c:', 'output:', 'o:', 'repo', 'r']);
+	} catch(err) {
+		throw new Error(`${err.message}\nUsage: ${err.usage}`);
 	}
 
-	let argument_config = {};
+	// date first; this should be converted into a moment, but only if really defined
+	let date = args.d || args.date;
+	if(date !== undefined) argument_config.date = moment(date);
 
-	// First step: get the command line arguments
-	let args = require('cli.args')('d:w:i:c:r:o:');
-	// Date called out explicitly
-	if(args.d !== undefined) argument_config.date  = moment(args.d);
-	if(args.w !== undefined) argument_config.group = args.w;
-	if(args.i !== undefined) argument_config.input = args.i;
+	// The group to which the minutes belong
+	argument_config.group  = args.g || args.group;
+	argument_config.torepo = (args.r === undefined && args.repo == undefined) ? false : true;
+	argument_config.input  = (args.nonOpt !== undefined) ? args.nonOpt[0] : undefined;
+	argument_config.output = (args.o || args.output);
 
-	// See if there is a json configuration file whose that is explicitly provided:
-	let file_config = (args.c !== undefined) ? json_conf_file(args.c, true) : {};
+	// prune the argument structure: remove the 'undefined' values that may have creeped in
+	argument_config = _.chain(argument_config).pairs().filter((v) => !_.isUndefined(v[1])).object().value()
+
+	// See if there is an extra config file to retrieved
+	let extra_config_file = args.c || args.config
+
+	// See if there is are json configuration files:
+	let file_config = (extra_config_file !== undefined) ? json_conf_file(extra_config_file, true) : {};
 	let user_config = (process.env.HOME !== undefined) ? json_conf_file(path.join(process.env.HOME, ".scribejs.json"), false) : {};
 
 	// This is the magic that combines the configuration in priority
 	retval = _.extend(default_config, user_config, file_config, argument_config);
 
 	// Some final cleanup:
-	if(retval.group !== null && retval.input === null) {
+	if(retval.group !== null && !retval.input) {
 		// Set the default IRC URL
 		retval.input = set_input_url(retval.date, retval.group);
 	}
+	retval.date = retval.date.format("YYYY-MM-DD");
 
-	// Some assertion type thing should be raised here: if the input is not set, nothing should happen!
+	// Some assertion type thing should be raised here
+	// 1. if the input is not set, nothing should happen!
 	if(retval.input === undefined || retval.input === null || retval.input === "") {
 		// There is nothing to do!!
-		console.error("Scribejs error: no input is provided");
-		process.exit(-1);
+		throw new Error("no irc log is provided");
 	}
+
+	// 2. if the repo should be used, some values are required. If they are
+	// present, the output file name for the repo can be generated
+	if(retval.torepo) {
+		let needed = [retval.ghname, retval.ghemail, retval.ghtoken, retval.ghrepo, retval.ghpath]
+		if(_.every( needed, (val) => !_.isUndefined(val))) {
+			retval.ghfname   = `Minutes-${retval.date}`
+			retval.ghmessage = `Added minutes for ${retval.date} at ${moment().format("YYYY-MM-DD H:m:s Z")}`
+		} else {
+			let message = "repository output is required, but not all values are provided.\n"
+			let message2 = "are needed: ghname, ghemail, ghtoken, ghrepo, ghpath"
+			throw new Error(message + message2);
+		}
+	}
+
 	return retval
 }

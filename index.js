@@ -13,11 +13,17 @@
 
 // 1. Get the overall configuration data; this is a combination of
 //    configuration files and command line arguments
-const config  = require('./conf').get_config();
+let config = {}
+try {
+	config  = require('./conf').get_config();
+} catch(err) {
+	console.error(`Scribejs ${err}`);
+	process.exit(-1);
+}
 
-// console.log(JSON.stringify(config))
-// process.exit(0)
-
+// Debugging the configuration setting only!
+console.log(JSON.stringify(config, null, 2))
+process.exit(0)
 
 // 2. Get the IRC Log; depending on the configuration, this is
 //    either retrieved from the W3C web site or from a local file
@@ -34,5 +40,5 @@ io.get_irc_log(config)
 		console.log(minutes)
 	})
 	.catch((err) => {
-		console.error(err)
+		console.error(`Scribejs error: ${err}`)
 	});

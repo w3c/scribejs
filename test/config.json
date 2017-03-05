@@ -1,5 +1,5 @@
 {
-	"group" : "xxx",
-	"repo"  : "w3c/scribejs",
-	"path"  : "test/Minutes"
+	"ghrepo"  : "w3c/scribejs",
+	"ghpath"  : "test/Minutes",
+	"group"   : "xpath"
 }

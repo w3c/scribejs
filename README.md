@@ -8,17 +8,15 @@ The reason of writing this script is that the current approach of producing HTML
 The script has been rewritten from scratch on top of `node.js`. The "entry point" of the package is the `index.js` file, which accepts the following command line arguments:
 
 ```
--d date: Date for the minutes in ISO (i.e., YYYY-MM-DD) format.
-         Default: today
--w wg:   Name of the IRC channel used by the group.
-         Default: dpub (just for testing…)
--i file: Local file name or a full URL for the IRC log. If not set, the date
-         and the wg is used to retrieve the IRC log from W3C’s date
-		 space using the conventions of RRSAgent
--c file: Local configuration file in JSON format (see below). Command line
-         arguments have a higher priority.
--o file: Where to put the output; otherwise goes to the standard
-         output
+scribjs [options] [filename]
+[--date|-d] date:    Date of the meeting in ISO (i.e., YYYY-MM-DD) format.
+                     Default: today
+[--group|-g] group:  Name of the IRC channel used by the group.
+[--config|-c] cfile: Configuration file in JSON (see below). Command
+                     line arguments have a higher priority.
+[--output|-o] ofile: Output file name. See below on how the final output is chosen.
+[--repo|-r]:         Whether the output should be stored in a github repository.
+                     Default: false     
 ```
 
 ### Configuration files
@@ -31,14 +29,25 @@ The keys are as follows (see the description of the command line for their expla
 	"date"    : "[Date in ISO Format]",
 	"group"   : "[Group's name]",
 	"input"   : "[Input]",
-	"output"  : "[Output file name]",
+	"output"  : "[Output]"
+	"torepo"  : "[true|false]",
 	"ghname"  : "[github login name]",
 	"ghemail" : "[github email]",
 	"ghtoken" : "[OAUTH personal access token]"
-	"repo"    : "[repository name, eg, 'w3c/scribejs']",
-	"path"    : "[path in the repository to the folder where the minutes are to be stored]"
+	"ghrepo"  : "[repository name, eg, 'w3c/scribejs']",
+	"ghpath"  : "[path in the repository to the folder where the minutes are to be stored]"
 }
 ```
+
+The final configuration is a combination of the command line arguments, the (optional) configuration file provided through the command line, and the user-level configuration file, in decreasing priority.
+
+### Choice of the output
+
+The choice of where to put the resulting file is as follows:
+
+* if the value of `torepo in the final configuration is `true, the `gh...` values are used to determine the github repository, and the path within the repository, where the minutes should be stores (or updated)
+* otherwise, if the `output` value is set, the result is stored in that file
+* otherwise the result is sent to the standard output.  
 
 
 (See [current status and to do](TODO.md).)
