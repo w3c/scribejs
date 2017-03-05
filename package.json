@@ -21,7 +21,7 @@
   "bin": {
     "scribejs": "./index.js"
   },
-  "license": "W3C Software License",
+  "license": "W3C Software License (https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231)",
   "repository": {
     "type": "git",
     "url": "https://github.com/w3c/scribejs.git"
