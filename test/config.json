@@ -1,5 +1,4 @@
 {
 	"ghrepo"  : "w3c/scribejs",
-	"ghpath"  : "test/Minutes",
-	"group"   : "xpath"
+	"ghpath"  : "test/Minutes"
 }

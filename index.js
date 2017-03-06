@@ -20,10 +20,30 @@ try {
 	console.error(`Scribejs ${err}`);
 	process.exit(-1);
 }
-
-// Debugging the configuration setting only!
-console.log(JSON.stringify(config, null, 2))
-process.exit(0)
+//
+// // Debugging the configuration setting only!
+// console.log(JSON.stringify(config, null, 2))
+//
+// // The publication logic:
+//
+// if(config.torepo) {
+// 	console.log(`Publishing on github:
+// Repository:   ${config.ghrepo}
+// Path in repo: ${config.ghpath}
+// File name:    ${config.ghfname}
+// Committer:    ${config.ghname}
+// Email:        ${config.ghemail}
+// Token:        ${config.ghtoken}
+// `)
+// } else {
+// 	if(config.output) {
+// 		console.log(`Publishing in file: ${config.output}`)
+// 	} else {
+// 		console.log("Publishing on standard output")
+// 	}
+// }
+//
+// process.exit(0)
 
 // 2. Get the IRC Log; depending on the configuration, this is
 //    either retrieved from the W3C web site or from a local file
@@ -37,7 +57,11 @@ io.get_irc_log(config)
 	})
 	// 4. Either upload the minutes to Github or dump into a local file
 	.then((minutes) => {
-		console.log(minutes)
+		return io.output_minutes(minutes, config);
+	})
+	// 5. Just display a message for the sake of debug/feedback
+	.then((message) => {
+		console.log(message);
 	})
 	.catch((err) => {
 		console.error(`Scribejs error: ${err}`)

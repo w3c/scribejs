@@ -38,113 +38,102 @@ exports.get_config = () => {
 			return {};
 		}
 		try {
-			retval = JSON.parse(file_c);
-			if(retval.date !== undefined && retval.date !== null) {
-				retval.date = moment(retval.date);
-			}
-			return retval;
+			// Date values are converted into moments on the fly
+			return JSON.parse(file_c, (key,value) => (key === "date" ? moment(value) : value));
 		} catch(e) {
 			console.error(e);
 			return {};
 		}
 	}
 
-	function month_date(date) {
-		/**
-		* Extract the month and date numbers from a (moment) date object.
-		* Care should be taken that the month and date numbers should be zero padded
-		*
-		* @param {moment} date
-		* @returns {object} - {month, day} (both zero padded)
-		*/
-		let zeropadding = (n) => {
-			if( n < 10 ) {
-				return "0" + n
-			} else {
-				return "" + n
-			}
-		};
-		return {
-			month : zeropadding(date.month() + 1),
-			day   : zeropadding(date.date()),
-		}
-	};
-
 	/**
-	 * Return the URL to the input, namely the RSS IRC script URL on the HTTP Date space, namely
-	 *  https://www.w3.org/{year}/{month}/{day}-{wg}-irc.txt
+	 * Return the URL to the input: the RSS IRC script URL on the HTTP Date space, namely
+	 *  https://www.w3.org/{year}/{month}/{day}-{wg}-irc.txt. The all date values are zero padded.
 	 *
 	 * @param {moment} date
 	 * @param {string} wg - the name of the wg/ig used when RRSAgent generates the IRC log
 	 */
 	function set_input_url(date, wg) {
-		let {month, day} = month_date(date);
-		let local  = day + "-" + wg + "-" + "irc.txt";
-		return "https://www.w3.org/" + date.year() + "/" + month + "/" + local;
+		let zeropadding = (n) => (n < 10 ? "0" + n : "" + n);
+		let month = zeropadding(date.month() + 1);
+		let day   = zeropadding(date.date());
+		return `https://www.w3.org/${date.year()}/${month}/${day}-${wg}-irc.txt`;
 	};
 
-	function set_output_url(date, repo) {
-		/**
-		* Return the URL to the output, namely the reference to the github repo of the form
-		*  https://github.com/w3c/repo/minutes/{year}/{month}/{day}-minutes.md
-		*/
-		let {month, day} = month_date(date);
-		let local  = day + "-" + "minutes.md";
-		return "https://github.com/w3c/" + repo + "/minutes/" + date.year() + "/" + month + "/" + local;
-	};
-
+	/***********************************************************************/
+	// First step: get the command line arguments. There is an error handling for undefined options
 	let argument_config = {};
-	// First step: get the command line arguments. There is an error handling for undefined variables
-	let args = {};
+	let args            = {};
 	try {
-		args = cli(['date:','d:', 'group:', 'g:', 'config:', 'c:', 'output:', 'o:', 'repo', 'r']);
+		args = cli(['help', '-h', 'date:','d:', 'group:', 'g:', 'config:', 'c:', 'output:', 'o:', 'repo', 'r']);
 	} catch(err) {
 		throw new Error(`${err.message}\nUsage: ${err.usage}`);
 	}
 
-	// date first; this should be converted into a moment, but only if really defined
+	// Handle the help options
+	if(args.help || args.h) {
+		console.log(args.info.usage)
+		process.exit(0)
+	}
+
+	// Date must be converted into a moment, but only if it really exists
 	let date = args.d || args.date;
-	if(date !== undefined) argument_config.date = moment(date);
+	if(date) argument_config.date = moment(date);
 
 	// The group to which the minutes belong
 	argument_config.group  = args.g || args.group;
-	argument_config.torepo = (args.r === undefined && args.repo == undefined) ? false : true;
-	argument_config.input  = (args.nonOpt !== undefined) ? args.nonOpt[0] : undefined;
-	argument_config.output = (args.o || args.output);
+
+	// Whether the target is a repo or not
+	argument_config.torepo = (args.r || args.repo) ? true : false;
+
+	// Explicit output?
+	let output = args.o || args.output;
+	if(output) argument_config.output = output;
+
+	// Explicit input?
+	if(args.nonOpt) argument_config.input = args.nonOpt[0];
 
 	// prune the argument structure: remove the 'undefined' values that may have creeped in
 	argument_config = _.chain(argument_config).pairs().filter((v) => !_.isUndefined(v[1])).object().value()
 
-	// See if there is an extra config file to retrieved
+	/***********************************************************************/
+	// Second step: see if there is an explicit config file to be retreived
 	let extra_config_file = args.c || args.config
+	let file_config = (extra_config_file) ? json_conf_file(extra_config_file, true) : {};
 
-	// See if there is are json configuration files:
-	let file_config = (extra_config_file !== undefined) ? json_conf_file(extra_config_file, true) : {};
-	let user_config = (process.env.HOME !== undefined) ? json_conf_file(path.join(process.env.HOME, ".scribejs.json"), false) : {};
+	/***********************************************************************/
+	// Third step: see if there is user level config file
+	let user_config = (process.env.HOME) ? json_conf_file(path.join(process.env.HOME, ".scribejs.json"), false) : {};
 
-	// This is the magic that combines the configuration in priority
+	/***********************************************************************/
+	// Fourth step: combine the configuration in increasing priority order
 	retval = _.extend(default_config, user_config, file_config, argument_config);
 
-	// Some final cleanup:
-	if(retval.group !== null && !retval.input) {
+	/***********************************************************************/
+	// Fifths step: sanity check and some cleanup on the configuration object
+
+	// 1. If the group is provided and no explicit input, we should retreive the
+	// IRC log from the W3C site
+	if(retval.group && !retval.input) {
 		// Set the default IRC URL
 		retval.input = set_input_url(retval.date, retval.group);
 	}
+
+	// 2. get read of the 'moment' object and use ISO date instead
 	retval.date = retval.date.format("YYYY-MM-DD");
 
-	// Some assertion type thing should be raised here
-	// 1. if the input is not set, nothing should happen!
-	if(retval.input === undefined || retval.input === null || retval.input === "") {
+	// 3. if the input is not set, nothing should happen!
+	if(!retval.input) {
 		// There is nothing to do!!
 		throw new Error("no irc log is provided");
 	}
 
-	// 2. if the repo should be used, some values are required. If they are
-	// present, the output file name for the repo can be generated
+	// 4. if the github repo should be used, some values are required. If they are
+	// present, the output file name for the repo can be generated, if needed
 	if(retval.torepo) {
 		let needed = [retval.ghname, retval.ghemail, retval.ghtoken, retval.ghrepo, retval.ghpath]
-		if(_.every( needed, (val) => !_.isUndefined(val))) {
-			retval.ghfname   = `Minutes-${retval.date}`
+		if(_.every(needed, (val) => !_.isUndefined(val))) {
+			retval.ghfname   = retval.output ? retval.output : `Minutes-${retval.date}.md`
 			retval.ghmessage = `Added minutes for ${retval.date} at ${moment().format("YYYY-MM-DD H:m:s Z")}`
 		} else {
 			let message = "repository output is required, but not all values are provided.\n"

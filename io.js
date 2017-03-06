@@ -52,6 +52,40 @@ exports.get_irc_log = (conf) => {
 	});
 };
 
+/**
+ * Output the minutes. Depending on the configuration, the values are stored in a file or on
+ * a GitHub repository.
+ *
+ * @param {string} data - the markdown data to be uploaded
+ * @param {object} conf - the configuration containing additional data
+ * @returns {Promise} - the returned promise data with just an acknowledgement
+ */
+exports.output_minutes = (minutes, conf) => {
+
+	return new Promise((resolve, reject) => {
+		if(conf.torepo) {
+			// This must be stored in a github repository
+			//console.log(JSON.stringify(conf, null, 2))
+			commit(minutes, conf)
+			  .then((res) => resolve(`Minutes are in https://github.com/${conf.ghrepo}/blob/master/${conf.ghpath}/${conf.ghfname}`))
+			  .catch((err) => reject(err))
+		} else {
+			if(conf.output) {
+				fs.writeFile(conf.output, minutes, (err) => {
+					if(err) {
+						reject(`problem writing local file ${conf.output}; ${err}`);
+					} else {
+						resolve(`Minutes are in ${conf.output}`)
+					}
+				})
+			} else {
+				console.log(minutes);
+				resolve("Data sent to standard output")
+			}
+		}
+	});
+}
+
 
 /**
  * Committing new data on the github repo
@@ -59,6 +93,7 @@ exports.get_irc_log = (conf) => {
  * The following terms in the configuration are relevant for this function
  * - ghrepo: the full name of the repository. E.g., "w3c/scribejs"
  * - ghpath: the path within the repository where the data must be stored. E.g., "test/minutes"
+ * - ghfname: the file name
  * - ghname: the user name to be used when committing
  * - ghemail: the user email to be used when committing
  * - ghtoken: the user's OAUTH personal access token provided by GitHub (see https://github.com/settings/tokens/new)
@@ -68,7 +103,7 @@ exports.get_irc_log = (conf) => {
  * @param {object} conf - the configuration containing additional data
  * @returns {Promise} - the returned promise data is whatever the github API returns; usable for debug
  */
-function commit(data, fname, commit_message, conf) {
+function commit(data, conf) {
 	// Collecting the data from the configuration
 	uri = `https://api.github.com/repos/${conf.ghrepo}/contents/${conf.ghpath}/${conf.ghfname}`
 	// This is the message for the PUT action. Note that base64 encoding of the data,
@@ -89,7 +124,7 @@ function commit(data, fname, commit_message, conf) {
 	// This means: first we make a GET on the target resource; if the resources is there
 	// we retrieve the sha value from the return value, which must be added to the "message"
 	// object above. As a second step, we make a PUT with the new data.
-	return new Promise( (resolve,reject) => {
+	return new Promise((resolve,reject) => {
 		// Try to fetch the data.
 		fetch(uri, {
 			headers: {

@@ -1,8 +1,3 @@
 ## Current status
 
-* Tool does a reasonable output on some test irc log, needs to test it with more
-* The markdown is currently sent to the standard output. The -o option does not work yet, and I should explore whether it is possible to dump the file on a github repo programatically.
-
-## To do
-
-* Manage the output. Is it realistic at all to push things to github automatically?
+* At the moment, the default (i.e., master) branch is used. First of all, the default branch might be something else, and it may be a good idea to be able to set the branch, too
