@@ -80,7 +80,7 @@ exports.output_minutes = (minutes, conf) => {
 				})
 			} else {
 				console.log(minutes);
-				resolve("Data sent to standard output")
+				resolve("")
 			}
 		}
 	});

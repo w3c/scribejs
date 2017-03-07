@@ -418,8 +418,9 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 		}
 
 		// "state" variables for the main cycle...
-		let current_scribe = ""
+		let current_scribe         = ""
 		let within_scribed_content = false;
+		let current_person         = "";
 		// The main cycle on the content
 		_.forEach(lines, (line_object) => {
 			// What is done depends on some context...
@@ -453,22 +454,29 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 				if(line_object.nick.toLowerCase() === current_scribe) {
 					if(label !== null) {
 						// A new person is talking...
-						content_md = content_md.concat("\n\n**", label, ":** ", content)
+						content_md = content_md.concat(`\n\n**${label}:** ${content}\n`)
 						within_scribed_content = true;
+						current_person         = label
 						// All done with the line!
 						return;
 					} else {
 						let dots = content.startsWith("...") ? 3 : (content.startsWith("…") ? 1 : 0);
 						if(dots > 0) {
+							let new_content = content.slice(dots).trim();
+							if(new_content && new_content[0] === ':') {
+								// This is a relatively frequent scribe error, ie, to write "...:" as a continuation
+								new_content = new_content.slice(1);
+							}
 							// This is a continuation line
 							if(within_scribed_content) {
 								// We are in the middle of a full paragraph for one person, safe to simply add
 								// the text to the previous line without any further ado
-								content_md = content_md.concat(" ", content.slice(dots))
+								content_md = content_md.concat(" ", new_content)
 							} else {
 								// For some reasons, there was a previous line that interrupted the normal flow,
 								// a new paragraph should be started
-								content_md = content_md.concat("\n\n", content.slice(dots))
+								content_md = content_md.concat(`\n\n**${current_person}:** ${new_content}\n`)
+								// content_md = content_md.concat("\n\n", content.slice(dots))
 								within_scribed_content = true;
 							}
 						}

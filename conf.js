@@ -137,8 +137,8 @@ exports.get_config = () => {
 			retval.ghmessage = `Added minutes for ${retval.date} at ${moment().format("YYYY-MM-DD H:m:s Z")}`
 		} else {
 			let message = "repository output is required, but not all values are provided.\n"
-			let message2 = "are needed: ghname, ghemail, ghtoken, ghrepo, ghpath"
-			throw new Error(message + message2);
+			let message2 = "are needed: ghname, ghemail, ghtoken, ghrepo, ghpath\n"
+			throw new Error(message + message2 + JSON.stringify(retval, null, 2));
 		}
 	}
 

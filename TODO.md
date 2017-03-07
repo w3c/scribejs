@@ -1,3 +1,9 @@
 ## Current status
 
-* At the moment, the default (i.e., master) branch is used. First of all, the default branch might be something else, and it may be a good idea to be able to set the branch, too
+* Working, but some bugs did come up in testing...
+
+## Known bugs or missing features
+
+* At the moment, the github upload goes to the default branch. This also appears in the message coming back to the user. Two things there
+    1. Extend the mechanism with an (optional) branch setting
+	1. See if the info returned from github includes the URL of the target (instead of building it manually, which becomes a bit hairy if the default branch name has to be extracted...)
