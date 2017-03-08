@@ -26,16 +26,17 @@ The keys are as follows (see the description of the command line for their expla
 
 ```JSON
 {
-	"date"    : "[Date in ISO Format]",
-	"group"   : "[Group's name]",
-	"input"   : "[Input]",
-	"output"  : "[Output]"
-	"torepo"  : "[true|false]",
-	"ghname"  : "[github login name]",
-	"ghemail" : "[github email]",
-	"ghtoken" : "[OAUTH personal access token]"
-	"ghrepo"  : "[repository name, eg, 'w3c/scribejs']",
-	"ghpath"  : "[path in the repository to the folder where the minutes are to be stored]"
+	"date"     : "[Date in ISO Format]",
+	"group"    : "[Group's name]",
+	"input"    : "[Input]",
+	"output"   : "[Output]"
+	"torepo"   : "[true|false]",
+	"ghname"   : "[github login name]",
+	"ghemail"  : "[github email]",
+	"ghtoken"  : "[OAUTH personal access token]"
+	"ghrepo"   : "[repository name, eg, 'w3c/scribejs']",
+	"ghpath"   : "[path in the repository to the folder where the minutes are to be stored]",
+	"ghbranch" : "[branch of the repository where the minutes should be stored. If not set, default is used.]"
 }
 ```
 
@@ -45,7 +46,7 @@ The final configuration is a combination of the command line arguments, the (opt
 
 The choice of where to put the resulting file is as follows:
 
-* if the value of `torepo in the final configuration is `true, the `gh...` values are used to determine the github repository, and the path within the repository, where the minutes should be stores (or updated)
+* if the value of `torepo in the final configuration is `true, the `gh...` values are used to determine the github repository (with, optionally, the relevant branch) and the path within the repository where the minutes should be stores (or updated)
 * otherwise, if the `output` value is set, the result is stored in that file
 * otherwise the result is sent to the standard output.  
 

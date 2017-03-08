@@ -1,4 +1,5 @@
 {
-	"ghrepo"  : "w3c/scribejs",
-	"ghpath"  : "test/Minutes"
+	"ghrepo"   : "w3c/scribejs",
+	"ghpath"   : "test/Minutes",
+	"ghbranch" : "minutes"
 }

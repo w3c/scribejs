@@ -52,6 +52,7 @@ exports.get_irc_log = (conf) => {
 	});
 };
 
+
 /**
  * Output the minutes. Depending on the configuration, the values are stored in a file or on
  * a GitHub repository.
@@ -67,7 +68,7 @@ exports.output_minutes = (minutes, conf) => {
 			// This must be stored in a github repository
 			//console.log(JSON.stringify(conf, null, 2))
 			commit(minutes, conf)
-			  .then((res) => resolve(`Minutes are in https://github.com/${conf.ghrepo}/blob/master/${conf.ghpath}/${conf.ghfname}`))
+			  .then((branch) => resolve(`Minutes are in https://github.com/${conf.ghrepo}/blob/${branch}/${conf.ghpath}/${conf.ghfname}`))
 			  .catch((err) => reject(err))
 		} else {
 			if(conf.output) {
@@ -96,7 +97,10 @@ exports.output_minutes = (minutes, conf) => {
  * - ghfname: the file name
  * - ghname: the user name to be used when committing
  * - ghemail: the user email to be used when committing
- * - ghtoken: the user's OAUTH personal access token provided by GitHub (see https://github.com/settings/tokens/new)
+ * - ghtoken: the user's OAUTH personal access token provided by GitHub
+ *             (see https://github.com/settings/tokens/new)
+ * - ghbranch: the target branch within the repository. This term may be missing from the configuration,
+ *             in which case the repo's default branch is used
  *
  *
  * @param {string} data - the markdown data to be uploaded
@@ -105,7 +109,8 @@ exports.output_minutes = (minutes, conf) => {
  */
 function commit(data, conf) {
 	// Collecting the data from the configuration
-	uri = `https://api.github.com/repos/${conf.ghrepo}/contents/${conf.ghpath}/${conf.ghfname}`
+	uri   = `https://api.github.com/repos/${conf.ghrepo}/contents/${conf.ghpath}/${conf.ghfname}`
+	uri_r = `https://api.github.com/repos/${conf.ghrepo}`
 	// This is the message for the PUT action. Note that base64 encoding of the data,
 	// this is required by the GitHub API
 	let message = {
@@ -116,6 +121,10 @@ function commit(data, conf) {
 		},
 		"content" : Buffer.from(data).toString('base64'),
 	};
+
+	// If the user has set an explicit branch, this must be added here. Otherwise it
+	// will go to the default branch
+	if(conf.ghbranch) message.branch = conf.ghbranch;
 
 	// Before uploading we have to see if the file already exists or not. If it does
 	// we need the sha number of that resource; this is needed to be able to modify the
@@ -147,7 +156,7 @@ function commit(data, conf) {
 				message.sha = JSON.parse(body).sha;
 			}
 			// off we go with the upload
-			fetch(uri,{
+			fetch(uri, {
 				method: 'PUT',
 				headers: {
 					'Accept'        : 'application/json',
@@ -155,8 +164,30 @@ function commit(data, conf) {
 					'Authorization' : `token ${conf.ghtoken}`
 				},
 				body : JSON.stringify(message)
-			}).then((res) => {
-				resolve(res)
+			}).then(() => {
+				// the return from this should be the name of the branch into which the minutes
+				// have been committed. If it was set explicitly by the user this is not a problem,
+				// but otherwise the name of the default branch should be inquired from github
+				if(conf.ghbranch) {
+					resolve(conf.ghbranch)
+				} else {
+					fetch(uri_r, {
+						headers: {
+							'Authorization' : `token ${conf.ghtoken}`
+						}
+					})
+					.then((response) => {
+						if(response.ok) {
+							return response.json()
+						} else {
+							// This should actually not happen
+							resolve("master")
+						}
+					})
+					.then( (res) => {
+						resolve(res.default_branch)
+					});
+				}
 			}).catch((err) => {
 				reject(err);
 			});
