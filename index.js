@@ -2,7 +2,7 @@
 /**
  * Convert W3C’s RRSAgent IRC bot output into minutes in Markdown
  *
- * @version: 0.5.0
+ * @version: 0.9.0
  * @author: Ivan Herman, <ivan@w3.org> (https://www.w3.org/People/Ivan/)
  * @license: W3C Software License <https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
  */
