@@ -1,7 +1,7 @@
 const _ = require('underscore');
 
 /**
- * Conversion of an RRS output into markdown. This is the real "meat" of the module...
+ * Conversion of an RRS output into markdown. This is the real "meat" of the whole library...
  *
  * @param {string} inp - the name of the input file. This is just used to be stored as a reference
  * @param {string} body - the IRC log
@@ -50,6 +50,7 @@ exports.to_markdown = (inp, body) => {
 		}
 	}
 
+
 	/**
 	 * Extract a labelled item, ie, something of the form "XXX: YYY", where
 	 * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is checked in lower case, too.
@@ -64,6 +65,7 @@ exports.to_markdown = (inp, body) => {
 		return lower.startsWith(label+":") === true ? line.content.slice(label_length).trim() : null;
 	}
 
+
 	/**
 	 * Extract the scribe's nick from the line, ie, see if the label "scribenick" or "scribe" is used
 	 *
@@ -72,6 +74,7 @@ exports.to_markdown = (inp, body) => {
 	 *
 	 */
 	let get_scribe = (line) => (get_labelled_item("scribenick",line) || get_labelled_item("scribe",line));
+
 
 	/**
 	 * Cleanup actions on the incoming body:
@@ -129,6 +132,7 @@ exports.to_markdown = (inp, body) => {
 		   // End of the underscore chain, retrieve the final value
 		   .value();
 	};
+
 
 	/**
 	 *  Fill in the header structure with
@@ -199,6 +203,7 @@ exports.to_markdown = (inp, body) => {
 			}
 		}
 
+
 		/**
 		 * Extract single items like "agenda:" or "chairs:"
 		 * If found, the relevant field in the header object is set.
@@ -217,6 +222,7 @@ exports.to_markdown = (inp, body) => {
 			}
 		}
 
+
 		/**
 		 * Handle the scribe(s): see if this is a scribe setting line. If so, extends the header.
          *
@@ -230,6 +236,7 @@ exports.to_markdown = (inp, body) => {
 			}
 			return true;
 		}
+
 
 		// filter out all irc log lines that are related to header information
 		let processed_lines = _.chain(lines)
@@ -248,6 +255,88 @@ exports.to_markdown = (inp, body) => {
 			lines  : processed_lines
 		}
 	};
+
+
+	/**
+	 * Handle the i/../../ type lines, ie, insert new lines
+	 *
+	 * @param {array} lines - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
+ 	 * @returns {array} - returns the lines with the possible changes done
+	 */
+	function perform_insert(lines) {
+		// This array will contain change request structures:
+		// lineno: the line number of the change request
+		// at, add: the insert values
+		let insert_requests    = [];
+
+		// This is the method used to see if it is a change request.
+		// Note that there are two possible syntaxes:
+		//   i/.../.../
+		//   i|...|...|
+		let get_insert_request = (str) => {
+			return str.match(/^i\/([\w ]+)\/([^\/]+)\/{0,1}/) ||
+			       str.match(/^i\|([\w ]+)\|([^\|]+)\|{0,1}/)
+		};
+		const marker           = "----INSERTREQUESTXYZ----";
+
+		retval = _.chain(lines)
+			// Because the insert is to work on the preceding values, the
+			// array has to be traversed upside down...
+			.reverse()
+		  	.map((line, index) => {
+				// Find the insert requests, extract the values to a separate array
+				// and place a marker to remove the original request
+				// (Removing it right away is not a good idea, because things are based on
+				// the array index later...)
+				let r = get_insert_request(line.content);
+	  			if(r !== null) {
+	  				// store the regex results
+	  				insert_requests.push({
+						lineno : index,
+	  					at     : r[1],
+	  					add    : r[2],
+						valid  : true
+	  				});
+	  				line.content = marker;
+	  			}
+	  			return line
+			})
+			.map((line, index) => {
+				// See if a content has to be modifed by one of the insert requests
+				if(line.content !== marker) {
+					let retval = line;
+					for(let i = 0; i < insert_requests.length; i++) {
+						let insert = insert_requests[i]
+						if(insert.valid && index > insert.lineno && line.content.indexOf(insert.at) !== -1) {
+							// this request has played its role...
+							insert.valid = false;
+							// This is the real action: add a new structure, ie, a new line
+							let new_line = {
+								nick:    line.nick,
+								content: insert.add,
+								content_lower: insert.add.toLowerCase()
+							};
+							retval = [line, new_line]
+							break;  // we do not need to look at other request for this line
+						}
+					}
+					return retval;
+				}
+				return line
+			})
+			// Flatten, ie, what was added as an array of two lines should now transformed
+			// into simple entries
+			.flatten(true)
+			// Remove the markers
+			.filter((line) => (line.content !== marker))
+			// return the array into its original order
+			.reverse()
+			// done:-)
+			.value();
+
+		return retval;
+	};
+
 
 	/**
 	 * Handle the s/../.. type lines, ie, make changes on the contents
@@ -268,8 +357,8 @@ exports.to_markdown = (inp, body) => {
 		//   s/.../.../{gG}
 		//   s|...|...|{gG}
 		let get_change_request = (str) => {
-			return str.match(/^s\/([\w ]+)\/([\w ]*)\/{0,1}(g|G){0,1}/) ||
-			       str.match(/^s\|([\w ]+)\|([\w ]*)\|{0,1}(g|G){0,1}/)
+			return str.match(/^s\/([\w ]+)\/([^\/]*)\/{0,1}(g|G){0,1}/) ||
+			       str.match(/^s\|([\w ]+)\|([^/|]*)\|{0,1}(g|G){0,1}/)
 		};
 		const marker           = "----CHANGEREQUESTXYZ----";
 
@@ -297,7 +386,7 @@ exports.to_markdown = (inp, body) => {
 	  			}
 	  			return line
 			})
-			.map((line,index) => {
+			.map((line, index) => {
 				// See if a line has to be modifed by one of the change requests
 				if(line.content !== marker) {
 					_.forEach(change_requests, (change) => {
@@ -330,6 +419,7 @@ exports.to_markdown = (inp, body) => {
 		return retval;
 	};
 
+
 	/**
 	 * Generate the Header part of the minutes: present, guests, regrets, chair, etc.
 	 *
@@ -356,6 +446,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 **Scribe(s):** ${headers.scribe}
 `
 	}
+
 
 	/**
 	 * Generate the real content. This is the real core of the conversion...
@@ -406,6 +497,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 			TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${content}](#${id})\n`)
 		}
 
+
 		/**
 		* Resolution handling: the resolution receives an ID, and a list of resolution is repeated at the end
 		*/
@@ -416,6 +508,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 			resolutions = resolutions.concat(`\n* [Resolution #${rcounter}: ${content}](#${id})`)
 			rcounter++;
 		}
+
 
 		// "state" variables for the main cycle...
 		let current_scribe         = ""
@@ -499,6 +592,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 		}
 	}
 
+
 	// The real steps...
 	// 1. cleanup the content, ie, remove the bot commands and the like
 	// 2. separate the header information (present, chair, date, etc)
@@ -507,6 +601,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 	let {headers, lines} = set_header(cleanup(body));
 
 	// 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
+	lines = perform_insert(lines)
 	lines = perform_changes(lines)
 
 	// 4. Generate the header part of the minutes (using the 'headers' object)
