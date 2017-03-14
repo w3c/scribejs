@@ -41,12 +41,14 @@ The roles are as follows:
 * `subtopic`
 	* current minor topic; he value is used for a subsection heading and as an entry in the generated table of contents
 
-## Resolutions
+## Resolutions, actions
 
 * `proposal` or `proposed`
 	* the value is rendered differently in the generated minutes for an easier reference; it usually precedes a formal vote or a straw possible_label
 * `resolutions` or `resolved`
 	* the value is emphasized in the generated minutes and gets its own fragment identifier which makes it possible to use a dedicated URL when referring to a resolution. The list of resolutions is also repeated at the end of the minutes.
+* `action`
+	* the value is emphasized in the generated minutes and gets its own fragment identifier which makes it possible to use a dedicated URL when referring to an action. The list of action items is also repeated at the end of the minutes.
 
 ## Change of the IRC lines
 
