@@ -469,6 +469,8 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 		let TOC = "## Content:\n"
 		// this will be the list or resolutions
 		let resolutions = ""
+		// this will be the list or actions
+		let actions = ""
 
 		/**
 		* Table of content handling: a (Sub)topic's is set a label as well as a reference into a table of content
@@ -509,6 +511,16 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 			rcounter++;
 		}
 
+		/**
+		* Resolution handling: the resolution receives an ID, and a list of resolution is repeated at the end
+		*/
+		let acounter = 1;
+		function add_action(content) {
+			let id = "action" + acounter;
+			content_md = content_md.concat(`\n\n> [***Action #${acounter}: ${content}***](id:${id})`)
+			actions    = actions.concat(`\n* [Action #${acounter}: ${content}](#${id})`)
+			acounter++;
+		}
 
 		// "state" variables for the main cycle...
 		let current_scribe         = ""
@@ -542,6 +554,9 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 			} else if(label !== null && ["resolved", "resolution"].includes(label.toLowerCase())) {
 				within_scribed_content = false;
 				add_resolution(content)
+			} else if(label !== null && label.toLowerCase() === "action") {
+				within_scribed_content = false;
+				add_action(content)
 			} else {
 				// Done with the special entries, filter the scribe entries
 				if(line_object.nick.toLowerCase() === current_scribe) {
@@ -582,14 +597,20 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 			}
 		});
 
-		// Endgame: pulling the TOC, the real minutes and, possibly, the resolutions together
+		// Endgame: pulling the TOC, the real minutes and, possibly, the resolutions and actions together
+		content_md = content_md.concat("\n\n---\n")
+
 		if(rcounter > 1) {
 			// There has been at least one resolution
-			TOC = TOC.concat(`* [${++sec_number_level_1}. Resolutions](#res)\n`)
-			return TOC + content_md + `\n---\n### [${sec_number_level_1}. Resolutions](id:res)` + resolutions
-		} else {
-			return TOC + content_md
+			TOC         = TOC.concat(`* [${++sec_number_level_1}. Resolutions](#res)\n`)
+			content_md  = content_md.concat(`\n\n### [${sec_number_level_1}. Resolutions](id:res)\n` + resolutions)
 		}
+		if(acounter > 1) {
+			// There has been at least one resolution
+			TOC         = TOC.concat(`* [${++sec_number_level_1}. Action Items](#res)\n`)
+			content_md  = content_md.concat(`\n\n### [${sec_number_level_1}. Action Items](id:act)\n` + actions)
+		}
+		return TOC + content_md;
 	}
 
 
@@ -605,7 +626,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 	lines = perform_changes(lines)
 
 	// 4. Generate the header part of the minutes (using the 'headers' object)
-	// 5. Generate the content part, that also includes the TOC and the list of resolutions
+	// 5. Generate the content part, that also includes the TOC, the list of resolutions and actions (if any)
 	//    (using the 'lines' array of objects)
 	// 6. Return the concatenation of the two
 	return (generate_header_md(headers) + generate_content_md(lines))
