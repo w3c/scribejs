@@ -1,52 +1,52 @@
 {
-    "name": "scribejs",
-    "version": "0.9.0",
-    "description": "Converter of RSSAgent IRC logs into minutes in markdown",
-    "main": "index.js",
-    "keywords": [
-        "W3C",
-        "scribe",
-        "minute taking"
-    ],
-    "author": {
-        "name": "Ivan Herman",
-        "email": "ivan@w3.org",
-        "url": "https://www.w3.org/People/Ivan/"
-    },
-    "files": [
-        "conf.js",
-        "convert.js",
-        "io.js",
-        "features.md",
-        "index.js",
-        "TODO.md",
-        "LICENSE",
-        "README.md",
-        "node_modules"
-    ],
-    "bugs": {
-        "url": "https://github.com/w3c/scribejs/issues",
-        "email": "ivan@w3.org"
-    },
-    "bin": {
-        "scribejs": "./index.js"
-    },
-    "license": "W3C Software License (https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231)",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/w3c/scribejs.git"
-    },
-    "engines": {
-        "node": ">=6.9.2"
-    },
-    "preferGlobal": "true",
-    "dependencies": {
-        "cli.args": "0.0.7",
-        "fs": "0.0.1-security",
-        "moment": "^2.17.1",
-        "node-fetch": "^1.6.3",
-        "path": "^0.12.7",
-        "underscore": "^1.8.3",
-        "url": "^0.11.0"
-    }
+  "name": "scribejs",
+  "version": "0.9.0",
+  "description": "Converter of RSSAgent IRC logs into minutes in markdown",
+  "main": "main.js",
+  "keywords": [
+    "W3C",
+    "scribe",
+    "minute taking"
+  ],
+  "author": {
+    "name": "Ivan Herman",
+    "email": "ivan@w3.org",
+    "url": "https://www.w3.org/People/Ivan/"
+  },
+  "files": [
+    "conf.js",
+    "convert.js",
+    "io.js",
+    "features.md",
+    "main.js",
+    "TODO.md",
+    "LICENSE",
+    "README.md",
+    "node_modules"
+  ],
+  "bugs": {
+    "url": "https://github.com/w3c/scribejs/issues",
+    "email": "ivan@w3.org"
+  },
+  "bin": {
+    "scribejs": "./main.js"
+  },
+  "license": "W3C Software License (https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/w3c/scribejs.git"
+  },
+  "engines": {
+    "node": ">=6.9.2"
+  },
+  "preferGlobal": "true",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "fs": "0.0.1-security",
+    "moment": "^2.17.1",
+    "node-fetch": "^1.6.3",
+    "path": "^0.12.7",
+    "underscore": "^1.8.3",
+    "url": "^0.11.0"
+  }
 }

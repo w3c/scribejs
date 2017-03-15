@@ -5,7 +5,7 @@ const _      = require('underscore');
 const moment = require('moment');
 const fs     = require('fs');
 const path   = require('path');
-const cli    = require('cli.args');
+const program = require('commander');
 
 let default_config = {
 	date   : moment(),
@@ -63,43 +63,26 @@ exports.get_config = () => {
 	/***********************************************************************/
 	// First step: get the command line arguments. There is an error handling for undefined options
 	let argument_config = {};
-	let args            = {};
-	try {
-		args = cli(['help', '-h', 'date:','d:', 'group:', 'g:', 'config:', 'c:', 'output:', 'o:', 'repo', 'r']);
-	} catch(err) {
-		throw new Error(`${err.message}\nUsage: ${err.usage}`);
-	}
+	program
+		.option('-d, --date <date>', 'Date of the meeting in ISO (i.e., YYYY-MM-DD) format')
+		.option('-r, --repo', 'Whether the output should be stored in a github repository')
+		.option('-g, --group [group]', 'Name of the IRC channel used by the group')
+		.option('-c, --config [config]', 'JSON configuration file')
+		.option('-o, --output [output]', 'Output file name')
+		.parse(process.argv);
 
-	// Handle the help options
-	if(args.help || args.h) {
-		console.log(args.info.usage)
-		process.exit(0)
-	}
-
-	// Date must be converted into a moment, but only if it really exists
-	let date = args.d || args.date;
-	if(date) argument_config.date = moment(date);
-
-	// The group to which the minutes belong
-	argument_config.group  = args.g || args.group;
-
-	// Whether the target is a repo or not
-	argument_config.torepo = (args.r || args.repo) ? true : false;
-
-	// Explicit output?
-	let output = args.o || args.output;
-	if(output) argument_config.output = output;
-
-	// Explicit input?
-	if(args.nonOpt) argument_config.input = args.nonOpt[0];
-
-	// prune the argument structure: remove the 'undefined' values that may have creeped in
-	argument_config = _.chain(argument_config).pairs().filter((v) => !_.isUndefined(v[1])).object().value()
+	argument_config.torepo = program.repo ? true : false;
+	if(program.date)   argument_config.date   = moment(program.date);
+	if(program.group)  argument_config.group  = program.group;
+	if(program.output) argument_config.output = program.output;
+	if(program.args)   argument_config.input = program.args[0]
 
 	/***********************************************************************/
 	// Second step: see if there is an explicit config file to be retreived
-	let extra_config_file = args.c || args.config
-	let file_config = (extra_config_file) ? json_conf_file(extra_config_file, true) : {};
+	// let extra_config_file = args.c || args.config
+	// let file_config = (extra_config_file) ? json_conf_file(extra_config_file, true) : {};
+
+	let file_config = program.config ? json_conf_file(program.config, true) : {};
 
 	/***********************************************************************/
 	// Third step: see if there is user level config file
@@ -125,7 +108,7 @@ exports.get_config = () => {
 	// 3. if the input is not set, nothing should happen!
 	if(!retval.input) {
 		// There is nothing to do!!
-		throw new Error("no irc log is provided");
+		throw new Error("no irc log is provided; either an explicit file name or date and group name are needed");
 	}
 
 	// 4. if the github repo should be used, some values are required. If they are
