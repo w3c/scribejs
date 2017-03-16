@@ -1,14 +1,16 @@
 /**
 * Get the arguments and/or configuration file
 */
-const _      = require('underscore');
-const moment = require('moment');
-const fs     = require('fs');
-const path   = require('path');
+const _       = require('underscore');
+const moment  = require('moment');
+const fs      = require('fs');
+const path    = require('path');
 const program = require('commander');
+const user_config_name = ".scribejs.json"
 
 let default_config = {
 	date   : moment(),
+	torepo : false
 }
 
 /**
@@ -64,29 +66,26 @@ exports.get_config = () => {
 	// First step: get the command line arguments. There is an error handling for undefined options
 	let argument_config = {};
 	program
-		.option('-d, --date <date>', 'Date of the meeting in ISO (i.e., YYYY-MM-DD) format')
+		.option('-d, --date [date]', 'Date of the meeting in ISO (i.e., YYYY-MM-DD) format')
 		.option('-r, --repo', 'Whether the output should be stored in a github repository')
 		.option('-g, --group [group]', 'Name of the IRC channel used by the group')
 		.option('-c, --config [config]', 'JSON configuration file')
 		.option('-o, --output [output]', 'Output file name')
 		.parse(process.argv);
 
-	argument_config.torepo = program.repo ? true : false;
+	if(program.repo)   argument_config.date   = true;
 	if(program.date)   argument_config.date   = moment(program.date);
 	if(program.group)  argument_config.group  = program.group;
 	if(program.output) argument_config.output = program.output;
-	if(program.args)   argument_config.input = program.args[0]
+	if(program.args)   argument_config.input  = program.args[0]
 
 	/***********************************************************************/
 	// Second step: see if there is an explicit config file to be retreived
-	// let extra_config_file = args.c || args.config
-	// let file_config = (extra_config_file) ? json_conf_file(extra_config_file, true) : {};
-
 	let file_config = program.config ? json_conf_file(program.config, true) : {};
 
 	/***********************************************************************/
 	// Third step: see if there is user level config file
-	let user_config = (process.env.HOME) ? json_conf_file(path.join(process.env.HOME, ".scribejs.json"), false) : {};
+	let user_config = (process.env.HOME) ? json_conf_file(path.join(process.env.HOME, user_config_name), false) : {};
 
 	/***********************************************************************/
 	// Fourth step: combine the configuration in increasing priority order

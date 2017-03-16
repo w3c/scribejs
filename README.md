@@ -30,7 +30,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 	"date"     : "[Date in ISO Format]",
 	"group"    : "[Group's IRC name]",
 	"input"    : "[Input]",
-	"output"   : "[Output file name]"
+	"output"   : "[Output file name; irrelevant if torepo is true]"
 	"torepo"   : "[true|false]",
 	"ghrepo"   : "[repository name, eg, 'w3c/scribejs']",
 	"ghpath"   : "[path in the repository to the folder where the minutes are to be stored]",
