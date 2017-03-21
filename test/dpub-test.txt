@@ -42,6 +42,7 @@
 17:03:13 <Bert> present+
 17:03:13 <Bert> present+ Charles
 17:03:17 <Karen> Garth: we look to have a critical mass
+17:03:17 <Karen> present- Vlad
 17:03:23 <astearns> present+
 17:03:27 <Karen> …Last Monday was a holiday in the states, so maybe that helped
 17:03:31 <Karen> …Minutes are in the agenda
@@ -54,6 +55,8 @@
 17:04:16 <Karen> …Jonathan Hevenstone from Atypon/Wiley membership
 17:04:25 <Karen> …hope he is here and will be contributing shortly
 17:04:28 <dkaplan3> present+ Deborah_Kaplan
+17:04:28 <astearns> present-
+17:04:28 <astearns> guests+
 17:04:29 <Karen> …and Nick Brown from Ingram
 17:04:35 <Karen> Nick: yes, I am here
 17:04:44 <Karen> Garth: want to give us a brief introduction

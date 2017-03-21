@@ -167,7 +167,8 @@ exports.to_markdown = (inp, body) => {
 
 		/**
 		 * Extract a list of nick names (used for present, regrets, and guests)
-		 * All of these have a common structure: 'XXX+' means add nicknames, 'XXX:' means set them.
+		 * All of these have a common structure: 'XXX+' means add nicknames, 'XXX-' means remove
+		 * nicknames, 'XXX:' means set them.
 		 * If found, the relevant field in the header object is extended.
 		 *
 		 * @param {string} category - the 'label' to look for
@@ -176,33 +177,38 @@ exports.to_markdown = (inp, body) => {
 		 */
 		// Care should be taken to trim everything, to keep the nick names clean of extra spaces...
 		function people(category, line) {
+			let get_names = (index) => {
+				let retval = line.content.slice(index+1).trim().split(',');
+				if(retval.length === 0 || (retval.length === 1 && retval[0].length === 0)) {
+					return [line.nick]
+				} else {
+					return retval;
+				}
+			};
+
 			let lower    = line.content_lower.trim();
 			let cutIndex = category.length;
 			if(lower.startsWith(category) === true) {
 				// bingo, we have to extract the content
 				// There are various possibilities, through
-				to_add = false
+				action = _.union
 				if(lower.startsWith(category + "+") === true) {
-					names = line.content.slice(cutIndex+1).trim().split(',');
-					if(names.length === 0 || (names.length === 1 && names[0].length === 0)) {
-						names = [line.nick]
-					}
-					to_add = true
+					names = get_names(cutIndex);
+				} else if(lower.startsWith(category + "-") === true) {
+					names = get_names(cutIndex);
+					action = _.difference
 				} else if(lower.startsWith(category + ":") === true) {
 					names = line.content.slice(cutIndex+1).trim().split(',');
 				} else {
 					// This is not a correct usage...
 					return false;
 				}
-
-				// Add the names to the header entry
-				headers[category] = _.union(headers[category], _.map(names, (name) => name.trim()))
+				headers[category] = action(headers[category], _.map(names, (name) => name.trim()))
 				return true;
 			} else {
 				return false;
 			}
 		}
-
 
 		/**
 		 * Extract single items like "agenda:" or "chairs:"
