@@ -1,8 +1,14 @@
-The features handled by the converter are essentially the same as [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm); these are just repeated here for an easier reference.
+# Scribing features
+
+This document describe the features that can/should be used for the purpose of scribing using the W3C IRC Server. The features handled by this converter are essentially the same as [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm), although there some minor additions.
 
 The script removes all lines referring to queue control, as well as commands referring to the `RSSAgent` or `trackbot` IRC bots.
 
-The IRC commands are based on a `ROLE: value` pattern, where the various “roles” are described below. The roles are case insensitive. For some roles, the syntax `ROLE+ value` or `ROLE- value` may also be used with a slightly different meaning. Some of the roles have aliases. The roles are as follows:
+The IRC commands are based on a `ROLE: value` pattern, where the various “roles” are described below. The roles are case insensitive. For some roles, the syntax `ROLE+ value` or `ROLE- value` may also be used with a slightly different meaning. Some of the roles have aliases.
+
+When referring to names (e.g., `scribenick`, `present`, scribe’s refernce to speaker, etc.) the preferred way is to use that person’s IRC nickname. If done that way (and if a suitable configuration file is provided) the script would automatically convert those into the persons’ real name, which make the minutes more readable.
+
+The roles are as follows:
 
 ## Scribe control
 
@@ -17,8 +23,6 @@ The IRC commands are based on a `ROLE: value` pattern, where the various “role
 
 * `meeting:`
 	* the value is used as the overall title of the minutes
-* `chair:`
-	* the chair(s) of the meeting; the value can be a comma separated list of co-chairs
 * `agenda:`
 	* the agenda as provided prior to the meeting; the value is a URL
 * `present:`
@@ -35,6 +39,8 @@ The IRC commands are based on a `ROLE: value` pattern, where the various “role
  	* the syntax is identical to `present:`, `present+`, and `present-`, respectively; it can be used if guest participants are to be clearly separated from the regular group participants
 * `regrets:`, `regrets+`, and `regrets-`
 	* the syntax is similar to `present:`, `present+`, and `present-`, respectively; it is used to list group members who have sent, or want to report on IRC, their regrets.
+* `chair:`, `chair+`
+	* the syntax is similar to `present:` and `present+`, respectively; it is used to list chair(s) of the meeting.
 * `date:`
 	* date of the meeting in ISO (i.e., YYYY-MM-DD)
 

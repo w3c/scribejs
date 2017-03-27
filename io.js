@@ -10,6 +10,7 @@
 const url    = require('url');
 const fetch  = require('node-fetch');
 const fs     = require('fs');
+const _ = require('underscore');
 
 /**
  * Get the IRC log. The input provided in the configuration is examined whether it is a URL (in which case
@@ -36,14 +37,14 @@ exports.get_irc_log = (conf) => {
 					resolve(body);
 				})
 				.catch((err) => {
-					reject(`problem accessing remove file ${conf.input}: ${err.message}`)
+					reject(`problem accessing remote file ${conf.input}: ${err.message}`)
 				})
 		} else {
 			// This is a local file. Use an async function to retrieve the file,
 			// though, I believe, a sync function would work just as well
 			fs.readFile(conf.input, 'utf-8', (err, body) => {
 				if(err) {
-					reject(`problem access local file ${conf.input}; ${err}`);
+					reject(`problem access local file ${conf.input}: ${err}`);
 				} else {
 					resolve(body);
 				}
@@ -52,6 +53,61 @@ exports.get_irc_log = (conf) => {
 	});
 };
 
+/**
+ * Get the nickname mapping file (if any). The input provided in the configuration is examined whether it is a URL
+ * (in which case this is retrived via HTTP) or not (in which case it is considered to be a local file). Returns a Promise
+ * with the content of the input as an object.
+ *
+ * @param {object} conf - Overall configuration; the only field that matter here is "conf.nickname"
+ * @returns {Promise} - a promise containing the irc log as a single string.
+ */
+exports.get_nick_mapping = (conf) => {
+	/**
+	* Minimal cleanup on nicknames: allow irc log to be lower or upper case,
+	* internal comparisons should use the lower case only
+	*/
+	function lower_nicks(nicks) {
+		return _.map(nicks, (nick_structure) => {
+			let lowered = _.map(nick_structure.nick, (nick) => nick.toLowerCase());
+			nick_structure.nick = lowered;
+			return nick_structure;
+		})
+	}
+	return new Promise((resolve, reject) => {
+		if(conf.nicknames) {
+			if(url.parse(conf.nicknames).protocol !== null) {
+				// This is a resource on the Web that must be fetched
+				fetch(conf.nicknames)
+					.then((response) => {
+						if(response.ok) {
+							return response.json()
+						} else {
+							throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
+						}
+					})
+					.then((body) => {
+						// Resolve the returned Promise
+						resolve(lower_nicks(body));
+					})
+					.catch((err) => {
+						reject(`problem accessing remote file ${conf.nicknames}: ${err.message}`)
+					})
+			} else {
+				// This is a local file. Use an async function to retrieve the file,
+				// though, I believe, a sync function would work just as well
+				fs.readFile(conf.nicknames, 'utf-8', (err, body) => {
+					if(err) {
+						reject(`problem access local file ${conf.nicknames}: ${err}`);
+					} else {
+						resolve(lower_nicks(JSON.parse(body)));
+					}
+				});
+			}
+		} else {
+			resolve({});
+		}
+	});
+};
 
 /**
  * Output the minutes. Depending on the configuration, the values are stored in a file or on

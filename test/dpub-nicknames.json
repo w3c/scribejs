@@ -1,0 +1,146 @@
+[
+	{
+		"nick"		: ["david_stroup"],
+		"name"		: "David Stroup"
+	},
+	{
+		"nick"		: ["George"],
+		"name"		: "George Kerscher"
+	},
+	{
+		"nick"		: ["tzviya"],
+		"name"		: "Tzviya Siegman",
+		"github"	: "TzviyaSiegman"
+	},
+	{
+		"nick"		: ["ivan"],
+		"name"		: "Ivan Herman",
+		"github"	: "iherman",
+		"url"		: "https://www.ivan-herman.net/professional/"
+	},
+	{
+		"nick"		: ["karen", "KarenMyers"],
+		"name"		: "Karen Myers"
+	},
+	{
+		"nick"		: ["NickRuffilo"],
+		"name"		: "Nick Ruffilo"
+	},
+	{
+		"nick"		: ["Avneesh"],
+		"name"		: "Avneesh Singh"
+	},
+	{
+		"nick"		: ["dauwhe"],
+		"name"		: "Dave Cramer",
+		"github"	: "dauwhe"
+	},
+	{
+		"nick"		: ["laudrain", "Luc"],
+		"name"		: "Luc Audrain",
+		"github"	: "laudrain"
+	},
+	{
+		"nick"		: ["Rick_Johnson"],
+		"name"		: "Rick Johnson",
+		"github"	: "rickj"
+	},
+	{
+		"nick"		: ["Deborah_Kaplan", "dkaplan3"],
+		"name"		: "Deborah Kaplan",
+		"github"	: "deborahgu"
+	},
+	{
+		"nick"		: ["Leonard", "leonardr"],
+		"name"		: "Leonard Rosenthol",
+		"github"	: "lrosenthol"
+	},
+	{
+		"nick"		: ["garth", "GarthConboy"],
+		"name"		: "Garth Conboy",
+		"github"	: "GarthConboy"
+	},
+	{
+		"nick"		: ["Vlad"],
+		"name"		: "Vladimir Levantovsky"
+	},
+	{
+		"nick"		: ["Bill_Kasdorf"],
+		"name"		: "Bill Kasdorf"
+	},
+	{
+		"nick"		: ["mattg"],
+		"name"		: "Matt Garrish",
+		"github"	: "mattgarrish"
+	},
+	{
+		"nick"		: ["rdeltour"],
+		"name"		: "Romain Deltour"
+	},
+	{
+		"nick"		: ["clapierre"],
+		"name"		: "Charles LaPierre"
+	},
+	{
+		"nick"		: ["duga", "brady_duga"],
+		"name"		: "Brady Duga"
+	},
+	{
+		"nick"		: ["HeatherF"],
+		"name"		: "Heather Flanagan",
+		"github"	: "hlflanagan"
+	},
+	{
+		"nick"		: ["cmaden", "cmaden2"],
+		"name"		: "Chris Maden"
+	},
+	{
+		"nick"		: ["bigbluehat"],
+		"name"		: "Benjamin Young"
+	},
+	{
+		"nick"		: ["lmeurs", "Laurent"],
+		"name"		: "Laurent Le Meurs",
+		"github"	: "llemeurfr"
+	},
+	{
+		"nick"		: ["BillMcCoy", "BillMcCoy"],
+		"name"		: "Bill McCoy"
+	},
+	{
+		"pkra"		: ["pkra"],
+		"name"		: "Peter Krautzberger"
+	},
+	{
+		"nick"		: ["Bert"],
+		"name"		: "Bert Bos"
+	},
+	{
+		"nick"		: ["astearns"],
+		"name"		: "Alan Stearns"
+	},
+	{
+		"nick"		: ["nickbrown"],
+		"name"		: "Nick Brown"
+	},
+	{
+		"nick"		: ["hadrien"],
+		"name"		: "Hadrien Gandeur"
+	},
+	{
+		"nick"		: ["rkwright"],
+		"name"		: ["Ric Wright"]
+	},
+	{
+		"nick"		: ["mteixeira-wwn", "mateus-teixeira"],
+		"name"		: "Mateus Teixeira"
+	},
+	{
+		"nick"		: ["Jonathan"],
+		"name"		: "Jonathan Thurston"
+	},
+	{
+		"nick"		: ["cbogen"],
+		"name"		: "Carly Bogen"
+	}
+]

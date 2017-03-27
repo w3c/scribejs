@@ -9,8 +9,9 @@ const program = require('commander');
 const user_config_name = ".scribejs.json"
 
 let default_config = {
-	date   : moment(),
-	torepo : false
+	date           : moment(),
+	torepo         : false,
+	nick_mappings  : {}
 }
 
 /**
@@ -71,17 +72,19 @@ exports.get_config = () => {
 		.option('-r, --repo', 'whether the output should be stored in a github repository')
 		.option('-g, --group [group]', 'name of the IRC channel used by the group')
 		.option('-c, --config [config]', 'JSON configuration file')
+		.option('-n, --nick [nicknames]', 'JSON file for nickname mappings')
 		.option('-o, --output [output]', 'output file name')
 		.on("--help", () => {
 			console.log('    file:                  irc log file; if not present, retrieved from the W3C site');
 		})
 		.parse(process.argv);
 
-	if(program.repo)   argument_config.torepo = true;
-	if(program.date)   argument_config.date   = moment(program.date);
-	if(program.group)  argument_config.group  = program.group;
-	if(program.output) argument_config.output = program.output;
-	if(program.args)   argument_config.input  = program.args[0]
+	if(program.repo)   argument_config.torepo    = true;
+	if(program.date)   argument_config.date      = moment(program.date);
+	if(program.group)  argument_config.group     = program.group;
+	if(program.output) argument_config.output    = program.output;
+	if(program.nick)   argument_config.nicknames = program.nick
+	if(program.args)   argument_config.input     = program.args[0]
 
 	/***********************************************************************/
 	// Second step: see if there is an explicit config file to be retreived
