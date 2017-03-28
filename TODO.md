@@ -4,6 +4,5 @@
 
 ## Known bugs or missing features
 * On the nickname feature:
-	* add a URL link if available (but only on the 'present' list, meaning that the generation of the name may become a bit tricky)
 	* usage of the `github` id value?
 * If and when the [github markdown](https://github.github.com/gfm/) is really implemented on github (at present it is not), it should be possible to add `<style>` elements to a file, thereby being able to color certain parts (using `<div>`, for example). At that point, it is worth changing the display of resolutions and actions to color them to, say, red and green, and make them bold (instead of using the blockquote as of now).

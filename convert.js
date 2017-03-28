@@ -52,18 +52,21 @@ exports.to_markdown = (body, config) => {
 
 
 	/**
-	 * Cleanup ta name. This relies on the (optional) nickname list that
+	 * Get a name structure for a nickname. This relies on the (optional) nickname list that
 	 * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
 	 * The configuration structure is also extended to include the nicknames, so that
 	 * the same full names can be used throughout the minutes.
 	 *
-	 * @param {string} names - name/nickname
-	 * @returns {string} - cleaned up name
+	 * @param {string} nick - name/nickname
+	 * @returns {object} - `name` for the full name and `url` if available
 	 */
-	 function cleanup_name(name) {
+	 function get_name(nick) {
+		 // IRC clients tend to add a '_' to a usual nickname when there
+		 // are duplicate logins. Remove that
+		 nick = nick.replace(/_+$/,'');
 		 // if this nickname has been used before, just return it
-		 if(config.nick_mappings[name]) {
-			 return config.nick_mappings[name]
+		 if(config.nick_mappings[nick]) {
+			 return config.nick_mappings[nick]
 		 } else {
 			 // This is really just a beautification step, i.e.,
 			 // it should be silently forgotten if any problem
@@ -71,19 +74,35 @@ exports.to_markdown = (body, config) => {
 			 try {
 				 for(let i = 0; i < config.nicks.length; i++) {
 					 let struct = config.nicks[i];
-					 if(_.indexOf(struct.nick, name.toLowerCase()) !== -1) {
+					 if(_.indexOf(struct.nick, nick.toLowerCase()) !== -1) {
 						 // bingo, the right name has been found
-						 config.nick_mappings[name] = struct.name
-						 return struct.name
+						 config.nick_mappings[nick] = { name: struct.name };
+						 if(struct.url) config.nick_mappings[nick].url = struct.url;
+
+						 return config.nick_mappings[nick]
 					 }
 				 }
 			 } catch(e) {
 				 ;
 			 }
 			 // As a minimal measure, remove the '_' characters from the name
-			 // (many people use this to signal their presence)
-			 return name.replace(/_/g, ' ');
+			 // (many people use this to signal their presence when using, e.g., present+)
+			 return { name : nick.replace(/_/g, ' ') };
 		 }
+	 }
+
+
+	 /**
+ 	 * Cleanup ta name. This relies on the (optional) nickname list that
+ 	 * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
+ 	 * The configuration structure is also extended to include the nicknames, so that
+ 	 * the same full names can be used throughout the minutes.
+ 	 *
+ 	 * @param {string} nick - name/nickname
+ 	 * @returns {string} - cleaned up name
+ 	 */
+	 function cleanup_name(nick) {
+		 return get_name(nick).name
 	 }
 
 
@@ -93,13 +112,16 @@ exports.to_markdown = (body, config) => {
 	 * The configuration structure is also extended to include the nicknames, so that
 	 * the same full names can be used throughout the minutes.
 	 *
-	 * @param {array} names - list of names/nicknames
+	 * This method is used for the header lists; it also creates a link for the name, if available.
+	 *
+	 * @param {array} nicks - list of names/nicknames
 	 * @returns {array} - list of cleaned up names
 	 *
 	 */
-	function cleanup_names(names) {
-		return _.chain(names)
-			.map(cleanup_name)
+	function cleanup_names(nicks) {
+		return _.chain(nicks)
+			.map(get_name)
+			.map( (obj) => obj.url ? `[${obj.name}](${obj.url})` : obj.name)
 			.uniq()
 			.value();
 	 }

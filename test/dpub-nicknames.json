@@ -96,7 +96,8 @@
 	},
 	{
 		"nick"		: ["bigbluehat"],
-		"name"		: "Benjamin Young"
+		"name"		: "Benjamin Young",
+		"url"       : "http://bigbluehat.com/"
 	},
 	{
 		"nick"		: ["lmeurs", "Laurent"],
