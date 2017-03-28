@@ -66,7 +66,8 @@
 	},
 	{
 		"nick"		: ["Bill_Kasdorf"],
-		"name"		: "Bill Kasdorf"
+		"name"		: "Bill Kasdorf",
+		"github"	: "BillKasdorf"
 	},
 	{
 		"nick"		: ["mattg"],
