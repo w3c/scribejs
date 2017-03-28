@@ -17,7 +17,7 @@
 16:57:27 <leonardr> present+ Leonard
 16:57:36 <Avneesh> Avneesh has joined #dpub
 16:58:05 <Avneesh> present+ Avneesh
-16:58:28 <ivan> Present+
+16:58:28 <ivan_> Present+
 16:58:43 <HeatherF> HeatherF has joined #dpub
 16:59:16 <Vlad> Vlad has joined #dpub
 16:59:23 <BillMcCoy> BillMcCoy has joined #dpub
@@ -117,13 +117,12 @@
 17:10:49 <ivan> details on the meeting in London: https://www.w3.org/wiki/PublishingBG/meeting/2017-03-13#March_13.2C_2017_Kick-Off_Meeting
 17:10:55 <Karen> …there will be people in Publishing BG who are not part of this group, mainly for historical reasons
 17:11:00 <Garth> q?
-17:11:02 <bigbluehat> Present+ Benjamin_Young
+17:11:02 <bigbluehat> Present+
 17:11:12 <Karen> …to be as inclusive as possible, would be good if the charter discussions happened in GitHub
 17:11:18 <Karen> …Do you want more details?
 17:11:26 <Karen> Garth: any input as to how the Business Group
 17:11:38 <Karen> …which is expected to provide input to the charter of the WG
 17:11:44 <Karen> …how that process will go, and timing thereof?
-17:11:45 <Karen> s/Garth/GarthConboy/G
 17:12:00 <Karen> BillMcCoy: Chartering of a WG at W3C has many steps, unlike the CG and BGs
 17:12:11 <Karen> …a WG has a number of more steps, including consent of all the W3C members
 17:12:33 <Karen> …we want to get that done as soon as possible, but we want to be inclusive to the whole publishing community
@@ -501,7 +500,7 @@
 17:56:06 <Karen> Garth: I have little religion on this
 17:56:13 <Karen> …but want to get to another topic shortly
 17:56:22 <Karen> Ivan: I don't think what Bill is saying will fly
-17:56:25 <BillMcCoy> I defer to Ivan on what will fly w/ AC
+17:56:25 <BillMcCoy__> I defer to Ivan on what will fly w/ AC
 17:56:29 <Karen> …knowing how AC is working these days
 17:56:41 <Karen> …we refer to the PWP draft; gives some sort of technical background
 17:56:43 <Karen> …which is now

@@ -7,7 +7,7 @@ const _ = require('underscore');
  * @param {string} body - the IRC log
  * @returns {string} - the minutes in markdown
  */
-exports.to_markdown = (inp, body) => {
+exports.to_markdown = (body, config) => {
 	/**********************************************************************/
 	/*                        Helper functions                            */
 	/**********************************************************************/
@@ -49,6 +49,82 @@ exports.to_markdown = (inp, body) => {
 			}
 		}
 	}
+
+
+	/**
+	 * Get a name structure for a nickname. This relies on the (optional) nickname list that
+	 * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
+	 * The configuration structure is also extended to include the nicknames, so that
+	 * the same full names can be used throughout the minutes.
+	 *
+	 * @param {string} nick - name/nickname
+	 * @returns {object} - `name` for the full name and `url` if available
+	 */
+	 function get_name(nick) {
+		 // IRC clients tend to add a '_' to a usual nickname when there
+		 // are duplicate logins. Remove that
+		 nick = nick.replace(/_+$/,'');
+		 // if this nickname has been used before, just return it
+		 if(config.nick_mappings[nick]) {
+			 return config.nick_mappings[nick]
+		 } else {
+			 // This is really just a beautification step, i.e.,
+			 // it should be silently forgotten if any problem
+			 // occurs.
+			 try {
+				 for(let i = 0; i < config.nicks.length; i++) {
+					 let struct = config.nicks[i];
+					 if(_.indexOf(struct.nick, nick.toLowerCase()) !== -1) {
+						 // bingo, the right name has been found
+						 config.nick_mappings[nick] = { name: struct.name };
+						 if(struct.url) config.nick_mappings[nick].url = struct.url;
+
+						 return config.nick_mappings[nick]
+					 }
+				 }
+			 } catch(e) {
+				 ;
+			 }
+			 // As a minimal measure, remove the '_' characters from the name
+			 // (many people use this to signal their presence when using, e.g., present+)
+			 return { name : nick.replace(/_/g, ' ') };
+		 }
+	 }
+
+
+	 /**
+ 	 * Cleanup ta name. This relies on the (optional) nickname list that
+ 	 * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
+ 	 * The configuration structure is also extended to include the nicknames, so that
+ 	 * the same full names can be used throughout the minutes.
+ 	 *
+ 	 * @param {string} nick - name/nickname
+ 	 * @returns {string} - cleaned up name
+ 	 */
+	 function cleanup_name(nick) {
+		 return get_name(nick).name
+	 }
+
+
+	/**
+	 * Cleanup the header/guest/regret/chair entries. This relies on the (optional) nickname list that
+	 * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
+	 * The configuration structure is also extended to include the nicknames, so that
+	 * the same full names can be used throughout the minutes.
+	 *
+	 * This method is used for the header lists; it also creates a link for the name, if available.
+	 *
+	 * @param {array} nicks - list of names/nicknames
+	 * @returns {array} - list of cleaned up names
+	 *
+	 */
+	function cleanup_names(nicks) {
+		return _.chain(nicks)
+			.map(get_name)
+			.map( (obj) => obj.url ? `[${obj.name}](${obj.url})` : obj.name)
+			.uniq()
+			.value();
+	 }
 
 
 	/**
@@ -158,7 +234,7 @@ exports.to_markdown = (inp, body) => {
 			present: [],
 			regrets: [],
 			guests:  [],
-			chair:   "",
+			chair:   [],
 			agenda:  "",
 			date:    "",
 			scribe:  [],
@@ -210,6 +286,7 @@ exports.to_markdown = (inp, body) => {
 			}
 		}
 
+
 		/**
 		 * Extract single items like "agenda:" or "chairs:"
 		 * If found, the relevant field in the header object is set.
@@ -249,15 +326,22 @@ exports.to_markdown = (inp, body) => {
 			.filter((line) => !people("present", line))
 			.filter((line) => !people("regrets", line))
 			.filter((line) => !people("guests", line))
-			.filter((line) => !single_item("chair", line))
+			.filter((line) => !people("chair", line))
 			.filter((line) => !single_item("agenda", line))
 			.filter((line) => !single_item("meeting", line))
 			.filter((line) => !single_item("date", line))
 			.filter((line) => handle_scribes(line))
 			.filter((line) => (line.nick !== 'trackbot'))
 			.value();
+
 		return {
-			headers: _.mapObject(headers, (val,key) => _.isArray(val) ? val.join(", ") : val),
+			headers: _.mapObject(headers, (val,key) => {
+				if(_.isArray(val)) {
+					return cleanup_names(val).join(", ");
+				} else {
+					return val;
+				}
+			}),
 			lines  : processed_lines
 		}
 	};
@@ -439,7 +523,7 @@ exports.to_markdown = (inp, body) => {
 # Meeting: ${headers.meeting}
 **Date:** ${headers.date}
 
-See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
+See also the [Agenda]($headers.agenda) and the [IRC Log](${config.input})
 ## Attendees
 **Present:** ${headers.present}
 
@@ -489,6 +573,8 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 		let numbering          = "";
 		let header_level       = "";
 		let toc_spaces         = "";
+
+
 		function add_toc(content, level) {
 			if(level === 1) {
 				numbering = ++sec_number_level_1;
@@ -568,7 +654,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 				if(line_object.nick.toLowerCase() === current_scribe) {
 					if(label !== null) {
 						// A new person is talking...
-						content_md = content_md.concat(`\n\n**${label}:** ${content}\n`)
+						content_md = content_md.concat(`\n\n**${cleanup_name(label)}:** ${content}\n`)
 						within_scribed_content = true;
 						current_person         = label
 						// All done with the line!
@@ -589,7 +675,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 							} else {
 								// For some reasons, there was a previous line that interrupted the normal flow,
 								// a new paragraph should be started
-								content_md = content_md.concat(`\n\n**${current_person}:** ${new_content}\n`)
+								content_md = content_md.concat(`\n\n**${cleanup_name(current_person)}:** ${new_content}\n`)
 								// content_md = content_md.concat("\n\n", content.slice(dots))
 								within_scribed_content = true;
 							}
@@ -598,7 +684,7 @@ See also the [Agenda]($headers.agenda) and the [IRC Log](${inp})
 				} else {
 					within_scribed_content = false;
 					// This is a fall back: somebody (not the scribe) makes a note on IRC
-					content_md = content_md.concat("\n\n> *", line_object.nick, "*: ", line_object.content)
+					content_md = content_md.concat("\n\n> *", cleanup_name(line_object.nick), "*: ", line_object.content)
 				}
 			}
 		});

@@ -26,16 +26,23 @@ try {
 // Get the configuration data
 const io      = require('./io');
 const convert = require('./convert');
-io.get_irc_log(config)
-	// 3. Convert the irc log into markdown content
-	.then((irc_log) => {
-		return convert.to_markdown(config.input, irc_log);
+
+// 3. get the nick names
+io.get_nick_mapping(config)
+	// 4. get hold of the irc log itself
+	.then( (nicknames) => {
+		config.nicks = nicknames;
+		return io.get_irc_log(config)
 	})
-	// 4. Either upload the minutes to Github or dump into a local file
+	// 5. Convert the irc log into markdown content
+	.then((irc_log) => {
+		return convert.to_markdown(irc_log, config);
+	})
+	// 6. Either upload the minutes to Github or dump into a local file
 	.then((minutes) => {
 		return io.output_minutes(minutes, config);
 	})
-	// 5. Just display a message for the sake of debug/feedback
+	// 7. Display a message for the sake of debug/feedback
 	.then((message) => {
 		console.log(message);
 	})
