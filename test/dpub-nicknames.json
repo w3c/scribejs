@@ -1,11 +1,31 @@
 [
 	{
+		"nick"		: ["michaelbaker"],
+		"name"		: "Michael Baker"
+	},
+	{
+		"nick"		: ["liisamk"],
+		"name"		: "Liisa McCloy-Kelley",
+		"github"	: "liisamk"
+	},
+	{
+		"nick"		: ["pbelfanti"],
+		"name"		: "Paul Belfanti",
+		"github"	: "pbelfanti"
+	},
+	{
+		"nick"		: ["graham"],
+		"name"		: "Graham Bell",
+		"github"	: "graham-bell"
+	},
+	{
 		"nick"		: ["david_stroup"],
 		"name"		: "David Stroup"
 	},
 	{
 		"nick"		: ["George"],
-		"name"		: "George Kerscher"
+		"name"		: "George Kerscher",
+		"github"	: "georgekerscher"
 	},
 	{
 		"nick"		: ["tzviya"],
@@ -101,7 +121,7 @@
 		"url"       : "http://bigbluehat.com/"
 	},
 	{
-		"nick"		: ["lmeurs", "Laurent"],
+		"nick"		: ["lmeurs", "Laurent", "laurentlemeur"],
 		"name"		: "Laurent Le Meurs",
 		"github"	: "llemeurfr"
 	},
@@ -111,7 +131,8 @@
 	},
 	{
 		"pkra"		: ["pkra"],
-		"name"		: "Peter Krautzberger"
+		"name"		: "Peter Krautzberger",
+		"github"	: "pkra"
 	},
 	{
 		"nick"		: ["Bert"],
@@ -127,14 +148,15 @@
 	},
 	{
 		"nick"		: ["hadrien"],
-		"name"		: "Hadrien Gandeur"
+		"name"		: "Hadrien Gandeur",
+		"github"	: " HadrienGardeur"
 	},
 	{
 		"nick"		: ["rkwright"],
 		"name"		: ["Ric Wright"]
 	},
 	{
-		"nick"		: ["mteixeira-wwn", "mateus-teixeira"],
+		"nick"		: ["mteixeira-wwn", "mateus-teixeira", "mteixeira"],
 		"name"		: "Mateus Teixeira"
 	},
 	{
