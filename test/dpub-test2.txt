@@ -1,0 +1,152 @@
+15:51:09 <RRSAgent> RRSAgent has joined #dpub
+15:51:09 <RRSAgent> logging to http://www.w3.org/2017/04/24-dpub-irc
+15:51:11 <trackbot> RRSAgent, make logs public
+15:51:11 <Zakim> Zakim has joined #dpub
+15:51:13 <trackbot> Zakim, this will be dpub
+15:51:13 <Zakim> ok, trackbot
+15:51:14 <trackbot> Meeting: Digital Publishing Interest Group Teleconference
+15:51:14 <trackbot> Date: 24 April 2017
+15:51:17 <ivan> Chair: Garth
+15:52:00 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Apr/0040.html
+15:52:19 <ivan> ivan has changed the topic to: Agenda for 2017-04-24: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Apr/0040.html
+15:52:53 <ivan> Regrets: Alan, Karen, Heather, George, Rick, Mateus
+15:55:16 <Avneesh> Avneesh has joined #dpub
+15:56:41 <NickRuffilo> NickRuffilo has joined #dpub
+15:57:30 <ivan> ??????
+15:58:14 <cmaden2> cmaden2 has joined #dpub
+15:58:16 <NickRuffilo> i am unable to connect to the webex
+15:58:27 <NickRuffilo> have i lost track of time, or is the meeting in 2 minutes?
+15:59:53 <cmaden2> The access code was rejected for me, too.
+15:59:58 <ivan> It seems that cisco has removed the meeting!
+16:00:17 <cmaden2> Oops.
+16:00:37 <dauwhe> was the series cancelled instead of an individual recent meeting?
+16:00:50 <laudrain> laudrain has joined #dpub
+16:01:10 <ivan> for the time being, let us use: https://mit.webex.com/meet/iherman
+16:01:28 <ivan> or access code 646 685 032
+16:01:39 <ivan> I will have to sort this out for next week
+16:01:44 <Vlad> Vlad has joined #dpub
+16:02:59 <cmaden2> That works. Thanks, Ivan.
+16:03:05 <cmaden2> present+ Chris_Maden
+16:03:05 <NickRuffilo> scribenick
+16:03:13 <NickRuffilo> scribenick: NickRuffilo
+16:03:13 <mattg> present+ mattg
+16:03:36 <clapierre> clapierre has joined #DPUB
+16:03:53 <Bill_Kasdorf> Bill_Kasdorf has joined #dpub
+16:04:01 <garth> garth has joined #dpub
+16:04:08 <garth> Hello?
+16:04:14 <ivan> present+
+16:04:17 <Hadrien> Hadrien has joined #dpub
+16:04:17 <garth> Others able to get on dialin?
+16:04:21 <ivan> garth, look at your mail
+16:04:24 <Bill_Kasdorf> present+ Bill_Kasdorf
+16:04:33 <garth> Okay
+16:04:37 <laudrain> Present+
+16:04:38 <Bill_Kasdorf> the dial in isn't working
+16:04:40 <ivan> charles, you too
+16:04:40 <ivan> use https://mit.webex.com/meet/iherman
+16:04:44 <Vlad> WebEx meeting is cancelled, all links on the IG wiki page are inactive
+16:04:53 <ivan> access code 646 685 032
+16:04:58 <ivan> vlad see above
+16:05:03 <dauwhe> present+ dauwhe
+16:05:03 <Avneesh> present+ Avneesh
+16:05:10 <garth> Same dial-in number?
+16:05:16 <garth> present+ garth
+16:05:27 <rkwright> rkwright has joined #dpub
+16:06:52 <TravisMcCrea> TravisMcCrea has joined #DPUB
+16:07:43 <pkra> pkra has joined #dpub
+16:07:48 <ivan> scribenick: NickRuffilo
+16:07:55 <pkra> present+ Peter Krautzberger
+16:08:01 <clapierre> present+ Charles_LaPierre
+16:08:10 <TravisMcCrea> I know that with the charter changing there will be some differences but I wanted to point out that the WG's link for joining is locked behind a login screen
+16:08:22 <Vlad> present+
+16:08:40 <NickRuffilo> Garth: "Feel free to use this minute to peruse the minutes"
+16:08:42 <ivan> TravisMcCrea: cisco killed the webex entry
+16:08:50 <ivan> use https://mit.webex.com/meet/iherman
+16:09:01 <ivan> or 646 685 032
+16:09:32 <NickRuffilo> Garth: "Any objections to the minutes?  ... OK - minutes approved."
+16:10:16 <TravisMcCrea> ivan I am not a DPUB IG member - I will talk after your meeting.
+16:10:27 <NickRuffilo> ...: "Not sure how people have followed the charter.  There have been quite a few yes votes, but a few objections that we've been working through.  there are some proposed updates - and I'll turn it over to ivan about the status and pending changes that should be sufficient enough to not require us to re-vote."
+16:11:20 <duga> duga has joined #dpub
+16:11:29 <duga> present+ duga
+16:11:54 <garth> From Leonnard: “Got pulled into something else in the meantime ☹.  But Adobe is all booked and we’re looking forward to hosting…”
+16:12:14 <garth> q?
+16:12:14 <garth> Topic: charter issues
+16:12:26 <NickRuffilo> Ivan: "Lets begin with a few numbers.  At this moment, unless I missed someone - we have 20 votes in.  All are positive (accept the charter as is with or without comments).  Which is a nice number, but it has some missing things.  There are only 3 at this moment, 3 TPI members.  We should have much more than that, as the presence of the publishing industry as part of the voters is essential.
+16:12:26 <NickRuffilo> Even among the regular members, we missed the votes of Pearson and Wiley - the big ones on the publishing.  We also miss the votes of a few others.  Also some members who are active/moderately active and votes would be important.  monotype, antenna house, ..."
+16:12:56 <NickRuffilo> ... " And adobe.  These are all active members of this group and it would be important to have a vote in.  I will try to get to Hugh McGuire."
+16:13:10 <NickRuffilo> Garth: "I just sent out a nudge to vote for the charter in email."
+16:13:24 <NickRuffilo> Vlad: "I will look at it and give it attention later today>"
+16:13:51 <NickRuffilo> Ivan: "I have a list of members I have lobbied, and some i will.  Is there anyone from Wiley today?  Otherwise I can reach out via email."
+16:15:18 <david_stroup> david_stroup has joined #dpub
+16:16:03 <NickRuffilo> Ivan: "That's there.  In terms of numbers, we are fine, in terms of the right spread of members, we are still waiting.  Where it becomes more complicated is that we have 2 more votes that came in a week ago that are from vivliostyle and disruptive innovations which had some objections.  We are proposing changes.  I have made a set of changes as a git-hub pull request that was done last week.  It
+16:16:03 <NickRuffilo> might have been thursday, but they were mainly in response to disruptive innovations.  I think the most important thing was that the charter clearly gave the impression that it's the proto first-public-draft of what we want to do - it's a working draft and what we want to do."
+16:16:10 <NickRuffilo> Garth: "Yes, it's on the agenda."
+16:17:20 <ivan> https://lists.w3.org/Archives/Public/public-new-work/2017Apr/0017.html
+16:17:37 <ivan> https://lists.w3.org/Archives/Public/public-new-work/2017Apr/0018.html
+16:17:46 <NickRuffilo> Ivan: "The other question which came up which turns into stronger issues - was the role of packaging.  Daniel was and is still strong in feeling that we should not standardize anything in packaging because similar work is going on in a different group.  I made some changes in the charter that says this recommendation may be practically empty in case another working group in the consortium creates
+16:17:46 <NickRuffilo> the right document that we need.  We recieved an answer from Daniel (link above) answer (in 2nd link)."
+16:18:12 <NickRuffilo> Ivan: "if you have anything to add to their side of this, that would be great."
+16:18:58 <NickRuffilo> Garth: "I believe you answered well.  Unless there are substantive issues against the conversation between Daniel and Ivan, we may be better off not expanding...  we're driving to a good conclusion, not turning it into an email storm is probably a feature.  "
+16:21:11 <NickRuffilo> Ivan: "That's true.  There may have been some mistakes somewhere.  For Vivlio style I'm not sure what's happening.  I got some notes from them but it was more of a thanks than a confirmation.  The plan is Rick Johnson and Bill will talk to him Face to face.  The impression some of us had that this issue about the role of the PWP document may be similar to what Daniel said and that the changes
+16:21:11 <NickRuffilo> will also work for Florien, but we dont' know yet.  The last thing and then i stop - we also got a big strange comment from Microsoft.  MS officially abstained from the vote.  They added a comment: 'We agree with what Vivliostyle and Disruptive Innovations said.'  Which means that if we can come up with something the two like, we can go back to MS."
+16:21:36 <NickRuffilo> Garth: "Ivan, assuming we're all taking happy pills, with another round or two, the plan would be to integration those changes into the charter?  "
+16:21:49 <NickRuffilo> Ivan: "Not today, as the day is almost over here, but maybe tomorrow.  We will see."
+16:22:20 <garth> q?
+16:22:21 <NickRuffilo> q?
+16:22:21 <NickRuffilo> Topic: PWP document renaming
+16:23:55 <NickRuffilo> Garth: "The next piece - topic - one of the confusions/complaints was that we had a document called a PWP that was an input doc, and one that is an output document, and something that was a WP.  There was a reading of the charter where the PWP document that this group put together was the draft standards that would be output of this group.  I am not sure that was our intention, so there was a
+16:23:55 <NickRuffilo> move to change the document produced by this group to be named different.  Matt made a good suggestion, but what are we proposing?"
+16:24:58 <garth> q?
+16:24:58 <NickRuffilo> Ivan: "What I picked up - temporarily - is to say 'Web publication for the open platform: vision and technical challenges'  It works for me, and it sort of covers things.  We know we can have endless discussion on finding the right title - so we should not go into a 30 minute discussion...  Thoughts?"
+16:25:10 <garth> q?
+16:25:16 <clapierre> +1 on name change
+16:25:34 <garth> q?
+16:25:54 <cmaden2> s/Interweb/Intarweb/
+16:25:57 <garth> q?
+16:26:16 <dauwhe> q+
+16:26:29 <NickRuffilo> Dave: "For humor, minuted suggestion: "Cromulent Meditations on the Philosophical Nature of Hypertextual Network-Enabled Interweb Pamphlets"
+16:26:45 <Bill_Kasdorf> +1 to 'Web publication for the open platform: vision and technical challenges'
+16:26:57 <NickRuffilo> Dave: "There was some confusion if some of the input/output documents were going to be rec-track.  There is some fine-print that they are not on rec-track."
+16:26:16 <dauwhe> Topic: publishing notes
+16:27:29 <NickRuffilo> Garth: "That's one of the remaining thing on the document - is dividing the documents into different classes.  The next topic is to divide publishing and the renamed PWP document that will add notes to the interest group."
+16:27:35 <garth> ack dau
+16:28:04 <garth> q?
+16:28:23 <garth> q?
+16:28:25 <NickRuffilo> Ivan: "it's exactly because of that.  I think thats what we should do - publishing them as interest group notes, which sets their status clearly - the interest group may even republish.  At the time being, it makes it clear.  I think all that should change are the title and the editorial notes that we'll make it a note."
+16:28:41 <garth> q?
+16:29:04 <NickRuffilo> Garth: "I think we should change the name of the PWP and publish both of them as interest group notes ASAP.  That will help move things along with the charter."
+16:29:19 <garth> q?
+16:30:53 <NickRuffilo> Garth: "I pasted in a comment from Leonard earlier - that everything stays in place for F2F June 22nd at Adobe in NYC.  We are well ahead on approval but we have to deal with objections.  Assuming all that goes through, we'll keep with the F2F.  Footnote 5 is the location in new york - a few blocks from NYPL.  I got from Adobe a list of hotels - I don't think we can claim the adobe rate, but if
+16:30:53 <NickRuffilo> it's feasible for those hotels sooner rather than later, you might have access to better rates.  "
+16:30:56 <laurentlemeur> laurentlemeur has joined #dpub
+16:30:56 <garth> q?
+16:31:16 <garth> q?
+16:31:47 <garth> q?
+16:32:23 <NickRuffilo> ...: "I'd like to re-iterate that if you have not voted - especially TPI members & publishing folks, if you can pester your respective organizations, that would be good.  lastly, a week from today is May 1st, which is a holiday in pieces of Europe.  We won't have an agenda for that meeting, so we will skip May 1st and come back the 8th and the charter will look even better!"
+16:32:24 <garth> q?
+16:32:52 <NickRuffilo> Ivan: "One more thing is - I appreciate Garth's positive attitude, but keep an eye on the mailing list with the charter discussion."
+16:32:53 <NickRuffilo> q+
+16:33:26 <NickRuffilo> Ivan: "Ideally, in two weeks, if we have the call and we're fine, that would be a great present for Tzviya."
+16:33:28 <garth> ack Nick
+16:34:15 <NickRuffilo> Nick: "Are there threads I need to keep up with?"
+16:34:19 <garth> q?
+16:34:50 <NickRuffilo> Ivan: "Since the new charter thread, there are only 2 threads that have happened, and those are the responses - they were posted above in the minutes - that would be one to watch."
+16:35:13 <clapierre> q+
+16:35:18 <garth> q?
+16:35:45 <NickRuffilo> Charles: "I thought you had to have 8 weeks after a charter was approved to have face-to-face"
+16:35:51 <garth> q?
+16:35:55 <garth> ack clap
+16:35:59 <NickRuffilo> Ivan: "No - from when the process starts, which was 2 weeks ago."
+16:36:12 <NickRuffilo> Garth: "Won't meet next week, but we'll probably email."
+16:36:34 <pkra> pkra has left #dpub
+16:36:39 <clapierre> clapierre has left #dpub
+16:36:57 <ivan> zakim, who is here?
+16:36:57 <Zakim> Present: Chris_Maden, mattg, ivan, Bill_Kasdorf, laudrain, dauwhe, Avneesh, garth, Peter, Krautzberger, Charles_LaPierre, Vlad, duga
+16:37:00 <Zakim> On IRC I see laurentlemeur, duga, TravisMcCrea, rkwright, garth, Vlad, cmaden2, Zakim, RRSAgent, mattg, dauwhe, ivan, rego, Bert, plinss, JakeA, bigbluehat, iank_, astearns,
+16:37:00 <Zakim> ... trackbot
+16:37:08 <laurentlemeur> laurentlemeur has left #dpub
+16:37:42 <TravisMcCrea> ivan around?
+16:37:47 <ivan> present+ laurent, rkwright, cmaden
+16:38:03 <TravisMcCrea> Sure
+16:38:14 <ivan> rrsagent, draft minutes
+16:38:14 <RRSAgent> I have made the request to generate http://www.w3.org/2017/04/24-dpub-minutes.html ivan

@@ -118,7 +118,6 @@ exports.get_nick_mapping = (conf) => {
  * @returns {Promise} - the returned promise data with just an acknowledgement
  */
 exports.output_minutes = (minutes, conf) => {
-
 	return new Promise((resolve, reject) => {
 		if(conf.torepo) {
 			// This must be stored in a github repository

@@ -524,7 +524,7 @@ exports.to_markdown = (body, config) => {
 # Meeting: ${headers.meeting}
 **Date:** ${headers.date}
 
-See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.input})
+See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log})
 ## Attendees
 **Present:** ${headers.present}
 

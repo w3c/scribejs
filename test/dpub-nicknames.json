@@ -127,7 +127,8 @@
 	},
 	{
 		"nick"		: ["BillMcCoy", "BillMcCoy"],
-		"name"		: "Bill McCoy"
+		"name"		: "Bill McCoy",
+		"github"	: "whmccoy"
 	},
 	{
 		"pkra"		: ["pkra"],

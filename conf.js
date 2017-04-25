@@ -103,9 +103,15 @@ exports.get_config = () => {
 
 	// 1. If the group is provided and no explicit input, we should retreive the
 	// IRC log from the W3C site
-	if(retval.group && !retval.input) {
+	// Note, however, if the group is set the IRC URL is to be set in any case,
+	// because that is the original one stored on the Web site,
+	// ie, that must be referred to in the header of the minutes
+	if(retval.group) {
 		// Set the default IRC URL
-		retval.input = set_input_url(retval.date, retval.group);
+		retval.orig_irc_log = set_input_url(retval.date, retval.group);
+		if(!retval.input) {
+			retval.input = retval.orig_irc_log
+		}
 	}
 
 	// 2. get read of the 'moment' object and use ISO date instead
