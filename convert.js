@@ -124,7 +124,7 @@ exports.to_markdown = (body, config) => {
 			.map( (obj) => obj.url ? `[${obj.name}](${obj.url})` : obj.name)
 			.uniq()
 			.value();
-	 }
+	}
 
 
 	/**
@@ -205,6 +205,7 @@ exports.to_markdown = (body, config) => {
 		   })
 		   .filter((line_object) => (line_object.content.match(/^\w+ has joined #\w+/) === null))
 		   .filter((line_object) => (line_object.content.match(/^\w+ has left #\w+/) === null))
+		   .filter((line_object) => (line_object.content.match(/^\w+ has changed the topic to:/) === null))
 		   // End of the underscore chain, retrieve the final value
 		   .value();
 	};
@@ -523,7 +524,7 @@ exports.to_markdown = (body, config) => {
 # Meeting: ${headers.meeting}
 **Date:** ${headers.date}
 
-See also the [Agenda]($headers.agenda) and the [IRC Log](${config.input})
+See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.input})
 ## Attendees
 **Present:** ${headers.present}
 
