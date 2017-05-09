@@ -1,4 +1,5 @@
-const _ = require('underscore');
+const _   = require('underscore');
+const url = require('url');
 
 /**
  * Conversion of an RRS output into markdown. This is the real "meat" of the whole library...
@@ -619,6 +620,20 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 			acounter++;
 		}
 
+		/**
+		* URL handling: find URL-s in a line and convert it into an active markdown link
+		*/
+		function add_links(line) {
+		    let check = (str) => {
+		        a = url.parse(str);
+		        return a.protocol !== null && _.indexOf(["http:", "https:", "ftp:", "mailto:", "doi:"], a.protocol) !== -1
+		    }
+		    // 1. separate the line into an array of words:
+		    // 2. handle each word one by one to possibly turn it into an active link
+		    // 3. join the array back into a sentence
+		    return _.map(line.split(" "), (word) => check(word) ? `[${word}](${word})` : word).join(' ')
+		}
+
 		// "state" variables for the main cycle...
 		let current_scribe         = ""
 		let within_scribed_content = false;
@@ -689,7 +704,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 				} else {
 					within_scribed_content = false;
 					// This is a fall back: somebody (not the scribe) makes a note on IRC
-					content_md = content_md.concat("\n\n> *", cleanup_name(line_object.nick), "*: ", line_object.content)
+					content_md = content_md.concat("\n\n> *", cleanup_name(line_object.nick), "*: ", add_links(line_object.content))
 				}
 			}
 		});
