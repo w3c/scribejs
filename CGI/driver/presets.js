@@ -9,19 +9,19 @@ var presets = {
 		"group"	    : "pwg",
 		"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json",
 		"torepo"	: false,
-		"ghrepo"	: "pwg"
+		"ghrepo"	: "w3c/pwg"
 	},
 	"pbg"	: {
 		"group"	    : "pbg",
 		"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json",
 		"torepo"	: true,
-		"ghrepo"	: "pbg"
+		"ghrepo"	: "w3c/pbg"
 	},
 	"pbgsc"	: {
 		"group"	    : "pbgsc",
 		"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json",
 		"torepo"	: false,
-		"ghrepo"	: "pbgsc"
+		"ghrepo"	: "w3c/pbgsc"
 	}
 };
 
