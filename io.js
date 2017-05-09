@@ -10,7 +10,7 @@
 const url    = require('url');
 const fetch  = require('node-fetch');
 const fs     = require('fs');
-const _ = require('underscore');
+const _      = require('underscore');
 
 /**
  * Get the IRC log. The input provided in the configuration is examined whether it is a URL (in which case
@@ -22,7 +22,11 @@ const _ = require('underscore');
  */
 exports.get_irc_log = (conf) => {
 	return new Promise((resolve, reject) => {
-		if( url.parse(conf.input).protocol !== null ) {
+		if(conf.irclog) {
+			// This field may be present if called from a CGI script, and the IRC log
+			// is uploaded
+			resolve(conf.irclog);
+		} else if(url.parse(conf.input).protocol !== null) {
 			// This is a resource on the Web that must be fetched
 			fetch(conf.input)
 				.then((response) => {

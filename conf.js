@@ -15,6 +15,44 @@ let default_config = {
 }
 
 /**
+* Read a configuration file
+*
+* @param {string} fname - file name
+* @param {boolean} warn - whether an error warning should be sent to the standard error if there are issues
+* @returns {object} - the parsed JSON content
+*/
+exports.json_conf_file = (fname, warn) => {
+	let file_c = null;
+	try {
+		file_c = fs.readFileSync(fname, "utf-8")
+	} catch(e) {
+		if(warn) console.error(`Warning: no such file: ${fname}!\n`)
+		return {};
+	}
+	try {
+		// Date values are converted into moments on the fly
+		return JSON.parse(file_c, (key,value) => (key === "date" ? moment(value) : value));
+	} catch(e) {
+		console.error(e);
+		return {};
+	}
+};
+
+/**
+ * Return the URL to the input: the RSS IRC script URL on the HTTP Date space, namely
+ *  https://www.w3.org/{year}/{month}/{day}-{wg}-irc.txt. The all date values are zero padded.
+ *
+ * @param {moment} date
+ * @param {string} wg - the name of the wg/ig used when RRSAgent generates the IRC log
+ */
+exports.set_input_url = (date, wg) => {
+	let zeropadding = (n) => (n < 10 ? "0" + n : "" + n);
+	let month = zeropadding(date.month() + 1);
+	let day   = zeropadding(date.date());
+	return `https://www.w3.org/${date.year()}/${month}/${day}-${wg}-irc.txt`;
+};
+
+/**
  * Collect the full configuration information. This is a combination of four possible sources
  * of increasing priority
  * - default configuration (contains empty fields except for the date which set to 'today')
@@ -25,44 +63,6 @@ let default_config = {
  * @returns {object} - full configuration. See the overal manual for the field definitions
  */
 exports.get_config = () => {
-	/**
-	* Read a configuration file
-	*
-	* @param {string} fname - file name
-	* @param {boolean} warn - whether an error warning should be sent to the standard error if there are issues
-	* @returns {object} - the parsed JSON content
-	*/
-	function json_conf_file(fname, warn) {
-		let file_c = null;
-		try {
-			file_c = fs.readFileSync(fname, "utf-8")
-		} catch(e) {
-			if(warn) console.error(`Warning: no such file: ${fname}!\n`)
-			return {};
-		}
-		try {
-			// Date values are converted into moments on the fly
-			return JSON.parse(file_c, (key,value) => (key === "date" ? moment(value) : value));
-		} catch(e) {
-			console.error(e);
-			return {};
-		}
-	}
-
-	/**
-	 * Return the URL to the input: the RSS IRC script URL on the HTTP Date space, namely
-	 *  https://www.w3.org/{year}/{month}/{day}-{wg}-irc.txt. The all date values are zero padded.
-	 *
-	 * @param {moment} date
-	 * @param {string} wg - the name of the wg/ig used when RRSAgent generates the IRC log
-	 */
-	function set_input_url(date, wg) {
-		let zeropadding = (n) => (n < 10 ? "0" + n : "" + n);
-		let month = zeropadding(date.month() + 1);
-		let day   = zeropadding(date.date());
-		return `https://www.w3.org/${date.year()}/${month}/${day}-${wg}-irc.txt`;
-	};
-
 	/***********************************************************************/
 	// First step: get the command line arguments. There is an error handling for undefined options
 	let argument_config = {};
@@ -88,11 +88,11 @@ exports.get_config = () => {
 
 	/***********************************************************************/
 	// Second step: see if there is an explicit config file to be retreived
-	let file_config = program.config ? json_conf_file(program.config, true) : {};
+	let file_config = program.config ? exports.json_conf_file(program.config, true) : {};
 
 	/***********************************************************************/
 	// Third step: see if there is user level config file
-	let user_config = (process.env.HOME) ? json_conf_file(path.join(process.env.HOME, user_config_name), false) : {};
+	let user_config = (process.env.HOME) ? exports.json_conf_file(path.join(process.env.HOME, user_config_name), false) : {};
 
 	/***********************************************************************/
 	// Fourth step: combine the configuration in increasing priority order
@@ -103,12 +103,12 @@ exports.get_config = () => {
 
 	// 1. If the group is provided and no explicit input, we should retreive the
 	// IRC log from the W3C site
-	// Note, however, if the group is set the IRC URL is to be set in any case,
+	// Note, however, if the group is set, the IRC URL is to be set in any case,
 	// because that is the original one stored on the Web site,
 	// ie, that must be referred to in the header of the minutes
 	if(retval.group) {
 		// Set the default IRC URL
-		retval.orig_irc_log = set_input_url(retval.date, retval.group);
+		retval.orig_irc_log = exports.set_input_url(retval.date, retval.group);
 		if(!retval.input) {
 			retval.input = retval.orig_irc_log
 		}

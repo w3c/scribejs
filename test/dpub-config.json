@@ -3,5 +3,5 @@
 	"ghpath"    : "test/Minutes",
 	"ghbranch"  : "minutes",
 	"group"     : "dpub",
-	"nicknames" : "test/dpub-nicknames.json"
+	"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json"
 }

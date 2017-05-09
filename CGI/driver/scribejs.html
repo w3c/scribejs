@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <title>Generate Markdown Formatted of IRC minutes</title>
+    <meta content="Ivan Herman" name="author">
+    <meta content="BlueGriffon wysiwyg editor" name="generator">
+    <link rel="copyright" href="http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231" title="CC Copyrights">
+    <link rel="stylesheet" type="text/css" href="/StyleSheets/base.css">
+    <link rel="stylesheet" type="text/css" href="style/scribejs.css">
+    <script type="text/javascript" src="presets.js"></script>
+ </head>
+ <body>
+    <h1>Scribejs driver</h1>
+    <p>To identify the IRC log one can (in priority order):</p>
+
+    <ol>
+        <li>Provide a textual IRC log. If this is not available, then</li>
+        <li>…upload a IRC log file. If this is not available, then</li>
+        <li>…give a date of the meeting, which is used to extract the IRC log from the W3C Web site.</li>
+    </ol>
+
+    <p>The generated Markdown minutes will either be uploaded to a github repository or displayed on the screen, depending on the corresponding flag.</p>
+
+    <p>The form can be populated with presets below, or filled in by hand.</p>
+
+    <select name="presets" id="presets" onchange="set_presets(this.value)">
+        <option value="" selected></option>
+        <option value="dpub">digital publishing interest group</option>
+        <option value="pwg">publishing working group</option>
+        <option value="pbg">publishing business group</option>
+        <option value="pbgsc">publishing steering committee</option>
+    </select>
+
+
+    <form id="uri_form" enctype="multipart/form-data" method="post" action="http://localhost:8001/cgi-bin/scribe">
+        <fieldset>
+            <legend>IRC log</legend>
+            <div class="main-options">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td colspan="3"><textarea id="text" name="irclog_text" rows="15" cols="90"></textarea></td>
+                        </tr>
+                        <tr>
+                            <th><label for="uploaded">Local File:</label></th>
+                            <td colspan="2"><input name="irclog_file" id="uploaded" type="file" width="40"></td>
+                        </tr>
+                        <tr>
+                            <th><label for="date">Date:</label></th>
+                            <td colspan="2"><input name="date" id="date" size="70" type="date"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Group data</legend>
+            <div class="main-options">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th><label for="group">IRC channel:</label></th>
+                            <td colspan="2"><input name="group" id="group" size="70" type="text"></td>
+                        </tr>
+                        <tr>
+                            <th><label for="nicknames">Nickname file name or URL:</label></th>
+                            <td colspan="2"><input name="nicknames" id="nicknames" size="70" type="text"></td>
+                        </tr>
+                        <tr>
+                            <th><label for="torepo">Upload result to Github:</label></th>
+                            <td colspan="2">
+                                <select id="torepo" name="torepo" size="1">
+                                    <option selected="selected" value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Github Repository Options</legend>
+            <div class="main-options">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th><label for="ghrepo">Name:</label></th>
+                            <td colspan="2"><input name="ghrepo" id="ghrepo" size="70" type="text"></td>
+                        </tr>
+                        <tr>
+                            <th><label for="ghpath">Path:</label></th>
+                            <td colspan="2"><input name="ghpath" id="ghpath" size="70" type="text"></td>
+                        </tr>
+                        <tr>
+                            <th><label for="ghbranch">Branch:</label></th>
+                            <td colspan="2"><input name="ghbranch" id="ghbranch" size="70" type="text"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+        <p class="submit_button"><input title="Submit for minute generation" value="Go!" type="submit"></p>
+    </form>
+ </body>
+</html>

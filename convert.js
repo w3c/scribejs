@@ -3,7 +3,6 @@ const _ = require('underscore');
 /**
  * Conversion of an RRS output into markdown. This is the real "meat" of the whole library...
  *
- * @param {string} inp - the name of the input file. This is just used to be stored as a reference
  * @param {string} body - the IRC log
  * @returns {string} - the minutes in markdown
  */
@@ -164,12 +163,17 @@ exports.to_markdown = (body, config) => {
 	 *  - remove bot commands ("zakim,", "rrsagent,", etc.)
 	 *  - remove the "XXX has joined #YYY" type messages
 	 *
+	 * The incoming body is either a single string with many lines (this is the case when the script is invoked from the
+     * command line) or already split into individual lines (this is the case when the data comes via the CGI interface).
+	 *
 	 * @param {string} body - the full IRC log
+	 * @param {boolean} already_split - whether the body is one single string or an array of lines
 	 * @returns {array} - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
 	 */
-	function cleanup(body) {
+	function cleanup(body, already_split = false) {
+		let split_body = already_split ? body : body.split(/\n/);
 		// (the chaining feature of underscore is really helpful here...)
-		return _.chain(body.split(/\n/))
+		return _.chain(split_body)
 		   .filter((line) => (_.size(line) !== 0))
 		   // Remove the starting time stamp, by cutting off until the first space
 		   // Note: these parts may have to be redone, possibly through a
@@ -712,7 +716,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 	// 2. separate the header information (present, chair, date, etc)
 	//    from the 'real' content. That real content is stored in an array
 	//    {nick, content} structures
-	let {headers, lines} = set_header(cleanup(body));
+	let {headers, lines} = set_header(cleanup(body), _.isArray(body));
 
 	// 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
 	lines = perform_insert(lines)
