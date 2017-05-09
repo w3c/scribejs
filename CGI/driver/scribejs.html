@@ -8,6 +8,7 @@
     <link rel="copyright" href="http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231" title="CC Copyrights">
     <link rel="stylesheet" type="text/css" href="/StyleSheets/base.css">
     <link rel="stylesheet" type="text/css" href="style/scribejs.css">
+    <script type="text/javascript" src="presets.js"></script>
  </head>
  <body>
     <h1>Scribejs driver</h1>
@@ -20,6 +21,17 @@
     </ol>
 
     <p>The generated Markdown minutes will either be uploaded to a github repository or displayed on the screen, depending on the corresponding flag.</p>
+
+    <p>The form can be populated with presets below, or filled in by hand.</p>
+
+    <select name="presets" id="presets" onchange="set_presets(this.value)">
+        <option value="" selected></option>
+        <option value="dpub">digital publishing interest group</option>
+        <option value="pwg">publishing working group</option>
+        <option value="pbg">publishing business group</option>
+        <option value="pbgsc">publishing steering committee</option>
+    </select>
+
 
     <form id="uri_form" enctype="multipart/form-data" method="post" action="http://localhost:8001/cgi-bin/scribe">
         <fieldset>

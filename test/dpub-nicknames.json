@@ -1,5 +1,21 @@
 [
 	{
+		"nick"		: ["michael_miller"],
+		"name"		: ["Michael Miller"]
+	},
+	{
+		"nick"		: ["rego"],
+		"name"		: ["Manuel Rego Casasnovas"]
+	},
+	{
+		"nick"		: ["liam"],
+		"name"		: "Liam Quin"
+	},
+	{
+		"nick"		: ["Kyrce"],
+		"name"		: ["Kyrce Swenson"]
+	},
+	{
 		"nick"		: ["michaelbaker"],
 		"name"		: "Michael Baker"
 	},
@@ -43,7 +59,7 @@
 		"name"		: "Karen Myers"
 	},
 	{
-		"nick"		: ["NickRuffilo"],
+		"nick"		: ["NickRuffilo", "nick1"],
 		"name"		: "Nick Ruffilo"
 	},
 	{
@@ -126,7 +142,7 @@
 		"github"	: "llemeurfr"
 	},
 	{
-		"nick"		: ["BillMcCoy", "BillMcCoy"],
+		"nick"		: ["BillMcCoy", "BillMcCoy", "BillM"],
 		"name"		: "Bill McCoy",
 		"github"	: "whmccoy"
 	},
@@ -153,7 +169,7 @@
 		"github"	: " HadrienGardeur"
 	},
 	{
-		"nick"		: ["rkwright"],
+		"nick"		: ["rkwright", "Ric"],
 		"name"		: ["Ric Wright"]
 	},
 	{
