@@ -77,5 +77,5 @@ io.get_nick_mapping(config)
         response.addHeaders(500, {"Content-type" : "text/plain"});
         response.addMessage("Exception occured in the script!\n")
         response.addMessage(err);
-        response.flus();
+        response.flush();
     });

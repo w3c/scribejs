@@ -64,23 +64,43 @@ p.submit_button input {
 	background: #fff;
     color: #365D95;
     padding: 0.3em 0.4em 0.1em 0.3em;
-	font-size: 1.2em;
-	width: 12em;
+	font-size: 1em;
+	width: 10em;
 	text-align: center;
-	border-bottom: 2px solid #444;
-	border-right: 2px solid #444;
+	border-bottom: 2px solid #888;
+	border-right: 2px solid #888;
 	border-top: 1px solid #aaa;
 	border-left: 1px solid #aaa;
 	background: #eee;
 	cursor: pointer;
+	border-radius: 8px;
 }
 
 p.submit_button input:active {
     color: #1f2126;
 	border-bottom: 1px solid #aaa;
 	border-right: 1px solid #aaa;
-	border-top: 2px solid #444;
-	border-left: 2px solid #444;
+	border-top: 2px solid #888;
+	border-left: 2px solid #888;
+}
+
+.load {
+	background: #fff;
+	border-bottom: 2px solid #888;
+	border-right: 2px solid #888;
+	border-top: 1px solid #aaa;
+	border-left: 1px solid #aaa;
+	background: #eee;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.load:active {
+    color: #1f2126;
+	border-bottom: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	border-top: 2px solid #888;
+	border-left: 2px solid #888;
 }
 
 label {

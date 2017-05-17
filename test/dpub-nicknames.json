@@ -77,7 +77,7 @@
 		"github"	: "laudrain"
 	},
 	{
-		"nick"		: ["Rick_Johnson"],
+		"nick"		: ["Rick_Johnson", "RickJ"],
 		"name"		: "Rick Johnson",
 		"github"	: "rickj"
 	},
@@ -166,7 +166,7 @@
 	{
 		"nick"		: ["hadrien"],
 		"name"		: "Hadrien Gandeur",
-		"github"	: " HadrienGardeur"
+		"github"	: "HadrienGardeur"
 	},
 	{
 		"nick"		: ["rkwright", "Ric"],
@@ -183,5 +183,41 @@
 	{
 		"nick"		: ["cbogen"],
 		"name"		: "Carly Bogen"
+	},
+	{
+		"nick"		: ["rpug"],
+		"name"		: "Ryan Pugatch"
+	},
+	{
+		"nick"		: ["brian"],
+		"name"		: "Brian O'Leary"
+	},
+	{
+		"nick"		: ["Schindler"],
+		"name"		: "Wolfgang Schindler"
+	},
+	{
+		"nick"		: ["gregdavis"],
+		"name"		: "Greg Davis"
+	},
+	{
+		"nick"		: ["Julian_Calderazi"],
+		"name"		: "Julian Calderazi"
+	},
+	{
+		"nick"		: ["jensklingelhoefer"],
+		"name"		: "Jens Klingelhöfer"
+	},
+	{
+		"nick"		: ["murata"],
+		"name"		: "Murata Makoto"
+	},
+	{
+		"nick"		: ["berhard_heinser"],
+		"name"		: "Berhard Heinser"
+	},
+	{
+		"nick"		: ["junko_kamata", "jkamata"],
+		"name"		: "Junko Kamata"
 	}
 ]

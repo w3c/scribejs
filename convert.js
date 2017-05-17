@@ -168,11 +168,11 @@ exports.to_markdown = (body, config) => {
      * command line) or already split into individual lines (this is the case when the data comes via the CGI interface).
 	 *
 	 * @param {string} body - the full IRC log
-	 * @param {boolean} already_split - whether the body is one single string or an array of lines
 	 * @returns {array} - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
 	 */
-	function cleanup(body, already_split = false) {
-		let split_body = already_split ? body : body.split(/\n/);
+	function cleanup(body) {
+		let split_body = _.isArray(body) ? body : body.split(/\n/);
+		// let split_body = already_split ? body : body.split(/\n/);
 		// (the chaining feature of underscore is really helpful here...)
 		return _.chain(split_body)
 		   .filter((line) => (_.size(line) !== 0))
@@ -731,7 +731,8 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 	// 2. separate the header information (present, chair, date, etc)
 	//    from the 'real' content. That real content is stored in an array
 	//    {nick, content} structures
-	let {headers, lines} = set_header(cleanup(body), _.isArray(body));
+
+	let {headers, lines} = set_header(cleanup(body));
 
 	// 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
 	lines = perform_insert(lines)
