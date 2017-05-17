@@ -28,35 +28,37 @@ var presets = {
 
 /*------------------------------------------------------------------- */
 
-const zeropadding = (n) =>  n < 10 ? "0" + n : "" + n;
 
 function set_presets(val) {
+	const zeropadding = (n) =>  n < 10 ? "0" + n : "" + n;
 
-	if(val === "None") return;
+	if(val === "None") {
+		document.getElementById('main_form').reset();
+	} else {
+		if(presets[val] !== undefined) {
+			/* set today's date */
+			let date         = new Date();
+			let month        = zeropadding(date.getMonth() + 1);
+			let day          = zeropadding(date.getDate());
+			let year         = date.getFullYear();
+			let date_input   = document.getElementById("date");
+			date_input.value = `${year}-${month}-${day}`;
 
-	if(presets[val] !== undefined) {
-		/* set today's date */
-		let date         = new Date();
-		let month        = zeropadding(date.getMonth() + 1);
-		let day          = zeropadding(date.getDate());
-		let year         = date.getFullYear();
-		let date_input   = document.getElementById("date");
-		date_input.value = `${year}-${month}-${day}`;
+			/* Go through the keys of the preset and set the relevant element accordingly */
+			for(var key in presets[val]) {
+			    var value = presets[val][key];
 
-		/* Go through the keys of the preset and set the relevant element accordingly */
-		for(var key in presets[val]) {
-		    var value = presets[val][key];
+				// 1. step: get the element that has to be modified
+				var element = document.getElementById(key);
 
-			// 1. step: get the element that has to be modified
-			var element = document.getElementById(key);
-
-			// 2. modify the value. The 'torepo' element must be treated a bit differently
-			// the extra check is necessary to avoid problems in case the preset data has a bug...
-			if(element) {
-				if(key === "torepo") {
-					element.selectedIndex = value ? 1 : 0;
-				} else {
-					element.value = value;
+				// 2. modify the value. The 'torepo' element must be treated a bit differently
+				// the extra check is necessary to avoid problems in case the preset data has a bug...
+				if(element) {
+					if(key === "torepo") {
+						element.selectedIndex = value ? 1 : 0;
+					} else {
+						element.value = value;
+					}
 				}
 			}
 		}
@@ -78,13 +80,9 @@ function load_log() {
 	let group = document.getElementById("group").value;
 	let date  = document.getElementById("date").value;
 
-	// Only if this is meaningful...
+	// Do it only if it is meaningful...
 	if(group !== "" && date !== undefined && date !== "") {
 		let target = document.getElementById("text");
-		// target.value = `namivan
-		// ezvan
-		// meg ez is van`;
-
 		let url = set_input_url(date,group);
 		fetch(url)
 			.then((response) => {
