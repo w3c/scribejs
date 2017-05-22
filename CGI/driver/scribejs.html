@@ -8,6 +8,7 @@
     <link rel="copyright" href="http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231" title="CC Copyrights">
     <link rel="stylesheet" type="text/css" href="/StyleSheets/base.css">
     <link rel="stylesheet" type="text/css" href="style/scribejs.css">
+    <!-- <script type="text/javascript" src="https://www.w3.org/scripts/underscore/1.8/underscore-min.js"></script> -->
     <script type="text/javascript" src="presets.js"></script>
  </head>
  <body>
@@ -22,16 +23,23 @@
 
     <p>The generated Markdown minutes will either be uploaded to a github repository or displayed on the screen, depending on the corresponding flag.</p>
 
-    <p>The form can be populated with presets or filled in by hand.</p>
-
+    <p>The form can be populated with presets or filled in by hand. (A “preset” is a storage, in the browser’s Web Storage, of the content of the form. This means that the values remain available on a per-browser basis. Use the <a href="#manage_presets">the form below</a> to manage those.)</p>
+<!--
     <p>
-        <label for="presets">Choose a preset:</label>
-        <select name="presets" id="presets" onchange="set_presets(this.value)" style="width: 20em">
+        <label for="presetstest">@@@Choose a preset:</label>
+        <select name="presetstest" id="presetstest" onchange="set_presets(this.value)" style="width: 20em">
             <option value="None" selected>None</option>
             <option value="dpub">digital publishing interest group</option>
             <option value="pwg">publishing working group</option>
             <option value="pbg">publishing business group</option>
             <option value="pbgsc">publishing steering committee</option>
+        </select>
+    </p> -->
+
+    <p>
+        <label for="presets">Choose a preset:</label>
+        <select name="presets" id="presets" onchange="set_presets(this.value)" style="width: 20em">
+            <option value="None" selected>None</option>
         </select>
     </p>
 
@@ -39,9 +47,35 @@
 
     <form id="main_form" enctype="multipart/form-data" method="post" action="http://localhost:8001/cgi-bin/scribe">
         <p class="submit_button">
-            <input title="Submit for minute generation" value="Go!" type="submit">
-            <input title="Reset form" value="Reset" type="reset" onclick="reset_presets();">
+            <input title="Submit for minute generation" value="Generate minutes" type="submit">
+            <input title="Reset form" value="Reset form" type="reset" onclick="reset_presets();">
         </p>
+        <fieldset>
+            <legend>Group data</legend>
+            <div class="main-options">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th><label for="group">IRC channel:</label></th>
+                            <td><input name="group" id="group" size="70" type="text"></td>
+                        </tr>
+                        <tr>
+                            <th><label for="nicknames">Nickname file name or URL:</label></th>
+                            <td><input name="nicknames" id="nicknames" size="70" type="text"></td>
+                        </tr>
+                        <tr>
+                            <th><label for="torepo">Upload result to Github:</label></th>
+                            <td>
+                                <select id="torepo" name="torepo" size="1">
+                                    <option selected="selected" value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
         <fieldset>
             <legend>IRC log</legend>
             <div class="main-options">
@@ -64,33 +98,7 @@
                                 <label for="irclog">Load the irc log (based on the date) to the text input area?</label>
                             </th>
                             <td>
-                                <input class="load" type="button" name="irclog" value="load!" onclick="load_log();">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </fieldset>
-        <fieldset>
-            <legend>Group data</legend>
-            <div class="main-options">
-                <table>
-                    <tbody>
-                        <tr>
-                            <th><label for="group">IRC channel:</label></th>
-                            <td><input name="group" id="group" size="70" type="text"></td>
-                        </tr>
-                        <tr>
-                            <th><label for="nicknames">Nickname file name or URL:</label></th>
-                            <td><input name="nicknames" id="nicknames" size="70" type="text"></td>
-                        </tr>
-                        <tr>
-                            <th><label for="torepo">Upload result to Github:</label></th>
-                            <td>
-                                <select id="torepo" name="torepo" size="1">
-                                    <option selected="selected" value="false">No</option>
-                                    <option value="true">Yes</option>
-                                </select>
+                                <input class="load" type="button" id="irclog" name="irclog" value="load" onclick="load_log();">
                             </td>
                         </tr>
                     </tbody>
@@ -119,5 +127,42 @@
             </div>
         </fieldset>
     </form>
+
+    <hr />
+
+    <fieldset id="manage_presets">
+        <legend>Manage Presets</legend>
+        <div class="main-options">
+            <table>
+                <tbody>
+                    <tr>
+                        <th><label for="fullname">Group's full name:</label></th>
+                        <td><input id="fullname" name="fullname" id="fullname" size="50" type="text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="store_preset">Store Preset:</label></th>
+                        <td><input class="preset_control" id="store_preset" name="store_preset" value="Store" type="button" onclick="store_preset();"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="remove_preset">Remove Preset:</label></th>
+                        <td><input class="preset_control" id="remove_preset" name="remove_preset" value="Remove" type="button" onclick="remove_preset();"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="clear_presets">Remove All Presets:</label></th>
+                        <td><input class="preset_control" id="clear_presets" name="clear_presets" value="Clear" type="button" onclick="clear_presets();"></td>
+                    </tr>
+                    <!-- <tr>
+                        <th><label for="list_presets">@List All Presets@:</label></th>
+                        <td><input class="preset_control" id="list_presets" name="list_presets" value="List" type="button" onclick="list_presets();"></td>
+                    </tr> -->
+                </tbody>
+            </table>
+
+        </div>
+    </fieldset>
+
+
+
+
  </body>
 </html>
