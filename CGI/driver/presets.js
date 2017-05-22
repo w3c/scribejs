@@ -1,3 +1,5 @@
+const storage_key = "scribejs_webstorage_presets";
+
 // var presets = {
 // 	"dpub" 	: {
 // 		"group"	    : "dpub",
@@ -32,6 +34,12 @@
 
 /*------------------------------------------------------------------- */
 
+const retrieve_presets   = () => JSON.parse(localStorage.getItem(storage_key))
+const store_presets      = (all_presets) => {
+	localStorage.setItem(storage_key, JSON.stringify(all_presets))
+	generate_preset_menu(all_presets);
+};
+
 /*
  *
  */
@@ -40,33 +48,35 @@ function set_presets(val) {
 	if(val === "None") {
 		document.getElementById('main_form').reset();
 	} else {
-		let preset_str = localStorage.getItem(val)
-		if(preset_str) {
-			/* set today's date */
-			let preset       = JSON.parse(preset_str);
-			let date         = new Date();
-			let month        = zeropadding(date.getMonth() + 1);
-			let day          = zeropadding(date.getDate());
-			let year         = date.getFullYear();
-			let date_input   = document.getElementById("date");
-			date_input.value = `${year}-${month}-${day}`;
+		let all_presets = retrieve_presets();
+		if( !_.isEmpty(all_presets) ) {
+			if( all_presets[val] !== undefined ) {
+				let preset       = all_presets[val];
+				let date         = new Date();
+				let month        = zeropadding(date.getMonth() + 1);
+				let day          = zeropadding(date.getDate());
+				let year         = date.getFullYear();
+				let date_input   = document.getElementById("date");
+				date_input.value = `${year}-${month}-${day}`;
 
-			/* Go through the keys of the preset and set the relevant element accordingly */
-			for(var key in preset) {
-			    var value = preset[key];
+				/* Go through the keys of the preset and set the relevant element accordingly */
+				for(var key in preset) {
+				    var value = preset[key];
 
-				// 1. step: get the element that has to be modified
-				var element = document.getElementById(key);
+					// 1. step: get the element that has to be modified
+					var element = document.getElementById(key);
 
-				// 2. modify the value. The 'torepo' element must be treated a bit differently
-				// the extra check is necessary to avoid problems in case the preset data has a bug...
-				if(element) {
-					if(key === "torepo") {
-						element.selectedIndex = value ? 1 : 0;
-					} else {
-						element.value = value;
+					// 2. modify the value. The 'torepo' element must be treated a bit differently
+					// the extra check is necessary to avoid problems in case the preset data has a bug...
+					if(element) {
+						if(key === "torepo") {
+							element.selectedIndex = value ? 1 : 0;
+						} else {
+							element.value = value;
+						}
 					}
 				}
+
 			}
 		}
 	}
@@ -75,7 +85,7 @@ function set_presets(val) {
 /*
  * Reset the preset menu...
  */
-function reset_presets() {
+function reset_preset_menu() {
 	let presets = document.getElementById("presets");
 	presets.selectedIndex = 0;
 }
@@ -83,7 +93,7 @@ function reset_presets() {
 /*
  * Generate preset menu
  */
-function generate_preset_menu() {
+function generate_preset_menu(all_presets) {
 	let select_element = document.getElementById("presets");
 	// Clean the element
 	select_element.innerHTML = "";
@@ -94,55 +104,55 @@ function generate_preset_menu() {
 	none_element.setAttribute("selected", "True");
 	select_element.appendChild(none_element);
 
-	if(localStorage.length === 0) {
-		console.log("No Presets!!");
+	if(_.isEmpty(all_presets)) {
+		console.log("No Presets");
 	} else {
-		for( let i = 0; i < localStorage.length; i++ ) {
-			let key            = localStorage.key(i);
-			let descr          = JSON.parse(localStorage.getItem(key)).fullname;
+		_.forEach(all_presets, (value,key) => {
+			let descr          = value.fullname;
 			let option_element = document.createElement("option");
 			option_element.textContent = descr;
 			option_element.setAttribute("value", key);
 			select_element.appendChild(option_element);
-		}
+		})
 	}
 }
 
-window.onload = generate_preset_menu;
+window.onload = () => {
+	let all_presets = localStorage.getItem(storage_key);
+	if(all_presets) {
+		generate_preset_menu(JSON.parse(all_presets));
+	} else {
+		store_presets({});
+	}
+}
 
 /*
- * List presets
+ * List presets (for debug only!)
  */
 function list_presets() {
 	console.log("--- Presets");
-	if(localStorage.length === 0) {
-		console.log("No Presets!!");
-	} else {
-		for( let i = 0; i < localStorage.length; i++ ) {
-			console.log(localStorage.getItem(localStorage.key(i)));
-		}
-	}
+	let all_presets = retrieve_presets();
+	_.forEach(get_presets(), (value,key) => {
+		console.log(value);
+	})
 	console.log("---");
-	generate_preset_menu();
+	// generate_preset_menu(all_presets);
 }
 
 /*
  * Delete a preset
  */
 function remove_preset() {
+	let all_presets = retrieve_presets();
 	let group = document.getElementById("group").value;
-	if(group !== "") {
-		localStorage.removeItem(group);
-	}
-	generate_preset_menu();
+	store_presets(_.omit(all_presets, group));
 }
 
 /*
  * Clear presets
  */
 function clear_presets() {
-	localStorage.clear();
-	generate_preset_menu();
+	store_presets({});
 }
 
 /*
@@ -169,8 +179,9 @@ function store_preset() {
 		to_be_stored.torepo = true ? element.selectedIndex === 1 : false;
 
 		/* Here comes the meat... */
-		localStorage.setItem(group, JSON.stringify(to_be_stored));
-		generate_preset_menu();
+		let all_presets = retrieve_presets();
+		all_presets[group] = to_be_stored;
+		store_presets(all_presets);
 	} else {
 		console.error("no group name has been provided")
 	}
