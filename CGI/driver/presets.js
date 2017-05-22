@@ -153,8 +153,8 @@ function store_preset() {
 	/* Get group name; this is used to as a key to the local storage */
 	let group = document.getElementById("group").value;
 	if(group !== "") {
-		let targets = ["group", "nicknames", "ghrepo", "ghpath", "ghbranch", "fullname"];
-		targets.forEach(targets, (key) => {
+		let targets = ["group", "nicknames", "ghrepo", "ghpath", "ghbranch", "ghname", "ghemail", "ghtoken", "fullname"];
+		targets.forEach((key) => {
 			let val = document.getElementById(key).value;
 			if(val !== "") {
 				to_be_stored[key] = val;
