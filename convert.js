@@ -93,7 +93,7 @@ exports.to_markdown = (body, config) => {
 
 
 	 /**
- 	 * Cleanup ta name. This relies on the (optional) nickname list that
+ 	 * Cleanup a name. This relies on the (optional) nickname list that
  	 * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
  	 * The configuration structure is also extended to include the nicknames, so that
  	 * the same full names can be used throughout the minutes.
@@ -172,7 +172,7 @@ exports.to_markdown = (body, config) => {
 	 */
 	function cleanup(body) {
 		let split_body = _.isArray(body) ? body : body.split(/\n/);
-		// let split_body = already_split ? body : body.split(/\n/);
+
 		// (the chaining feature of underscore is really helpful here...)
 		return _.chain(split_body)
 		   .filter((line) => (_.size(line) !== 0))
@@ -181,17 +181,26 @@ exports.to_markdown = (body, config) => {
 		   //  specific helper function, if the script is adapted to a larger
 		   //  palette of IRC client loggers, too.
 		   .map((line) => line.slice(line.indexOf(' ') + 1))
+		   // This is where the IRC log lines are turned into objects, separating the nicknames.
 		   .map((line) => {
-			   // This is where the IRC log lines are turned into objects, separating the nicknames.
 			   sp = line.indexOf(' ');
-			   retval = {
+			   return {
 				   // Note that I remove the '<' and the '>' characters
 				   // leaving only the real nickname
 				   nick:    line.slice(1,sp-1),
 				   content: line.slice(sp+1).trim()
 			   };
-			   retval.content_lower = retval.content.toLowerCase();
-			   return retval;
+		   })
+		   // Taking care of the accidental appearance of what could be interpreted as an HTML tag...
+		   .map( (line_object) => {
+			   line_object.content = line_object.content.replace(/<(\w*\/?)>/g,"`<$1>`");
+			   return line_object
+		   })
+		   // Add a lower case version of the content to the objects; this will be used
+		   // for comparisons later
+		   .map( (line_object) => {
+			   line_object.content_lower = line_object.content.toLowerCase();
+			   return line_object
 		   })
 		   // Bunch of filters, removing the unnecessary lines
 		   .filter((line_object) => (line_object.nick !== 'RRSAgent' && line_object.nick !== 'Zakim'))
