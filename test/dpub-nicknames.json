@@ -119,11 +119,11 @@
 		"name"		: "Charles LaPierre"
 	},
 	{
-		"nick"		: ["duga", "brady_duga"],
+		"nick"		: ["duga", "brady_duga", "brady"],
 		"name"		: "Brady Duga"
 	},
 	{
-		"nick"		: ["HeatherF"],
+		"nick"		: ["HeatherF", "Heather"],
 		"name"		: "Heather Flanagan",
 		"github"	: "hlflanagan"
 	},
@@ -147,7 +147,7 @@
 		"github"	: "whmccoy"
 	},
 	{
-		"pkra"		: ["pkra"],
+		"nick"		: ["pkra"],
 		"name"		: "Peter Krautzberger",
 		"github"	: "pkra"
 	},
@@ -219,5 +219,13 @@
 	{
 		"nick"		: ["junko_kamata", "jkamata"],
 		"name"		: "Junko Kamata"
+	},
+	{
+		"nick"		: ["gamou"],
+		"name"		: "Jun Gamou"
+	},
+	{
+		"nick"		: ["timCole"],
+		"name"		: "Tim Cole"
 	}
 ]
