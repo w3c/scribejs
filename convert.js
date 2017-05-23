@@ -573,7 +573,6 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		* structure that grows as we go.
 		* Sections (and the TOC entries) are automatically numbered
 		*/
-		let counter            = 1;
 		let sec_number_level_1 = 0;
 		let sec_number_level_2 = 0;
 		let numbering          = "";
@@ -592,7 +591,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 				header_level = "#### ";
 				toc_spaces   = "    ";
 			}
-			let id = "section" + counter++;
+			let id = `section${numbering}`
 			content_md = content_md.concat("\n\n", `${header_level}[${numbering}. ${content}](id:${id})`)
 			TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${content}](#${id})\n`)
 		}
@@ -610,7 +609,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		}
 
 		/**
-		* Resolution handling: the resolution receives an ID, and a list of resolution is repeated at the end
+		* Action handling: the action receives an ID, and a list of actions is repeated at the end
 		*/
 		let acounter = 1;
 		function add_action(content) {
