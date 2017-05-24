@@ -37,7 +37,7 @@ td, th {
 }
 
 
-input, textarea {
+textarea {
 	font-family: Monaco, "Courier New", Monospace;
 	font-size: 0.9em;
 	border: 1px solid #bbb;
@@ -47,15 +47,12 @@ input, textarea {
 	padding: 0.2em 0.2em;
 	max-width: 1000px;
 	font-variant: normal;
+	width: 98.5%;
 }
 
 input#text, input#uploaded {
 	width: 30em;
 	margin: 0.3em 0 0 1em;
-}
-
-textarea {
-	width: 98.5%;
 }
 
 p.submit_button input {
@@ -86,11 +83,6 @@ p.submit_button input:active {
 
 .load, .preset_control {
 	background: #fff;
-	border-bottom: 2px solid #888;
-	border-right: 2px solid #888;
-	border-top: 1px solid #aaa;
-	border-left: 1px solid #aaa;
-	background: #eee;
 	cursor: pointer;
 	border-radius: 4px;
 }
@@ -157,7 +149,6 @@ form {
 
 input {
 	  font-size: 		0.9em;
-	  border: 	 		1px solid #bbb;
 	  padding: 			0.2em 0.2em;
 	  font-variant: 	normal;
 }
