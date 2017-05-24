@@ -682,7 +682,8 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 				if(line_object.nick.toLowerCase() === current_scribe) {
 					if(label !== null) {
 						// A new person is talking...
-						content_md = content_md.concat(`\n\n**${cleanup_name(label)}:** ${content}\n`)
+						// Note the two spaces at the end of the line, this ensure linebreaks within the paragraph!
+						content_md = content_md.concat(`\n\n**${cleanup_name(label)}:** ${content}  `)
 						within_scribed_content = true;
 						current_person         = label
 						// All done with the line!
@@ -699,11 +700,11 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 							if(within_scribed_content) {
 								// We are in the middle of a full paragraph for one person, safe to simply add
 								// the text to the previous line without any further ado
-								content_md = content_md.concat(" ", new_content)
+								content_md = content_md.concat("\n… ", new_content, "  ")
 							} else {
 								// For some reasons, there was a previous line that interrupted the normal flow,
 								// a new paragraph should be started
-								content_md = content_md.concat(`\n\n**${cleanup_name(current_person)}:** ${new_content}\n`)
+								content_md = content_md.concat(`\n\n**${cleanup_name(current_person)}:** ${new_content}  `)
 								// content_md = content_md.concat("\n\n", content.slice(dots))
 								within_scribed_content = true;
 							}
