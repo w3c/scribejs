@@ -51,8 +51,7 @@
 	{
 		"nick"		: ["ivan"],
 		"name"		: "Ivan Herman",
-		"github"	: "iherman",
-		"url"		: "https://www.ivan-herman.net/professional/"
+		"github"	: "iherman"
 	},
 	{
 		"nick"		: ["karen", "KarenMyers"],
@@ -173,7 +172,7 @@
 		"name"		: ["Ric Wright"]
 	},
 	{
-		"nick"		: ["mteixeira-wwn", "mateus-teixeira", "mteixeira"],
+		"nick"		: ["mteixeira-wwn", "mateus", "mateus-teixeira", "mteixeira"],
 		"name"		: "Mateus Teixeira"
 	},
 	{
@@ -193,7 +192,7 @@
 		"name"		: "Brian O'Leary"
 	},
 	{
-		"nick"		: ["Schindler"],
+		"nick"		: ["Schindler", "Wolfgang"],
 		"name"		: "Wolfgang Schindler"
 	},
 	{
@@ -209,11 +208,11 @@
 		"name"		: "Jens Klingelhöfer"
 	},
 	{
-		"nick"		: ["murata"],
+		"nick"		: ["murata", "makoto"],
 		"name"		: "Murata Makoto"
 	},
 	{
-		"nick"		: ["berhard_heinser"],
+		"nick"		: ["bernhard_heinser"],
 		"name"		: "Berhard Heinser"
 	},
 	{
@@ -227,5 +226,18 @@
 	{
 		"nick"		: ["timCole"],
 		"name"		: "Tim Cole"
+	},
+	{
+		"nick"		: ["DanielBennett", "daniel_bennett"],
+		"name"		: "Daniel Bennett"
+	},
+	{
+		"nick"		: ["cristina", "cmussi"],
+		"name"		: "Cristina Mussinelli"
+	},
+	{
+		"nick"		: ["leslie"],
+		"name"		: "Leslie Hulse"
 	}
+
 ]
