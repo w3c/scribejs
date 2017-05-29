@@ -251,7 +251,7 @@ exports.to_markdown = (body, config) => {
 			guests:  [],
 			chair:   [],
 			agenda:  "",
-			date:    "",
+			date:    config.date ? config.date : "",
 			scribe:  [],
 			meeting: ""
 		};
