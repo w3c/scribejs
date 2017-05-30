@@ -534,8 +534,18 @@ exports.to_markdown = (body, config) => {
 	 * @returns {string} - the header in Markdown
 	 */
 	function generate_header_md(headers) {
-		return `![W3C Logo](https://www.w3.org/Icons/w3c_home)
-# Meeting: ${headers.meeting}
+		let header_start = "";
+		if (config.jekyll) {
+			header_start = `---
+layout: minutes
+date: ${headers.date}
+---
+`
+		} else {
+			header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"
+		}
+
+		let core_header = `# Meeting: ${headers.meeting}
 **Date:** ${headers.date}
 
 See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log})
@@ -550,6 +560,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 
 **Scribe(s):** ${headers.scribe}
 `
+		return header_start + core_header;
 	}
 
 

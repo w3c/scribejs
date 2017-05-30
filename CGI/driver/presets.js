@@ -69,7 +69,7 @@ function set_presets(val) {
 					// 2. modify the value. The 'torepo' element must be treated a bit differently
 					// the extra check is necessary to avoid problems in case the preset data has a bug...
 					if(element) {
-						if(key === "torepo") {
+						if(key === "torepo" || key === "jekyll") {
 							element.selectedIndex = value ? 1 : 0;
 						} else {
 							element.value = value;
@@ -176,7 +176,10 @@ function store_preset() {
 		}
 
 		var element = document.getElementById("torepo");
-		to_be_stored.torepo = true ? element.selectedIndex === 1 : false;
+		to_be_stored.torepo = element.selectedIndex === 1 ? true : false;
+
+		var element = document.getElementById("jekyll");
+		to_be_stored.jekyll = element.selectedIndex === 1 ? true : false;
 
 		/* Here comes the meat... */
 		let all_presets = retrieve_presets();

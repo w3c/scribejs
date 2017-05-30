@@ -11,6 +11,7 @@ const user_config_name 	= ".scribejs.json";
 let default_config = {
 	date           : moment(),
 	torepo         : false,
+	jekyll		   : false,
 	nick_mappings  : {}
 }
 
@@ -29,7 +30,7 @@ exports.get_config = (cgi_config, script_name) => {
 	let local_config = conf_tools.json_conf_file(path.join(path.dirname(script_name), user_config_name), false);
 
 	/***********************************************************************/
-	// Fourth step: combine the configuration in increasing priority order
+	// Combine the configuration in increasing priority order
 	retval = _.extend(default_config, cgi_config, local_config);
 
 	/***********************************************************************/

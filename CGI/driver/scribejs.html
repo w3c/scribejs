@@ -24,17 +24,6 @@
     <p>The generated Markdown minutes will either be uploaded to a github repository or displayed on the screen, depending on the corresponding flag.</p>
 
     <p>The form can be populated with presets or filled in by hand. (A “preset” is a storage, in the browser’s Web Storage, of the content of the form. This means that the values remain available on a per-browser basis. Use the <a href="#manage_presets">the form below</a> to manage those.)</p>
-<!--
-    <p>
-        <label for="presetstest">@@@Choose a preset:</label>
-        <select name="presetstest" id="presetstest" onchange="set_presets(this.value)" style="width: 20em">
-            <option value="None" selected>None</option>
-            <option value="dpub">digital publishing interest group</option>
-            <option value="pwg">publishing working group</option>
-            <option value="pbg">publishing business group</option>
-            <option value="pbgsc">publishing steering committee</option>
-        </select>
-    </p> -->
 
     <p>
         <label for="presets">Choose a preset:</label>
@@ -67,6 +56,15 @@
                             <th><label for="torepo">Upload result to Github:</label></th>
                             <td>
                                 <select id="torepo" name="torepo" size="1">
+                                    <option selected="selected" value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label for="jekyll">Adapt the output to Jekyll:</label></th>
+                            <td>
+                                <select id="jekyll" name="jekyll" size="1">
                                     <option selected="selected" value="false">No</option>
                                     <option value="true">Yes</option>
                                 </select>

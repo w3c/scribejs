@@ -11,6 +11,7 @@ const user_config_name = ".scribejs.json"
 let default_config = {
 	date           : moment(),
 	torepo         : false,
+	jekyll		   : false,
 	nick_mappings  : {}
 }
 
@@ -74,12 +75,14 @@ exports.get_config = () => {
 		.option('-c, --config [config]', 'JSON configuration file')
 		.option('-n, --nick [nicknames]', 'JSON file for nickname mappings')
 		.option('-o, --output [output]', 'output file name')
+		.option('-j,--jekyll', 'whether the output should be adapted to Github+Jekyll' )
 		.on("--help", () => {
 			console.log('    file:                  irc log file; if not present, retrieved from the W3C site');
 		})
 		.parse(process.argv);
 
 	if(program.repo)   argument_config.torepo    = true;
+	if(program.jekyll) argument_config.jekyll    = true;
 	if(program.date)   argument_config.date      = moment(program.date);
 	if(program.group)  argument_config.group     = program.group;
 	if(program.output) argument_config.output    = program.output;

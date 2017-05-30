@@ -18,8 +18,11 @@ scribjs [options] [filename]
 [--nick|-n] nfile:   JSON nickname mapping URL or filename (see [below](#nick)).
 [--output|-o] ofile: Output file name. See [below](#output) on how the final output is chosen.
 [--repo|-r]:         Whether the output should be stored in a github repository.
-                     Default: false.     
+                     Default: false.  
+[--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination   
 ```
+
+(The `jekyll` option means that the generated markdown file contains an extra [Github+Jekyll](https://help.github.com/articles/about-github-pages-and-jekyll/) header referring to a `minutes` layout and a copy of the date. Also, the W3C logo is not added to the output, this may be controlled through the Jekyll layout.)
 
 ### [Configuration files](id:conf)
 While some of the values that can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above), and a user-level configuration file `$HOME/.scribejs.json` can also be used.
@@ -32,6 +35,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `output`    : Output file name; irrelevant if `torepo` is `true`
 * `nicknames` : Nickname file reference in the form of a URL or a filename
 * `torepo`    : `true`|`false`
+* `jekyll`    : `true`|`false`
 * `ghrepo`    : repository name, eg, `w3c/scribejs`
 * `ghpath`    : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`  : branch of the repository where the minutes should be stored. If not set, default is used
