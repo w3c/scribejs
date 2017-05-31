@@ -79,9 +79,9 @@ exports.get_config = () => {
 		.option('-c, --config [config]', 'JSON configuration file')
 		.option('-n, --nick [nicknames]', 'JSON file for nickname mappings')
 		.option('-o, --output [output]', 'output file name')
-		.option('-j, --jekyll', 'whether the output should be adapted to Github+Jekyll; values can be "none", "md", or "kd"' )
+		.option('-j, --jekyll [option]', 'whether the output should be adapted to Github+Jekyll; values can be "none", "md", or "kd"' )
 		.on("--help", () => {
-			console.log('    file:                  irc log file; if not present, retrieved from the W3C site');
+			console.log('    file:                   irc log file; if not present, retrieved from the W3C site');
 		})
 		.parse(process.argv);
 

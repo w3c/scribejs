@@ -1,6 +1,10 @@
 const _   = require('underscore');
 const url = require('url');
 
+const JEKYLL_NONE		= "none";
+const JEKYLL_MARKDOWN	= "md";
+const JEKYLL_KRAMDOWN	= "kd";
+
 /**
  * Conversion of an RRS output into markdown. This is the real "meat" of the whole library...
  *
