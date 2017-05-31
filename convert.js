@@ -535,7 +535,7 @@ exports.to_markdown = (body, config) => {
 	 */
 	function generate_header_md(headers) {
 		let header_start = "";
-		if (config.jekyll) {
+		if (config.jekyll !== JEKYLL_NONE) {
 			header_start = `---
 layout: minutes
 date: ${headers.date}
@@ -612,11 +612,11 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 				toc_spaces   = "    ";
 			}
 			let id = `section${numbering}`
-			// if (config.jekyll) {
-			// 	content_md = content_md.concat("\n\n", `${header_level}${numbering}. ${content}\n{: #${id}}`)
-			// } else {
+			if (config.jekyll === JEKYLL_KRAMDOWN) {
+				content_md = content_md.concat("\n\n", `${header_level}${numbering}. ${content}\n{: #${id}}`)
+			} else {
 				content_md = content_md.concat("\n\n", `${header_level}[${numbering}. ${content}](id:${id})`)
-			// }
+			}
 			TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${content}](#${id})\n`)
 		}
 
@@ -627,11 +627,11 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		let rcounter = 1;
 		function add_resolution(content) {
 			let id = "resolution" + rcounter;
-			// if (config.jekyll) {
-			// 	content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`)
-			// } else {
+			if (config.jekyll === JEKYLL_KRAMDOWN) {
+				content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`)
+			} else {
 				content_md = content_md.concat(`\n\n> [***Resolution #${rcounter}: ${content}***](id:${id})`)
-			// }
+			}
 			resolutions = resolutions.concat(`\n* [Resolution #${rcounter}: ${content}](#${id})`)
 			rcounter++;
 		}
@@ -642,11 +642,11 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		let acounter = 1;
 		function add_action(content) {
 			let id = "action" + acounter;
-			// if (config.jekyll) {
-			// 	content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${content}***\n{: #${id} .action}`)
-			// } else {
+			if (config.jekyll === JEKYLL_KRAMDOWN) {
+				content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${content}***\n{: #${id} .action}`)
+			} else {
 				content_md = content_md.concat(`\n\n> [***Action #${acounter}: ${content}***](id:${id})`)
-			// }
+			}
 			actions    = actions.concat(`\n* [Action #${acounter}: ${content}](#${id})`)
 			acounter++;
 		}
@@ -747,20 +747,20 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		if(rcounter > 1) {
 			// There has been at least one resolution
 			TOC         = TOC.concat(`* [${++sec_number_level_1}. Resolutions](#res)\n`)
-			// if (config.jekyll) {
-			// 	content_md  = content_md.concat(`\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n` + resolutions)
-			// } else {
+			if (config.jekyll === JEKYLL_KRAMDOWN) {
+				content_md  = content_md.concat(`\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n` + resolutions)
+			} else {
 				content_md  = content_md.concat(`\n\n### [${sec_number_level_1}. Resolutions](id:res)\n` + resolutions)
-			// }
+			}
 		}
 		if(acounter > 1) {
 			// There has been at least one resolution
 			TOC         = TOC.concat(`* [${++sec_number_level_1}. Action Items](#act)\n`)
-			// if (config.jekyll) {
-			// 	content_md  = content_md.concat(`\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n` + actions)
-			// } else {
+			if (config.jekyll === JEKYLL_KRAMDOWN) {
+				content_md  = content_md.concat(`\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n` + actions)
+			} else {
 				content_md  = content_md.concat(`\n\n### [${sec_number_level_1}. Action Items](id:act)\n` + actions)
-			// }
+			}
 		}
 		return TOC + content_md;
 	}
