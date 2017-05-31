@@ -14,6 +14,15 @@ body {
 	font-size: 90%;
 }
 
+dl dl dt::before {
+	content: open-quote;
+}
+
+dl dl dt::after {
+	content: close-quote;
+}
+
+
 form, fieldset {
 	margin: 0;
 	padding: 0;

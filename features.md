@@ -4,7 +4,7 @@ This document describe the features that can/should be used for the purpose of s
 
 The script removes all lines referring to queue control, as well as commands referring to the `RSSAgent` or `trackbot` IRC bots.
 
-The IRC commands are based on a `ROLE: value` pattern, where the various “roles” are described below. The roles are case insensitive. For some roles, the syntax `ROLE+ value` or `ROLE- value` may also be used with a slightly different meaning. Some of the roles have aliases.
+The IRC commands are based on a `ROLE: value` pattern, where the various “roles” are described below. The roles are case _insensitive_. For some roles, the syntax `ROLE+ value` or `ROLE- value` may also be used with a slightly different meaning. Some of the roles have aliases.
 
 When referring to names (e.g., `scribenick`, `present`, scribe’s refernce to speaker, etc.) the preferred way is to use that person’s IRC nickname. If done that way (and if a suitable configuration file is provided) the script would automatically convert those into the persons’ real name, which make the minutes more readable.
 
@@ -15,8 +15,8 @@ The roles are as follows:
 * `scribenick:` or `scribe:`
 	* the value is the IRC nickname of the scribe. Subsequent IRC entries with that nickname are considered to be the “main” minute. The scribe should:
 		* use the `name: text` pattern when the person `name` talks and his/her contribution is to be part of the minutes; or
-		* use the `...` or `…` character(s) when the same person continues, and/or the scribe prefers to cut the minutes into several lines for convenience. The script combines all these lines into one paragraph. (Except if another command is in the IRC log intertwined with those line, in which case a new paragraph is created.)
-	* the scribe is set, usually, at the beginning of the meeting, but it is o.k. to use this command at any time when, for example, there is a switch of scribes
+		* use the `...` or the `…` character(s) when the same person continues, and/or the scribe prefers to cut the minutes into several lines for convenience. The script combines all these lines into one paragraph though maintaing the line breaks. (Except if another command is in the IRC log intertwined with those line, in which case a new paragraph is created.)
+	* the scribe is set, usually, at the beginning of the meeting, but it is o.k. to use this command at any time when, for example, there is a switch of scribes.
 	* the list of scribes is gathered and listed in the header automatically.
 
 ## Minute headers
@@ -42,19 +42,19 @@ The roles are as follows:
 * `chair:`, `chair+`
 	* the syntax is similar to `present:` and `present+`, respectively; it is used to list chair(s) of the meeting.
 * `date:`
-	* date of the meeting in ISO (i.e., YYYY-MM-DD)
+	* date of the meeting in ISO (i.e., YYYY-MM-DD). If not set, the day when the minutes are generated is used.
 
 ## Sections
 
 * `topic:`
-	* current major topic; the value is used for a section heading and as an entry in the generated table of contents
+	* current major topic; the value is used for a section heading and as an entry in the generated table of contents.
 * `subtopic:`
-	* current minor topic; he value is used for a subsection heading and as an entry in the generated table of contents
+	* current minor topic; he value is used for a subsection heading and as an entry in the generated table of contents.
 
 ## Resolutions, actions
 
 * `proposal:` or `proposed:`
-	* the value is rendered differently in the generated minutes for an easier reference; it usually precedes a formal vote or a straw possible_label
+	* the value is rendered differently in the generated minutes for an easier reference; it usually precedes a formal vote or a straw vote.
 * `resolution:` or `resolved:`
 	* the value is emphasized in the generated minutes and gets its own fragment identifier which makes it possible to use a dedicated URL when referring to a resolution. The list of resolutions is also repeated at the end of the minutes.
 * `action:`
@@ -63,10 +63,10 @@ The roles are as follows:
 ## Change of the IRC lines
 
 * `s/from/to/` or `s|from|to|`
-	* change, in the generated minutes, the first previous appearance of `from` to `to`. `from` and `to` are regular strings, not regular expressions
+	* change, in the generated minutes, the _closest previous_ appearance of `from` to `to`. `from` and `to` are regular strings, not regular expressions
 * `s/from/to/g` or `s|from|to|g`
 	* like a simple change except that *all* previous appearances of `from` are changed to `to`
 * `s/from/to/G` or `s|from|to|G`
 	* change *all* appearances of `from` to `to` in the minutes
 * `i/at/add/` or `i|at|add|`
-	* look for the first previous appearance of 'at' and insert a *new line* with the value of `add` as a content *before* the line. A typical usage is to add a topic line that was forgotten (or because the discussion took an unexpected turn)
+	* look for the _closest previous_ appearance of `at` and insert a *new line* with the value of `add` as a content *before* the line. A typical usage is to add a (sub)topic line that was forgotten (or because the discussion took an unexpected turn).
