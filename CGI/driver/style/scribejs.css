@@ -22,7 +22,6 @@ dl dl dt::after {
 	content: close-quote;
 }
 
-
 form, fieldset {
 	margin: 0;
 	padding: 0;
@@ -49,7 +48,6 @@ ul, ol {
 td, th {
 	padding: 6px;
 }
-
 
 textarea {
 	font-family: Monaco, "Courier New", Monospace;
