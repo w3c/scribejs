@@ -2,6 +2,11 @@
 
 @import url(fonts.css);
 
+/* By default, the github options are not shown. It is too messy to handle the gh user token... */
+fieldset#gh_options {
+	display: none;
+}
+
 html { padding: 1em; }
 
 body {

@@ -39,7 +39,7 @@
             <input title="Submit for minute generation" value="Generate minutes" type="submit">
             <input title="Reset form" value="Reset form" type="reset" onclick="reset_preset_menu();">
         </p>
-        <fieldset>
+        <fieldset id="group_data">
             <legend>Group data</legend>
             <div class="main-options">
                 <table>
@@ -51,15 +51,6 @@
                         <tr>
                             <th><label for="nicknames">Nickname file name or URL:</label></th>
                             <td><input name="nicknames" id="nicknames" size="70" type="text"></td>
-                        </tr>
-                        <tr>
-                            <th><label for="torepo">Upload result to Github:</label></th>
-                            <td>
-                                <select id="torepo" name="torepo" size="1">
-                                    <option selected="selected" value="false">No</option>
-                                    <option value="true">Yes</option>
-                                </select>
-                            </td>
                         </tr>
                         <tr>
                             <th><label for="jekyll">Adapt the output to Jekyll:</label></th>
@@ -74,7 +65,7 @@
                 </table>
             </div>
         </fieldset>
-        <fieldset>
+        <fieldset id="irc_options">
             <legend>IRC log</legend>
             <div class="main-options">
                 <table>
@@ -103,11 +94,20 @@
                 </table>
             </div>
         </fieldset>
-        <fieldset>
+        <!-- <fieldset id="gh_options">
             <legend>Github Repository Options</legend>
             <div class="main-options">
                 <table>
                     <tbody>
+                        <tr>
+                            <th><label for="torepo">Upload result to Github:</label></th>
+                            <td>
+                                <select id="torepo" name="torepo" size="1">
+                                    <option selected="selected" value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </td>
+                        </tr>
                         <tr>
                             <th><label for="ghrepo">Name:</label></th>
                             <td><input name="ghrepo" id="ghrepo" size="70" type="text"></td>
@@ -135,7 +135,7 @@
                     </tbody>
                 </table>
             </div>
-        </fieldset>
+        </fieldset> -->
     </form>
 
     <hr />
