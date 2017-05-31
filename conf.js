@@ -1,17 +1,21 @@
 /**
 * Get the arguments and/or configuration file
 */
-const _       = require('underscore');
-const moment  = require('moment');
-const fs      = require('fs');
-const path    = require('path');
-const program = require('commander');
-const user_config_name = ".scribejs.json"
+const _       			= require('underscore');
+const moment  			= require('moment');
+const fs      			= require('fs');
+const path    			= require('path');
+const program 			= require('commander');
+const user_config_name 	= ".scribejs.json";
+
+const JEKYLL_NONE		= "none";
+const JEKYLL_MARKDOWN	= "md";
+const JEKYLL_KRAMDOWN	= "kd";
 
 let default_config = {
 	date           : moment(),
 	torepo         : false,
-	jekyll		   : false,
+	jekyll		   : JEKYLL_NONE,
 	nick_mappings  : {}
 }
 
@@ -75,14 +79,15 @@ exports.get_config = () => {
 		.option('-c, --config [config]', 'JSON configuration file')
 		.option('-n, --nick [nicknames]', 'JSON file for nickname mappings')
 		.option('-o, --output [output]', 'output file name')
-		.option('-j,--jekyll', 'whether the output should be adapted to Github+Jekyll' )
+		.option('-j, --jekyll', 'whether the output should be adapted to Github+Jekyll; values can be "none", "md", or "kd"' )
 		.on("--help", () => {
 			console.log('    file:                  irc log file; if not present, retrieved from the W3C site');
 		})
 		.parse(process.argv);
 
 	if(program.repo)   argument_config.torepo    = true;
-	if(program.jekyll) argument_config.jekyll    = true;
+	if(program.jekyll) argument_config.jekyll    = program.jekyll === "kd" ? JEKYLL_KRAMDOWN :
+														( program.jekyll === "md" ? JEKYLL_MARKDOWN : JEKYLL_NONE);
 	if(program.date)   argument_config.date      = moment(program.date);
 	if(program.group)  argument_config.group     = program.group;
 	if(program.output) argument_config.output    = program.output;

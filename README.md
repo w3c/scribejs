@@ -19,10 +19,10 @@ scribjs [options] [filename]
 [--output|-o] ofile: Output file name. See [below](#output) on how the final output is chosen.
 [--repo|-r]:         Whether the output should be stored in a github repository.
                      Default: false.  
-[--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination   
+[--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination.
+                     Value can be "none", "md", or "kd" (see [below](#jekyll) for further details.)
+                     Default: "md".
 ```
-
-(The `jekyll` option means that the generated markdown file contains an extra [Github+Jekyll](https://help.github.com/articles/about-github-pages-and-jekyll/) header referring to a `minutes` layout and a copy of the date. Also, the W3C logo is not added to the output, this may be controlled through the Jekyll layout.)
 
 ### [Configuration files](id:conf)
 While some of the values that can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above), and a user-level configuration file `$HOME/.scribejs.json` can also be used.
@@ -35,7 +35,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `output`    : Output file name; irrelevant if `torepo` is `true`
 * `nicknames` : Nickname file reference in the form of a URL or a filename
 * `torepo`    : `true`|`false`
-* `jekyll`    : `true`|`false`
+* `jekyll`    : `"none"`|`"md"`|`"kd"`
 * `ghrepo`    : repository name, eg, `w3c/scribejs`
 * `ghpath`    : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`  : branch of the repository where the minutes should be stored. If not set, default is used
@@ -76,6 +76,22 @@ This JSON file is used to provide mapping among IRC nicknames and real names. Th
 * `name` : the value is a string, providing the name to be displayed for that person
 * `github` : the GitHub id of the person (currently not used, but may be used later)
 * `url` : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later)
+
+### [Jekyll option](id:jekyll)
+
+The generated minutes may be part of a page hosted by GitHub via the [Github+Jekyll](https://help.github.com/articles/about-github-pages-and-jekyll/) combination. The possible options, and their meaning, are as follows.
+
+* `none`: Jekyll is ignored. This is the default.
+* `md`: the generated minutes includes a special heading, namely:
+    ```
+    ---
+    layout: minutes
+    date: [date of minutes]
+    ---
+    ```
+
+    Furthermore, the W3C logo is _not_ added to the minutes; this can be done by the layout used for the minutes.
+* `kd`: beyond the features of the `md` option, the minutes are generated in [kramdown](https://kramdown.gettalong.org/documentation.html) syntax and not in (standard) markdown. This is the markdown dialect used by Jekyll; the notable difference, in terms of the generated minutes, is the syntax used to assign an identifier to a header, resolution, or an action. (The standard markdown syntax, i.e., `#[header](id:theid)`, is not understood by Jekyll.) As a bonus, the resolutions and the actions are assigned a class name (`resolution` and `action`, respectively) which can be used for extra styling.
 
 ## Installation
 
