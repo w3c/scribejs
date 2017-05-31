@@ -1,37 +1,5 @@
 const storage_key = "scribejs_webstorage_presets";
 
-// var presets = {
-// 	"dpub" 	: {
-// 		"group"	    : "dpub",
-// 		"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json",
-// 		"torepo"	: false,
-// 		"ghrepo"	: "dpub",
-// 		"fullname"  : "Digital Publishing Interest Group"
-// 	},
-// 	"pwg"	: {
-// 		"group"	    : "pwg",
-// 		"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json",
-// 		"torepo"	: false,
-// 		"ghrepo"	: "w3c/pwg",
-// 		"fullname"  : "Publishing Working Group"
-// 	},
-// 	"pbg"	: {
-// 		"group"	    : "pbg",
-// 		"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json",
-// 		"torepo"	: true,
-// 		"ghrepo"	: "w3c/pbg",
-// 		"ghpath"	: "Meetings/Minutes",
-// 		"fullname"  : "Publishing Business Group"
-// 	},
-// 	"pbgsc"	: {
-// 		"group"	    : "pbgsc",
-// 		"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json",
-// 		"torepo"	: false,
-// 		"ghrepo"	: "w3c/pbgsc",
-// 		"fullname"  : "Publishing Steering Committee"
-// 	}
-// };
-
 /*------------------------------------------------------------------- */
 
 const retrieve_presets   = () => JSON.parse(localStorage.getItem(storage_key))
@@ -39,6 +7,10 @@ const store_presets      = (all_presets) => {
 	localStorage.setItem(storage_key, JSON.stringify(all_presets))
 	generate_preset_menu(all_presets);
 };
+
+const JEKYLL_NONE		= "none";
+const JEKYLL_MARKDOWN	= "md";
+const JEKYLL_KRAMDOWN	= "kd";
 
 /*
  *
@@ -69,8 +41,10 @@ function set_presets(val) {
 					// 2. modify the value. The 'torepo' element must be treated a bit differently
 					// the extra check is necessary to avoid problems in case the preset data has a bug...
 					if(element) {
-						if(key === "torepo" || key === "jekyll") {
+						if(key === "torepo") {
 							element.selectedIndex = value ? 1 : 0;
+						} else if(key === "jekyll") {
+							element.selectedIndex = value === JEKYLL_MARKDOWN ? 1 : (value === JEKYLL_KRAMDOWN ? 2 : 0)
 						} else {
 							element.value = value;
 						}
@@ -179,7 +153,7 @@ function store_preset() {
 		to_be_stored.torepo = element.selectedIndex === 1 ? true : false;
 
 		var element = document.getElementById("jekyll");
-		to_be_stored.jekyll = element.selectedIndex === 1 ? true : false;
+		to_be_stored.jekyll = element.selectedIndex === 1 ? JEKYLL_MARKDOWN : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN: JEKYLL_NONE);
 
 		/* Here comes the meat... */
 		let all_presets = retrieve_presets();

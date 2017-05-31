@@ -8,10 +8,14 @@ const path				= require('path');
 const conf_tools		= require('../conf');
 const user_config_name 	= ".scribejs.json";
 
+const JEKYLL_NONE		= "none";
+const JEKYLL_MARKDOWN	= "md";
+const JEKYLL_KRAMDOWN	= "kd";
+
 let default_config = {
 	date           : moment(),
 	torepo         : false,
-	jekyll		   : false,
+	jekyll		   : JEKYLL_NONE,
 	nick_mappings  : {}
 }
 
