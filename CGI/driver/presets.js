@@ -12,6 +12,8 @@ const JEKYLL_NONE		= "none";
 const JEKYLL_MARKDOWN	= "md";
 const JEKYLL_KRAMDOWN	= "kd";
 
+const boolean_keys = ["torepo", "final"];
+
 /*
  *
  */
@@ -41,7 +43,7 @@ function set_presets(val) {
 					// 2. modify the value. The 'torepo' element must be treated a bit differently
 					// the extra check is necessary to avoid problems in case the preset data has a bug...
 					if(element) {
-						if(key === "torepo") {
+						if(boolean_keys.indexOf(key) !== -1) {
 							element.selectedIndex = value ? 1 : 0;
 						} else if(key === "jekyll") {
 							element.selectedIndex = value === JEKYLL_MARKDOWN ? 1 : (value === JEKYLL_KRAMDOWN ? 2 : 0)
@@ -152,10 +154,10 @@ function store_preset() {
 			to_be_stored.fullname = group;
 		}
 
-		var element = document.getElementById("torepo");
-		if(element) {
-			to_be_stored.torepo = element.selectedIndex === 1 ? true : false;			
-		}
+		_.forEach(boolean_keys, (key) => {
+			var element = document.getElementById(key);
+			to_be_stored.torepo = element.selectedIndex === 1 ? true : false;
+		});
 
 		var element = document.getElementById("jekyll");
 		to_be_stored.jekyll = element.selectedIndex === 1 ? JEKYLL_MARKDOWN : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN: JEKYLL_NONE);
