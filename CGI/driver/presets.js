@@ -140,7 +140,7 @@ function store_preset() {
 	let group = document.getElementById("group").value;
 	if(group !== "") {
 		let targets = ["group", "nicknames", "ghrepo", "ghpath", "ghbranch", "ghname", "ghemail", "ghtoken", "fullname"];
-		targets.forEach((key) => {
+		_.forEach(targets, (key) => {
 			let el = document.getElementById(key);
 			if(el) {
 				let val = el.value;
@@ -156,7 +156,9 @@ function store_preset() {
 
 		_.forEach(boolean_keys, (key) => {
 			var element = document.getElementById(key);
-			to_be_stored.torepo = element.selectedIndex === 1 ? true : false;
+			if(element) {
+				to_be_stored[key] = element.selectedIndex === 1 ? true : false;
+			}
 		});
 
 		var element = document.getElementById("jekyll");
