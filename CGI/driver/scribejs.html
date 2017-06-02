@@ -61,6 +61,15 @@
                                 </select>
                             </td>
                         </tr>
+                        <tr>
+                            <th><label for="final">Are the minutes final:</label></th>
+                            <td>
+                                <select id="final" name="final" size="1">
+                                    <option selected="selected" value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -188,6 +197,9 @@
 
                 <dt>Nickname file name or URL</dt>
                 <dd>Identify a JSON data file providing a mapping from IRC nicknames to real names. Used to display the participants’ proper name everywhere in the minutes. See <a href="https://github.com/w3c/scribejs/blob/master/README.md#nickname-mapping">the more detailed description</a> for further details.</dd>
+
+                <dt>Are the minutes final</dt>
+                <dd>By default, minutes are considered as “draft”, and labeled as such. This may be important for groups that follow the procedure to “finalize” the minutes only after a 5 days’ period when resolutions may be objected to. If the minutes are labeled as “final”, no such extra notice is added to the minutes.</dd>
 
                 <dt>Adapt the output to Jekyll</dt>
                 <dd>If the generated minutes are part of a Web site served on GitHub via a <a href="https://help.github.com/articles/about-github-pages-and-jekyll/">Github+Jekyll</a> combination, then this flag provides some useful additions and/or alternatives. See <a href="https://github.com/w3c/scribejs/blob/master/README.md#Jekylloption">the more detailed description</a> for further details. </dd>

@@ -14,6 +14,7 @@ const JEKYLL_KRAMDOWN	= "kd";
 
 let default_config = {
 	date           : moment(),
+	final		   : false,
 	torepo         : false,
 	jekyll		   : JEKYLL_NONE,
 	nick_mappings  : {}
@@ -75,6 +76,7 @@ exports.get_config = () => {
 		.usage('[options] [file]')
 		.option('-d, --date [date]', 'date of the meeting in ISO (i.e., YYYY-MM-DD) format')
 		.option('-r, --repo', 'whether the output should be stored in a github repository')
+		.option('-f, --final', 'whether the minutes are final, i.e., not a draft')
 		.option('-g, --group [group]', 'name of the IRC channel used by the group')
 		.option('-c, --config [config]', 'JSON configuration file')
 		.option('-n, --nick [nicknames]', 'JSON file for nickname mappings')
@@ -86,6 +88,7 @@ exports.get_config = () => {
 		.parse(process.argv);
 
 	if(program.repo)   argument_config.torepo    = true;
+	if(program.repo)   argument_config.final     = true;
 	if(program.jekyll) argument_config.jekyll    = program.jekyll === "kd" ? JEKYLL_KRAMDOWN :
 														( program.jekyll === "md" ? JEKYLL_MARKDOWN : JEKYLL_NONE);
 	if(program.date)   argument_config.date      = moment(program.date);

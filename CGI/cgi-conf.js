@@ -14,6 +14,7 @@ const JEKYLL_KRAMDOWN	= "kd";
 
 let default_config = {
 	date           : moment(),
+	final		   : false,
 	torepo         : false,
 	jekyll		   : JEKYLL_NONE,
 	nick_mappings  : {}

@@ -549,7 +549,12 @@ date: ${headers.date}
 			header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"
 		}
 
+		let draft_class = config.jekyll === JEKYLL_KRAMDOWN ? "{: .draft_notice}" : ""
+
 		let core_header = `# Meeting: ${headers.meeting}
+${config.final ? "" : "***– DRAFT Minutes –***"}
+${draft_class}
+
 **Date:** ${headers.date}
 
 See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log})
