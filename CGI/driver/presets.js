@@ -139,18 +139,23 @@ function store_preset() {
 	if(group !== "") {
 		let targets = ["group", "nicknames", "ghrepo", "ghpath", "ghbranch", "ghname", "ghemail", "ghtoken", "fullname"];
 		targets.forEach((key) => {
-			let val = document.getElementById(key).value;
-			if(val !== "") {
-				to_be_stored[key] = val;
+			let el = document.getElementById(key);
+			if(el) {
+				let val = el.value;
+				if(val !== "") {
+					to_be_stored[key] = val;
+				}
 			}
-		})
+		});
 
 		if(to_be_stored.fullname === undefined || to_be_stored.fullname === "") {
 			to_be_stored.fullname = group;
 		}
 
 		var element = document.getElementById("torepo");
-		to_be_stored.torepo = element.selectedIndex === 1 ? true : false;
+		if(element) {
+			to_be_stored.torepo = element.selectedIndex === 1 ? true : false;			
+		}
 
 		var element = document.getElementById("jekyll");
 		to_be_stored.jekyll = element.selectedIndex === 1 ? JEKYLL_MARKDOWN : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN: JEKYLL_NONE);
