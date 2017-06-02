@@ -17,6 +17,7 @@ scribjs [options] [filename]
                      line arguments have a higher priority.
 [--nick|-n] nfile:   JSON nickname mapping URL or filename (see [below](#nick)).
 [--output|-o] ofile: Output file name. See [below](#output) on how the final output is chosen.
+[--final|-f]:        The minutes are final, i.e., they won't be labeled as "DRAFT".
 [--repo|-r]:         Whether the output should be stored in a github repository.
                      Default: false.  
 [--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination.
@@ -34,6 +35,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `input`     : Input
 * `output`    : Output file name; irrelevant if `torepo` is `true`
 * `nicknames` : Nickname file reference in the form of a URL or a filename
+* `final`     : `true`|`false`
 * `torepo`    : `true`|`false`
 * `jekyll`    : `"none"`|`"md"`|`"kd"`
 * `ghrepo`    : repository name, eg, `w3c/scribejs`
