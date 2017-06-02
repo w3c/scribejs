@@ -19,9 +19,8 @@ const boolean_keys = ["torepo", "final"];
  */
 function set_presets(val) {
 	const zeropadding = (n) =>  n < 10 ? "0" + n : "" + n;
-	if(val === "None") {
-		document.getElementById('main_form').reset();
-	} else {
+	document.getElementById('main_form').reset();
+	if(val !== "None") {
 		let all_presets = retrieve_presets();
 		if( !_.isEmpty(all_presets) ) {
 			if( all_presets[val] !== undefined ) {
@@ -52,7 +51,7 @@ function set_presets(val) {
 						}
 					}
 				}
-
+				return;
 			}
 		}
 	}

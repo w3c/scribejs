@@ -103,7 +103,7 @@
                 </table>
             </div>
         </fieldset>
-        <!-- <fieldset id="gh_options">
+        <fieldset id="gh_options">
             <legend>Github Repository Options</legend>
             <div class="main-options">
                 <table>
@@ -129,22 +129,10 @@
                             <th><label for="ghbranch">Branch:</label></th>
                             <td><input name="ghbranch" id="ghbranch" size="70" type="text"></td>
                         </tr>
-                        <tr>
-                            <th><label for="ghname">GH User name:</label></th>
-                            <td><input name="ghname" id="ghname" size="70" type="text"></td>
-                        </tr>
-                        <tr>
-                            <th><label for="ghemail">GH User email:</label></th>
-                            <td><input name="ghemail" id="ghemail" size="70" type="email"></td>
-                        </tr>
-                        <tr>
-                            <th><label for="ghtoken">GH User token:</label></th>
-                            <td><input name="ghtoken" id="ghtoken" size="70" type="password"></td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
-        </fieldset> -->
+        </fieldset>
     </form>
 
     <hr />
@@ -222,6 +210,27 @@
                 <dd>Locate the IRC log based on the date and, instead of generating the minutes, load the content into the text editing area corresponding to the textual input; this can then be used to generate the minutes. This option is useful if it is necessary to make small adjustments on the IRC log to improve the quality of the minutes.
                 </dd>
             </dl>
+        </dd>
+
+        <dt>Github Repository Options</dt>
+        <dd>
+            <dl>
+                <dt>Upload results to Github</dt>
+                <dd>Whether the resulting minutes should be uploaded to github automatically or returned to the browser</dd>
+
+                <dt>Name</dt>
+                <dd>Name of the repository, e.g., <code>w3c/publ-wg</code> </dd>
+
+                <dt>Path</dt>
+                <dd>Path of the folder within the repository where the minutes should be stored (without starting or trailing slash characters). Minutes are stored using the <code>Minutes-[date].md</code></dd>
+
+                <dt>Branch</dt>
+                <dd>Git branch to be used (defaults to <code>master</code>)</dd>
+            </dl>
+
+            <p>
+                Note, however, that there are private information that <em>cannot</em> be set through this interface, namely the name, email address, and the OAUTH key (see for a <a href="https://github.com/w3c/scribejs/blob/master/README.md#conf">description</a> of those). These must be installed by the system administrator in a <code>CGI-executable/.scribejs.json</code> file, following the syntax <a href="https://github.com/w3c/scribejs/blob/master/README.md#conf">of the configuration files</a>.
+            </p>
         </dd>
 
         <dt>Manage Presets</dt>
