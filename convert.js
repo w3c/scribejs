@@ -745,7 +745,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 				} else {
 					within_scribed_content = false;
 					// This is a fall back: somebody (not the scribe) makes a note on IRC
-					content_md = content_md.concat("\n\n> *", cleanup_name(line_object.nick), "*: ", add_links(line_object.content))
+					content_md = content_md.concat("\n\n> *", cleanup_name(line_object.nick), ":* ", add_links(line_object.content))
 				}
 			}
 		});
