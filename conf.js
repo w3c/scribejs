@@ -139,7 +139,7 @@ exports.get_config = () => {
 	if(retval.torepo) {
 		let needed = [retval.ghname, retval.ghemail, retval.ghtoken, retval.ghrepo, retval.ghpath]
 		if(_.every(needed, (val) => !_.isUndefined(val))) {
-			retval.ghfname   = retval.output ? retval.output : `Minutes-${retval.date}.md`
+			retval.ghfname   = retval.output ? retval.output : `${retval.date}-minutes.md`
 			retval.ghmessage = `Added minutes for ${retval.date} at ${moment().format("YYYY-MM-DD H:m:s Z")}`
 		} else {
 			let message = "repository output is required, but not all values are provided.\n"
