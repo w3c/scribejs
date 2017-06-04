@@ -543,6 +543,7 @@ exports.to_markdown = (body, config) => {
 			header_start = `---
 layout: minutes
 date: ${headers.date}
+title: ${headers.meeting} — ${headers.date}
 ---
 `
 		} else {
@@ -551,7 +552,7 @@ date: ${headers.date}
 
 		let draft_class = config.jekyll === JEKYLL_KRAMDOWN ? "{: .draft_notice}" : ""
 
-		let core_header = `# Meeting: ${headers.meeting}
+		let core_header = `# ${headers.meeting} — Minutes
 ${config.final ? "" : "***– DRAFT Minutes –***"}
 ${draft_class}
 
