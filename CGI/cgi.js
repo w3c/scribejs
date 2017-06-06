@@ -68,7 +68,11 @@ io.get_nick_mapping(config)
         if(debug) {
             response.addMessage("\n# Final configuration ")
             response.addMessage(JSON.stringify(config, null, 2))
-        }
+        };
+        response.addHeaders(200, {
+            "Content-Type"          : "text/markdown; charset=utf-8",
+            "Content-disposition"   : "attachment"
+        });
         response.flush();
     })
     .catch( (err) => {

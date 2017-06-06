@@ -90,7 +90,7 @@ exports.get_config = () => {
 	if(program.repo)   argument_config.torepo    = true;
 	if(program.repo)   argument_config.final     = true;
 	if(program.jekyll) argument_config.jekyll    = program.jekyll === "kd" ? JEKYLL_KRAMDOWN :
-														( program.jekyll === "md" ? JEKYLL_MARKDOWN : JEKYLL_NONE);
+														(program.jekyll === "md" ? JEKYLL_MARKDOWN : JEKYLL_NONE);
 	if(program.date)   argument_config.date      = moment(program.date);
 	if(program.group)  argument_config.group     = program.group;
 	if(program.output) argument_config.output    = program.output;

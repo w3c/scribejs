@@ -65,10 +65,11 @@ exports.get_config = (cgi_config, script_name) => {
 
 	// 4. if the github repo should be used, some values are required. If they are
 	// present, the output file name for the repo can be generated, if needed
+	// The name may be used even if the github storage is not in effect (as a return parameter in the header)...
+	retval.ghfname   = retval.output ? retval.output : `${retval.date}-minutes.md`
 	if(retval.torepo) {
 		let needed = [retval.ghname, retval.ghemail, retval.ghtoken, retval.ghrepo, retval.ghpath]
 		if(_.every(needed, (val) => !_.isUndefined(val))) {
-			retval.ghfname   = retval.output ? retval.output : `Minutes-${retval.date}.md`
 			retval.ghmessage = `Added minutes for ${retval.date} at ${moment().format("YYYY-MM-DD H:m:s Z")}`
 		} else {
 			let message = "repository output is required, but not all values are provided.\n"
