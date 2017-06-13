@@ -741,6 +741,12 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 								// content_md = content_md.concat("\n\n", content.slice(dots))
 								within_scribed_content = true;
 							}
+						} else {
+							// It is the scribe talking. Except if the scribe forgot to put the "...", but we cannot
+							// really help that:-(
+							within_scribed_content = false;
+							// This is a fall back: somebody (not the scribe) makes a note on IRC
+							content_md = content_md.concat("\n\n> *", cleanup_name(line_object.nick), ":* ", add_links(line_object.content))
 						}
 					}
 				} else {
