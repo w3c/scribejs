@@ -71,7 +71,7 @@ io.get_nick_mapping(config)
         };
         response.addHeaders(200, {
             "Content-Type"          : "text/markdown; charset=utf-8",
-            "Content-disposition"   : "attachment"
+            "Content-disposition"   : `inline; filename=${config.ghfname}`
         });
         response.flush();
     })
