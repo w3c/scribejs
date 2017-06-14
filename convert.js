@@ -67,7 +67,7 @@ exports.to_markdown = (body, config) => {
 	 function get_name(nick) {
 		 // IRC clients tend to add a '_' to a usual nickname when there
 		 // are duplicate logins. Remove that
-		 nick = nick.replace(/_+$/,'');
+		 nick = nick.replace(/^_+/,'').replace(/^@/,'');
 		 // if this nickname has been used before, just return it
 		 if(config.nick_mappings[nick]) {
 			 return config.nick_mappings[nick]
