@@ -211,6 +211,7 @@ exports.to_markdown = (body, config) => {
 		   .filter((line_object) => {
 			   return !(
 				   line_object.content_lower.startsWith("q+")        ||
+				   line_object.content_lower.startsWith("+q")        ||
 				   line_object.content_lower.startsWith("q-")        ||
 				   line_object.content_lower.startsWith("q?")        ||
 				   line_object.content_lower.startsWith("ack")       ||
