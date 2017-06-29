@@ -553,7 +553,7 @@ title: ${headers.meeting} — ${headers.date}
 			header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"
 		}
 
-		let draft_class = kramdown ? "{: .draft_notice}" : "";
+		let draft_class = kramdown && !config.final ? "{: .draft_notice}" : "";
 		let no_toc      = kramdown ? "{: .no_toc}" : "";
 
 		let core_header = `# ${headers.meeting} — Minutes
