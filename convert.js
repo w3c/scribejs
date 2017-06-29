@@ -12,6 +12,8 @@ const JEKYLL_KRAMDOWN	= "kd";
  * @returns {string} - the minutes in markdown
  */
 exports.to_markdown = (body, config) => {
+	let kramdown = config.jekyll == JEKYLL_KRAMDOWN;
+
 	/**********************************************************************/
 	/*                        Helper functions                            */
 	/**********************************************************************/
@@ -551,9 +553,11 @@ title: ${headers.meeting} — ${headers.date}
 			header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"
 		}
 
-		let draft_class = config.jekyll === JEKYLL_KRAMDOWN ? "{: .draft_notice}" : ""
+		let draft_class = kramdown ? "{: .draft_notice}" : "";
+		let no_toc      = kramdown ? "{: .no_toc}" : "";
 
 		let core_header = `# ${headers.meeting} — Minutes
+${no_toc}
 ${config.final ? "" : "***– DRAFT Minutes –***"}
 ${draft_class}
 
@@ -561,6 +565,7 @@ ${draft_class}
 
 See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log})
 ## Attendees
+${no_toc}
 **Present:** ${headers.present}
 
 **Regrets:** ${headers.regrets}
@@ -593,7 +598,8 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		// this will be the output
 		let content_md     = "\n---\n"
 		// this will be the table of contents
-		let TOC = "## Content:\n"
+		let TOC        = "## Content:\n";
+		let jekyll_toc = "## Content:\n{: .no_toc}\n\n* TOC\n{:toc}";
 		// this will be the list or resolutions
 		let resolutions = ""
 		// this will be the list or actions
@@ -623,7 +629,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 				toc_spaces   = "    ";
 			}
 			let id = `section${numbering}`
-			if (config.jekyll === JEKYLL_KRAMDOWN) {
+			if (kramdown) {
 				content_md = content_md.concat("\n\n", `${header_level}${numbering}. ${content}\n{: #${id}}`)
 			} else {
 				content_md = content_md.concat("\n\n", `${header_level}[${numbering}. ${content}](id:${id})`)
@@ -638,7 +644,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		let rcounter = 1;
 		function add_resolution(content) {
 			let id = "resolution" + rcounter;
-			if (config.jekyll === JEKYLL_KRAMDOWN) {
+			if (kramdown) {
 				content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`)
 			} else {
 				content_md = content_md.concat(`\n\n> [***Resolution #${rcounter}: ${content}***](id:${id})`)
@@ -653,7 +659,7 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		let acounter = 1;
 		function add_action(content) {
 			let id = "action" + acounter;
-			if (config.jekyll === JEKYLL_KRAMDOWN) {
+			if (kramdown) {
 				content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${content}***\n{: #${id} .action}`)
 			} else {
 				content_md = content_md.concat(`\n\n> [***Action #${acounter}: ${content}***](id:${id})`)
@@ -763,8 +769,8 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 
 		if(rcounter > 1) {
 			// There has been at least one resolution
-			TOC         = TOC.concat(`* [${++sec_number_level_1}. Resolutions](#res)\n`)
-			if (config.jekyll === JEKYLL_KRAMDOWN) {
+			TOC = TOC.concat(`* [${++sec_number_level_1}. Resolutions](#res)\n`)
+			if (kramdown) {
 				content_md  = content_md.concat(`\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n` + resolutions)
 			} else {
 				content_md  = content_md.concat(`\n\n### [${sec_number_level_1}. Resolutions](id:res)\n` + resolutions)
@@ -772,14 +778,21 @@ See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log
 		}
 		if(acounter > 1) {
 			// There has been at least one resolution
-			TOC         = TOC.concat(`* [${++sec_number_level_1}. Action Items](#act)\n`)
-			if (config.jekyll === JEKYLL_KRAMDOWN) {
+			TOC = TOC.concat(`* [${++sec_number_level_1}. Action Items](#act)\n`)
+			if (kramdown) {
 				content_md  = content_md.concat(`\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n` + actions)
 			} else {
 				content_md  = content_md.concat(`\n\n### [${sec_number_level_1}. Action Items](id:act)\n` + actions)
 			}
 		}
-		return TOC + content_md;
+
+		// A final bifurcation: if kramdown is used, it is more advantageous to rely on on the
+		// TOC generation of kramdown. It makes the ulterior changes of the minutes (eg, adding
+	    // new sections or subsections) easier, because one does not have to modify the TOC.
+		//
+		// It is suboptimal that the TOC content is generated in the previous steps and possibly ignored
+		// at this step, but the code would have been much uglier if it was littered with conditionals everywhere...
+		return (kramdown ? jekyll_toc : TOC) + content_md;
 	}
 
 
