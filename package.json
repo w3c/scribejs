@@ -34,10 +34,8 @@
     "url": "https://github.com/w3c/scribejs/issues",
     "email": "ivan@w3.org"
   },
-  "bin": {
-    "scribejs": "./main.js"
-  },
-  "license": "W3C Software License (https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231)",
+  "bin": "./main.js",
+  "license": "W3C-20150513",
   "repository": {
     "type": "git",
     "url": "https://github.com/w3c/scribejs.git"

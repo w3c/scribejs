@@ -6,7 +6,7 @@ The reason of writing this script is that the current approach of producing HTML
 
 
 ## [Usage](id:usage)
-The script runs on top of `node.js`. The “entry point” is the `index.js` file, which accepts the following command line arguments:
+The script runs on top of `node.js`. The “entry point” is the `main.js` file, which accepts the following command line arguments:
 
 ```
 scribjs [options] [filename]
@@ -97,6 +97,6 @@ The generated minutes may be part of a page hosted by GitHub via the [Github+Jek
 
 ## Installation
 
-Standard `node.js` practices have been followed. This means that repository can be cloned and, in the directory of the repository, the `npm install` command can be used. This should create a symbolic link to `index.js` in the user’s search path with the name `scribejs`.
+Standard `node.js` practices have been followed. This means that repository can be cloned and, in the directory of the repository, the `npm install` command can be used. This should create a symbolic link to `main.js` in the user’s search path with the name `scribejs`.
 
-The repository also contains a copy of all the dependencies (i.e., the necessary node modules) in the `node_modules` directory. That means that `node index.js` (or an alias thereof) should also be functional without any further installation.
+The repository also contains a copy of all the dependencies (i.e., the necessary node modules) in the `node_modules` directory. That means that `node main` (or an alias thereof) should also be functional without any further installation.
