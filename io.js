@@ -7,10 +7,11 @@
  * For the moment, the default (ie, 'master') branch is used.
  *
  */
-const url    = require('url');
-const fetch  = require('node-fetch');
-const fs     = require('fs');
-const _      = require('underscore');
+const url     = require('url');
+const fetch   = require('node-fetch');
+const fs      = require('fs');
+const _       = require('underscore');
+const octokat = require('octokat');
 
 /**
  * Get the IRC log. The input provided in the configuration is examined whether it is a URL (in which case
@@ -127,7 +128,7 @@ exports.output_minutes = (minutes, conf) => {
 			// This must be stored in a github repository
 			//console.log(JSON.stringify(conf, null, 2))
 			commit(minutes, conf)
-			  .then((branch) => resolve(`Minutes are in https://github.com/${conf.ghrepo}/blob/${branch}/${conf.ghpath}/${conf.ghfname}`))
+			  .then((url) => resolve(`Minutes are in ${url}`))
 			  .catch((err) => reject(err))
 		} else {
 			if(conf.output) {
@@ -167,92 +168,36 @@ exports.output_minutes = (minutes, conf) => {
  * @returns {Promise} - the returned promise data is whatever the github API returns; usable for debug
  */
 function commit(data, conf) {
-	// Collecting the data from the configuration
-	uri   = `https://api.github.com/repos/${conf.ghrepo}/contents/${conf.ghpath}/${conf.ghfname}`
-	uri_r = `https://api.github.com/repos/${conf.ghrepo}`
-	// This is the message for the PUT action. Note that base64 encoding of the data,
-	// this is required by the GitHub API
-	let message = {
-		"message" : conf.ghmessage,
-		"committer" : {
-			"name"  : conf.ghname,
-			"email" : conf.ghemail
-		},
-		"content" : Buffer.from(data).toString('base64'),
-	};
-
-	// If the user has set an explicit branch, this must be added here. Otherwise it
-	// will go to the default branch
-	if(conf.ghbranch) message.branch = conf.ghbranch;
-
-	// Before uploading we have to see if the file already exists or not. If it does
-	// we need the sha number of that resource; this is needed to be able to modify the
-	// content.
-	//
-	// This means: first we make a GET on the target resource; if the resources is there
-	// we retrieve the sha value from the return value, which must be added to the "message"
-	// object above. As a second step, we make a PUT with the new data.
-	return new Promise((resolve,reject) => {
-		// Try to fetch the data.
-		fetch(uri, {
-			headers: {
-				'Authorization' : `token ${conf.ghtoken}`
-			}
-		})
-		.then((response) => {
-			// If there *is* a response, that includes the magic sha number which which we need.
-			// We just send it to the next step (remember that response.text() returns a promise,
-		    // so we have to do the processing in the next step below...)
-			if(response.ok) {
-				return response.text();
-			} else {
-				return null;
-			}
-		})
-		.then((body) => {
-			// fill in the sha value if we need it
-			if(body !== null) {
-				message.sha = JSON.parse(body).sha;
-			}
-			// off we go with the upload
-			fetch(uri, {
-				method: 'PUT',
-				headers: {
-					'Accept'        : 'application/json',
-					'Content-type'  : 'application/json',
-					'Authorization' : `token ${conf.ghtoken}`
-				},
-				body : JSON.stringify(message)
-			}).then(() => {
-				// the return from this should be the name of the branch into which the minutes
-				// have been committed. If it was set explicitly by the user this is not a problem,
-				// but otherwise the name of the default branch should be inquired from github
-				if(conf.ghbranch) {
-					resolve(conf.ghbranch)
-				} else {
-					fetch(uri_r, {
-						headers: {
-							'Authorization' : `token ${conf.ghtoken}`
-						}
-					})
-					.then((response) => {
-						if(response.ok) {
-							return response.json()
-						} else {
-							// This should actually not happen
-							resolve("master")
-						}
-					})
-					.then( (res) => {
-						resolve(res.default_branch)
-					});
+	const gh = new octokat({token: conf.ghtoken});
+	const repo = conf.ghrepo.split('/');
+	const url = `${conf.ghpath}${conf.ghfname}` + (conf.ghbranch ? `?ref=${conf.ghbranch}` : '');
+	return new Promise((resolve, reject) => {
+		const upload = (resolve, reject, sha = null) => {
+			const params = {
+				sha: sha,
+				path: conf.ghpath,
+				branch: conf.ghbranch,
+				message: conf.ghmessage,
+				content: Buffer.from(data).toString('base64'),
+				committer: {
+					name: conf.ghname,
+					email: conf.ghemail
 				}
-			}).catch((err) => {
-				reject(err);
-			});
-		})
-		.catch((err) => {
-			reject(err);
-		})
-	})
+			};
+			gh.repos(...repo).contents(`${conf.ghfname}`).add(params)
+				.then((info) => {
+					if (info && info.content && info.content.htmlUrl)
+						resolve(info.content.htmlUrl);
+					else
+						reject(info);
+				})
+				.catch(err => reject (err));
+		};
+		gh.repos(...repo).contents(url).fetch()
+			.then((info) => {
+				if (info)
+					upload(resolve, reject, info.sha ? info.sha : null);
+			})
+			.catch(err => upload(resolve, reject));
+	});
 }
