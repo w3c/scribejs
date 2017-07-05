@@ -4,7 +4,6 @@
 const _       			= require('underscore');
 const moment  			= require('moment');
 const fs      			= require('fs');
-const path    			= require('path');
 const program 			= require('commander');
 const config_name 		= 'config.json';
 
