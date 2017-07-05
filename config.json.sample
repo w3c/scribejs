@@ -1,0 +1,7 @@
+{
+	"ghrepo"    : "user-or-org/repo-name",
+	"ghpath"    : "minutes",
+	"ghbranch"  : "",
+	"nicknames" : "irc-nicknames.json",
+	"ghtoken"   : "your-github-token"
+}

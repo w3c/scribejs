@@ -28,7 +28,7 @@ scribjs [options] [filename]
 ```
 
 ### [Configuration files](id:conf)
-While some of the values that can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above), and a user-level configuration file `$HOME/.scribejs.json` can also be used.
+While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, `./config.json` will be used, if present.
 
 The keys are as follows (see also the [description of the command line](#usage) for their explanation). Use only those keys that have a meaningful value.
 
@@ -99,7 +99,33 @@ The generated minutes may be part of a page hosted by GitHub via the [Github+Jek
 
 ## Installation
 
-Standard `node.js` practices have been followed. This means that repository can be cloned and, in the directory of the repository, the `npm install` command can be used. This should create a symbolic link to `main.js` in the user’s search path with the name `scribejs`.
+Standard Node.js practices have been followed.
+
+```bash
+git clone https://github.com/w3c/scribejs.git
+cd scribejs
+npm install
+cp config.json.sample config.json
+$EDITOR config.json    # Fill in details: your GH token, etc
+```
+
+To run scribejs:
+
+```bash
+node .
+```
+
+Optionally, you can install it globally with:
+
+```bash
+sudo npm i -g .
+```
+
+which will create a symbolic link to `main.js` in the user's search path with the name `scribejs`, so you should be able to invoke it this way, too:
+
+```bash
+scribejs
+```
 
 ## Testing
 
