@@ -2,3 +2,5 @@
 --growl
 --reporter spec
 --timeout 2000
+--use_strict
+--full-trace
