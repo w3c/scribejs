@@ -167,11 +167,26 @@ exports.output_minutes = (minutes, conf) => {
  * @param {object} conf - the configuration containing additional data
  * @returns {Promise} - the returned promise data is whatever the github API returns; usable for debug
  */
+ // The GH access is done via the octokat library (https://www.npmjs.com/package/octokat). See
+ // https://github.com/philschatz/octokat.js/tree/c6f38e5bd7b2dadeb9066eaae2e8a762354795d8/examples
+ // for a set of examples which is an attempt to replace a proper documentation...
+ //
+ // This library provides a more consise layer on top of the official Github API:
+ // https://developer.github.com/v3
 function commit(data, conf) {
 	const gh = new octokat({token: conf.ghtoken});
 	const repo = conf.ghrepo.split('/');
 	const url = `${conf.ghpath}${conf.ghfname}` + (conf.ghbranch ? `?ref=${conf.ghbranch}` : '');
+	// Before uploading we have to see if the file already exists or not. If it does
+    // we need the sha number of that resource; this is needed to be able to modify the
+    // content.
+    //
+    // This means: first we make a GET on the target resource; if the resources is there
+    // we retrieve the sha value from the return value, which must be added to the "message"
+    // object above, which is then used to upload the real content. This is one in the 'upload' function.
+	//
 	return new Promise((resolve, reject) => {
+		// This function is used to really upload the data with or without an sha value
 		const upload = (resolve, reject, sha = null) => {
 			const params = {
 				sha: sha,
@@ -184,6 +199,8 @@ function commit(data, conf) {
 					email: conf.ghemail
 				}
 			};
+			// The gh...content idiom returns an object, and the 'add' verb is used to add content to it.
+			// The parameter is the full message for the GH API, including the real content (encoded)
 			gh.repos(...repo).contents(`${conf.ghfname}`).add(params)
 				.then((info) => {
 					if (info && info.content && info.content.htmlUrl)
@@ -193,11 +210,18 @@ function commit(data, conf) {
 				})
 				.catch(err => reject (err));
 		};
+
+		// The gh...content idiom with a url returns an object that can be 'fetched' information about the content
 		gh.repos(...repo).contents(url).fetch()
 			.then((info) => {
-				if (info)
+				if (info) {
+					// If the file really exists, then it has an sha that should be reused...
 					upload(resolve, reject, info.sha ? info.sha : null);
+				}
 			})
-			.catch(err => upload(resolve, reject));
+			.catch(err => {
+				// This means that file is unknown in the repository, ie, should be created from scratch
+				upload(resolve, reject)
+			});
 	});
 }
