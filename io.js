@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 /**
  *
- * Uploading a new minute to github. If the minute is already there, it will be updated, otherwise
- * a new file is created.
+ * Collection of methods to perform, essentially I/O operations. This include:
+ *
+ * * Get the IRC log itself
+ * * Get the nickname file
+ * * Dump the generated minutes into a file or upload it to github.
  *
  * For the moment, the default (ie, 'master') branch is used.
  *
@@ -58,10 +61,11 @@ exports.get_irc_log = (conf) => {
 	});
 };
 
+
 /**
  * Get the nickname mapping file (if any). The input provided in the configuration is examined whether it is a URL
- * (in which case this is retrived via HTTP) or not (in which case it is considered to be a local file). Returns a Promise
- * with the content of the input as an object.
+ * (in which case this is retrived via HTTP) or not (in which case it is considered to be a local file).
+ * Returns a Promise with the content of the input as an object.
  *
  * @param {object} conf - Overall configuration; the only field that matter here is "conf.nickname"
  * @returns {Promise} - a promise containing the irc log as a single string.
@@ -114,32 +118,36 @@ exports.get_nick_mapping = (conf) => {
 	});
 };
 
+
 /**
  * Output the minutes. Depending on the configuration, the values are stored in a file or on
  * a GitHub repository.
  *
  * @param {string} data - the markdown data to be uploaded
  * @param {object} conf - the configuration containing additional data
- * @returns {Promise} - the returned promise data with just an acknowledgement
+ * @returns {Promise} - the returned promise data with the file name or URL of the generated minutes
  */
 exports.output_minutes = (minutes, conf) => {
 	return new Promise((resolve, reject) => {
 		if(conf.torepo) {
 			// This must be stored in a github repository
-			//console.log(JSON.stringify(conf, null, 2))
 			commit(minutes, conf)
 			  .then((url) => resolve(`Minutes are in ${url}`))
 			  .catch((err) => reject(err))
 		} else {
 			if(conf.output) {
+				// This is a local file. Use an async function to dump the file,
+				// though, I believe, a sync function would work just as well
 				fs.writeFile(conf.output, minutes, (err) => {
 					if(err) {
-						reject(`problem writing local file ${conf.output}; ${err}`);
+						reject(`Problem writing local file ${conf.output}; ${err}`);
 					} else {
 						resolve(`Minutes are in ${conf.output}`)
 					}
 				})
 			} else {
+				// Just send the minutes to the standard output. May come be handy 
+				// for debug
 				console.log(minutes);
 				resolve("")
 			}
@@ -161,7 +169,6 @@ exports.output_minutes = (minutes, conf) => {
  *             (see https://github.com/settings/tokens/new)
  * - ghbranch: the target branch within the repository. This term may be missing from the configuration,
  *             in which case the repo's default branch is used
- *
  *
  * @param {string} data - the markdown data to be uploaded
  * @param {object} conf - the configuration containing additional data
