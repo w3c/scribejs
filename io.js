@@ -174,24 +174,26 @@ exports.output_minutes = (minutes, conf) => {
  // This library provides a more consise layer on top of the official Github API:
  // https://developer.github.com/v3
 function commit(data, conf) {
-	const gh = new octokat({token: conf.ghtoken});
-	const repo = conf.ghrepo.split('/');
-	const url = `${conf.ghpath}${conf.ghfname}` + (conf.ghbranch ? `?ref=${conf.ghbranch}` : '');
+	// The token below is essential, it gives the access right to the repository. See GH documentation
+	// how to obtain it...
+	const gh               = new octokat({token: conf.ghtoken});
+	const repo             = conf.ghrepo.split('/');
+	const path             = `${conf.ghpath}/${conf.ghfname}`
+	const path_with_branch = path + (conf.ghbranch ? `?ref=${conf.ghbranch}` : '');
 	// Before uploading we have to see if the file already exists or not. If it does
     // we need the sha number of that resource; this is needed to be able to modify the
     // content.
     //
     // This means: first we make a GET on the target resource; if the resources is there
     // we retrieve the sha value from the return value, which must be added to the "message"
-    // object above, which is then used to upload the real content. This is one in the 'upload' function.
+    // object used to update or upload the real content. This last step is done in the 'upload' function.
 	//
 	return new Promise((resolve, reject) => {
-		// This function is used to really upload the data with or without an sha value
+		// This function uploads the data with or without an sha value
 		const upload = (resolve, reject, sha = null) => {
 			const params = {
-				sha: sha,
-				path: conf.ghpath,
-				branch: conf.ghbranch,
+				sha:     sha,
+				branch:  conf.ghbranch,
 				message: conf.ghmessage,
 				content: Buffer.from(data).toString('base64'),
 				committer: {
@@ -201,18 +203,19 @@ function commit(data, conf) {
 			};
 			// The gh...content idiom returns an object, and the 'add' verb is used to add content to it.
 			// The parameter is the full message for the GH API, including the real content (encoded)
-			gh.repos(...repo).contents(`${conf.ghfname}`).add(params)
-				.then((info) => {
-					if (info && info.content && info.content.htmlUrl)
+			gh.repos(...repo).contents(path).add(params)
+				.then( (info) => {
+					if (info && info.content && info.content.htmlUrl) {
 						resolve(info.content.htmlUrl);
-					else
+					} else {
 						reject(info);
+					}
 				})
-				.catch(err => reject (err));
+				.catch(err => reject(err))
 		};
 
-		// The gh...content idiom with a url returns an object that can be 'fetched' information about the content
-		gh.repos(...repo).contents(url).fetch()
+		// The gh...content idiom with a path returns an object that can be 'fetched' information about the content
+		gh.repos(...repo).contents(path_with_branch).fetch()
 			.then((info) => {
 				if (info) {
 					// If the file really exists, then it has an sha that should be reused...
