@@ -649,7 +649,7 @@ ${no_toc}
 			} else {
 				content_md = content_md.concat(`\n\n> [***Resolution #${rcounter}: ${content}***](id:${id})`)
 			}
-			resolutions = resolutions.concat(`\n* [Resolution #${rcounter}: ${content}](#${id})`)
+			resolutions = resolutions.concat(`\n* [Resolution #${rcounter}](#${id}): ${content}`)
 			rcounter++;
 		}
 
@@ -664,7 +664,7 @@ ${no_toc}
 			} else {
 				content_md = content_md.concat(`\n\n> [***Action #${acounter}: ${content}***](id:${id})`)
 			}
-			actions    = actions.concat(`\n* [Action #${acounter}: ${content}](#${id})`)
+			actions    = actions.concat(`\n* [Action #${acounter}](#${id}): ${content}`)
 			acounter++;
 		}
 
