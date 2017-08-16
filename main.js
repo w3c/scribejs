@@ -7,6 +7,8 @@
  * @license: W3C Software License <https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
  */
 
+const debug = false;
+
 /******************************************************/
 /* This is just the overall driver of the script...   */
 /******************************************************/
@@ -16,10 +18,15 @@
 let config = {}
 try {
 	config  = require('./conf').get_config();
+	if(debug) {
+		console.log(JSON.stringify(config,null,2))
+	}
 } catch(err) {
 	console.error(`Scribejs ${err}`);
 	process.exit(-1);
 }
+
+
 
 // 2. Get the IRC Log; depending on the configuration, this is
 //    either retrieved from the W3C web site or from a local file

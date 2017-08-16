@@ -146,7 +146,7 @@ exports.output_minutes = (minutes, conf) => {
 					}
 				})
 			} else {
-				// Just send the minutes to the standard output. May come be handy 
+				// Just send the minutes to the standard output. May come be handy
 				// for debug
 				console.log(minutes);
 				resolve("")
