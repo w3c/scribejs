@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/w3c/scribejs.svg?branch=master)](https://travis-ci.org/w3c/scribejs)
+
 # Converter of RSSAgent IRC logs into minutes in markdown
 
 This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts into into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary](features.md) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
@@ -98,3 +100,9 @@ The generated minutes may be part of a page hosted by GitHub via the [Github+Jek
 ## Installation
 
 Standard `node.js` practices have been followed. This means that repository can be cloned and, in the directory of the repository, the `npm install` command can be used. This should create a symbolic link to `main.js` in the user’s search path with the name `scribejs`.
+
+## Testing
+
+```bash
+npm test
+```
