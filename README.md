@@ -101,11 +101,8 @@ The generated minutes may be part of a page hosted by GitHub via the [Github+Jek
 
 Standard `node.js` practices have been followed. This means that repository can be cloned and, in the directory of the repository, the `npm install` command can be used. This should create a symbolic link to `main.js` in the user’s search path with the name `scribejs`.
 
-The repository also contains a copy of all the dependencies (i.e., the necessary node modules) in the `node_modules` directory. That means that `node main` (or an alias thereof) should also be functional without any further installation.
-
 ## Testing
 
 ```bash
 npm test
 ```
-
