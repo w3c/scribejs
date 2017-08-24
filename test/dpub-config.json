@@ -1,7 +1,0 @@
-{
-	"ghrepo"    : "w3c/scribejs",
-	"ghpath"    : "test/Minutes",
-	"ghbranch"  : "minutes",
-	"group"     : "dpub",
-	"nicknames" : "/Users/ivan/W3C/github/scribejs/test/dpub-nicknames.json"
-}
