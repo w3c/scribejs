@@ -54,11 +54,13 @@ The roles are as follows:
 ## Resolutions, actions
 
 * `proposal:` or `proposed:`
-	* the value is rendered differently in the generated minutes for an easier reference; it usually precedes a formal vote or a straw vote.
+	* The value is emphasized in the generated minutes for an easier reference; it usually precedes a formal vote or a straw vote.
+* `summary:`
+	* The value is emphasized in the generated minutes for an easier reference; it usually closes a discussion although without a vote.
 * `resolution:` or `resolved:`
-	* the value is emphasized in the generated minutes and gets its own fragment identifier which makes it possible to use a dedicated URL when referring to a resolution. The list of resolutions is also repeated at the end of the minutes.
+	* The value is emphasized in the generated minutes and gets its own fragment identifier which makes it possible to use a dedicated URL when referring to a resolution. The list of resolutions is also repeated at the end of the minutes.
 * `action:`
-	* the value is emphasized in the generated minutes and gets its own fragment identifier which makes it possible to use a dedicated URL when referring to an action. The list of action items is also repeated at the end of the minutes.
+	* The value is emphasized in the generated minutes and gets its own fragment identifier which makes it possible to use a dedicated URL when referring to an action. The list of action items is also repeated at the end of the minutes.
 
 ## Change of the IRC lines
 
