@@ -710,7 +710,16 @@ ${no_toc}
 				add_toc(content, 2)
 			} else if(label !== null && ["proposed", "proposal"].includes(label.toLowerCase())) {
 				within_scribed_content = false;
-				content_md = content_md.concat(`\n\n*(${line_object.nick})* **Proposed resolution: ${content}**`)
+				content_md = content_md.concat(`\n\n> **Proposed resolution: ${content}** *(${cleanup_name(line_object.nick)})*`)
+				if (kramdown) {
+					content_md = content_md.concat("\n{: .proposed_resolution}")
+				}
+			} else if(label !== null && label.toLowerCase() == "summary") {
+				within_scribed_content = false;
+				content_md = content_md.concat(`\n\n> **Summary: ${content}** *(${cleanup_name(line_object.nick)})*`)
+				if (kramdown) {
+					content_md = content_md.concat("\n{: .summary}")
+				}
 			} else if(label !== null && ["resolved", "resolution"].includes(label.toLowerCase())) {
 				within_scribed_content = false;
 				add_resolution(content)
