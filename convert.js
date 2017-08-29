@@ -710,7 +710,11 @@ ${no_toc}
 				add_toc(content, 2)
 			} else if(label !== null && ["proposed", "proposal"].includes(label.toLowerCase())) {
 				within_scribed_content = false;
-				content_md = content_md.concat(`\n\n*(${line_object.nick})* **Proposed resolution: ${content}**`)
+				let proposer = cleanup_name(line_object.nick) 
+				content_md = content_md.concat(`\n\n> **Proposed resolution: ${content}** *(${proposer})*`)
+				if (kramdown) {
+					content_md = content_md.concat("\n{: .proposed_resolution}")
+				}
 			} else if(label !== null && ["resolved", "resolution"].includes(label.toLowerCase())) {
 				within_scribed_content = false;
 				add_resolution(content)
