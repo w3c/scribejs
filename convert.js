@@ -397,8 +397,8 @@ exports.to_markdown = (body, config) => {
 		//   i/.../.../
 		//   i|...|...|
 		let get_insert_request = (str) => {
-			return str.match(/^i\/([\w ]+)\/([^\/]+)\/{0,1}/) ||
-			       str.match(/^i\|([\w ]+)\|([^\|]+)\|{0,1}/)
+			return str.match(/^i\/([^/]+)\/([^\/]+)\/{0,1}/) ||
+			       str.match(/^i\|([^|]+)\|([^\|]+)\|{0,1}/)
 		};
 		const marker           = "----INSERTREQUESTXYZ----";
 
@@ -480,8 +480,8 @@ exports.to_markdown = (body, config) => {
 		//   s/.../.../{gG}
 		//   s|...|...|{gG}
 		let get_change_request = (str) => {
-			return str.match(/^s\/([\w ]+)\/([^\/]*)\/{0,1}(g|G){0,1}/) ||
-			       str.match(/^s\|([\w ]+)\|([^/|]*)\|{0,1}(g|G){0,1}/)
+			return str.match(/^s\/([^\/]+)\/([^\/]*)\/{0,1}(g|G){0,1}/) ||
+					str.match(/^s\|([^|]+)\|([^/|]*)\|{0,1}(g|G){0,1}/)
 		};
 		const marker           = "----CHANGEREQUESTXYZ----";
 
@@ -496,7 +496,6 @@ exports.to_markdown = (body, config) => {
 				// the array index later...)
 				let r = get_change_request(line.content);
 	  			if(r !== null) {
-	  				// store the regex results
 	  				change_requests.push({
 	  					lineno : index,
 	  					from   : r[1],
@@ -505,8 +504,8 @@ exports.to_markdown = (body, config) => {
 	  					G      : r[3] === "G",
 						valid  : true
 	  				});
-	  				line.content = marker
-	  			}
+	  				line.content = marker;
+				}
 	  			return line
 			})
 			.map((line, index) => {
@@ -516,15 +515,17 @@ exports.to_markdown = (body, config) => {
 						// One change request: the change should occur
 						// - in any case if the 'G' flag is on
 						// - if the index is beyond the change request position otherwise
-						if(change.valid && line.content.indexOf(change.from) !== -1) {
-							if(change.G || index >= change.lineno) {
-								// Yep, this is to be changed
-								line.content = line.content.replace(change.from, change.to);
-							}
-							// If this was not a form of 'global' change then its role is done
-							// and the request should be invalidated
-							if(!(change.G || change.g)) {
-								change.valid = false;
+						if(change.valid && (change.G || index >= change.lineno)) {
+							if(line.content.indexOf(change.from) !== -1) {
+								// There is a change to be performed. The conversion to regexp
+								// ensures that all occurences of the 'from' pattern is exchanged
+								line.content = line.content.replace(RegExp(change.from, 'g'), change.to);
+								// line.content = line.content.replace(change.from, change.to);
+								// If this was not a form of 'global' change then its role is done
+								// and the request should be invalidated
+								if(!(change.G || change.g)) {
+									change.valid = false;
+								}
 							}
 						}
 					})
