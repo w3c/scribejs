@@ -65,10 +65,10 @@ The roles are as follows:
 ## Change of the IRC lines
 
 * `s/from/to/` or `s|from|to|`
-	* change, in the generated minutes, the _closest previous_ appearance of `from` to `to`. `from` and `to` are regular strings, not regular expressions
+	* change, in the generated minutes, all occurences of the string `from` to `to` in the _closest preceding_ line with a match. `from` and `to` are regular strings, not regular expressions.
 * `s/from/to/g` or `s|from|to|g`
-	* like a simple change except that *all* previous appearances of `from` are changed to `to`
+	* like a simple change except that *all* previous lines are handled.
 * `s/from/to/G` or `s|from|to|G`
-	* change *all* appearances of `from` to `to` in the minutes
+	* change *all* appearances of `from` to `to` in the minutes.
 * `i/at/add/` or `i|at|add|`
-	* look for the _closest previous_ appearance of `at` and insert a *new line* with the value of `add` as a content *before* the line. A typical usage is to add a (sub)topic line that was forgotten (or because the discussion took an unexpected turn).
+	* look for the _closest preceding_ line matching `at` and insert a *new line* with the value of `add` as a content *before* that line. A typical usage is to add a (sub)topic line that was forgotten or because the discussion took an unexpected turn.
