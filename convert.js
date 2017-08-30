@@ -292,8 +292,19 @@ exports.to_markdown = (body, config) => {
 				action = _.union
 				if(lower.startsWith(category + "+") === true) {
 					names = get_names(cutIndex);
+				} else if(lower.startsWith(category + " +") === true) {
+					// Note that, although the correct syntax is "present+", a frequent
+					// mistake is to type "present +". I decided to make the script
+					// resilient on this:-)
+					names = get_names(cutIndex + 1)
 				} else if(lower.startsWith(category + "-") === true) {
 					names = get_names(cutIndex);
+					action = _.difference
+				} else if(lower.startsWith(category + " -") === true) {
+					// Note that, although the correct syntax is "present-", a frequent
+					// mistake is to type "present -". I decided to make the script
+					// resilient on this:-)
+					names = get_names(cutIndex + 1);
 					action = _.difference
 				} else if(lower.startsWith(category + ":") === true) {
 					names = line.content.slice(cutIndex+1).trim().split(',');
