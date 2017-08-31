@@ -4,8 +4,9 @@
 const _       			= require('underscore');
 const moment  			= require('moment');
 const fs      			= require('fs');
+const path    			= require('path');
 const program 			= require('commander');
-const config_name 		= 'config.json';
+const user_config_name 	= ".scribejs.json";
 
 const JEKYLL_NONE		= "none";
 const JEKYLL_MARKDOWN	= "md";
@@ -61,7 +62,7 @@ exports.set_input_url = (date, wg) => {
  * Collect the full configuration information. This is a combination of four possible sources
  * of increasing priority
  * - default configuration (contains empty fields except for the date which set to 'today')
- * - user configuration, ie, ./config.json
+ * - user configuration, ie, ~/.scribejs.json
  * - configuration file provided via the command line
  * - additional configuration options in the command line
  *
@@ -102,7 +103,7 @@ exports.get_config = () => {
 
 	/***********************************************************************/
 	// Third step: see if there is user level config file
-	let user_config = exports.json_conf_file(config_name, false);
+	let user_config = (process.env.HOME) ? exports.json_conf_file(path.join(process.env.HOME, user_config_name), false) : {};
 
 	/***********************************************************************/
 	// Fourth step: combine the configuration in increasing priority order

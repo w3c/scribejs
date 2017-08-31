@@ -28,7 +28,7 @@ scribjs [options] [filename]
 ```
 
 ### [Configuration files](id:conf)
-While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, `./config.json` will be used, if present.
+While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file `~/.scribejs.json` will be used, if present.
 
 The keys are as follows (see also the [description of the command line](#usage) for their explanation). Use only those keys that have a meaningful value.
 
@@ -105,8 +105,8 @@ Standard Node.js practices have been followed.
 git clone https://github.com/w3c/scribejs.git
 cd scribejs
 npm install
-cp config.json.sample config.json
-$EDITOR config.json    # Fill in details: your GH token, etc
+cp config.json.sample ~/.scribejs.json
+$EDITOR ~/.scribejs.json                  # Fill in details: your GH token, etc
 ```
 
 To run scribejs:
