@@ -13,23 +13,6 @@
     "email": "ivan@w3.org",
     "url": "https://www.w3.org/People/Ivan/"
   },
-  "files": [
-    "conf.js",
-    "convert.js",
-    "io.js",
-    "features.md",
-    "main.js",
-    "TODO.md",
-    "LICENSE",
-    "README.md",
-    "node_modules",
-    "CGI/cgi-conf",
-    "CGI/cgi",
-    "CGI/protocol",
-    "CGI/driver/scribejs.html",
-    "CGI/driver/style/fonts.css",
-    "CGI/driver/style/scribejs.css"
-  ],
   "bugs": {
     "url": "https://github.com/w3c/scribejs/issues",
     "email": "ivan@w3.org"
