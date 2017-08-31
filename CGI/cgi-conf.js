@@ -24,7 +24,7 @@ let default_config = {
  * Collect the full configuration information. This is a combination of four possible sources
  * of increasing priority
  * - default configuration (contains empty fields except for the date which set to 'today')
- * - user configuration, ie, $HOME/.scribejs
+ * - user configuration, ie, ~/.scribejs.json
  * - configuration file provided CGI call (forwarded in the argument)
  *
  * @returns {object} - full configuration. See the overal manual for the field definitions

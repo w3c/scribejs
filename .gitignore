@@ -1,5 +1,4 @@
 node_modules/
 package-lock.json
-test/config.json
-test/dpub-config.json
-
+*.json
+test/*.json

@@ -62,7 +62,7 @@ exports.set_input_url = (date, wg) => {
  * Collect the full configuration information. This is a combination of four possible sources
  * of increasing priority
  * - default configuration (contains empty fields except for the date which set to 'today')
- * - user configuration, ie, $HOME/.scribejs
+ * - user configuration, ie, ~/.scribejs.json
  * - configuration file provided via the command line
  * - additional configuration options in the command line
  *
