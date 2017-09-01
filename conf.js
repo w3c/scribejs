@@ -1,3 +1,5 @@
+"use strict";
+
 /**
 * Get the arguments and/or configuration file
 */
@@ -107,7 +109,7 @@ exports.get_config = () => {
 
 	/***********************************************************************/
 	// Fourth step: combine the configuration in increasing priority order
-	retval = _.extend(default_config, user_config, file_config, argument_config);
+	let retval = _.extend(default_config, user_config, file_config, argument_config);
 
 	/***********************************************************************/
 	// Fifths step: sanity check and some cleanup on the configuration object

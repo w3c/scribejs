@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+"use strict";
+
 /**
  * Convert W3C’s RRSAgent IRC bot output into minutes in Markdown
  *

@@ -1,3 +1,4 @@
+"use strict";
 /**
 * Get the arguments and/or configuration file for a CGI environment
 */
@@ -36,7 +37,7 @@ exports.get_config = (cgi_config, script_name) => {
 
 	/***********************************************************************/
 	// Combine the configuration in increasing priority order
-	retval = _.extend(default_config, cgi_config, local_config);
+	let retval = _.extend(default_config, cgi_config, local_config);
 
 	/***********************************************************************/
 	// Fifths step: sanity check and some cleanup on the configuration object
