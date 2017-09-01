@@ -1,4 +1,6 @@
 #!/usr/local/bin/node
+"use strict";
+
 /**
  * Convert W3C’s RRSAgent IRC bot output into minutes in Markdown: This is the entry point for a CGI script invocation.
  *

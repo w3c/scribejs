@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+"use strict";
+
 /**
  *
  * Collection of methods to perform, essentially I/O operations. This include:

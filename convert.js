@@ -1,3 +1,5 @@
+"use strict";
+
 const _   = require('underscore');
 const url = require('url');
 
@@ -189,7 +191,7 @@ exports.to_markdown = (body, config) => {
 		   .map((line) => line.slice(line.indexOf(' ') + 1))
 		   // This is where the IRC log lines are turned into objects, separating the nicknames.
 		   .map((line) => {
-			   sp = line.indexOf(' ');
+			   let sp = line.indexOf(' ');
 			   return {
 				   // Note that I remove the '<' and the '>' characters
 				   // leaving only the real nickname
@@ -289,7 +291,8 @@ exports.to_markdown = (body, config) => {
 			if(lower.startsWith(category) === true) {
 				// bingo, we have to extract the content
 				// There are various possibilities, through
-				action = _.union
+				let action = _.union;
+				let names  = [];
 				if(lower.startsWith(category + "+") === true) {
 					names = get_names(cutIndex);
 				} else if(lower.startsWith(category + " +") === true) {
@@ -402,7 +405,7 @@ exports.to_markdown = (body, config) => {
 		};
 		const marker           = "----INSERTREQUESTXYZ----";
 
-		retval = _.chain(lines)
+		let retval = _.chain(lines)
 			// Because the insert is to work on the preceding values, the
 			// array has to be traversed upside down...
 			.reverse()
@@ -485,7 +488,7 @@ exports.to_markdown = (body, config) => {
 		};
 		const marker           = "----CHANGEREQUESTXYZ----";
 
-		retval = _.chain(lines)
+		let retval = _.chain(lines)
 			// Because the change is to work on the preceding values, the
 			// array has to be traversed upside down...
 			.reverse()
@@ -685,7 +688,7 @@ ${no_toc}
 		*/
 		function add_links(line) {
 		    let check = (str) => {
-		        a = url.parse(str);
+		        let a = url.parse(str);
 		        return a.protocol !== null && _.indexOf(["http:", "https:", "ftp:", "mailto:", "doi:"], a.protocol) !== -1
 		    }
 		    // 1. separate the line into an array of words:
