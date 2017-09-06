@@ -673,13 +673,18 @@ ${no_toc}
 		*/
 		let acounter = 1;
 		function add_action(content) {
+			let words = content.trim().split(' ');
+			if(words[1] === "to") {
+				words[0] = cleanup_name(words[0])
+			}
+			let final_content = words.join(' ');
 			let id = "action" + acounter;
 			if (kramdown) {
-				content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${content}***\n{: #${id} .action}`)
+				content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`)
 			} else {
-				content_md = content_md.concat(`\n\n> [***Action #${acounter}: ${content}***](id:${id})`)
+				content_md = content_md.concat(`\n\n> [***Action #${acounter}: ${final_content}***](id:${id})`)
 			}
-			actions    = actions.concat(`\n* [Action #${acounter}](#${id}): ${content}`)
+			actions    = actions.concat(`\n* [Action #${acounter}](#${id}): ${final_content}`)
 			acounter++;
 		}
 
