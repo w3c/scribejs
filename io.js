@@ -37,9 +37,13 @@ exports.get_irc_log = (conf) => {
 			fetch(conf.input)
 				.then((response) => {
 					if(response.ok) {
-						return response.text()
+						if( response.headers.get('content-type') === 'text/plain' ) {
+							return response.text();							
+						} else {
+							reject(`IRC log must be of type text/plain`);
+						}
 					} else {
-						throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
+						reject(`HTTP response ${response.status}: ${response.statusText}`);
 					}
 				})
 				.then((body) => {
@@ -91,14 +95,25 @@ exports.get_nick_mapping = (conf) => {
 				fetch(conf.nicknames)
 					.then((response) => {
 						if(response.ok) {
-							return response.json()
+							// I need to check whether the returned data is genuine json; however,
+							// alas!, github does not set the content type of the returned raw data
+							// to json, ie, the response header cannot be used for that purpose.
+							// Instead, the value is sent to a next step to parse it explicitly
+							return response.text();							
 						} else {
-							throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
+							reject(`HTTP response ${response.status}: ${response.statusText}`);
 						}
 					})
 					.then((body) => {
-						// Resolve the returned Promise
-						resolve(lower_nicks(body));
+						// Try to parse the content as JSON and, if it works, that is almost 
+						// the final result, module turn all the nicknames to lowercase
+						let json_content = {};
+						try {
+							json_content = JSON.parse(body);
+						} catch(err) {
+							throw new Error(`JSON parsing error in ${conf.nicknames}: ${err}`)
+						}
+						resolve(lower_nicks(json_content));
 					})
 					.catch((err) => {
 						reject(`problem accessing remote file ${conf.nicknames}: ${err.message}`)
@@ -108,9 +123,17 @@ exports.get_nick_mapping = (conf) => {
 				// though, I believe, a sync function would work just as well
 				fs.readFile(conf.nicknames, 'utf-8', (err, body) => {
 					if(err) {
-						reject(`problem access local file ${conf.nicknames}: ${err}`);
+						reject(`problem accessing local file ${conf.nicknames}: ${err}`);
 					} else {
-						resolve(lower_nicks(JSON.parse(body)));
+						// Try to parse the content as JSON and, if it works, that is almost 
+						// the final result, module turn all the nicknames to lowercase
+						let json_content = {};
+						try {
+							json_content = JSON.parse(body);
+						} catch(err) {
+							throw new Error(`JSON parsing error in ${conf.nicknames}: ${err}`)
+						}
+						resolve(lower_nicks(json_content));
 					}
 				});
 			}
