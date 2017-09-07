@@ -12,11 +12,12 @@
  * For the moment, the default (ie, 'master') branch is used.
  *
  */
-const url     = require('url');
-const fetch   = require('node-fetch');
-const fs      = require('fs');
-const _       = require('underscore');
-const octokat = require('octokat');
+const url      = require('url');
+const fetch    = require('node-fetch');
+const fs       = require('fs');
+const _        = require('underscore');
+const octokat  = require('octokat');
+const validUrl = require('valid-url'); 
 
 /**
  * Get the IRC log. The input provided in the configuration is examined whether it is a URL (in which case
@@ -90,9 +91,10 @@ exports.get_nick_mapping = (conf) => {
 	}
 	return new Promise((resolve, reject) => {
 		if(conf.nicknames) {
-			if(url.parse(conf.nicknames).protocol !== null) {
+			let address = check_url(conf.nicknames)
+			if(address !== null) {
 				// This is a resource on the Web that must be fetched
-				fetch(conf.nicknames)
+				fetch(address)
 					.then((response) => {
 						if(response.ok) {
 							// I need to check whether the returned data is genuine json; however,
@@ -178,6 +180,60 @@ exports.output_minutes = (minutes, conf) => {
 			}
 		}
 	});
+}
+
+
+/** 
+* Basic sanity check on the URL.
+*
+* The function returns a (possibly slightly modified) version of the URL if everything is fine, or a null value if
+* the input argument is not a URL (but should be used as a filename)
+*
+* There might be errors, however, in the case it is a URL. In such cases the function raises an exception; this
+* should be caught to end all processing.
+*
+* The checks are as follows:
+*
+* 1. Check whether the protocol is http(s). Other protocols are not accepted (actually rejected by fetch, too)
+* 2. Run the URL through a valid-url check, which looks at the validity of the URL in terms of characters used, for example
+* 3. Check that the port (if specified) is in the allowed range, ie, > 1024
+* 4. Don't allow localhost in a CGI answer...
+* 
+* @param {string} address: the URL to be checked.
+* @return {string}: the URL itself (which might be slightly improved by the valid-url method) or null this is, in fact, not a URL
+* @throws {exception}: if it pretends to be a URL, but it is not acceptable for some reasons.
+*/
+function check_url(address) {
+    let parsed = url.parse(address);
+    if( parsed.protocol === null ) {
+        // This is not a URl, should be used as a file name
+        return null;
+    }
+    // Check whether we use the right protocol
+    if( _.contains(["http:", "https:"], parsed.protocol) === false ) {
+        throw new Error(`Only http(s) url-s are accepted (${address})`)
+    }
+
+    // Run through the URL validator
+    let retval = validUrl.isWebUri(address);
+    if( retval === undefined ) {
+        throw new Error(`The url ${address} isn't valid`)
+    }
+
+    // Check the port
+    if(parsed.port !== null && parsed.port <= 1024) {
+        throw new Error(`Unsafe port number used in ${address} (${parsed.port})`)
+    }
+
+	// Don't allow local host in a CGI script...
+	// (In Bratt's python script (<http://dev.w3.org/2004/PythonLib-IH/checkremote.py>) this step was much
+	// more complex, and has not yet been reproduced here...
+    if( parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1" ) {
+        throw new Error(`Localhost is not accepted in ${address}`)        
+    }
+
+    // If we got this far, this is a proper URL, ready to be used.
+    return retval;
 }
 
 
