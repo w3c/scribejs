@@ -19,8 +19,10 @@
 16:06:02 <ivan> regrets+ garth
 16:06:14 <NickRuffilo> jyasskin: I am here...
 16:06:14 <ivan> guests+ Jeffrey_Yasskin
+16:06:14 <ivan> scribejs, set jyasskin Prof. Dr. Jeffrey_Yasskin, Jr.
 16:07:44 <dauwhe> Web packaging explainer https://github.com/WICG/webpackage/blob/master/explainer.md
 16:07:57 <NickRuffilo> Garth: Tzviya is opt to point out, we've spent much time on the first working draft on Web Publications, if you looked at the schedule, we should have the first working draft of the PORTABLE web publication in TPAC time.  I've asked a colleague of mine from Google who has been doing work on the web packaging arena - which is a candidate technology - as we look at what packages look like.  I'm introducing Jeffrey Yasskin - who's been working on search front end, ..., he's also chaired web-front end group, which lead to working on the chrome platform team...  He's just done alot of stuff, so with that, I'd like to have Jeff do an introduction and talk about history and where web packaging is now.
 16:08:14 <NickRuffilo> ... where the constituent pieces are being developed, open up to Q&A then move to next topics.
 16:09:29 <NickRuffilo> jyasskin: I've been working on packaging since the beginning of the year.  The project came out of our emerging markets - a system might have an expensive or limited data plan - so there is peer-to-peer data sharing.  Our team wanted to share web pages in the same way.  We're using MHTML as a stop=gap.  MHTML is for a single page, not a web-app.  Then I came along and took over the standards effort for that.
+16:09:29 <NickRuffilo> ... with some additional remarks after the continuation signs
 16:09:32 <jyasskin> https://github.com/WICG/webpackage

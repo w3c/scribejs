@@ -171,6 +171,7 @@ exports.to_markdown = (body, config) => {
 	 *  - remove zakim agenda control commands
 	 *  - remove bot commands ("zakim,", "rrsagent,", etc.)
 	 *  - remove the "XXX has joined #YYY" type messages
+	 *  - handle the "scribejs, nick FULL NAME" type commands
 	 *
 	 * The incoming body is either a single string with many lines (this is the case when the script is invoked from the
      * command line) or already split into individual lines (this is the case when the data comes via the CGI interface).
@@ -229,6 +230,36 @@ exports.to_markdown = (body, config) => {
 		   .filter((line_object) => (line_object.content.match(/^\w+ has joined #\w+/) === null))
 		   .filter((line_object) => (line_object.content.match(/^\w+ has left #\w+/) === null))
 		   .filter((line_object) => (line_object.content.match(/^\w+ has changed the topic to:/) === null))
+		   .filter((line_object) => {
+				// Handle the "scribejs, XXX" command
+				// At the moment, there is only one XXX tool, namely 'set', so the handling is put into one function.
+				// If, in future, other scribejs commands are introduced, then this function may become a bit more complicated
+				// The effect is to extend the configuration's nickname object.   
+			   	if(line_object.content_lower.startsWith("scribejs, set")) {
+					let words = line_object.content.split(" ");
+					try {
+						// If there is a problem somewhere, it should simply be forgotten
+						// this is a beautifying step, ie, an exception could be forgotten
+						let nickname   = words[2].toLowerCase();
+						let name_comps = words.slice(3);
+						if(name_comps.length !== 0) {
+							// note that the nickname assignment during the call has a higher priority than
+							// what comes from the external file, ie, it is silently overwritten
+							// The name is cleared from the '_' signs, which are usually used to replace spaces...
+							// let name = name_comps.join(" ").replace(/_/g, ' ');
+							config.nick_mappings[nickname] = { nick: [nickname], name: name_comps.join(" ").replace(/_/g, ' ') }		
+						} 
+					} catch(err) {
+						; // console.log(err)
+					} finally {
+						// returning 'false' will remove this line from the result
+						return false					
+					}
+			   	} else {
+					// This line should remain for further processing
+				   	return true
+			   	}
+		   })
 		   // End of the underscore chain, retrieve the final value
 		   .value();
 	};
