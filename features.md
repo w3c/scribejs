@@ -2,7 +2,7 @@
 
 This document describe the features that can/should be used for the purpose of scribing using the W3C IRC Server. The features handled by this converter are essentially the same as [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm), although there some minor additions.
 
-The script removes all lines referring to queue control, as well as commands referring to the `RSSAgent` or `trackbot` IRC bots.
+The script removes all lines referring to queue control, as well as commands referring to the `RSSAgent`, `zakim`, `trackbot`, and `github-bot` IRC bots.
 
 Most IRC commands are based on a `ROLE: value` pattern, where the various “roles” are described below. The roles are case _insensitive_. For some roles, the syntax `ROLE+ value` or `ROLE- value` may also be used with a slightly different meaning. Some of the roles have aliases.
 

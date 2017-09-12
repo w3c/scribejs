@@ -224,7 +224,8 @@ exports.to_markdown = (body, config) => {
 				   line_object.content_lower.startsWith("agenda?")   ||
 				   line_object.content_lower.startsWith("trackbot,") ||
 				   line_object.content_lower.startsWith("zakim,")    ||
-				   line_object.content_lower.startsWith("rrsagent,")
+				   line_object.content_lower.startsWith("rrsagent,") ||
+				   line_object.content_lower.startsWith("github-bot,")
 			   )
 		   })
 		   .filter((line_object) => (line_object.content.match(/^\w+ has joined #\w+/) === null))

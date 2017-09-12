@@ -25,4 +25,5 @@
 16:08:14 <NickRuffilo> ... where the constituent pieces are being developed, open up to Q&A then move to next topics.
 16:09:29 <NickRuffilo> jyasskin: I've been working on packaging since the beginning of the year.  The project came out of our emerging markets - a system might have an expensive or limited data plan - so there is peer-to-peer data sharing.  Our team wanted to share web pages in the same way.  We're using MHTML as a stop=gap.  MHTML is for a single page, not a web-app.  Then I came along and took over the standards effort for that.
 16:09:29 <NickRuffilo> ... with some additional remarks after the continuation signs
+16:09:30 <NickRuffilo> github-bot, end topic
 16:09:32 <jyasskin> https://github.com/WICG/webpackage
