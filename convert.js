@@ -277,6 +277,11 @@ exports.to_markdown = (body, config) => {
 		 */
 		// Care should be taken to trim everything, to keep the nick names clean of extra spaces...
 		function people(category, line) {
+			// A frequent mistake is to use "guest" instead of "guests", or "regret" instead of "regrets".
+			// Although the "official" documented version is the plural form, I decided to make
+			// the script resilient...
+			let real_category = (category === "guest") ? "guests" : ((category === "regret") ? "regrets" : category)
+
 			let get_names = (index) => {
 				let retval = line.content.slice(index+1).trim().split(',');
 				if(retval.length === 0 || (retval.length === 1 && retval[0].length === 0)) {
@@ -315,7 +320,7 @@ exports.to_markdown = (body, config) => {
 					// This is not a correct usage...
 					return false;
 				}
-				headers[category] = action(headers[category], _.map(names, (name) => name.trim()))
+				headers[real_category] = action(headers[real_category], _.map(names, (name) => name.trim()))
 				return true;
 			} else {
 				return false;
@@ -361,7 +366,9 @@ exports.to_markdown = (body, config) => {
 		let processed_lines = _.chain(lines)
 			.filter((line) => !people("present", line))
 			.filter((line) => !people("regrets", line))
+			.filter((line) => !people("regret", line))
 			.filter((line) => !people("guests", line))
+			.filter((line) => !people("guest", line))
 			.filter((line) => !people("chair", line))
 			.filter((line) => !single_item("agenda", line))
 			.filter((line) => !single_item("meeting", line))
