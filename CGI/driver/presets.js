@@ -205,6 +205,9 @@ function store_preset() {
  * There is, however, a CORS issue. The IRC log does not have the CORS header set and I could not
  * get `fetch` work properly with the relevant header (why???). For now I use the
  * `https://cors-anywhere.herokuapp.com` trick, and I may have to come back to this later.
+ * 
+ * Note also that the general part includes some checks for the URL used in fetch, it is not necessary here. Indeed
+ * the fetch is used exclusively on a URL generated internally using the W3C setup, so there is no danger there.
  */
 function load_log() {
 	set_input_url = function(date, group) {

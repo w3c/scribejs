@@ -1,0 +1,305 @@
+15:28:56 <RRSAgent> RRSAgent has joined #pbg
+15:28:56 <RRSAgent> logging to http://www.w3.org/2017/08/29-pbg-irc
+15:36:33 <ivan> rrsagent, set log public
+15:36:33 <ivan> Meeting: Publishing Business Group Telco
+15:36:33 <ivan> Chair: pbelfanti
+15:36:33 <ivan> Date: 2017-08-29
+15:36:33 <ivan> Regrets+ RickJ, Bill_Kasdorf, Rachel, Robby_Robson, jensklingelhoefer, Schindler, Jason_Colman,
+15:36:33 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-publishingbg/2017Aug/0009.html
+15:36:34 <ivan> ivan has changed the topic to: Meeting Agenda 2017-08-29: https://lists.w3.org/Archives/Public/public-publishingbg/2017Aug/0009.html
+15:49:57 <Avneesh> Avneesh has joined #pbg
+15:54:55 <Dan_Sanicola> Dan_Sanicola has joined #pbg
+15:57:46 <rkwright> rkwright has joined #pbg
+15:58:16 <tzviya> tzviya has joined #pbg
+15:58:55 <Karen> present+ Karen
+15:59:04 <tzviya> present+
+15:59:13 <Avneesh> present+ Avneesh
+15:59:13 <dauwhe> present+ dauwhe
+15:59:24 <ivan> present+ Ivan, Junichi_Yoshii, George
+15:59:45 <ivan> present+ liisa, makoto
+16:00:09 <laudrain> laudrain has joined #pbg
+16:00:10 <George> George has joined #pbg
+16:00:14 <graham> graham has joined #pbg
+16:00:16 <laudrain> Present+ Luc
+16:00:25 <graham> present+
+16:00:30 <ivan> present+ Virgine
+16:00:41 <George> present+ George
+16:00:41 <ivan> present+ Virginie
+16:00:57 <Dan_Sanicola> present+
+16:01:12 <rkwright> present +
+16:01:36 <rkwright> North america fire map:  http://disasterresponse.maps.arcgis.com/apps/PublicInformation/index.html?appid=4ae7c683b9574856a3d3b7f75162b3f4
+16:01:44 <pbelfanti> pbelfanti has joined #pbg
+16:01:50 <pbelfanti> present +
+16:02:01 <Makoto> Makoto has joined #pbg
+16:02:09 <liisamk> liisamk has joined #pbg
+16:02:17 <Makoto> I am going to wear the hat of the convenor of the Japanese mirror for SC34 in this meeting.
+16:02:27 <Makoto> If needed, I will wear the hat of the liaison from SC34 to W3C.
+16:02:36 <laudrain> +1
+16:02:48 <ivan> present+ Junko_Kamata
+16:03:09 <liisamk> present+
+16:03:45 <Brian> Brian has joined #pbg
+16:03:50 <takeshi> takeshi has joined #pbg
+16:04:42 <Jkamata> Jkamata has joined #pbg
+16:05:56 <ivan> present+ Michaela
+16:06:06 <Jkamata> present+
+16:06:10 <Brian> present +
+16:06:14 <dauwhe> scribenick: dauwhe
+16:06:15 <takeshi> Present+ Takeshi_Kanai
+16:06:16 <ivan> present+ pbelfanti
+16:06:23 <dauwhe> pbelfanti: first agenda item: welcome to new members
+16:06:30 <ivan> present+ Brian
+16:06:34 <tzviya> regrets+ BillM
+16:06:57 <dauwhe> virginie: I work at Editis publishing group, the 2nd largest publisher in France
+16:07:10 <Brian> reflexive space adder, Brian
+16:07:18 <dauwhe> ... and president of EDRLab
+16:07:23 <laudrain> welcome Virginie
+16:07:25 <dauwhe> pbelfanti: anyone else?
+16:07:57 <dauwhe> George: someone is typing by their microphone
+16:08:03 <ivan> present+ makoto
+16:08:27 <ivan> topic: publishing summit update
+16:08:30 <dauwhe> pbelfanti: next agenda item: status of publishing summit at TPAC
+16:08:34 <Cristina> Cristina has joined #pbg
+16:08:43 <dauwhe> tzviya: BillM can't make it
+16:08:59 <dauwhe> pbelfanti: Tzviya, can you give an update?
+16:09:19 <tzviya> https://www.w3.org/publishing/events/summit2017
+16:09:27 <dauwhe> tzviya: there was an announcement sent last week, with agenda as it stands
+16:09:35 <dauwhe> ... I think BillM is still looking for sponsors
+16:09:39 <dauwhe> ... we do have a good agenda
+16:09:48 <liisamk> q+
+16:10:07 <dauwhe> pbelfanti: one of the main messages is to sign up, and to promote it through your professional and social channels
+16:10:20 <dauwhe> ... we have good early registrations, but we need more
+16:10:28 <dauwhe> ... I think it will be very successful
+16:10:31 <dauwhe> q?
+16:10:43 <dauwhe> ack lii
+16:10:50 <dauwhe> liisamk: one logistical thing
+16:11:05 <dauwhe> ... if you sign up for the summit, you're signing up for Thursday
+16:11:15 <dauwhe> ... but what about the whole week?
+16:11:49 <dauwhe> tzviya: if you're there for M-W, that's TPAC. If you want lunch on Friday, sign up for TPAC on Friday. If you're attending the summit, it does not include lunch on Friday
+16:12:01 <jyoshii> jyoshii has joined #pbg
+16:12:02 <dauwhe> pbelfanti: or if you're comfortable foraging for lunch on your own on Friday
+16:12:36 <dauwhe> Topic: review of ISO discussion
+16:12:44 <Rachel> Rachel has joined #pbg
+16:12:48 <dauwhe> pbelfanti: Makoto and Cristina are with us
+16:12:56 <ivan> present+ cristina
+16:13:21 <dauwhe> Makoto: in ISO there is an ongoing ballot for creating a set of tech specs for 3.0.1.
+16:13:27 <dauwhe> ... we did 3.0 a long time ago
+16:13:38 <dauwhe> ... we are considering some ISO specifications for EPUB accessibility
+16:13:43 <ivan> present+ leslie
+16:13:55 <dauwhe> ... this was an IDPF document; the next version cannot become w3c recommendations
+16:14:03 <dauwhe> ... so we wonder how we can have ISO endorsement
+16:14:16 <dauwhe> ... I believe Europe has no problem about creating ISO specification on a11y
+16:14:42 <dauwhe> laudrain: that's correct. Europe has strong relation with ISO
+16:15:02 <dauwhe> ... in the Euro body for standardization (CEN) they are used to build european standards with ISO
+16:15:04 <dauwhe> Makoto: great
+16:15:24 <dauwhe> Cristina: we spoke with european commission
+16:16:45 <dauwhe> Cristina: we understood if Euro commission needs to define a standard, then they will give a mandate to Euro standard body
+16:16:58 <dauwhe> ... then standards body will look for existing standards
+16:17:13 <dauwhe> ... we think there is no issue if we start with ISO process, and there is no conflict
+16:17:52 <dauwhe> ... and we also need to work with our national organizations--France, Italy, etc.
+16:18:18 <dauwhe> pbelfanti: so there's no issue in referencing the IDPF a11y standard?
+16:18:23 <dauwhe> Cristina: yes, it's fine
+16:18:32 <dauwhe> pbelfanti: does that address your concerns, Makoto?
+16:18:38 <dauwhe> Makoto: no issues about that
+16:18:44 <dauwhe> ... I have a different issue
+16:18:57 <dauwhe> ... I wrote a lengthy email to george and avneeesh, it's in the wiki page
+16:18:59 <Avneesh> https://github.com/w3c/publ-a11y/wiki/ISO-Standardization-Discussion
+16:19:07 <George> https://github.com/w3c/publ-a11y/wiki/ISO-Standardization-Discussion
+16:19:17 <dauwhe> ... when I was requested by professor ??? to create international standards
+16:19:32 <dauwhe> ... he's a member of UN committee on rights of people with disabilities
+16:20:04 <dauwhe> ... he knows that the Japanese gov't doesn't consider ISO tech specs as de jure standards
+16:20:41 <dauwhe> ... other countries will probably think that technical specifications are immature
+16:20:56 <dauwhe> ... Japan is in SC34 mirror
+16:21:17 <dauwhe> ... we would like to create international standard for 3.1 rather than technical specification
+16:21:37 <dauwhe> ... so Japan will vote against tech spec for 3.0.1, and will request international standards instead
+16:21:46 <graham> Dave – 3.0.1, not 3.1
+16:21:59 <dauwhe> ... Korea is willing to submit 3.0.1 as draft international standard fast track
+16:22:29 <dauwhe> ... I'm hoping that this committee supports international standards rather than technical specifications, because the latter may be ignored
+16:22:31 <ivan> s/for 3.1/for 3.0.1/
+16:22:45 <dauwhe> ... when epub 3 was created, html5 was still working draft
+16:22:58 <dauwhe> ... now most imporant references in epub 3.0.1 are mature
+16:23:39 <dauwhe> ... we would also like to create EPUB a11y as international standard rather than technical spec
+16:23:54 <dauwhe> ... we believe it is possible to make it freely available
+16:24:23 <dauwhe> ... for example, associating schemas with XML documents--it's freely available
+16:24:28 <ivan> q+
+16:24:30 <dauwhe> ... this is what I am proposing
+16:24:41 <dauwhe> ... creating international standards for 3.0.1 and epub a11y
+16:24:44 <graham> q+
+16:24:52 <dauwhe> ack iv
+16:24:57 <dauwhe> ivan: there are 2 issues
+16:25:09 <dauwhe> ... one I raise without knowing the situation
+16:25:16 <dauwhe> ... the a11y document is now under w3c copyright
+16:25:24 <dauwhe> ... I"m not sure what this means
+16:25:50 <dauwhe> ... I would expect that w3c would go along with that only if there's an absolute assurance that ISO would make it freely available
+16:25:59 <Makoto> No problems about that.
+16:26:03 <dauwhe> ... we would need advance assurance
+16:26:19 <dauwhe> ... if there's no problem with that then I'm happy
+16:26:25 <dauwhe> ... my other problem is very different
+16:26:43 <dauwhe> ... I'm concerned about creating an ISO standard for 3.0.1, as this will be an enormous setback to 3.1
+16:26:47 <graham> q-
+16:26:54 <dauwhe> ... I don't understand why 3.1 is forgotten
+16:27:04 <dauwhe> ... for me at least it seems to be the wrong message to the world
+16:27:09 <dauwhe> ... that means we abandon 3.1
+16:27:13 <dauwhe> Makoto: I want to explain
+16:27:25 <dauwhe> ... theres a big diff between ISO and w3c on versions
+16:27:35 <dauwhe> ... in w3c you can have multiple live versions
+16:27:42 <dauwhe> ... in ISO the old version is superceded
+16:27:59 <dauwhe> ... if we create an ISO 3.1, using same standard number, then all earlier versions are superceded
+16:28:15 <dauwhe> ... this means EPUBs with version string 3.0 will not conform to any ISO standard
+16:28:19 <dauwhe> ... that's fatal for users
+16:28:28 <dauwhe> ... who have tons of EPUBs with the version string 3.0
+16:28:45 <dauwhe> ... if we want to make 3.1 alive, is to create both specifications using different numbers in ISO
+16:29:04 <dauwhe> ... for example, tech standard for 3.1, and international standard 3.0.1
+16:29:20 <dauwhe> ... since no one in Japan is using 3.1, I'm against an ISO standard
+16:29:21 <ivan> q?
+16:29:42 <dauwhe> ivan: I understand; I could hack this by taking 3.1 doc and we declare it for ISO purposes 3.0.3
+16:29:48 <dauwhe> s/3.0.3/3.0.2/
+16:29:58 <dauwhe> ... this could help with relevance
+16:30:02 <dauwhe> Makoto: I don't understand
+16:30:18 <dauwhe> ivan: you say if ISO produces a 3.1, then all 3.0 docs become non-standard
+16:30:19 <Makoto> We have TS 30135
+16:30:24 <Makoto> which is for 3.0
+16:30:31 <dauwhe> ... if you do that with 3.0.1 it's the same thing
+16:30:55 <Makoto> If TS 10135 for 3.0.1 is created, the current version will be superseded.
+16:31:07 <Makoto> If we create TS 44444 for 3.1
+16:31:09 <dauwhe> ... what you say does not change my statement if this happens, if ISO goes out with 3.0.1 as new international standard, then we can kiss 3.1 goodbye
+16:31:37 <dauwhe> Makoto: if we use version number 30135, then a newer version of that number will supercede all other versions
+16:31:51 <graham>   q+
+16:31:53 <dauwhe> ... but if we use 44444 for 3.1, then it will not supercede earlier versions
+16:32:06 <Rachel> present+
+16:32:11 <dauwhe> ivan: do you propose to have both versions going through the ISO process?
+16:32:20 <dauwhe> Makoto: we could have a different proposal
+16:32:48 <dauwhe> ... on top of what I said, we submit another fast-tracked draft tech standard for 3.1 using a different number, such as 44444
+16:33:01 <dauwhe> ivan: but you also said tech specs don't matter
+16:33:21 <dauwhe> Makoto: I don't think creating an ISO standard for 3.1 is good because it isn't used
+16:33:33 <dauwhe> graham: I was going to make the same point as Ivan, but to go further
+16:33:54 <dauwhe> ... if there was a dual strategy for 3.0.1 and 3.1, what would be the point of the 3.0.1 version?
+16:33:55 <Makoto> 3.0.1 is widely used.
+16:34:02 <Makoto> Will not disappear for 50 yearsr
+16:34:14 <dauwhe> ... we'd be further down the road. We'd be chasing the past
+16:34:26 <tzviya> q+
+16:34:27 <dauwhe> Makoto: EPUB 3.0.1 will not disappear for 3.1
+16:34:36 <dauwhe> ... people will not update old versions
+16:34:39 <tzviya> ack gr
+16:34:42 <liisamk> *for how many years?
+16:34:48 <dauwhe> ... so ISO status of 3.0.1 is important
+16:34:49 <Avneesh> q+
+16:34:52 <Makoto> 50 years
+16:34:55 <dauwhe> ack tzviya
+16:35:05 <dauwhe> tzviya: I had a conversation with Makoto about this
+16:35:28 <dauwhe> ... the issue is, in order for the japanese gov't to recognize EPUBs as conforming to a standard, there needs to be an ISO standard
+16:35:39 <laudrain> q+
+16:35:46 <dauwhe> ... even if we assume 3.0.1 goes out the door, people will not repubish their existing books
+16:36:00 <dauwhe> ... a Q back to you--what about EPUB 2? We never sent that to ISO
+16:36:08 <dauwhe> Makoto: in japan EPUB2 is not used, period.
+16:36:17 <dauwhe> tzviya: isn't that a nice world? :)
+16:36:39 <dauwhe> Makoto: 3.0.1 is widely used, even if it doesn't have ISO standard it's not a problem
+16:37:12 <dauwhe> ... EPUB a11y is different; it needs an international standard so it won't be ignored, and for that to happen 3.0.1 itself must be an international standard
+16:37:22 <ivan> q+
+16:37:40 <dauwhe> pbelfanti: this is a particular interpretation by the japanese gov't to recognize something as a standard?
+16:37:58 <dauwhe> Makoto: since prof. ??? is a member of a UN committee, he's thinking about other governments
+16:38:17 <dauwhe> Avneesh: in the wiki page, george has listed three options
+16:38:31 <dauwhe> ... we should see which is feasible
+16:38:39 <dauwhe> pbelfanti: I do see those in the wiki
+16:38:42 <laudrain> https://github.com/w3c/publ-a11y/wiki/ISO-Standardization-Discussion
+16:38:50 <dauwhe> ack av
+16:39:06 <dauwhe> George: in the SC call, Rick, Luc, and I were charged with putting together the options
+16:39:15 <dauwhe> ... the 3 options listed is our first attempt
+16:39:20 <dauwhe> ... there are probably more options
+16:39:43 <dauwhe> ... starting at the bottom, option 3, moving epub a11iy 1.0 forward as tech spec is the easiest thing to do
+16:39:57 <dauwhe> ... but those tech specs don't carry as much weight. Might work for europe but not japan
+16:40:21 <dauwhe> ... option 2 looks at EPUB 3.1 and EPUB A11Y moving forward in ISO
+16:40:40 <dauwhe> ... option 1 was moving EPUB 3.0.1 and EPUB A11y moving forward in ISO
+16:41:03 <dauwhe> ... there's new info from Makoto about possibly moving 3.0.1 and 3.1 as ISO standards
+16:41:12 <dauwhe> ... we could put together more options
+16:41:34 <Makoto> We cannot do so.
+16:41:44 <Makoto> ISO does not allow ISs to normatively reference TSs
+16:41:46 <laudrain> Why?
+16:41:48 <dauwhe> ... why not simply moving EPUB a11y forward as ISO spec independent of which, since it can apply to 2, 2.0.1, 3, 3.01, and 3.1?
+16:41:54 <dauwhe> pbelfanti: just to clariy
+16:41:55 <Makoto> This is the way it is.
+16:41:57 <ivan> q?
+16:42:09 <tzviya> s/clariy/clarify
+16:42:14 <dauwhe> ... the same a11y spec would apply to all past and existing versions?
+16:42:21 <dauwhe> George: it was designed like that
+16:42:36 <Makoto> Impossible
+16:42:42 <Makoto> Impossible
+16:42:42 <Cristina> q+
+16:42:43 <dauwhe> pbelfanti: what you're proposing is that we advance EPUB a11y as international standard without a tie-in to specific versions
+16:42:46 <Makoto> q+
+16:42:51 <dauwhe> ack la
+16:43:19 <dauwhe> laudrain: we need the a11y spec not to be tied to an epub version
+16:43:40 <dauwhe> ... we've tried not to have the mandate around any particular version of epub
+16:44:07 <dauwhe> ... we hope that euro a11iy act be enforced in different countries only on a11y standards, and not on specific epub versions
+16:44:19 <dauwhe> ... we hope that any EPUB a11y spec could be broad
+16:44:33 <Makoto> Impossible
+16:44:34 <dauwhe> ... we hope it is independent of the version of epub
+16:44:39 <dauwhe> q?
+16:44:54 <dauwhe> ivan: I would loke to hear makoto's argument; he says it's impossible
+16:45:13 <tzviya> ack mak
+16:45:28 <dauwhe> Makoto: there is a rule about creating standards, about what is allowed as normative references
+16:45:46 <dauwhe> ... as part of international standards, normative references are required to be international standards
+16:46:03 <dauwhe> ... some orgs, such as w3c, and some documents, like RECs, are allowed
+16:46:13 <dauwhe> ... so a normative reference to HTML5 is allowed
+16:46:27 <dauwhe> ... but a normative reference is not allowed to technical standards
+16:46:36 <dauwhe> ack ivan
+16:46:52 <dauwhe> ivan: I'm bothered that we're having two parallel discussions, epub and a11y
+16:47:05 <Makoto> +q
+16:47:10 <dauwhe> ... I'm still against standardization of 3.0.1, but in favor of standardizing EPUB a11y
+16:47:21 <dauwhe> ... I haven't looked at the latest version of the a11y doc
+16:47:36 <dauwhe> ... but what I hear from George and Luc is taht it does not normatively depend on epub at all
+16:47:46 <dauwhe> ... it depends on the general notion of ebooks
+16:48:00 <Makoto> accessibilityFeature
+16:48:01 <dauwhe> ... if that is true, then it can become an international standard by itself
+16:48:12 <Avneesh> EPUB accessibility 1.0 do not depend on specific version of EPUB, but it depends on EPUB
+16:48:15 <dauwhe> ... then this can go on, and things are indepedent
+16:48:18 <laudrain> q+
+16:48:19 <dauwhe> q?
+16:48:32 <Avneesh> q+
+16:48:41 <laudrain> q-
+16:48:42 <dauwhe> Makoto: I strongly believe that epub a11y references some mechanism of epub in general, such as metadata
+16:48:58 <dauwhe> ... so we must normatively referene epub 3.X
+16:49:03 <dauwhe> ivan: we will have to check
+16:49:05 <laudrain> accessibilityFeature is schema.org
+16:49:17 <George> The accessibility spec references schema.org metadata
+16:49:23 <dauwhe> ivan: or maybe we can adapt epub a11y to avoid normative references
+16:49:32 <tzviya> q+ to ask if you want to standardize Accessibility 1.0 or the Techniques doc
+16:49:36 <graham> (and of course schema.org is not an international standard...)
+16:49:47 <dauwhe> Cristina: I just wanted to add to what Luc said
+16:49:58 <dauwhe> ... the idea in Europe is to have something more general, like WCAG
+16:50:22 <dauwhe> ... they don't want to have a specific format standard; they want generic guidelines. It may be different for other countries.
+16:50:23 <ivan> q?
+16:50:40 <dauwhe> ack cr
+16:50:46 <dauwhe> ack mak
+16:50:54 <Makoto> Some para from EPUB Accessibility: To indicate that an EPUB Publication conforms to the accessibility requirements of this specification, it must include a conformsTo property [DCTERMS] and an a11y:certifiedBy property [Accessibility Vocab].
+16:51:29 <dauwhe> Avneesh: epub a11y 1.0 has dependency on EPUB, but not specific to any version, there is schema.org metadata and epub metadata, and there are references to media overlays
+16:51:38 <dauwhe> ... we cannot say it is independent of EPUB
+16:51:47 <dauwhe> ... we could make 1.1 more independent
+16:51:52 <dauwhe> ack avn
+16:51:55 <dauwhe> ack tz
+16:51:55 <Zakim> tzviya, you wanted to ask if you want to standardize Accessibility 1.0 or the Techniques doc
+16:52:16 <dauwhe> tzviya: is the goal of this group is to send 1.0 doc to ISO, or the technicques document?
+16:52:22 <Makoto> Japanese publishers are against the idea of creating EPUB 3.1 as ISO documents if 3.0.1 is superseded at ISO.
+16:52:44 <Avneesh> q+
+16:52:58 <dauwhe> Makoto: I think EPUB a11y techniques are evolving document, so I'm only considering epub a11y 1.0 or 1.1, but not techniques
+16:53:35 <dauwhe> Avneesh: there is some dependencies in techniques and in the spec, but in 1.1 we can improve
+16:53:36 <dauwhe> ack avn
+16:54:00 <dauwhe> pbelfanti: we don't have a resolution
+16:54:22 <dauwhe> ... for next steps, the group that developed the options, engaging further with Makoto
+16:54:29 <dauwhe> ... to continue to pursue options
+16:54:47 <Makoto> Sure.
+16:54:51 <dauwhe> ... do we agree?
+16:55:01 <dauwhe> George: yes
+16:55:07 <dauwhe> pbelfanti: is there any new business?
+16:55:14 <dauwhe> (silence)
+16:55:47 <dauwhe> pbelfanti: OK, then the last item is a reminder to register for TPAC and the publishing summit, and to promote both events across your organizations and networks
+16:56:33 <dauwhe> pbelfanti: we can close the meeting. thanks everyone, and welcome to the new members.
+16:56:51 <ivan> rrsagent, draft minutes
+16:56:51 <RRSAgent> I have made the request to generate http://www.w3.org/2017/08/29-pbg-minutes.html ivan
+16:56:53 <graham> present-
+16:56:54 <laudrain> s/Virgine/Virginie/
+16:57:26 <ivan> zakim, bye
+16:57:26 <Zakim> leaving.  As of this point the attendees have been Karen, tzviya, Avneesh, dauwhe, Ivan, Junichi_Yoshii, George, liisa, makoto, Ric_Wright, Luc, graham, Virgine, Virginie,
+16:57:26 <Zakim> Zakim has left #pbg
+16:57:29 <Zakim> ... Dan_Sanicola, Junko_Kamata, liisamk, Michaela, Jkamata, Takeshi_Kanai, pbelfanti, Brian, cristina, leslie, Rachel
+16:57:53 <ivan> rrsagent, bye
+16:57:53 <RRSAgent> I see no action items

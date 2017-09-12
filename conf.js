@@ -146,6 +146,9 @@ exports.get_config = () => {
 		} else {
 			let message = "repository output is required, but not all values are provided.\n"
 			let message2 = "are needed: ghname, ghemail, ghtoken, ghrepo, ghpath\n"
+			if(retval.ghtoken !== undefined) retval.ghtoken = "(hidden)";
+			if(retval.ghemail !== undefined) retval.ghemail = "(hidden)";
+			if(retval.ghname !== undefined)  retval.ghname  = "(hidden)";
 			throw new Error(message + message2 + JSON.stringify(retval, null, 2));
 		}
 	}

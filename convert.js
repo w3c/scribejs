@@ -1,7 +1,8 @@
 "use strict";
 
-const _   = require('underscore');
-const url = require('url');
+const _    = require('underscore');
+const url  = require('url');
+const safe = require('safe-regex');
 
 const JEKYLL_NONE		= "none";
 const JEKYLL_MARKDOWN	= "md";
@@ -499,15 +500,18 @@ exports.to_markdown = (body, config) => {
 				// the array index later...)
 				let r = get_change_request(line.content);
 	  			if(r !== null) {
-	  				change_requests.push({
-	  					lineno : index,
-	  					from   : r[1],
-	  					to     : r[2],
-	  					g      : r[3] === "g",
-	  					G      : r[3] === "G",
-						valid  : true
-	  				});
-	  				line.content = marker;
+					// Check whether the 'from' field is 'safe', ie, it does not create RegExp Denial of Service attack
+					if(safe(r[1])) {
+						change_requests.push({
+							lineno : index,
+							from   : r[1],
+							to     : r[2],
+							g      : r[3] === "g",
+							G      : r[3] === "G",
+						  	valid  : true
+						});
+						line.content = marker;  
+					}
 				}
 	  			return line
 			})
