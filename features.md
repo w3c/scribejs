@@ -2,9 +2,11 @@
 
 This document describe the features that can/should be used for the purpose of scribing using the W3C IRC Server. The features handled by this converter are essentially the same as [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm), although there some minor additions.
 
-The script removes all lines referring to queue control, as well as commands referring to the `RSSAgent` or `trackbot` IRC bots.
+The script removes all lines referring to queue control, as well as commands referring to the `RSSAgent`, `zakim`, `trackbot`, and `github-bot` IRC bots.
 
-The IRC commands are based on a `ROLE: value` pattern, where the various “roles” are described below. The roles are case _insensitive_. For some roles, the syntax `ROLE+ value` or `ROLE- value` may also be used with a slightly different meaning. Some of the roles have aliases.
+Most IRC commands are based on a `ROLE: value` pattern, where the various “roles” are described below. The roles are case _insensitive_. For some roles, the syntax `ROLE+ value` or `ROLE- value` may also be used with a slightly different meaning. Some of the roles have aliases.
+
+There are also some (currently only one) `scribejs` “tools” that influence the operation of `scribejs`. These begin by the `scribejs, XXX` string and a space, and are followed by the command itself, where `XXX` is the tool identifier.
 
 When referring to names (e.g., `scribenick`, `present`, scribe’s reference to speaker, etc.) the preferred way is to use that person’s IRC nickname. If done that way (and if a suitable configuration file is provided) the script would automatically convert those into the persons’ real name, which make the minutes more readable.
 
@@ -72,3 +74,10 @@ The roles are as follows:
 	* change *all* appearances of `from` to `to` in the minutes.
 * `i/at/add/` or `i|at|add|`
 	* look for the _closest preceding_ line matching `at` and insert a *new line* with the value of `add` as a content *before* that line. A typical usage is to add a (sub)topic line that was forgotten or because the discussion took an unexpected turn.
+
+## `Scribejs` Tools
+
+The line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is the tool identifier, and the arguments depend on the tool identifier itself. `XXX` may be
+
+* `scribejs, set [nickname] [full name]`
+	* Set the (IRC) `nickname` to refer to the full name in the generated minutes. `full name` is space or underscore separated list of words (underscores are converted to spaces). Its use is to provide a one-time extension to the nickname mappings, see [README.md](#nick). 

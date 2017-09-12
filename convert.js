@@ -172,6 +172,7 @@ exports.to_markdown = (body, config) => {
 	 *  - remove zakim agenda control commands
 	 *  - remove bot commands ("zakim,", "rrsagent,", etc.)
 	 *  - remove the "XXX has joined #YYY" type messages
+	 *  - handle the "scribejs, nick FULL NAME" type commands
 	 *
 	 * The incoming body is either a single string with many lines (this is the case when the script is invoked from the
      * command line) or already split into individual lines (this is the case when the data comes via the CGI interface).
@@ -224,12 +225,43 @@ exports.to_markdown = (body, config) => {
 				   line_object.content_lower.startsWith("agenda?")   ||
 				   line_object.content_lower.startsWith("trackbot,") ||
 				   line_object.content_lower.startsWith("zakim,")    ||
-				   line_object.content_lower.startsWith("rrsagent,")
+				   line_object.content_lower.startsWith("rrsagent,") ||
+				   line_object.content_lower.startsWith("github-bot,")
 			   )
 		   })
 		   .filter((line_object) => (line_object.content.match(/^\w+ has joined #\w+/) === null))
 		   .filter((line_object) => (line_object.content.match(/^\w+ has left #\w+/) === null))
 		   .filter((line_object) => (line_object.content.match(/^\w+ has changed the topic to:/) === null))
+		   .filter((line_object) => {
+				// Handle the "scribejs, XXX" command
+				// At the moment, there is only one XXX tool, namely 'set', so the handling is put into one function.
+				// If, in future, other scribejs commands are introduced, then this function may become a bit more complicated
+				// The effect is to extend the configuration's nickname object.   
+			   	if(line_object.content_lower.startsWith("scribejs, set")) {
+					let words = line_object.content.split(" ");
+					try {
+						// If there is a problem somewhere, it should simply be forgotten
+						// this is a beautifying step, ie, an exception could be forgotten
+						let nickname   = words[2].toLowerCase();
+						let name_comps = words.slice(3);
+						if(name_comps.length !== 0) {
+							// note that the nickname assignment during the call has a higher priority than
+							// what comes from the external file, ie, it is silently overwritten
+							// The name is cleared from the '_' signs, which are usually used to replace spaces...
+							// let name = name_comps.join(" ").replace(/_/g, ' ');
+							config.nick_mappings[nickname] = { nick: [nickname], name: name_comps.join(" ").replace(/_/g, ' ') }		
+						} 
+					} catch(err) {
+						; // console.log(err)
+					} finally {
+						// returning 'false' will remove this line from the result
+						return false					
+					}
+			   	} else {
+					// This line should remain for further processing
+				   	return true
+			   	}
+		   })
 		   // End of the underscore chain, retrieve the final value
 		   .value();
 	};
@@ -278,6 +310,11 @@ exports.to_markdown = (body, config) => {
 		 */
 		// Care should be taken to trim everything, to keep the nick names clean of extra spaces...
 		function people(category, line) {
+			// A frequent mistake is to use "guest" instead of "guests", or "regret" instead of "regrets".
+			// Although the "official" documented version is the plural form, I decided to make
+			// the script resilient...
+			let real_category = (category === "guest") ? "guests" : ((category === "regret") ? "regrets" : category)
+
 			let get_names = (index) => {
 				let retval = line.content.slice(index+1).trim().split(',');
 				if(retval.length === 0 || (retval.length === 1 && retval[0].length === 0)) {
@@ -316,7 +353,7 @@ exports.to_markdown = (body, config) => {
 					// This is not a correct usage...
 					return false;
 				}
-				headers[category] = action(headers[category], _.map(names, (name) => name.trim()))
+				headers[real_category] = action(headers[real_category], _.map(names, (name) => name.trim()))
 				return true;
 			} else {
 				return false;
@@ -362,7 +399,9 @@ exports.to_markdown = (body, config) => {
 		let processed_lines = _.chain(lines)
 			.filter((line) => !people("present", line))
 			.filter((line) => !people("regrets", line))
+			.filter((line) => !people("regret", line))
 			.filter((line) => !people("guests", line))
+			.filter((line) => !people("guest", line))
 			.filter((line) => !people("chair", line))
 			.filter((line) => !single_item("agenda", line))
 			.filter((line) => !single_item("meeting", line))
