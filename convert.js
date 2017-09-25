@@ -69,36 +69,36 @@ exports.to_markdown = (body, config) => {
 	 * @param {string} nick - name/nickname
 	 * @returns {object} - `name` for the full name and `url` if available
 	 */
-	 function get_name(nick) {
+	function get_name(nick) {
 		 // IRC clients tend to add a '_' to a usual nickname when there
 		 // are duplicate logins. Remove that
 		 nick = nick.replace(/^_+/,'').replace(/_+$/,'').replace(/^@/,'');
 		 // if this nickname has been used before, just return it
-		 if(config.nick_mappings[nick]) {
+		if(config.nick_mappings[nick]) {
 			 return config.nick_mappings[nick]
-		 } else {
-			 // This is really just a beautification step, i.e.,
-			 // it should be silently forgotten if any problem
-			 // occurs.
-			 try {
-				 for(let i = 0; i < config.nicks.length; i++) {
-					 let struct = config.nicks[i];
-					 if(_.indexOf(struct.nick, nick.toLowerCase()) !== -1) {
-						 // bingo, the right name has been found
-						 config.nick_mappings[nick] = { name: struct.name };
-						 if(struct.url) config.nick_mappings[nick].url = struct.url;
+		} else {
+			// This is really just a beautification step, i.e.,
+			// it should be silently forgotten if any problem
+			// occurs.
+			try {
+				for(let i = 0; i < config.nicks.length; i++) {
+				    let struct = config.nicks[i];
+					if(_.indexOf(struct.nick, nick.toLowerCase()) !== -1) {
+						// bingo, the right name has been found
+						config.nick_mappings[nick] = { name: struct.name };
+						if(struct.url) config.nick_mappings[nick].url = struct.url;
 
-						 return config.nick_mappings[nick]
-					 }
-				 }
-			 } catch(e) {
+						return config.nick_mappings[nick]
+					}
+				}
+			} catch(e) {
 				 ;
-			 }
-			 // As a minimal measure, remove the '_' characters from the name
-			 // (many people use this to signal their presence when using, e.g., present+)
-			 return { name : nick.replace(/_/g, ' ') };
-		 }
-	 }
+			}
+			// As a minimal measure, remove the '_' characters from the name
+			// (many people use this to signal their presence when using, e.g., present+)
+			return { name : nick.replace(/_/g, ' ') };
+		}
+	}
 
 
 	 /**
@@ -110,9 +110,9 @@ exports.to_markdown = (body, config) => {
  	 * @param {string} nick - name/nickname
  	 * @returns {string} - cleaned up name
  	 */
-	 function cleanup_name(nick) {
-		 return get_name(nick).name
-	 }
+	function cleanup_name(nick) {
+		return get_name(nick).name
+	}
 
 
 	/**
@@ -191,6 +191,33 @@ exports.to_markdown = (body, config) => {
 		   //  specific helper function, if the script is adapted to a larger
 		   //  palette of IRC client loggers, too.
 		   .map((line) => line.slice(line.indexOf(' ') + 1))
+		   .filter((line) => {
+			   // these filters are, in fact, unnecessary if rrsagent is properly used
+			   // however, if the script is used against a line-oriented log of an irc client (like textual)
+			   // then this come handy in taking out at least some of the problematic lines
+			   if( config.irc_format === undefined ) {
+				   // use the default RRSAgent log, no extra filter is necessary
+				   return true;
+			   } else {
+					switch( config.irc_format ) {
+						case "textual" :
+							let stripped_line = line.trim()
+							return !(
+								stripped_line.length === 0                                          ||
+								stripped_line[0] === "•"                                            ||
+								stripped_line.startsWith("Disconnected for Sleep Mode")             ||
+								stripped_line.includes("rrsagent")                                  ||
+								stripped_line.includes("zakim")                                     ||
+								stripped_line.includes("joined the channel")                        ||
+								stripped_line.includes("------------- Begin Session -------------") ||
+								stripped_line.includes("------------- End Session -------------")   ||
+								stripped_line.includes("changed the topic to")
+							);
+						default :
+							return true;
+					}
+			   }
+		   })
 		   // This is where the IRC log lines are turned into objects, separating the nicknames.
 		   .map((line) => {
 			   let sp = line.indexOf(' ');
