@@ -1,0 +1,260 @@
+[2017-09-19T12:07:41+0200]  
+[2017-09-19T12:07:41+0200] ------------- Begin Session -------------
+[2017-09-19T12:07:41+0200]  
+[2017-09-19T12:07:50+0200] ivan (ivan@team.cloak) joined the channel
+[2017-09-19T17:46:49+0200] Disconnected for Sleep Mode
+[2017-09-19T17:46:49+0200]  
+[2017-09-19T17:46:49+0200] ------------- End Session -------------
+[2017-09-19T17:46:49+0200]  
+[2017-09-19T17:55:18+0200]  
+[2017-09-19T17:55:18+0200] ------------- Begin Session -------------
+[2017-09-19T17:55:18+0200]  
+[2017-09-19T17:55:22+0200] ivan (ivan@team.cloak) joined the channel
+[2017-09-19T17:58:34+0200] <ivan> rrsagent, set log public
+[2017-09-19T17:58:34+0200] <ivan> Meeting: Publishing Steering Committee Telco
+[2017-09-19T17:58:34+0200] <ivan> Chair: RickJ
+[2017-09-19T17:58:34+0200] <ivan> Date: 2017-09-19
+[2017-09-19T17:58:34+0200] <ivan> Regrets+ pbelfanti, cristina
+[2017-09-19T17:58:34+0200] <ivan> Agenda: http://www.w3.org/mid/50121849-F961-4008-A14A-52ACC82217AE@ingramcontent.com
+[2017-09-19T17:58:34+0200] Inviting zakim to join #pbgsc
+[2017-09-19T17:58:35+0200] Inviting rrsagent to join #pbgsc
+[2017-09-19T17:58:35+0200] <RRSAgent> logging to http://www.w3.org/2017/09/19-pbgsc-irc
+[2017-09-19T17:58:37+0200] ivan changed the topic to Meeting Agenda 2017-09-19: http://www.w3.org/mid/50121849-F961-4008-A14A-52ACC82217AE@ingramcontent.com
+[2017-09-19T17:58:37+0200] <RRSAgent> I have made the request, ivan
+[2017-09-19T18:00:41+0200] <ivan> present+
+[2017-09-19T18:00:45+0200] <ivan> present+ George
+[2017-09-19T18:02:38+0200] <ivan> present+ RickJ, tzviya
+[2017-09-19T18:03:01+0200] <BillM> present+ BillM
+[2017-09-19T18:03:55+0200] <tzviya> present+
+[2017-09-19T18:04:15+0200] <laudrain> present+
+[2017-09-19T18:04:34+0200] <graham_> present+
+[2017-09-19T18:05:11+0200] <ivan> present+ garth
+[2017-09-19T18:06:01+0200] <laudrain> Webex slow starting
+[2017-09-19T18:06:08+0200] <ivan> present+ billk
+[2017-09-19T18:06:50+0200] <Bill_Kasdorf> present+
+[2017-09-19T18:07:04+0200] <mikebaker> present+
+[2017-09-19T18:08:15+0200] <graham_> Who is scribing?
+[2017-09-19T18:08:31+0200] <laudrain> I’ll try
+[2017-09-19T18:08:43+0200] <ivan> scribenick: laudrain 
+[2017-09-19T18:08:44+0200] <laudrain> point ISO question
+[2017-09-19T18:08:48+0200] <ivan> topic: ISO issues
+[2017-09-19T18:09:16+0200] <laudrain> George: survey question sent, built with Avneesh and Makoto
+[2017-09-19T18:09:40+0200] <BillM> q+
+[2017-09-19T18:09:40+0200] • Zakim: sees BillM on the speaker queue
+[2017-09-19T18:09:45+0200] <laudrain> … consensus that’es the basic quesitons we’ve got right now
+[2017-09-19T18:09:45+0200] <ivan> George's page: https://github.com/w3c/publ-a11y/wiki/ISO-Standardization-Discussion
+[2017-09-19T18:10:00+0200] <laudrain> … Bill please chime in
+[2017-09-19T18:10:49+0200] <laudrain> BillM: survey has a lot info, stress on the status quo is misaleding
+[2017-09-19T18:11:07+0200] <laudrain> … there is no default
+[2017-09-19T18:11:20+0200] <cristina> present +
+[2017-09-19T18:11:55+0200] <laudrain> George: mkaoto means that Korea has already submitted an updtade to the previous TS
+[2017-09-19T18:12:09+0200] <liisamk_> present +
+[2017-09-19T18:12:23+0200] <laudrain> BillM: this has to be clarified on a legal basis
+[2017-09-19T18:12:47+0200] <laudrain> … ok to move right now but hope this point to be clarified
+[2017-09-19T18:12:52+0200] <ivan> regrets- cristina
+[2017-09-19T18:13:02+0200] • ivan: though cristina would not be around
+[2017-09-19T18:13:04+0200] <laudrain> … survey really good
+[2017-09-19T18:13:15+0200] <cristina> i am here...
+[2017-09-19T18:13:23+0200] • ivan: yep, I see:-)
+[2017-09-19T18:13:36+0200] <ivan> s/mkaoto/makoto/
+[2017-09-19T18:13:41+0200] <laudrain> George: do you we want to convert this to a survey questionnaire?
+[2017-09-19T18:14:29+0200] <laudrain> BIllM: business group and pub group
+[2017-09-19T18:14:51+0200] <laudrain> Tzviya: people won’t all respond
+[2017-09-19T18:15:01+0200] <laudrain> BillM: opinion are important
+[2017-09-19T18:15:23+0200] <laudrain> BillK: non answer my be dangerous too
+[2017-09-19T18:15:43+0200] <ivan> present+ leslie
+[2017-09-19T18:15:57+0200] <laudrain> Tzviya: have a phone call with involved people?
+[2017-09-19T18:16:01+0200] <ivan> q+
+[2017-09-19T18:16:01+0200] • Zakim: sees BillM, ivan on the speaker queue
+[2017-09-19T18:16:04+0200] <Bill_Kasdorf> s/non answer/answer by someone not understanding the issues
+[2017-09-19T18:16:07+0200] <ivan> ack BillM 
+[2017-09-19T18:16:07+0200] • Zakim: sees ivan on the speaker queue
+[2017-09-19T18:16:28+0200] <laudrain> BiilM: George’s doc is the menu, now what do we want to do?
+[2017-09-19T18:16:59+0200] <laudrain> Ivan: quesiton is 3.0.1 standardiazation harmfull to 3.1?
+[2017-09-19T18:17:44+0200] <Bill_Kasdorf> q+
+[2017-09-19T18:17:44+0200] • Zakim: sees ivan, Bill_Kasdorf on the speaker queue
+[2017-09-19T18:18:04+0200] <laudrain> … the question « does 3.0.1 a standrd today harm 3.1 »? dangerous option
+[2017-09-19T18:18:11+0200] <ivan> ack ivan 
+[2017-09-19T18:18:11+0200] • Zakim: sees Bill_Kasdorf on the speaker queue
+[2017-09-19T18:18:21+0200] <ivan> ack Bill_Kasdorf
+[2017-09-19T18:18:21+0200] • Zakim: sees no one on the speaker queue
+[2017-09-19T18:18:27+0200] <laudrain> BillK: effect on a11y stuff?
+[2017-09-19T18:18:50+0200] <laudrain> …EPB standardization less imortant than a11y standadization
+[2017-09-19T18:18:52+0200] <BillM> 3.0.1 becoming a bona fide IS would harm 3.1 (therefore fostering a fork in EPUB 3) and would also take a significant amount of effort and we should not support it (BillM's opinion)
+[2017-09-19T18:18:57+0200] <RickJ> I am back in front of a computer (and on irc)
+[2017-09-19T18:19:14+0200] • ivan: welcome to RickJ :-0
+[2017-09-19T18:19:48+0200] <laudrain> George: a11Y 1.0 not referencing EPUB is really impossible
+[2017-09-19T18:20:08+0200] <laudrain> … We can just take that option off
+[2017-09-19T18:20:35+0200] <laudrain> … to make it generic is out of scope
+[2017-09-19T18:21:03+0200] <RickJ> q?
+[2017-09-19T18:21:03+0200] • Zakim: sees no one on the speaker queue
+[2017-09-19T18:21:06+0200] <graham_> (so to be clear, the option we are talking about removing here is, er, option 2?)
+[2017-09-19T18:21:08+0200] <laudrain> … in wcag 2.1, a couple of feature , and in sliver, is long term
+[2017-09-19T18:21:27+0200] <laudrain> …on short term, a11y associated with EPUB u-is doable
+[2017-09-19T18:21:48+0200] <laudrain> BilK: 3;0.1 vs 3.1 impact on a11Y
+[2017-09-19T18:22:06+0200] <laudrain> Ivan: does the a11y spec depenfs on 3.1
+[2017-09-19T18:22:16+0200] <laudrain> George: generic
+[2017-09-19T18:22:45+0200] <laudrain> s/depenfs/depends/
+[2017-09-19T18:23:26+0200] <laudrain> Graham: 5 options on the wiki, 2 can be removed
+[2017-09-19T18:23:41+0200] <laudrain> Tzviya: option 3 too
+[2017-09-19T18:23:55+0200] <laudrain> Graham: 3 out 5 options are left
+[2017-09-19T18:24:24+0200] <laudrain> George: suvey further down helps to clarify various options
+[2017-09-19T18:24:36+0200] <laudrain> … crtical is waht occurs to 3.1
+[2017-09-19T18:24:46+0200] <laudrain> s/waht/what/
+[2017-09-19T18:24:58+0200] <laudrain> Ivan: reduce the survey to that question
+[2017-09-19T18:25:03+0200] <RickJ> q+
+[2017-09-19T18:25:03+0200] • Zakim: sees RickJ on the speaker queue
+[2017-09-19T18:25:18+0200] <laudrain> … if it does, no 3.0.1 standardisation
+[2017-09-19T18:25:33+0200] <laudrain> …If not, no care about ISO process
+[2017-09-19T18:25:57+0200] <laudrain> Graham: do you prefer option 1 or 5 is the binary question?
+[2017-09-19T18:26:30+0200] <laudrain> Ivan: standardize only 3.1, option 4
+[2017-09-19T18:26:42+0200] <laudrain> … then 1, 4 or 5
+[2017-09-19T18:26:58+0200] <garth> ack RickJ
+[2017-09-19T18:26:58+0200] • Zakim: sees no one on the speaker queue
+[2017-09-19T18:27:13+0200] <laudrain> Rick: 3.1 no standard if no epubcheck!
+[2017-09-19T18:27:45+0200] <laudrain> Ivan: if 3.1 is not a standard, who will put power on epucheck
+[2017-09-19T18:27:54+0200] <garth> q?
+[2017-09-19T18:27:54+0200] • Zakim: sees no one on the speaker queue
+[2017-09-19T18:28:08+0200] <laudrain> Tzviya: until epubcheck exists, no consideration on a spec.
+[2017-09-19T18:28:25+0200] <laudrain> Garth: 3.1 is not going to happen?
+[2017-09-19T18:28:34+0200] <BillM> q+
+[2017-09-19T18:28:34+0200] • Zakim: sees BillM on the speaker queue
+[2017-09-19T18:28:43+0200] <laudrain> Tzviya: no we need contribution to epubcheck!!!
+[2017-09-19T18:29:00+0200] <laudrain> … not enough developpers on it
+[2017-09-19T18:29:14+0200] <garth> ack BillM
+[2017-09-19T18:29:14+0200] • Zakim: sees no one on the speaker queue
+[2017-09-19T18:29:59+0200] <laudrain> BillM: clear on 3.1 not happening, Makoto does see japan industry need anything in 3.1
+[2017-09-19T18:30:14+0200] <laudrain> … risk of forking
+[2017-09-19T18:30:28+0200] <laudrain> Garth: it may reality
+[2017-09-19T18:30:40+0200] <laudrain> …who cares?
+[2017-09-19T18:31:34+0200] <laudrain> Garth: change the package in 3.1?
+[2017-09-19T18:31:45+0200] <tzviya> s/package/package identifier
+[2017-09-19T18:31:50+0200] <laudrain> … it is just one character
+[2017-09-19T18:32:15+0200] <laudrain> George: so long talking, we should take a decision
+[2017-09-19T18:32:57+0200] <laudrain> Tzviya: explanation or recommandation and vote
+[2017-09-19T18:33:08+0200] <Bill_Kasdorf> +1 to what Tzviya just said
+[2017-09-19T18:33:17+0200] <cristina> I agree
+[2017-09-19T18:33:18+0200] <liisamk_> +1
+[2017-09-19T18:33:23+0200] <laudrain> … build concensus with the right people in a separate call
+[2017-09-19T18:33:31+0200] <ivan> +1
+[2017-09-19T18:34:05+0200] <laudrain> George: ation item, Makot, Dr Cho, Avneesh, Cristina, George, Luc
+[2017-09-19T18:34:13+0200] <laudrain> s/ation/sction/
+[2017-09-19T18:34:20+0200] <garth> Hmmm… looking at “http://www.idpf.org/epub/31/spec/epub-changes.html#sec-ocf” just chaning the package identifier (back) to “3.0” might make sense.  Could resolve this ISO issue too.
+[2017-09-19T18:34:24+0200] <laudrain> s/stion/action/
+[2017-09-19T18:34:47+0200] <laudrain> George: that group to report to the SC
+[2017-09-19T18:35:01+0200] <laudrain> Next Item
+[2017-09-19T18:35:01+0200] • Zakim: sees nothing on the agenda
+[2017-09-19T18:35:02+0200] <ivan> Topic: dire need to lead by example...
+[2017-09-19T18:35:29+0200] <laudrain> Rick: volunteer for testing and epubcheck
+[2017-09-19T18:35:40+0200] <laudrain> Tzviya: epubchek is more dire
+[2017-09-19T18:36:05+0200] <laudrain> Rick: we can help to epbcheck
+[2017-09-19T18:36:23+0200] <laudrain> … we do have some developers
+[2017-09-19T18:36:39+0200] <laudrain> George: Ramon spent time on a11y checker
+[2017-09-19T18:36:47+0200] <laudrain> s/Ramon,/Romain/
+[2017-09-19T18:36:55+0200] <ivan> s/Ramon/Romain/
+[2017-09-19T18:37:06+0200] <garth> q?
+[2017-09-19T18:37:06+0200] • Zakim: sees no one on the speaker queue
+[2017-09-19T18:37:34+0200] <laudrain> Luc: Vincent Gros is in epucheck TF
+[2017-09-19T18:38:05+0200] <laudrain> Tzviya: testing necessary to finalize the 3.1 spec
+[2017-09-19T18:38:16+0200] <tzviya> s/3.1/PWG
+[2017-09-19T18:38:19+0200] <laudrain> Ivan: we need a champion, test suite
+[2017-09-19T18:39:05+0200] <laudrain> … some members will work on implementation, but building a test suite is a huge task
+[2017-09-19T18:39:49+0200] <laudrain> … a Web Publication test suite
+[2017-09-19T18:40:35+0200] <laudrain> … when something defined in the spec should be prepared for testing
+[2017-09-19T18:41:01+0200] <laudrain> … at that moment is not a huge task, some attentive on those problems
+[2017-09-19T18:42:09+0200] <laudrain> BillM: resources Rick has time, but not enough money for the readium Fondation
+[2017-09-19T18:42:23+0200] <Bill_Kasdorf> how much money would be required?
+[2017-09-19T18:42:24+0200] <laudrain> Tzviya: more suggestion?
+[2017-09-19T18:43:18+0200] <laudrain> BillM: W3C is looking to do more work on spec, but doesn’t have the fund
+[2017-09-19T18:43:25+0200] <George> q+
+[2017-09-19T18:43:25+0200] • Zakim: sees George on the speaker queue
+[2017-09-19T18:43:28+0200] <Bill_Kasdorf> my question really comes down to what sort of a grant or sponsorship might help solve the problem
+[2017-09-19T18:43:48+0200] <tzviya> asks BillK if he knows of a funder
+[2017-09-19T18:43:51+0200] <laudrain> … W3C could be doing it but with funding from elswhrer$
+[2017-09-19T18:44:10+0200] <garth> q?
+[2017-09-19T18:44:10+0200] • Zakim: sees George on the speaker queue
+[2017-09-19T18:44:13+0200] <garth> ack George
+[2017-09-19T18:44:13+0200] • Zakim: sees no one on the speaker queue
+[2017-09-19T18:44:34+0200] <ivan> q+
+[2017-09-19T18:44:34+0200] • Zakim: sees ivan on the speaker queue
+[2017-09-19T18:45:02+0200] <laudrain> George: W3C testing procedure are sophisticated, it make it more diffcuelt to find people
+[2017-09-19T18:45:05+0200] <Bill_Kasdorf> If it would be possible for epubcheck to carry a sponsorship credit, I think we could get a sponsor. I'd be willing to approach Apex on that basis, for example.
+[2017-09-19T18:45:39+0200] <garth> Interesting.
+[2017-09-19T18:45:40+0200] <laudrain> Ivan: test harness complex and not well adapted to the thing we, mainly for APIs
+[2017-09-19T18:45:40+0200] <ivan> regrets+ dauwhe 
+[2017-09-19T18:46:17+0200] <laudrain> … it give you a framework, but you have to fill i t with something: what are the testabel things, which part of the spec?
+[2017-09-19T18:46:58+0200] <laudrain> Tzviya: sponsorship form APEX?
+[2017-09-19T18:47:48+0200] <tzviya> i have been reading about code sponsorship because Open Source needs sustainable resources
+[2017-09-19T18:47:50+0200] <laudrain> BiiK: W3C would be happy to blog on that
+[2017-09-19T18:48:18+0200] <laudrain> s/Biik/BillM/
+[2017-09-19T18:48:37+0200] <laudrain> Ivan: we can find a solution on that
+[2017-09-19T18:48:55+0200] <laudrain> BillK: funding Rick
+[2017-09-19T18:49:10+0200] <tzviya> s/funding Rick/funding Ric
+[2017-09-19T18:49:19+0200] <laudrain> Ivan: to a fairly active member of the WG
+[2017-09-19T18:49:40+0200] <laudrain> Garth: interesting: a partnership
+[2017-09-19T18:49:57+0200] <laudrain> Ivan: epubcheck for EPUB4!
+[2017-09-19T18:50:14+0200] <laudrain> Garth: we are a long way to that
+[2017-09-19T18:50:41+0200] <laudrain> … not same person on epubcheck and WG testing champion
+[2017-09-19T18:50:57+0200] <laudrain> Tzviya: check with Rick on that
+[2017-09-19T18:51:37+0200] <laudrain> next items:
+[2017-09-19T18:52:08+0200] <laudrain> EPUB Summit adjacent to the AC meeting in May (in Berlin)
+[2017-09-19T18:52:15+0200] <ivan> Topic: Events Adjacent to the AC meeting
+[2017-09-19T18:52:23+0200] <ivan> q+
+[2017-09-19T18:52:23+0200] • Zakim: sees ivan on the speaker queue
+[2017-09-19T18:52:33+0200] <laudrain> Rick: coordination on those things, EDRLab EPUB summit?
+[2017-09-19T18:53:02+0200] <garth> I’ll less exicted about sponsorship of a testing chamion in the WG, than possible sponsorship for getting epubheck to 3.1 support.  (but that may well be just me)
+[2017-09-19T18:53:13+0200] <laudrain> BillM: a following W3C pub summit in Europe in may?
+[2017-09-19T18:53:27+0200] <laudrain> … or wait for next TPAC?
+[2017-09-19T18:53:47+0200] <laudrain> … in partnership with EDRLab?
+[2017-09-19T18:53:48+0200] <Bill_Kasdorf> q+
+[2017-09-19T18:53:48+0200] • Zakim: sees ivan, Bill_Kasdorf on the speaker queue
+[2017-09-19T18:54:32+0200] <laudrain> Ivan: met W3C head in Berlin office: he said he would have the date asap
+[2017-09-19T18:54:55+0200] <laudrain> … room reservaiton is difficult, starts asap
+[2017-09-19T18:55:22+0200] <laudrain> … AC meeing in Monday and Tuesday, and Friday is national holiday in Germany
+[2017-09-19T18:55:25+0200] <cristina> q+
+[2017-09-19T18:55:25+0200] • Zakim: sees ivan, Bill_Kasdorf, cristina on the speaker queue
+[2017-09-19T18:55:40+0200] <laudrain> s/meeing/meeting/
+[2017-09-19T18:55:48+0200] <ivan> ack ivan 
+[2017-09-19T18:55:48+0200] • Zakim: sees Bill_Kasdorf, cristina on the speaker queue
+[2017-09-19T18:55:52+0200] <graham_> q+
+[2017-09-19T18:55:53+0200] • Zakim: sees Bill_Kasdorf, cristina, graham_ on the speaker queue
+[2017-09-19T18:55:54+0200] • tzviya: wonders if we need to have 2 summits every year?
+[2017-09-19T18:55:57+0200] <laudrain> … we should start conversation
+[2017-09-19T18:56:02+0200] <ivan> ack bill_kasdorf
+[2017-09-19T18:56:02+0200] • Zakim: sees cristina, graham_ on the speaker queue
+[2017-09-19T18:56:19+0200] <laudrain> BillK: essential on F2F for audience
+[2017-09-19T18:56:34+0200] <tzviya> +1 to BillK
+[2017-09-19T18:56:49+0200] <tzviya> ack c
+[2017-09-19T18:56:49+0200] • Zakim: sees graham_ on the speaker queue
+[2017-09-19T18:56:53+0200] <laudrain> … it is exactly the people we want to have for the F2F
+[2017-09-19T18:57:29+0200] <laudrain> Cristina: define the day : 16 and 17th of may
+[2017-09-19T18:57:45+0200] <laudrain> Ivan: that’s just after the AC meeting
+[2017-09-19T18:58:08+0200] <laudrain> … the week before is difficult in Germany
+[2017-09-19T18:58:45+0200] <garth> q?
+[2017-09-19T18:58:45+0200] • Zakim: sees graham_ on the speaker queue
+[2017-09-19T18:58:54+0200] <laudrain> … having it on Friday and Saturday?
+[2017-09-19T18:59:26+0200] <laudrain> Graham: Publishers Forum in Berlin 2 week before
+[2017-09-19T18:59:38+0200] <laudrain> s/week/weeks/
+[2017-09-19T18:59:42+0200] <BillM> +1 to managing that conflict with the Publishers Forum carefully
+[2017-09-19T18:59:45+0200] <BillM> q+
+[2017-09-19T18:59:45+0200] • Zakim: sees graham_, BillM on the speaker queue
+[2017-09-19T18:59:49+0200] <laudrain> Graham: ealier bad idea
+[2017-09-19T19:00:17+0200] <laudrain> … Klopotek is running this conference
+[2017-09-19T19:00:31+0200] <laudrain> BillM: partnership with Klopotek?
+[2017-09-19T19:00:50+0200] <laudrain> … but it may be already planned
+[2017-09-19T19:01:07+0200] <laudrain> Graham: close but connected, may work
+[2017-09-19T19:01:11+0200] <Bill_Kasdorf> For those who don't know, Klopotek is the vendor of probably the leading title management system for book publishers
+[2017-09-19T19:01:14+0200] • tzviya: is looking for the 2018 summit announcement
+[2017-09-19T19:01:38+0200] <laudrain> Rick: propose to a once a month meeting
+[2017-09-19T19:01:44+0200] <cristina> Publishers forum in Berlin will be on 26-27 April 2018
+[2017-09-19T19:01:48+0200] <graham_> For info, Publishers Forum is April 26-27 2018 (as Cristina said)
+[2017-09-19T19:02:33+0200] <laudrain> Ivan: practical thing: uninvited guest on that meeting. Please never put anything on public forum
+[2017-09-19T19:03:27+0200] <ivan> rrsagent, bye
+[2017-09-19T19:03:27+0200] <RRSAgent> I see no action items
+[2017-09-19T19:03:43+0200] <graham_> present-
+[2017-09-19T19:04:07+0200] <ivan> zakim, bye
+[2017-09-19T19:04:07+0200] <Zakim> leaving.  As of this point the attendees have been ivan, George, RickJ, tzviya, BillM, laudrain, graham_, garth, billk, Bill_Kasdorf, mikebaker, leslie
+[2017-09-19T19:05:42+0200] <ivan> rrsagent, draft minutes
+[2017-09-19T19:07:30+0200]  
+[2017-09-19T19:07:30+0200] ------------- End Session -------------
+[2017-09-19T19:07:30+0200]  

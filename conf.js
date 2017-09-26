@@ -19,7 +19,8 @@ let default_config = {
 	final		   : false,
 	torepo         : false,
 	jekyll		   : JEKYLL_NONE,
-	nick_mappings  : {}
+	nick_mappings  : {},
+	irc_format	   : undefined
 }
 
 /**
@@ -84,20 +85,23 @@ exports.get_config = () => {
 		.option('-n, --nick [nicknames]', 'JSON file for nickname mappings')
 		.option('-o, --output [output]', 'output file name')
 		.option('-j, --jekyll [option]', 'whether the output should be adapted to Github+Jekyll; values can be "none", "md", or "kd"' )
+		.option('-i, --irc [format string]', "use an input format of a specific irc client's log, rather than the default RRSAgent log")
 		.on("--help", () => {
 			console.log('    file:                   irc log file; if not present, retrieved from the W3C site');
 		})
 		.parse(process.argv);
 
-	if(program.repo)   argument_config.torepo    = true;
-	if(program.repo)   argument_config.final     = true;
-	if(program.jekyll) argument_config.jekyll    = program.jekyll === "kd" ? JEKYLL_KRAMDOWN :
+	if(program.repo)    argument_config.torepo    = true;
+	if(program.final)   argument_config.final     = true;
+	if(program.textual) argument_config.textual   = true;
+	if(program.jekyll)  argument_config.jekyll    = program.jekyll === "kd" ? JEKYLL_KRAMDOWN :
 														(program.jekyll === "md" ? JEKYLL_MARKDOWN : JEKYLL_NONE);
-	if(program.date)   argument_config.date      = moment(program.date);
-	if(program.group)  argument_config.group     = program.group;
-	if(program.output) argument_config.output    = program.output;
-	if(program.nick)   argument_config.nicknames = program.nick
-	if(program.args)   argument_config.input     = program.args[0]
+	if(program.date)    argument_config.date       = moment(program.date);
+	if(program.group)   argument_config.group      = program.group;
+	if(program.output)  argument_config.output     = program.output;
+	if(program.nick)    argument_config.nicknames  = program.nick
+	if(program.irc)     argument_config.irc_format = program.irc
+	if(program.args)    argument_config.input      = program.args[0]
 
 	/***********************************************************************/
 	// Second step: see if there is an explicit config file to be retreived
