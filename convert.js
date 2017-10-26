@@ -70,10 +70,10 @@ exports.to_markdown = (body, config) => {
 	 * @returns {object} - `name` for the full name and `url` if available
 	 */
 	function get_name(nick) {
-		 // IRC clients tend to add a '_' to a usual nickname when there
-		 // are duplicate logins. Remove that
-		 nick = nick.replace(/^_+/,'').replace(/_+$/,'').replace(/^@/,'');
-		 // if this nickname has been used before, just return it
+		// IRC clients tend to add a '_' to a usual nickname when there
+		// are duplicate logins. Remove that
+		nick = nick.replace(/^_+/,'').replace(/_+$/,'').replace(/^@/,'');
+		// if this nickname has been used before, just return it
 		if(config.nick_mappings[nick]) {
 			 return config.nick_mappings[nick]
 		} else {
@@ -272,12 +272,9 @@ exports.to_markdown = (body, config) => {
 						let nickname   = words[2].toLowerCase();
 						let name_comps = words.slice(3);
 						if(name_comps.length !== 0) {
-							// note that the nickname assignment during the call has a higher priority than
-							// what comes from the external file, ie, it is silently overwritten
 							// The name is cleared from the '_' signs, which are usually used to replace spaces...
-							// let name = name_comps.join(" ").replace(/_/g, ' ');
-							config.nick_mappings[nickname] = { nick: [nickname], name: name_comps.join(" ").replace(/_/g, ' ') }		
-						} 
+							config.nicks.push({ nick: [nickname], name: name_comps.join(" ").replace(/_/g, ' ') })
+						}
 					} catch(err) {
 						; // console.log(err)
 					} finally {
