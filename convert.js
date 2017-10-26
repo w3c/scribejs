@@ -162,6 +162,44 @@ exports.to_markdown = (body, config) => {
 
 
 	/**
+	 * Handle the 'scribejs' directives. The directives are of the form "scribejs, COMMAND ARGS".
+	 * 
+	 * At the moment, the only diretive is 'set', adding a temporary nick name to the ones coming from the nickname file
+	 * 
+	 * @param {object} line_object - a line object; the only importent entry is the 'content'
+	 * @returns {boolean} - true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise
+	 */
+	function handle_scribejs(line_object) {
+		if(line_object.content_lower.startsWith("scribejs,")) {
+			// If there is a problem somewhere, it should simply be forgotten
+			// these are all beautifying steps, ie, an exception could be ignored
+			try {
+				let words = line_object.content.split(" ");
+				switch (words[1]) {
+					// Set a per-session nickname.   
+					case "set":
+						let nickname   = words[2].toLowerCase();
+						let name_comps = words.slice(3);
+						if(name_comps.length !== 0) {
+							// The name is cleared from the '_' signs, which are usually used to replace spaces...
+							config.nicks.push({ nick: [nickname], name: name_comps.join(" ").replace(/_/g, ' ') })
+						}									
+						break;						
+				}
+			} catch(err) {
+				; // console.log(err)
+			} finally {
+				// returning 'false' will remove this line from the result
+				return false					
+			}
+		} else {
+			// This line should remain for further processing
+			return true
+		}
+	}
+
+
+	/**
 	 * Cleanup actions on the incoming body:
 	 *  - turn the body (which is one giant string) into an array of lines
 	 *  - remove empty lines
@@ -259,33 +297,8 @@ exports.to_markdown = (body, config) => {
 		   .filter((line_object) => (line_object.content.match(/^\w+ has joined #\w+/) === null))
 		   .filter((line_object) => (line_object.content.match(/^\w+ has left #\w+/) === null))
 		   .filter((line_object) => (line_object.content.match(/^\w+ has changed the topic to:/) === null))
-		   .filter((line_object) => {
-				// Handle the "scribejs, XXX" command
-				// At the moment, there is only one XXX tool, namely 'set', so the handling is put into one function.
-				// If, in future, other scribejs commands are introduced, then this function may become a bit more complicated
-				// The effect is to extend the configuration's nickname object.   
-			   	if(line_object.content_lower.startsWith("scribejs, set")) {
-					let words = line_object.content.split(" ");
-					try {
-						// If there is a problem somewhere, it should simply be forgotten
-						// this is a beautifying step, ie, an exception could be forgotten
-						let nickname   = words[2].toLowerCase();
-						let name_comps = words.slice(3);
-						if(name_comps.length !== 0) {
-							// The name is cleared from the '_' signs, which are usually used to replace spaces...
-							config.nicks.push({ nick: [nickname], name: name_comps.join(" ").replace(/_/g, ' ') })
-						}
-					} catch(err) {
-						; // console.log(err)
-					} finally {
-						// returning 'false' will remove this line from the result
-						return false					
-					}
-			   	} else {
-					// This line should remain for further processing
-				   	return true
-			   	}
-		   })
+		   // Handle the scribejs directives
+		   .filter(handle_scribejs)
 		   // End of the underscore chain, retrieve the final value
 		   .value();
 	};
