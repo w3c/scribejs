@@ -6,7 +6,6 @@ This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and 
 
 The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. This means that the current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members.
 
-
 ## [Usage](id:usage)
 The script runs on top of `node.js`. The “entry point” is the `main.js` file, which accepts the following command line arguments:
 
@@ -142,6 +141,10 @@ which will create a symbolic link to `main.js` in the user's search path with th
 ```bash
 scribejs
 ```
+
+The `schemas` directory also includes two [JSON schema](http://json-schema.org/documentation.html) files for the configuration and the nickname json files, respectively. These can be used with a suitable schema processor (e.g., the [CLI for ajv](https://github.com/jessedc/ajv-cli)) to check the validity of the configuration files.
+
+(Schema validation is _not yet_ done in the running code.)
 
 ## Testing
 
