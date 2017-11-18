@@ -7,20 +7,20 @@
     "items": {
         "type": "object",
         "properties": {
-            "nick" : {
+            "nick": {
                 "title": "list of possible nicknames",
-                "type" : "array",
+                "type": "array",
                 "items": {
                     "type": "string"
                 }
             },
-            "name" : {
+            "name": {
                 "title": "Name to be used in the minutes",
-                "type" : "string"
+                "type": "string"
             },
             "github": {
                 "title": "Github ID of the person. Currently not really used, could be used later to add links to the minutes.",
-                "type" : "string"
+                "type": "string"
             }
         },
         "required": [
