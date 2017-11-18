@@ -14,18 +14,18 @@
         "group": {
             "title": "Group name, ie, IRC channel without the staring # or & character",
             "description": "Per RFC1459, a channel name cannot use space or comma",
-            "type":"string",
+            "type": "string",
             "pattern": "^[^#& ,][^ ,]+$"
         },
         "input": {
             "title": "IRC log; a file name or a URL",
-            "type": "string"            
+            "type": "string"
         },
         "output": {
             "title": "Output file name",
             "type": "string"
         },
-        "nicknames" : {
+        "nicknames": {
             "title": "Nickname log; a JSON file name or a URL",
             "type": "string"
         },
@@ -37,44 +37,48 @@
             "title": "Whether the output should be stored in a github repository",
             "type": "boolean"
         },
+        "pandoc": {
+            "title": "Whether the output is meant to be converted further by pandoc",
+            "type": "boolean"
+        },
         "jekyll": {
             "title": "Whether the output should be adapted to a Github+Jekyll combination",
             "description": "If the value is 'md' or 'kd', a jekyll header is added. If it is 'md', the format is markdown, if it is 'kd', the format is kramdown",
-            "type":"string",
-            "enum": [ "none", "md", "kd" ]
+            "type": "string",
+            "enum": ["none", "md", "kd"]
         },
         "irc_format": {
             "title": "Whether the input is of the log format of a particular IRC client",
             "description": "'undefined' means the RRSAgent output @W3C. 'Textual' is the only client implemented so far.",
-            "type":"string",
-            "enum": [ "textual", "undefined" ]
+            "type": "string",
+            "enum": ["textual", "undefined"]
         },
-        "ghrepo" : {
+        "ghrepo": {
             "title": "Github repo name.",
             "type": "string"
         },
-        "ghpath" : {
+        "ghpath": {
             "title": "Github path for the upload of the minutes.",
-            "type": "string"            
+            "type": "string"
         },
         "ghbranch": {
             "title": "Branch of the repository where the minutes should be stored. If not set, default is used.",
-            "type": "string"            
+            "type": "string"
         },
         "ghname": {
             "title": "Github login name",
-            "type":"string"
+            "type": "string"
         },
         "ghemail": {
             "title": "User's email",
             "description": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
             "type": "string",
-            "format": "email"   
+            "format": "email"
         },
         "ghtoken": {
             "title": "User's OAUTH personal access token.",
             "description": "This value should NOT appear in any public configuration file!",
-            "type":"string"
+            "type": "string"
         }
     }
 }

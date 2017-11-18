@@ -645,13 +645,22 @@ title: ${headers.meeting} — ${headers.date}
 ---
 `
 		} else {
-			header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"
+			if(config.pandoc) {
+				header_start = `% ${headers.meeting} — ${headers.date}
+
+![W3C Logo](https://www.w3.org/Icons/w3c_home)
+
+`
+			} else {
+				header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"				
+			}
 		}
 
 		let draft_class = kramdown && !config.final ? "{: .draft_notice}" : "";
 		let no_toc      = kramdown ? "{: .no_toc}" : "";
 
-		let core_header = `# ${headers.meeting} — Minutes
+		let core_header = `
+# ${headers.meeting} — Minutes
 ${no_toc}
 ${config.final ? "" : "***– DRAFT Minutes –***"}
 ${draft_class}
@@ -659,6 +668,7 @@ ${draft_class}
 **Date:** ${headers.date}
 
 See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log})
+
 ## Attendees
 ${no_toc}
 **Present:** ${headers.present}
@@ -693,8 +703,8 @@ ${no_toc}
 		// this will be the output
 		let content_md     = "\n---\n"
 		// this will be the table of contents
-		let TOC        = "## Content:\n";
-		let jekyll_toc = "## Content:\n{: .no_toc}\n\n* TOC\n{:toc}";
+		let TOC        = "\n## Content:\n";
+		let jekyll_toc = "\n## Content:\n{: .no_toc}\n\n* TOC\n{:toc}";
 		// this will be the list or resolutions
 		let resolutions = ""
 		// this will be the list or actions

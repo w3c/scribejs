@@ -19,6 +19,7 @@ let default_config = {
 	final		   : false,
 	torepo         : false,
 	jekyll		   : JEKYLL_NONE,
+	pandoc		   : true,
 	nick_mappings  : {},
 	irc_format	   : undefined
 }
@@ -85,6 +86,7 @@ exports.get_config = () => {
 		.option('-n, --nick [nicknames]', 'JSON file for nickname mappings')
 		.option('-o, --output [output]', 'output file name')
 		.option('-j, --jekyll [option]', 'whether the output should be adapted to Github+Jekyll; values can be "none", "md", or "kd"' )
+		.option('-p, --pandoc', 'whether the output is meant for a pandoc conversion input')
 		.option('-i, --irc [format string]', "use an input format of a specific irc client's log, rather than the default RRSAgent log")
 		.on("--help", () => {
 			console.log('    file:                   irc log file; if not present, retrieved from the W3C site');
@@ -94,6 +96,7 @@ exports.get_config = () => {
 	if(program.repo)    argument_config.torepo    = true;
 	if(program.final)   argument_config.final     = true;
 	if(program.textual) argument_config.textual   = true;
+	if(program.pandoc)  argument_config.pandoc    = true;
 	if(program.jekyll)  argument_config.jekyll    = program.jekyll === "kd" ? JEKYLL_KRAMDOWN :
 														(program.jekyll === "md" ? JEKYLL_MARKDOWN : JEKYLL_NONE);
 	if(program.date)    argument_config.date       = moment(program.date);
