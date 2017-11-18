@@ -21,6 +21,8 @@ scribjs [options] [filename]
 [--final|-f]:        The minutes are final, i.e., they won't be labeled as "DRAFT".
 [--repo|-r]:         Whether the output should be stored in a github repository.
                      Default: false.  
+[--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
+                     Default: false.
 [--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination.
                      Value can be "none", "md", or "kd" (see [below](#jekyll) for further details.)
                      Default: "md".
@@ -41,6 +43,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `nicknames`  : Nickname file reference in the form of a URL or a filename
 * `final`      : `true`|`false`
 * `torepo`     : `true`|`false`
+* `pandoc`     : `true`|`false`
 * `jekyll`     : `"none"`|`"md"`|`"kd"`
 * `irc_format` : `"textual"`|`undefined`
 * `ghrepo`     : repository name, eg, `w3c/scribejs`
@@ -83,6 +86,10 @@ This JSON file is used to provide mapping among IRC nicknames and real names. Th
 * `name` : the value is a string, providing the name to be displayed for that person
 * `github` : the GitHub id of the person (currently not used, but may be used later)
 * `url` : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later)
+
+## [Pandoc](id:pandoc)
+
+The generated minutes are converted into some other format using [pandoc](https://pandoc.org). If so, a special [title header]((https://pandoc.org/MANUAL.html#metadata-blocks)) is added, used by pandoc when generating HTML or LaTeX.
 
 ### [Jekyll option](id:jekyll)
 

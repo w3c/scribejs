@@ -37,6 +37,10 @@
             "title": "Whether the output should be stored in a github repository",
             "type": "boolean"
         },
+        "pandoc": {
+            "title": "Whether the output is meant to be converted further by pandoc",
+            "type": "boolean"
+        },
         "jekyll": {
             "title": "Whether the output should be adapted to a Github+Jekyll combination",
             "description": "If the value is 'md' or 'kd', a jekyll header is added. If it is 'md', the format is markdown, if it is 'kd', the format is kramdown",

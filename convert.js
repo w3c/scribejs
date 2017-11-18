@@ -645,7 +645,15 @@ title: ${headers.meeting} — ${headers.date}
 ---
 `
 		} else {
-			header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"
+			if(config.pandoc) {
+				header_start = `% ${headers.meeting} — ${headers.date}
+
+![W3C Logo](https://www.w3.org/Icons/w3c_home)
+
+`
+			} else {
+				header_start = "![W3C Logo](https://www.w3.org/Icons/w3c_home)\n"				
+			}
 		}
 
 		let draft_class = kramdown && !config.final ? "{: .draft_notice}" : "";
