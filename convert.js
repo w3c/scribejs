@@ -721,19 +721,22 @@ ${no_toc}
 		let header_level       = "";
 		let toc_spaces         = "";
 
-
 		function add_toc(content, level) {
+			// id is used to set the @id value for the section header. For some reasons, the '.' is not accepted
+			// at least by jekyll for a proper TOC, so the '-' must be used.
+			let id = "";
 			if(level === 1) {
 				numbering = ++sec_number_level_1;
 				sec_number_level_2  = 0;
 				header_level = "### ";
 				toc_spaces   = "";
+				id = `section${sec_number_level_1}`
 			} else {
 				numbering = sec_number_level_1 + "." + (++sec_number_level_2);
 				header_level = "#### ";
 				toc_spaces   = "    ";
+				id = `section${sec_number_level_1}-${sec_number_level_2}`
 			}
-			let id = `section${numbering}`
 			if (kramdown) {
 				content_md = content_md.concat("\n\n", `${header_level}${numbering}. ${content}\n{: #${id}}`)
 			} else {
