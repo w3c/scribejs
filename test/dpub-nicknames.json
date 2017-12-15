@@ -1,11 +1,11 @@
 [
 	{
 		"nick"		: ["michael_miller"],
-		"name"		: ["Michael Miller"]
+		"name"		: "Michael Miller"
 	},
 	{
 		"nick"		: ["rego"],
-		"name"		: ["Manuel Rego Casasnovas"]
+		"name"		: "Manuel Rego Casasnovas"
 	},
 	{
 		"nick"		: ["liam"],
