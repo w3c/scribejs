@@ -24,7 +24,7 @@
     "url": "https://github.com/w3c/scribejs.git"
   },
   "engines": {
-    "node": ">=6.9.2"
+    "node": ">=8.9.4"
   },
   "preferGlobal": "true",
   "dependencies": {
