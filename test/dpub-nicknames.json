@@ -13,7 +13,7 @@
 	},
 	{
 		"nick"		: ["Kyrce"],
-		"name"		: ["Kyrce Swenson"]
+		"name"		: "Kyrce Swenson"
 	},
 	{
 		"nick"		: ["michaelbaker"],
@@ -169,7 +169,7 @@
 	},
 	{
 		"nick"		: ["rkwright", "Ric"],
-		"name"		: ["Ric Wright"]
+		"name"		: "Ric Wright"
 	},
 	{
 		"nick"		: ["mteixeira-wwn", "mateus", "mateus-teixeira", "mteixeira"],

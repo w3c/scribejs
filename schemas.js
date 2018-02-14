@@ -1,4 +1,6 @@
-{
+
+
+let config_schema = {
     "title": "Schema for scribejs configuration files",
     "description": "Configuration for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -82,3 +84,47 @@
         }
     }
 }
+
+
+let nicknames_schema = {
+    "title": "Schema for scribejs nickname files",
+    "description": "Nicknames for scibejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/nicknames_schema.js",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "nick": {
+                "title": "list of possible nicknames",
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "name": {
+                "title": "Name to be used in the minutes",
+                "type": "string"
+            },
+            "github": {
+                "title": "Github ID of the person. Currently not really used, could be used later to add links to the minutes.",
+                "type": "string"
+            }
+        },
+        "required": [
+            "nick", "name"
+        ]
+    }
+}
+
+
+const Ajv = require('ajv');
+const ajv = new Ajv({allErrors: true});
+ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
+
+exports.validate_config = ajv.compile(config_schema);
+exports.validate_nicknames = ajv.compile(nicknames_schema);
+exports.validation_errors = (validator) => {
+    return ajv.errorsText(validator.errors, {separator: "\n"});
+};
+

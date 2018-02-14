@@ -8,6 +8,7 @@ const moment  			= require('moment');
 const fs      			= require('fs');
 const path    			= require('path');
 const program 			= require('commander');
+const schemas 			= require('./schemas');
 const user_config_name 	= ".scribejs.json";
 
 const JEKYLL_NONE		= "none";
@@ -20,7 +21,7 @@ let default_config = {
 	torepo         : false,
 	jekyll		   : JEKYLL_NONE,
 	pandoc		   : true,
-	nick_mappings  : {},
+	nick_mappings  : [],
 	irc_format	   : undefined
 }
 
@@ -40,8 +41,14 @@ exports.json_conf_file = (fname, warn) => {
 		return {};
 	}
 	try {
-		// Date values are converted into moments on the fly
-		return JSON.parse(file_c, (key,value) => (key === "date" ? moment(value) : value));
+		// The JSON content is first checked with the schema; once done and successful 
+		// the date value is converted into a 'moment' instance right away.
+		let jconf = JSON.parse(file_c);
+		let valid = schemas.validate_config(jconf);
+		if( !valid ) {
+			throw `validation error in the configuration:\n${schemas.validation_errors(schemas.validate_config)}`;
+		}
+		return _.mapObject(jconf, (value,key) => (key === "date" ? moment(value) : value));
 	} catch(e) {
 		console.error(e);
 		return {};

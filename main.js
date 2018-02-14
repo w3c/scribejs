@@ -13,6 +13,7 @@ const debug   = false;
 const io      = require('./io');
 const convert = require('./convert');
 const conf    = require('./conf');
+const schemas = require('./schemas');
 
 /******************************************************/
 /* This is just the overall driver of the script...   */
@@ -22,7 +23,6 @@ async function main() {
 	try {
 		// Collect and combine the configuration file
 		// Note that the get_config method is synchronous (uses a sync version of file system access)
-		// let config = require('./conf').get_config();
 		let config = conf.get_config();
 		if(debug) {
 			console.log(JSON.stringify(config, null, 2));
@@ -30,6 +30,12 @@ async function main() {
 		
 		// Get the nickname mappings object. The result gets added to the configuration
 		config.nicks = await io.get_nick_mapping(config);
+
+		// Validate the nickname mapping object against the appropriate JSON schema
+		let valid = schemas.validate_nicknames(config.nicks);
+		if( !valid ) {
+			throw `validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`;
+		}
 
 		// Get the IRC log itself
 		let irc_log = await io.get_irc_log(config);
@@ -43,7 +49,8 @@ async function main() {
 		// That is it, folks!
 		console.log(message);
 	} catch(err) {
-		console.error(`Scribeje ${err}`);
+		console.error(`Scribejs ${err}`);
+		process.exit();
 	}
 }
 
