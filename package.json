@@ -1,6 +1,6 @@
 {
   "name": "scribejs",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "description": "Converter of RSSAgent IRC logs into minutes in markdown",
   "main": "main.js",
   "keywords": [
@@ -24,7 +24,7 @@
     "url": "https://github.com/w3c/scribejs.git"
   },
   "engines": {
-    "node": ">=6.9.2"
+    "node": ">=8.9.4"
   },
   "preferGlobal": "true",
   "dependencies": {

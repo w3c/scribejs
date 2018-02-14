@@ -18,55 +18,57 @@ const io       = require('../io');
 const convert  = require('../convert');
 
 
-const request  = protocol.Request();
-let   response = protocol.Response(debug);
-let   config   = {};
+// The real conversion of the minutes.
+async function get_minutes(config) {
+    // Get the nickname mappings object. The result gets added to the configuration
+    config.nicks = await io.get_nick_mapping(config);
 
-try {
-    // 1. Extract the initial config object from the request. The irc_text and file should be treated separately, and the
-    // date must be moment object.
-    let cgi_config  = _.chain(request.query)
-                       .omit((value,key) => key === "irclog_text" || key === "irclog_file")
-                       .mapObject((value,key) => key === "date" ? moment(value) : value)
-                       .value();
-    cgi_config.irclog = request.query.irclog_text && request.query.irclog_text.length > 1 ?
-                            request.query.irclog_text : (request.query.irclog_file && request.query.irclog_file.length > 1 ?
-                                                            request.query.irclog_file : null);
-    config = require("./cgi-conf").get_config(cgi_config, request.script_name);
-} catch(err) {
-    response.addHeaders(500, {"Content-type" : "text/plain"});
-    response.addMessage("Exception occured in the script!\n")
-    response.addMessage(err);
-    response.flush();
-    process.exit(1)
+    // Get the IRC log itself
+    let irc_log  = await io.get_irc_log(config);
+         
+    // The main step: convert the IRC log into a markdown text
+    let minutes = convert.to_markdown(irc_log, config);
+
+    // Either upload the minutes to Github or dump into a local file
+    let message = "";
+    if( config.torepo ) {
+        message = await io.output_minutes(minutes, config);
+    } else {
+        message = minutes;
+    }
+    return message;
 }
 
-// From on, we enter the Promise(d) land:-)
-// 2. get the nick names
-io.get_nick_mapping(config)
-	// 3. get hold of the irc log itself
-	.then( (nicknames) => {
-		config.nicks = nicknames;
-        return io.get_irc_log(config)
-	})
-    // 4. Convert the irc log into the minutes
-    .then( (irc_log) => {
-        return convert.to_markdown(irc_log, config);
-    })
-    // 5. Commit the minutes to github, if required
-    .then( (minutes) => {
-        if(config.torepo) {
-            return io.output_minutes(minutes, config)
-        } else {
-            return minutes;
-        }
-    })
-    // 6. Either a feedback on the screen, or the full minutes
-    .then( (minutes) => {
-        response.addMessage(minutes);
-        return config;
-    })
-    .then( (config) => {
+
+// Decode the request data and convert them into a config structure, compatible with the rest of what scribejs does
+function get_request_data(request) {
+    // Extract the initial config object from the request. The irc_text and file should be treated separately, and the
+    // date must be moment object.
+    let cgi_config  = _.chain(request.query)
+                        .omit((value,key) => key === "irclog_text" || key === "irclog_file")
+                        .mapObject((value,key) => key === "date" ? moment(value) : value)
+                        .value();
+
+    cgi_config.irclog = request.query.irclog_text && request.query.irclog_text.length > 1 ?
+         request.query.irclog_text : (request.query.irclog_file && request.query.irclog_file.length > 1 ?
+                                         request.query.irclog_file : null);
+
+    return require("./cgi-conf").get_config(cgi_config, request.script_name);
+}
+
+
+// The main steps
+// - get the final configuration
+// - convert the input, based on the configuration
+// - send back an HTTP response
+async function main() {
+    const request  = protocol.Request();
+    try {
+        let config  = get_request_data(request);
+        let minutes = await get_minutes(config);
+
+        let response = protocol.Response(debug);        
+        response.addMessage(minutes);   
         if(debug) {
             response.addMessage("\n# Final configuration ")
             response.addMessage(JSON.stringify(config, null, 2))
@@ -75,13 +77,15 @@ io.get_nick_mapping(config)
             "Content-Type"          : "text/markdown; charset=utf-8",
             "Content-disposition"   : `inline; filename=${config.ghfname}`
         });
-        response.flush();
-    })
-    .catch( (err) => {
-        // The accumulated response should be removed, ie a new response should be created!
-        response = protocol.Response(true);
-        response.addHeaders(500, {"Content-type" : "text/plain"});
-        response.addMessage("Exception occured in the script!\n")
-        response.addMessage(err);
-        response.flush();
-    });
+        response.flush();    
+    } catch( err ) {
+        let error_response = protocol.Response(true);
+        error_response.addHeaders(500, {"Content-type" : "text/plain"});
+        error_response.addMessage("Exception occured in the script!\n")
+        error_response.addMessage(err);
+        error_response.flush();
+    }
+}
+
+// Do it!
+main();
