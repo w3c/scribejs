@@ -1,5 +1,21 @@
+#!/usr/bin/env node
+"use strict";
+
+/**
+ *
+ * Interface to the JSON Schema processor package "ajv". It is used to check the configuration file as well as the nicknames' file.
+ *
+ * This file also includes the two schemas themselves as JS Objects; the schemas are not supposed to change often, 
+ * i.e., it seemed like an overkill to load those two schemas from external files. This decision may have to be revisited at some point.
+ *
+ *
+ */
 
 
+/**
+* JSON Schema for the configuration file.
+*
+*/
 let config_schema = {
     "title": "Schema for scribejs configuration files",
     "description": "Configuration for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
@@ -85,7 +101,10 @@ let config_schema = {
     }
 }
 
-
+/**
+* JSON Schema for the nicknames' file.
+*
+*/
 let nicknames_schema = {
     "title": "Schema for scribejs nickname files",
     "description": "Nicknames for scibejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
@@ -118,12 +137,28 @@ let nicknames_schema = {
 }
 
 
+
+/**
+* The real interface... creation of a new Ajv object, and then the creation of the two separate "validators" for the two schemas.
+* 
+*/
 const Ajv = require('ajv');
 const ajv = new Ajv({allErrors: true});
+// I am not sure why this is necessary and not done automatically. Oh well...
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 
+/**
+* The two validator objects/functions
+* 
+*/
 exports.validate_config = ajv.compile(config_schema);
 exports.validate_nicknames = ajv.compile(nicknames_schema);
+
+/**
+* This is the ajv idiom for producing a human readable set of error messages...
+* The Ajv object is initialized with the option of gathering all errors in one message, so the expected output is a series of errors.
+*
+*/
 exports.validation_errors = (validator) => {
     return ajv.errorsText(validator.errors, {separator: "\n"});
 };
