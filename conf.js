@@ -31,7 +31,7 @@ let default_config = {
 * @param {string} fname - file name
 * @param {boolean} warn - whether an error should be raised when the file is not found (e.g., a user level configuration file may be missing)
 * @returns {object} - the parsed JSON content
-* @throws {string} - either not-found error, or the schema validation errors
+* @throws {string} - either not-found error, or schema validation errors
 */
 exports.json_conf_file = (fname, warn) => {
 	let file_c = null;

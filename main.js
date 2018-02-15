@@ -13,7 +13,14 @@ const debug   = false;
 const io      = require('./io');
 const convert = require('./convert');
 const conf    = require('./conf');
-const schemas = require('./schemas');
+
+let schemas = {}
+try {
+	schemas = require('./schemas');
+} catch(err) {
+	console.error(`Scribejs ${err}`);
+	process.exit();
+}
 
 /******************************************************/
 /* This is just the overall driver of the script...   */
