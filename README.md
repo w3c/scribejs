@@ -61,7 +61,7 @@ A typical usage of the configuration files is:
 * use the user-level configuration for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences and invalidates those tokens immediately…)
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
-There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time, and the script stops if it hits an erroneous configuration file. 
+There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead. 
 
 
 ### [Choice of the output](id:output)
@@ -90,11 +90,11 @@ This JSON file is used to provide mapping among IRC nicknames and real names. Th
 * `url` : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later).
 
 
-There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname mapping file. The validation is also done run-time, and the script stops if it hits an erroneous mapping file. 
+There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname mapping file. The validation is also done run-time; the script warns (on `stderr`) if the nickname mapping file is invalid, and an empty mapping is used instead. 
 
 ## [Pandoc](id:pandoc)
 
-The generated minutes may be converted into some other format using [pandoc](https://pandoc.org). If so, a special [title header]((https://pandoc.org/MANUAL.html#metadata-blocks)) is added, used by pandoc when generating HTML or LaTeX.
+The generated minutes may be converted into some other format using [pandoc](https://pandoc.org). If so, a special [title header]((https://pandoc.org/MANUAL.html#metadata-blocks)) is added, to be used by pandoc when generating HTML or LaTeX.
 
 ### [Jekyll option](id:jekyll)
 
