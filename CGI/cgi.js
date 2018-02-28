@@ -14,8 +14,8 @@ const debug    = false;
 const _        = require('underscore');
 const moment   = require('moment');
 const protocol = require('./protocol');
-const io       = require('../io');
-const convert  = require('../convert');
+const io       = require('../lib/io');
+const convert  = require('../lib/convert');
 
 
 // The real conversion of the minutes.

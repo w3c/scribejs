@@ -6,7 +6,7 @@ const _					= require('underscore');
 const moment			= require('moment');
 const fs				= require('fs');
 const path				= require('path');
-const conf_tools		= require('../conf');
+const conf_tools		= require('../lib/conf');
 const user_config_name 	= ".scribejs.json";
 
 const JEKYLL_NONE		= "none";

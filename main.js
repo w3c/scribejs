@@ -4,19 +4,19 @@
 /**
  * Convert W3C’s RRSAgent IRC bot output into minutes in Markdown
  *
- * @version: 1.0.0
+ * @version: 1.1.0
  * @author: Ivan Herman, <ivan@w3.org> (https://www.w3.org/People/Ivan/)
  * @license: W3C Software License <https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
  */
 
 const debug   = false;
-const io      = require('./io');
-const convert = require('./convert');
-const conf    = require('./conf');
+const io      = require('./lib/io');
+const convert = require('./lib/convert');
+const conf    = require('./lib/conf');
 
 let schemas = {}
 try {
-	schemas = require('./schemas');
+	schemas = require('./lib/schemas');
 } catch(err) {
 	console.error(`Scribejs ${err}`);
 	// process.exit();
@@ -41,7 +41,6 @@ async function main() {
 		// Validate the nickname mapping object against the appropriate JSON schema
 		let valid = schemas.validate_nicknames(config.nicks);
 		if( !valid ) {
-			// throw `validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`;
 			console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
 			console.warn(`(nicknames ignored)`);
 			config.nicks = [];
