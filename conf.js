@@ -8,6 +8,7 @@ const moment  			= require('moment');
 const fs      			= require('fs');
 const path    			= require('path');
 const program 			= require('commander');
+const schemas 			= require('./schemas');
 const user_config_name 	= ".scribejs.json";
 
 const JEKYLL_NONE		= "none";
@@ -20,7 +21,7 @@ let default_config = {
 	torepo         : false,
 	jekyll		   : JEKYLL_NONE,
 	pandoc		   : true,
-	nick_mappings  : {},
+	nick_mappings  : [],
 	irc_format	   : undefined
 }
 
@@ -28,23 +29,30 @@ let default_config = {
 * Read a configuration file
 *
 * @param {string} fname - file name
-* @param {boolean} warn - whether an error warning should be sent to the standard error if there are issues
+* @param {boolean} warn - whether an error should be raised when the file is not found (e.g., a user level configuration file may be missing)
 * @returns {object} - the parsed JSON content
+* @throws {string} - either not-found error, or schema validation errors
 */
 exports.json_conf_file = (fname, warn) => {
 	let file_c = null;
 	try {
 		file_c = fs.readFileSync(fname, "utf-8")
 	} catch(e) {
-		if(warn) console.error(`Warning: no such file: ${fname}!\n`)
+		if(warn) throw `No such configuration file: ${fname}!`
 		return {};
 	}
-	try {
-		// Date values are converted into moments on the fly
-		return JSON.parse(file_c, (key,value) => (key === "date" ? moment(value) : value));
-	} catch(e) {
-		console.error(e);
-		return {};
+
+	// The validation error may throw an exception; in "main.js" this leads to program termination.
+	// The JSON content is first checked with the schema; once done and successful 
+	// the date value is converted into a 'moment' instance right away.
+	let jconf = JSON.parse(file_c);
+	let valid = schemas.validate_config(jconf);
+	if( !valid ) {
+		console.warn(`Warning: validation error in the ${fname} configuration file:\n${schemas.validation_errors(schemas.validate_config)}`);
+		console.warn("(default, minimal configuration used.)")
+		return default_config
+	} else {
+		return _.mapObject(jconf, (value,key) => (key === "date" ? moment(value) : value));
 	}
 };
 
@@ -107,7 +115,7 @@ exports.get_config = () => {
 	if(program.args)    argument_config.input      = program.args[0]
 
 	/***********************************************************************/
-	// Second step: see if there is an explicit config file to be retreived
+	// Second step: see if there is an explicit config file to be retrieved
 	let file_config = program.config ? exports.json_conf_file(program.config, true) : {};
 
 	/***********************************************************************/

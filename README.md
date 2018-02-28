@@ -61,6 +61,9 @@ A typical usage of the configuration files is:
 * use the user-level configuration for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences and invalidates those tokens immediately…)
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
+There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead. 
+
+
 ### [Choice of the output](id:output)
 
 The script’s choice of where resulting file is stored is as follows:
@@ -81,14 +84,17 @@ which takes the log from the local `IRC-log-file` and sends the markdown minutes
 
 This JSON file is used to provide mapping among IRC nicknames and real names. The file itself is an array of objects; each object can use the following keys (use only those with a meaningful value):
 
-* `nick` : the value is an _array_ of strings, each representing a possible IRC handle (nickname)
-* `name` : the value is a string, providing the name to be displayed for that person
-* `github` : the GitHub id of the person (currently not used, but may be used later)
-* `url` : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later)
+* `nick` : the value is an _array_ of strings, each representing a possible IRC handle (nickname); this array (even if empty) is _required_.
+* `name` : the value is a string, providing the name to be displayed for that person; this string is _required_.
+* `github` : the GitHub id of the person (currently not used, but may be used later).
+* `url` : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later).
+
+
+There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname mapping file. The validation is also done run-time; the script warns (on `stderr`) if the nickname mapping file is invalid, and an empty mapping is used instead. 
 
 ## [Pandoc](id:pandoc)
 
-The generated minutes are converted into some other format using [pandoc](https://pandoc.org). If so, a special [title header]((https://pandoc.org/MANUAL.html#metadata-blocks)) is added, used by pandoc when generating HTML or LaTeX.
+The generated minutes may be converted into some other format using [pandoc](https://pandoc.org). If so, a special [title header]((https://pandoc.org/MANUAL.html#metadata-blocks)) is added, to be used by pandoc when generating HTML or LaTeX.
 
 ### [Jekyll option](id:jekyll)
 
@@ -104,7 +110,7 @@ The generated minutes may be part of a page hosted by GitHub via the [Github+Jek
     ```
 
     Furthermore, the W3C logo is _not_ added to the minutes; this can be done by the layout used for the minutes. The syntax is (Github) markdown.
-* `kd`: beyond the features of the `md` option, the minutes are generated in [kramdown](https://kramdown.gettalong.org/documentation.html) syntax and not in (standard) markdown. This is the markdown dialect used by Jekyll; the notable difference, in terms of the generated minutes, is the syntax used to assign an identifier to a header, resolution, or an action. (The standard markdown syntax, i.e., `#[header](id:theid)`, is not understood by Jekyll.) As a bonus, the resolutions and the actions are assigned a class name (`resolution` and `action`, respectively) which can be used for extra styling.
+* `kd`: beyond the features of the `md` option, the minutes are generated in [kramdown](https://kramdown.gettalong.org/documentation.html) syntax and not in (standard Github) markdown. This is the markdown dialect used by Jekyll; the notable difference, in terms of the generated minutes, is the syntax used to assign an identifier to a header, resolution, or an action. (The standard markdown syntax, i.e., `#[header](id:theid)`, is not understood by Jekyll.) As a bonus, the resolutions and the actions are assigned a class name (`resolution` and `action`, respectively) which can be used for extra styling.
 
 #### Generated class names
 
@@ -130,7 +136,7 @@ cp config.json.sample ~/.scribejs.json
 $EDITOR ~/.scribejs.json                  # Fill in details: your GH token, etc
 ```
 
-To run scribejs:
+To run scribejs (in its own directory):
 
 ```bash
 node .
@@ -148,9 +154,7 @@ which will create a symbolic link to `main.js` in the user's search path with th
 scribejs
 ```
 
-The `schemas` directory also includes two [JSON schema](http://json-schema.org/documentation.html) files for the configuration and the nickname json files, respectively. These can be used with a suitable schema processor (e.g., the [CLI for ajv](https://github.com/jessedc/ajv-cli)) to check the validity of the configuration files.
-
-(Schema validation is _not yet_ done in the running code.)
+The `schemas` directory also includes two [JSON schemas](http://json-schema.org/documentation.html) files for the configuration and the nickname json files, respectively. These can be used with a suitable schema processor (e.g., the [CLI for ajv](https://github.com/jessedc/ajv-cli)) to check the validity of the configuration files. This schemas are used by the running code, too, to check configuration and nickname files.
 
 ## Testing
 

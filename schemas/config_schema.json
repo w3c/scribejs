@@ -1,8 +1,8 @@
 {
     "title": "Schema for scribejs configuration files",
-    "description": "Configuration for scibejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
+    "description": "Configuration for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
     "$schema": "http://json-schema.org/draft-06/schema#",
-    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/config_schema.json",
+    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/config_schema.js",
     "type": "object",
     "properties": {
         "date": {
@@ -71,7 +71,7 @@
         },
         "ghemail": {
             "title": "User's email",
-            "description": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
+            "$comment": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
             "type": "string",
             "format": "email"
         },

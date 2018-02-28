@@ -2,7 +2,7 @@
     "title": "Schema for scribejs nickname files",
     "description": "Nicknames for scibejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
     "$schema": "http://json-schema.org/draft-06/schema#",
-    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/nicknames_schema.json",
+    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/nicknames_schema.js",
     "type": "array",
     "items": {
         "type": "object",

@@ -140,7 +140,7 @@ exports.get_nick_mapping = (conf) => {
 				});
 			}
 		} else {
-			resolve({});
+			resolve([]);
 		}
 	});
 };
