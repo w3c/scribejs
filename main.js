@@ -19,7 +19,7 @@ try {
 	schemas = require('./schemas');
 } catch(err) {
 	console.error(`Scribejs ${err}`);
-	process.exit();
+	// process.exit();
 }
 
 /******************************************************/
@@ -41,7 +41,10 @@ async function main() {
 		// Validate the nickname mapping object against the appropriate JSON schema
 		let valid = schemas.validate_nicknames(config.nicks);
 		if( !valid ) {
-			throw `validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`;
+			// throw `validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`;
+			console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
+			console.warn(`(nicknames ignored)`);
+			config.nicks = [];
 		}
 
 		// Get the IRC log itself
@@ -57,7 +60,7 @@ async function main() {
 		console.log(message);
 	} catch(err) {
 		console.error(`Scribejs ${err}`);
-		process.exit();
+		// process.exit();
 	}
 }
 

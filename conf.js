@@ -48,9 +48,12 @@ exports.json_conf_file = (fname, warn) => {
 	let jconf = JSON.parse(file_c);
 	let valid = schemas.validate_config(jconf);
 	if( !valid ) {
-		throw `Validation error in the ${fname} configuration file:\n${schemas.validation_errors(schemas.validate_config)}`;
+		console.warn(`Warning: validation error in the ${fname} configuration file:\n${schemas.validation_errors(schemas.validate_config)}`);
+		console.warn("(default, minimal configuration used.)")
+		return default_config
+	} else {
+		return _.mapObject(jconf, (value,key) => (key === "date" ? moment(value) : value));
 	}
-	return _.mapObject(jconf, (value,key) => (key === "date" ? moment(value) : value));
 };
 
 /**
