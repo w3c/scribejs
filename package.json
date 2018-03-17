@@ -30,7 +30,7 @@
   "dependencies": {
     "ajv": "^6.1.1",
     "commander": "^2.9.0",
-    "moment": "^2.18.1",
+    "moment": "^2.21.0",
     "node-fetch": "^1.7.1",
     "octokat": "^0.9.0",
     "safe-regex": "^1.1.0",
