@@ -9,7 +9,7 @@ const {spawn} = require('child_process');
 const invokeScribeJS = (params = [], handlers = null) => {
     const fixedParams = params;
     fixedParams.unshift('.');
-    const proc = spawn('node', fixedParams);
+    const proc = spawn('npx', fixedParams);
     for (let event in handlers)
         if ('data' === event) {
             proc.stdout.on(event, handlers[event]);
@@ -68,7 +68,7 @@ describe('CLI usage', () => {
             output += data;
         };
         const codeChecker = (code) => {
-            assert.ok(/^\!\[W3C\ Logo\]\(https:\/\/www\.w3\.org\/Icons\/w3c_home\)/.test(output));
+            assert.ok(/^\!\[W3C\ Logo\]\(https:\/\/www\.w3\.org\/Icons\/w3c_home\)$/m.test(output));
             assert.ok(/^#\s.+\s—\sMinutes$/m.test(output));
             assert.strictEqual(code, 0);
             done();
@@ -90,7 +90,7 @@ describe('CLI usage', () => {
                             if (err)
                                 done(err);
                         });
-                        assert.ok(/^\!\[W3C\ Logo\]\(https:\/\/www\.w3\.org\/Icons\/w3c_home\)/.test(data));
+                        assert.ok(/^\!\[W3C\ Logo\]\(https:\/\/www\.w3\.org\/Icons\/w3c_home\)$/m.test(data));
                         assert.ok(/^#\s.+\s—\sMinutes$/m.test(data));
                         done();
                     });

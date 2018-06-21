@@ -24,23 +24,26 @@
     "url": "https://github.com/w3c/scribejs.git"
   },
   "engines": {
-    "node": ">=8.9.4"
+    "node": "8 || 10",
+    "npm": "5 || 6"
   },
   "preferGlobal": "true",
   "dependencies": {
     "ajv": "^6.1.1",
     "commander": "^2.9.0",
     "moment": "^2.21.0",
-    "node-fetch": "^1.7.1",
-    "octokat": "^0.9.0",
+    "node-fetch": "^2.1.2",
+    "octokat": "^0.10.0",
     "safe-regex": "^1.1.0",
     "underscore": "^1.8.3",
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "nsp": "^3.2.1"
   },
   "scripts": {
+    "nsp": "nsp check",
     "test": "mocha"
   }
 }
