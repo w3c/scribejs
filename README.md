@@ -161,3 +161,10 @@ The `schemas` directory also includes two [JSON schemas](http://json-schema.org/
 ```bash
 npm test
 ```
+
+If you have [Growl](https://github.com/tj/node-growl#installation) setup for
+your platform, you can use it like so:
+
+```bash
+npm test -- --growl
+```
