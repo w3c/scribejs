@@ -38,11 +38,9 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "mocha": "3.5.0",
-    "nsp": "2.7.0"
+    "mocha": "^5.2.0"
   },
   "scripts": {
-    "nsp": "nsp check",
     "test": "mocha"
   }
 }
