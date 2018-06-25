@@ -34,7 +34,7 @@ async function main() {
 		if(debug) {
 			console.log(JSON.stringify(config, null, 2));
 		}
-		
+
 		// Get the nickname mappings object. The result gets added to the configuration
 		config.nicks = await io.get_nick_mapping(config);
 
@@ -59,7 +59,7 @@ async function main() {
 		console.log(message);
 	} catch(err) {
 		console.error(`Scribejs ${err}`);
-		// process.exit();
+		process.exit(255);
 	}
 }
 
