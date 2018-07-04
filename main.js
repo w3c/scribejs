@@ -16,10 +16,10 @@ const conf    = require('./lib/conf');
 
 let schemas = {}
 try {
-	schemas = require('./lib/schemas');
+    schemas = require('./lib/schemas');
 } catch(err) {
-	console.error(`Scribejs ${err}`);
-	// process.exit();
+    console.error(`Scribejs ${err}`);
+    // process.exit();
 }
 
 /******************************************************/
@@ -27,40 +27,40 @@ try {
 /******************************************************/
 
 async function main() {
-	try {
-		// Collect and combine the configuration file
-		// Note that the get_config method is synchronous (uses a sync version of file system access)
-		let config = conf.get_config();
-		if(debug) {
-			console.log(JSON.stringify(config, null, 2));
-		}
+    try {
+        // Collect and combine the configuration file
+        // Note that the get_config method is synchronous (uses a sync version of file system access)
+        let config = conf.get_config();
+        if(debug) {
+            console.log(JSON.stringify(config, null, 2));
+        }
 
-		// Get the nickname mappings object. The result gets added to the configuration
-		config.nicks = await io.get_nick_mapping(config);
+        // Get the nickname mappings object. The result gets added to the configuration
+        config.nicks = await io.get_nick_mapping(config);
 
-		// Validate the nickname mapping object against the appropriate JSON schema
-		let valid = schemas.validate_nicknames(config.nicks);
-		if( !valid ) {
-			console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
-			console.warn(`(nicknames ignored)`);
-			config.nicks = [];
-		}
+        // Validate the nickname mapping object against the appropriate JSON schema
+        let valid = schemas.validate_nicknames(config.nicks);
+        if( !valid ) {
+            console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
+            console.warn(`(nicknames ignored)`);
+            config.nicks = [];
+        }
 
-		// Get the IRC log itself
-		let irc_log = await io.get_irc_log(config);
+        // Get the IRC log itself
+        let irc_log = await io.get_irc_log(config);
 
-		// The main step: convert the IRC log into a markdown text
-		let minutes = convert.to_markdown(irc_log, config);
+        // The main step: convert the IRC log into a markdown text
+        let minutes = convert.to_markdown(irc_log, config);
 
-		// Either upload the minutes to Github or dump into a local file
-		let message = await io.output_minutes(minutes, config);
+        // Either upload the minutes to Github or dump into a local file
+        let message = await io.output_minutes(minutes, config);
 
-		// That is it, folks!
-		console.log(message);
-	} catch(err) {
-		console.error(`Scribejs ${err}`);
-		process.exit(255);
-	}
+        // That is it, folks!
+        console.log(message);
+    } catch(err) {
+        console.error(`Scribejs ${err}`);
+        process.exit(255);
+    }
 }
 
 // Do it!
