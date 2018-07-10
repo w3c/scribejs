@@ -1,3 +1,10 @@
 extends: airbnb-base
-rules:
+rules: # see https://eslint.org/docs/rules/
   indent: [error, 4]
+  no-multi-spaces:
+    - error
+    - exceptions:
+        VariableDeclarator: true
+  no-console: off
+  camelcase: off
+  strict: off
