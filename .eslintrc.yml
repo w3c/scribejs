@@ -1,6 +1,11 @@
 extends: airbnb-base
 rules: # see https://eslint.org/docs/rules/
-  indent: [error, 4]
+  indent:
+    - error
+    - 4
+    - SwitchCase: 1
+      CallExpression:
+        arguments: first
   no-multi-spaces:
     - error
     - exceptions:
@@ -16,3 +21,9 @@ rules: # see https://eslint.org/docs/rules/
         on: colon
   comma-dangle: [error, never]
   arrow-parens: [error, always]
+  no-plusplus:
+    - error
+    - allowForLoopAfterthoughts: true
+  no-param-reassign:
+    - error
+    - props: false
