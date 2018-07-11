@@ -8,3 +8,11 @@ rules: # see https://eslint.org/docs/rules/
   no-console: off
   camelcase: off
   strict: off
+  key-spacing:
+    - error
+    - align:
+        beforeColon: true
+        afterColon: true
+        on: colon
+  comma-dangle: [error, never]
+  arrow-parens: [error, always]
