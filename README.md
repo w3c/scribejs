@@ -20,7 +20,7 @@ scribjs [options] [filename]
 [--output|-o] ofile: Output file name. See [below](#output) on how the final output is chosen.
 [--final|-f]:        The minutes are final, i.e., they won't be labeled as "DRAFT".
 [--repo|-r]:         Whether the output should be stored in a github repository.
-                     Default: false.  
+                     Default: false.
 [--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
                      Default: false.
 [--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination.
@@ -61,7 +61,7 @@ A typical usage of the configuration files is:
 * use the user-level configuration for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences and invalidates those tokens immediately…)
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
-There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead. 
+There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead.
 
 
 ### [Choice of the output](id:output)
@@ -70,7 +70,7 @@ The script’s choice of where resulting file is stored is as follows:
 
 * if the value of `torepo` in the final configuration is `true`, the `gh...` values are used to determine the github repository (with, optionally, the relevant branch) and the path within the repository where the minutes should be stores (or updated);
 * otherwise, if the `output` value is set, the result is stored in that file;
-* otherwise the result is sent to the standard output.  
+* otherwise the result is sent to the standard output.
 
 This means that the simplest possible usage of the script boils down to:
 
@@ -90,7 +90,7 @@ This JSON file is used to provide mapping among IRC nicknames and real names. Th
 * `url` : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later).
 
 
-There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname mapping file. The validation is also done run-time; the script warns (on `stderr`) if the nickname mapping file is invalid, and an empty mapping is used instead. 
+There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname mapping file. The validation is also done run-time; the script warns (on `stderr`) if the nickname mapping file is invalid, and an empty mapping is used instead.
 
 ## [Pandoc](id:pandoc)
 
@@ -175,8 +175,7 @@ We like clean code, so we've introduced tools to help our shared consistency.
 You can use `eslint` in the context of this project by running:
 
 ```sh
-npm lint -- main.js
+npm run lint
 ```
 
-You can replace `main.js` with any path you like, and it will be run using the
-configuration settings found in `.eslintrc.yml`.
+It will be run using the configuration settings found in `.eslintrc.yml`.

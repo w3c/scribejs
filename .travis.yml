@@ -6,4 +6,5 @@ notifications:
   email: false
 script:
   - npm run nsp
+  - npm run lint
   - npm test
