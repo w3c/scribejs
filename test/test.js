@@ -12,13 +12,13 @@ const invokeScribeJS = (params = [], handlers = null) => {
     const fixedParams = params;
     fixedParams.unshift('.');
     const proc = spawn('npx', fixedParams);
-    // TODO: fix "over looping" -- use Object.keys|.values|.entries instead
-    for (const event in handlers) {
-        if (event === 'data') {
-            proc.stdout.on(event, handlers[event]);
-            proc.stderr.on(event, handlers[event]);
+    const explodedHandlers = Object.entries(handlers);
+    for (let event = 0; event < explodedHandlers.length; event++) {
+        if (explodedHandlers[event][0] === 'data') {
+            proc.stdout.on(explodedHandlers[event][0], explodedHandlers[event][1]);
+            proc.stderr.on(explodedHandlers[event][0], explodedHandlers[event][1]);
         } else {
-            proc.on(event, handlers[event]);
+            proc.on(explodedHandlers[event][0], explodedHandlers[event][1]);
         }
     }
 };
@@ -77,6 +77,7 @@ describe('CLI usage', () => {
     it('can dump result to a local file', (done) => {
         const resultChecker = (code) => {
             assert.strictEqual(code, 0);
+            // eslint-disable-next-line no-bitwise
             fs.access(outputFilename, fs.constants.F_OK | fs.constants.R_OK, (err) => {
                 if (err) {
                     done(err);

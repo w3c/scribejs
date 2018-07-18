@@ -27,4 +27,5 @@ rules: # see https://eslint.org/docs/rules/
   no-param-reassign:
     - error
     - props: false
+  prefer-destructuring: off
   consistent-return: off # because of Promise callbacks reject() usage

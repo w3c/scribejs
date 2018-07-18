@@ -48,6 +48,6 @@
   "scripts": {
     "nsp": "nsp check",
     "test": "mocha",
-    "lint": "eslint"
+    "lint": "eslint main.js lib/ test/"
   }
 }
