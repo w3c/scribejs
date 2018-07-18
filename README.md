@@ -175,7 +175,7 @@ We like clean code, so we've introduced tools to help our shared consistency.
 You can use `eslint` in the context of this project by running:
 
 ```sh
-npm run lint
+npm run lint -- main.js
 ```
 
 It will be run using the configuration settings found in `.eslintrc.yml`.
