@@ -42,17 +42,21 @@ try {
                 console.error(`Scribejs ${err}`);
             }
             config.nicks = io.get_nick_mapping(config);
-            const valid = schemas.validate_nicknames(config.nicks);
-            if (!valid) {
-                console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
-                console.warn('(nicknames ignored)');
-                config.nicks = [];
-            }
-            const irc_log = io.get_irc_log(config);
-            const minutes = convert.to_markdown(irc_log, config);
-            const message = io.output_minutes(minutes, config);
-            console.log(message);
-            res.send(JSON.stringify(config, null, 4));
+            schemas.validate_nicknames((validator) => {
+                console.dir(validator);
+                console.dir(config.nicks);
+                const valid = validator(config.nicks);
+                if (!valid) {
+                    console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
+                    console.warn('(nicknames ignored)');
+                    config.nicks = [];
+                }
+                const irc_log = io.get_irc_log(config);
+                const minutes = convert.to_markdown(irc_log, config);
+                const message = io.output_minutes(minutes, config);
+                console.log(message);
+                res.send(JSON.stringify(config, null, 4));
+            });
         });
         app.on('error', (err) => {
             if (err)
@@ -74,24 +78,30 @@ try {
         config.nicks = io.get_nick_mapping(config);
 
         // Validate the nickname mapping object against the appropriate JSON schema
-        const valid = schemas.validate_nicknames(config.nicks);
-        if (!valid) {
-            console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
-            console.warn('(nicknames ignored)');
-            config.nicks = [];
-        }
+        schemas.validate_nicknames((validator) => {
+            console.dir(validator);
+            console.dir(config.nicks);
+            const valid = validator(config.nicks);
+            if (!valid) {
+                schemas.validation_errors(schemas.validate_nicknames, (errors) => {
+                    console.warn(`Warning: scribejs validation error in nicknames:\n${errors}`);
+                    console.warn('(nicknames ignored)');
+                    config.nicks = [];
+                });
+            }
 
-        // Get the IRC log itself
-        const irc_log = io.get_irc_log(config);
+            // Get the IRC log itself
+            const irc_log = io.get_irc_log(config);
 
-        // The main step: convert the IRC log into a markdown text
-        const minutes = convert.to_markdown(irc_log, config);
+            // The main step: convert the IRC log into a markdown text
+            const minutes = convert.to_markdown(irc_log, config);
 
-        // Either upload the minutes to Github or dump into a local file
-        const message = io.output_minutes(minutes, config);
+            // Either upload the minutes to Github or dump into a local file
+            const message = io.output_minutes(minutes, config);
 
-        // That is it, folks!
-        console.log(message);
+            // That is it, folks!
+            console.log(message);
+        });
     }
 
 } catch (err) {
