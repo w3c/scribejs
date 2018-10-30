@@ -29,3 +29,5 @@ rules: # see https://eslint.org/docs/rules/
         - props: false
     prefer-destructuring: off
     consistent-return: off # because of Promise callbacks reject() usage
+    no-eval: error
+    no-implied-eval: error
