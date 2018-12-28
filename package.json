@@ -27,7 +27,7 @@
     "node": "8 || 10",
     "npm": "5 || 6"
   },
-  "preferGlobal": "true",
+  "preferGlobal": true,
   "dependencies": {
     "ajv": "^6.1.1",
     "commander": "^2.9.0",
