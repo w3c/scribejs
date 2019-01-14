@@ -11,7 +11,6 @@ const user_config_name 	= ".scribejs.json";
 
 const JEKYLL_NONE		= "none";
 const JEKYLL_MARKDOWN	= "md";
-const JEKYLL_KRAMDOWN	= "kd";
 
 let default_config = {
 	date           : moment(),
@@ -28,7 +27,7 @@ let default_config = {
  * - user configuration, ie, ~/.scribejs.json
  * - configuration file provided CGI call (forwarded in the argument)
  *
- * @returns {object} - full configuration. See the overal manual for the field definitions
+ * @returns {object} - full configuration. See the overall manual for the field definitions
  */
 exports.get_config = (cgi_config, script_name) => {
 	/***********************************************************************/

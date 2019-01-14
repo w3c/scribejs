@@ -1,8 +1,8 @@
 /*
-   The small module has originally been written in ES5, but has been dummed
+   The small module has originally been written in ES5, but has been dummied
    down for portability.
 
-   The original code was left in a commentm except for all "let"-s that have been turned into "var"-s
+   The original code was left in a comment except for all "let"-s that have been turned into "var"-s
 */
 
 /** const storage_key = "scribejs_webstorage_presets"; **/
@@ -205,7 +205,7 @@ function store_preset() {
  * There is, however, a CORS issue. The IRC log does not have the CORS header set and I could not
  * get `fetch` work properly with the relevant header (why???). For now I use the
  * `https://cors-anywhere.herokuapp.com` trick, and I may have to come back to this later.
- * 
+ *
  * Note also that the general part includes some checks for the URL used in fetch, it is not necessary here. Indeed
  * the fetch is used exclusively on a URL generated internally using the W3C setup, so there is no danger there.
  */
@@ -218,7 +218,7 @@ function load_log() {
 			day   = date$split[2];
 		// return `https://www.w3.org/${year}/${month}/${day}-${group}-irc.txt`;
 		/** return `https://cors-anywhere.herokuapp.com/https://www.w3.org/${year}/${month}/${day}-${group}-irc.txt`; **/
-		return "https://cors-anywhere.herokuapp.com/https://www.w3.org/" + year + "/" + month + "/" + day + "-" + group + "-irc.txt";
+		return 'https://cors-anywhere.herokuapp.com/https://www.w3.org/' + year + '/' + month + '/' + day + '-' + group + '-irc.txt';
 	};
 
 	var group = document.getElementById("group").value;

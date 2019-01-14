@@ -1,5 +1,5 @@
-#!/usr/local/bin/node
-"use strict";
+/* eslint-disable func-names */
+'use strict';
 
 /**
  * Convert W3C’s RRSAgent IRC bot output into minutes in Markdown
@@ -24,7 +24,7 @@ const fs          = require('fs');
  *
  * - For a GET request this is straightforward conversion of the query URL keys and values.
  * - For a PUT request, this contains uploaded text data as *arrays of strings* (ie, this is NOT prepared for
- *   non-textual data!), and straighforward key/value pairs for values that are a single string. Also, the values of
+ *   non-textual data!), and straightforward key/value pairs for values that are a single string. Also, the values of
  *   "true" and "false" are converted into booleans on the fly.
  *
  * @returns {object} - essential request data
@@ -43,7 +43,7 @@ exports.Request = function() {
             let separator = process.env["CONTENT_TYPE"].match(/boundary=([A-Za-z0-9_'\(\)+,-\.\/:=?]*)/)[1]
             // 2. The post data is in the standard input; the data is broken into individual lines
             let post_data = fs.readFileSync('/dev/stdin').toString().split("\n");
-            // 3. The multipart data must be broken into individual components
+            // 3. The multi-part data must be broken into individual components
             let retval       = {};
             let current_key  = null;
             let in_header    = false;
@@ -135,7 +135,7 @@ exports.Response = function(debug = false) {
         },
 
         /**
-         * Add the default debug output to the messaga: a list of the environment variables of the script (in markdown syntax)
+         * Add the default debug output to the message: a list of the environment variables of the script (in markdown syntax)
          */
         debug_output : function() {
             this.addMessage("\n# Environment variables\n");

@@ -13,6 +13,7 @@ rules: # see https://eslint.org/docs/rules/
     no-console: off
     camelcase: off
     strict: off
+    max-len: 120
     key-spacing:
         - error
         - align:
