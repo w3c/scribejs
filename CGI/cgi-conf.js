@@ -54,7 +54,7 @@ exports.get_config = (cgi_config, script_name) => {
 		}
 	}
 
-	// 2. get read of the 'moment' object and use ISO date instead
+	// 2. get rid of the 'moment' object and use ISO date instead
 	retval.date = retval.date.format("YYYY-MM-DD");
 
 	// 3. if the input is not set, nothing should happen!

@@ -1,3 +1,13 @@
+/**
+ * Various functions handling user interactions on the scribejs page:
+ *
+ * 1. Handling presets
+ * 2. uploading the irc log into the input
+ * 3. fetching the irc log from the W3C site
+ */
+
+const _ = require('underscore');
+
 /* eslint-disable no-else-return */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
@@ -36,7 +46,7 @@ const boolean_keys = ['torepo', 'final'];
 // eslint-disable-next-line no-unused-vars
 function set_presets(val) {
     const zeropadding = (n) => (n < 10 ? `0${n}` : `${n}`);
-    document.getElementById('main_form').reset();
+    reset_preset_menu();
     if (val !== 'None') {
         const all_presets = retrieve_presets();
         if (!_.isEmpty(all_presets)) {
@@ -205,16 +215,17 @@ function store_preset() {
 }
 
 /*
- * Load the IRC log into the text area. The URL is retrieved using the IRC name and the date.
- * Note that the function using the fetch function; hopefully this works now in all the usual
- * browsers...
+ * Event handler to load the IRC log into the text area from the W3C Web site.
+ * The URL is retrieved using the IRC name and the date.
+ *
+ * (Note that the function using the fetch function; hopefully this works now in all the usual browsers by now...)
  *
  * There is, however, a CORS issue. The IRC log does not have the CORS header set and I could not
  * get `fetch` work properly with the relevant header (why???). For now I use the
  * `https://cors-anywhere.herokuapp.com` trick, and I may have to come back to this later.
  */
 // eslint-disable-next-line no-unused-vars
-function load_log() {
+function fetch_log() {
     set_input_url = (date, group) => {
         const [year, month, day] = date.split('-');
         // return `https://www.w3.org/${year}/${month}/${day}-${group}-irc.txt`;
@@ -249,3 +260,55 @@ function load_log() {
         alert('No irc name or no valid date...')
     }
 }
+
+
+/**
+ *
+ * Event handler to load an IRC log from a local file.
+ *
+ * @param {File} file
+ */
+// eslint-disable-next-line no-unused-vars
+function load_log(file) {
+    const reader = new FileReader();
+    reader.addEventListener('loadend', (e) => {
+        const target = document.getElementById('text');
+        // console.log(reader.result);
+        target.value = reader.result;
+    });
+    reader.readAsText(file);
+}
+
+
+/**
+ * Bind the functions to their respective HTML equivalents...
+ * Necessary to do it this way with the usage of browserify
+ */
+window.addEventListener( 'load', (e) => {
+    // Set up the event handlers
+    const presets_button = document.getElementById('presets');
+    presets_button.addEventListener('change', (e) => {
+        set_presets(presets_button.value);
+    });
+
+    const reset_button = document.getElementById('reset');
+    reset_button.addEventListener('click', reset_preset_menu);
+
+    const upload_log_button = document.getElementById('upload_log');
+    upload_log_button.addEventListener('change', (e) => {
+        load_log(upload_log_button.files[0])
+    });
+
+    const fetch_log_button = document.getElementById('fetch_log');
+    fetch_log_button.addEventListener('click', fetch_log);
+
+    const store_preset_button = document.getElementById('store_preset');
+    store_preset_button.addEventListener('click', store_preset);
+
+    const remove_preset_button = document.getElementById('remove_preset');
+    remove_preset_button.addEventListener('click', remove_preset);
+
+    const clear_presets_button = document.getElementById('clear_presets');
+    clear_presets_button.addEventListener('click', clear_presets);
+})
+
