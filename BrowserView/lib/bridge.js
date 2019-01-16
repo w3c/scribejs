@@ -27,10 +27,9 @@ async function bridge(form) {
     };
     config.nicks = await nicknames.get_nick_mapping(config);
     const irc_log  = form.elements['text'].value;
-    // console.log(JSON.stringify(config, null, 4));
-    // The main step: convert the IRC log into a markdown text
     const minutes = convert.to_markdown(irc_log, config);
-    console.log(minutes);
+    const target = document.getElementById('minutes');
+    target.value = minutes;
 }
 
 

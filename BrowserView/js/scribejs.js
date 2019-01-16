@@ -31,7 +31,9 @@ async function bridge(form) {
     // console.log(JSON.stringify(config, null, 4));
     // The main step: convert the IRC log into a markdown text
     const minutes = convert.to_markdown(irc_log, config);
-    console.log(minutes);
+    // console.log(minutes);
+    const target = document.getElementById('minutes');
+    target.value = minutes;
 }
 
 
