@@ -386,7 +386,7 @@ function store_preset() {
  */
 // eslint-disable-next-line no-unused-vars
 function fetch_log() {
-    set_input_url = (date, group) => {
+    const set_input_url = (date, group) => {
         const [year, month, day] = date.split('-');
         // return `https://www.w3.org/${year}/${month}/${day}-${group}-irc.txt`;
         return `https://cors-anywhere.herokuapp.com/https://www.w3.org/${year}/${month}/${day}-${group}-irc.txt`;
@@ -462,8 +462,6 @@ function save_minutes() {
         download.click();
     }
 }
-
-
 
 /**
  * Bind the functions to their respective HTML equivalents...
