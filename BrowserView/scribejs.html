@@ -5,7 +5,7 @@
     <meta content="Ivan Herman" name="author">
     <link rel="stylesheet" type="text/css" href="css/fonts.css">
     <link rel="stylesheet" type="text/css" href="css/scribejs.css">
-    <script type="text/javascript" src="js/scribejs.min.js"></script>
+    <script type="text/javascript" src="js/scribejs.js"></script>
  </head>
  <body>
     <h1>Generate Markdown Formatted Minutes</h1>
@@ -110,9 +110,18 @@
                     <th><label for="minutes">Generated Minutes:</label></th>
                     <td><textarea name="minutes" id="minutes" cols="100" rows="20"></textarea></td>
                 </tr>
+                <tr>
+                    <th>&nbsp;</th>
+                    <td>
+                        <input title='save' id='save' value='Save' type='button'>&nbsp;
+                        <a style='display:none' id='download'>test</a>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </fieldset>
+
+
 
     <hr>
 

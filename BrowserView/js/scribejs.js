@@ -1,4 +1,5 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+'use strict';
 /**
  * The "bridge" between the HTML Form and the scribejs environment.
  */
@@ -28,10 +29,7 @@ async function bridge(form) {
     };
     config.nicks = await nicknames.get_nick_mapping(config);
     const irc_log  = form.elements['text'].value;
-    // console.log(JSON.stringify(config, null, 4));
-    // The main step: convert the IRC log into a markdown text
     const minutes = convert.to_markdown(irc_log, config);
-    // console.log(minutes);
     const target = document.getElementById('minutes');
     target.value = minutes;
 }
@@ -169,6 +167,7 @@ exports.get_nick_mapping = (conf) => {
 
 
 },{"underscore":11,"url":17,"valid-url":12}],3:[function(require,module,exports){
+'use strict';
 /**
  * Various functions handling user interactions on the scribejs page:
  *
@@ -216,19 +215,18 @@ const boolean_keys = ['torepo', 'final'];
  */
 // eslint-disable-next-line no-unused-vars
 function set_presets(val) {
-    const zeropadding = (n) => (n < 10 ? `0${n}` : `${n}`);
     reset_preset_menu();
     if (val !== 'None') {
         const all_presets = retrieve_presets();
         if (!_.isEmpty(all_presets)) {
             if (all_presets[val] !== undefined) {
                 const preset       = all_presets[val];
-                const date         = new Date();
-                const month        = zeropadding(date.getMonth() + 1);
-                const day          = zeropadding(date.getDate());
-                const year         = date.getFullYear();
-                const date_input   = document.getElementById('date');
-                date_input.value = `${year}-${month}-${day}`;
+                // const date         = new Date();
+                // const month        = zeropadding(date.getMonth() + 1);
+                // const day          = zeropadding(date.getDate());
+                // const year         = date.getFullYear();
+                // const date_input   = document.getElementById('date');
+                // date_input.value = `${year}-${month}-${day}`;
 
                 /* Go through the keys of the preset and set the relevant element accordingly */
                 // eslint-disable-next-line guard-for-in
@@ -297,15 +295,6 @@ function generate_preset_menu(all_presets) {
         });
     }
 }
-
-window.onload = () => {
-    const all_presets = localStorage.getItem(storage_key);
-    if (all_presets) {
-        generate_preset_menu(JSON.parse(all_presets));
-    } else {
-        store_presets({});
-    }
-};
 
 /*
  * List presets (for debug only!)
@@ -432,7 +421,6 @@ function fetch_log() {
     }
 }
 
-
 /**
  *
  * Event handler to load an IRC log from a local file.
@@ -450,12 +438,54 @@ function load_log(file) {
     reader.readAsText(file);
 }
 
+/**
+ * Save the minutes.
+ *
+ * Take the content out of the 'minutes' text area, turn it into a Blob, set the right attributes
+ * of an `<a>` element with `@download`, and activate it.
+ */
+function save_minutes() {
+    const minutes = document.getElementById('minutes').value
+    if (minutes && minutes !== '') {
+        // Get hold of the content
+        const mBlob = new Blob([minutes], {type: 'text/markdown'});
+        const mURI = URL.createObjectURL(mBlob);
+
+        const [year, month, day] = document.getElementById('date').value.split('-');
+        const group = document.getElementById('group').value;
+        const file_name = (group && group !== '') ? `${year}-${month}-${day}-${group}.md` : `${year}-${month}-${day}.md`
+
+        // Pull it all together
+        const download = document.getElementById('download');
+        download.href = mURI;
+        download.download = file_name;
+        download.click();
+    }
+}
+
+
 
 /**
  * Bind the functions to their respective HTML equivalents...
  * Necessary to do it this way with the usage of browserify
  */
 window.addEventListener( 'load', (e) => {
+    const all_presets = localStorage.getItem(storage_key);
+    if (all_presets) {
+        generate_preset_menu(JSON.parse(all_presets));
+    } else {
+        store_presets({});
+    }
+
+    // Set today's date
+    const zeropadding  = (n) => (n < 10 ? `0${n}` : `${n}`);
+    const date         = new Date();
+    const month        = zeropadding(date.getMonth() + 1);
+    const day          = zeropadding(date.getDate());
+    const year         = date.getFullYear();
+    const date_input   = document.getElementById('date');
+    date_input.value = `${year}-${month}-${day}`;
+
     // Set up the event handlers
     const presets_button = document.getElementById('presets');
     presets_button.addEventListener('change', (e) => {
@@ -481,6 +511,9 @@ window.addEventListener( 'load', (e) => {
 
     const clear_presets_button = document.getElementById('clear_presets');
     clear_presets_button.addEventListener('click', clear_presets);
+
+    const save_button = document.getElementById('save');
+    save_button.addEventListener('click', save_minutes);
 })
 
 

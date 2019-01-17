@@ -1,3 +1,4 @@
+'use strict';
 /**
  * The "bridge" between the HTML Form and the scribejs environment.
  */
