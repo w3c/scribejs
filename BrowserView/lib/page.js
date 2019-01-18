@@ -2,47 +2,83 @@
 /**
  * Various functions handling user interactions on the scribejs page:
  *
- * 1. Handling presets
- * 2. uploading the irc log into the input
- * 3. fetching the irc log from the W3C site
+ * 1. Handle presets (settings are stored and retrieved in a per-browser local storage)
+ * 2. Upload the irc log into the input
+ * 3. Fetch the irc log from the W3C site
+ * 4. Store the generated minutes locally
+ *
+ * This module is specific to the browser interface functionality. This is also written with
+ * browserify in mind, using the command line version of scribejs. This also means that all
+ * these functionalities are added as callbacks at the end of the file instead of calling them
+ * from the HTML code.
  */
-
-const _ = require('underscore');
 
 /* eslint-disable no-else-return */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
 /* eslint no-undef: "error" */
 /* eslint-env browser */
-/**
- * Storing presets. These are stored using the window's local storage facility.
- *
- * Local storage stores key-value pairs. To avoid interference with other possible usage of the
- * local storage, a single key is used for all presets.
- *
- * The value, as stored in the local storage, is a (JSON encoded) Javascript object. Each key in
- * in that object is the IRC channel name of the group, and the value is an object with the
- * values of the possible options.
- */
 
-const storage_key = 'scribejs_webstorage_presets';
-
-/* ------------------------------------------------------------------- */
-
-const retrieve_presets   = () => JSON.parse(localStorage.getItem(storage_key));
-const store_presets      = (all_presets) => {
-    localStorage.setItem(storage_key, JSON.stringify(all_presets));
-    generate_preset_menu(all_presets);
-};
+const _ = require('underscore');
 
 const JEKYLL_NONE     = 'none';
 const JEKYLL_MARKDOWN = 'md';
 const JEKYLL_KRAMDOWN = 'kd';
 
+/** Some forms have a value that has to be treated as boolean... */
 const boolean_keys = ['torepo', 'final'];
 
+
+/**
+ * Helper function: set today's date
+ */
+function set_todays_date() {
+    // Set today's date
+    const zeropadding  = (n) => (n < 10 ? `0${n}` : `${n}`);
+    const date         = new Date();
+    const month        = zeropadding(date.getMonth() + 1);
+    const day          = zeropadding(date.getDate());
+    const year         = date.getFullYear();
+    const date_input   = document.getElementById('date');
+    date_input.value = `${year}-${month}-${day}`;
+}
+
+/* ------------------------------------------------------------------------------------------- */
 /*
- * Use a preset to set the various options in the form elements
+ * Part 1: Storing presets. These are stored using the window's local storage facility.
+ *
+ * Local storage stores key-value pairs. To avoid interference with other possible usage of the
+ * local storage, a single key is used for all presets.
+ *
+ * The value, as stored in the local storage, which is a collection of key-value pairs.
+ * In this case the value is a (JSON encoded) Javascript object with one single key. Each key in
+ * in that object is the IRC channel name of the group, and the value is an object with the
+ * values of the possible options.
+ */
+/** THE key in the local storage */
+const storage_key        = 'scribejs_webstorage_presets';
+
+/**
+ * The names it all...
+ *
+ * @returns the complete sets of presets
+ */
+const retrieve_presets   = () => JSON.parse(localStorage.getItem(storage_key));
+
+/**
+ * Store all presets in the browser's local store
+ *
+ * @param {Object} all_presets the object with the presets.
+ */
+const store_presets      = (all_presets) => {
+    localStorage.setItem(storage_key, JSON.stringify(all_presets));
+    generate_preset_menu(all_presets);
+};
+
+/**
+ * Use a preset to set the various options in the form elements.
+ *
+ * @param {String} val The key to find the right preset (the value of the 'irc' field in the HTML page is usually)
  */
 // eslint-disable-next-line no-unused-vars
 function set_presets(val) {
@@ -52,20 +88,11 @@ function set_presets(val) {
         if (!_.isEmpty(all_presets)) {
             if (all_presets[val] !== undefined) {
                 const preset       = all_presets[val];
-                // const date         = new Date();
-                // const month        = zeropadding(date.getMonth() + 1);
-                // const day          = zeropadding(date.getDate());
-                // const year         = date.getFullYear();
-                // const date_input   = document.getElementById('date');
-                // date_input.value = `${year}-${month}-${day}`;
 
                 /* Go through the keys of the preset and set the relevant element accordingly */
-                // eslint-disable-next-line guard-for-in
                 // eslint-disable-next-line no-restricted-syntax
-                Object.keys(preset).forEach((key) => {
-                    const value = preset[key];
-
-                    // 1. step: get the element that has to be modified
+                _.forEach(preset, (value, key) => {
+                    // 1. step: get the element to be modified
                     const element = document.getElementById(key);
 
                     // 2. modify the value. The 'torepo' and 'final' elements must be treated a bit differently
@@ -92,10 +119,27 @@ function set_presets(val) {
 // eslint-disable-next-line no-unused-vars
 function reset_preset_menu() {
     const presets = document.getElementById('presets');
+    // This will generate a 'change' event on 'presets' which takes care of
+    // clearing the form elements on the screen
     presets.selectedIndex = 0;
 }
 
-/*
+/**
+ * Reset most of things...
+ * I do not use the 'reset' type for the button, because the date field should be set to
+ * today's date and not to empty...
+ */
+function reset() {
+    reset_preset_menu();
+    ['text', 'group', 'nicknames'].forEach((id) => {
+        document.getElementById(id).value = '';
+    })
+    document.getElementById('jekyll').selectedIndex = 0;
+    document.getElementById('final').selectedIndex = 0;
+    set_todays_date();
+}
+
+/**
  * Generate preset menu.
  *
  * Generates a number of `<option>` elements for the pull down menu, one for each preset.
@@ -115,7 +159,7 @@ function generate_preset_menu(all_presets) {
     select_element.appendChild(none_element);
 
     if (_.isEmpty(all_presets)) {
-        console.log('No Presets');
+        ; // console.log('No Presets');
     } else {
         _.forEach(all_presets, (value, key) => {
             const descr          = value.fullname;
@@ -127,7 +171,7 @@ function generate_preset_menu(all_presets) {
     }
 }
 
-/*
+/**
  * List presets (for debug only!)
  */
 // eslint-disable-next-line no-unused-vars
@@ -140,10 +184,9 @@ function list_presets() {
         console.log(value);
     });
     console.log('---');
-    // generate_preset_menu(all_presets);
 }
 
-/*
+/**
  * Delete a preset
  */
 // eslint-disable-next-line no-unused-vars
@@ -153,7 +196,7 @@ function remove_preset() {
     store_presets(_.omit(all_presets, group));
 }
 
-/*
+/**
  * Clear all presets
  */
 // eslint-disable-next-line no-unused-vars
@@ -161,7 +204,7 @@ function clear_presets() {
     store_presets({});
 }
 
-/*
+/**
  * Create a new preset entry and add it to the full list.
  */
 // eslint-disable-next-line no-unused-vars
@@ -170,6 +213,7 @@ function store_preset() {
     /* Get group name; this is used to as a key to the local storage */
     const group = document.getElementById('group').value;
     if (group !== '') {
+        // In fact, the form currently does not handle the 'gh' attributes, but keep it here just in case...
         const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch', 'ghname', 'ghemail', 'ghtoken', 'fullname'];
         _.forEach(targets, (key) => {
             const el = document.getElementById(key);
@@ -196,7 +240,7 @@ function store_preset() {
         // eslint-disable-next-line no-nested-ternary
         to_be_stored.jekyll = element.selectedIndex === 1 ? JEKYLL_MARKDOWN : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN : JEKYLL_NONE);
 
-        /* Here comes the meat... */
+        /* Here comes the meat: adding the object to the full list of presents in the local store, and append the new one */
         const all_presets = retrieve_presets();
         all_presets[group] = to_be_stored;
         store_presets(all_presets);
@@ -205,13 +249,18 @@ function store_preset() {
     }
 }
 
+/* ------------------------------------------------------------------------------------------- */
+/*
+ * Part 2: taking care of populating the text area with the IRC Loc.
+ */
+
 /*
  * Event handler to load the IRC log into the text area from the W3C Web site.
  * The URL is retrieved using the IRC name and the date.
  *
- * (Note that the function using the fetch function; hopefully this works now in all the usual browsers by now...)
+ * (Note that the function uses the fetch function; hopefully this works now in all the usual browsers by now...)
  *
- * There is, however, a CORS issue. The IRC log does not have the CORS header set and I could not
+ * There is a CORS issue. The IRC log on the W3C Web site does not have the CORS header and I could not
  * get `fetch` work properly with the relevant header (why???). For now I use the
  * `https://cors-anywhere.herokuapp.com` trick, and I may have to come back to this later.
  */
@@ -269,11 +318,17 @@ function load_log(file) {
     reader.readAsText(file);
 }
 
+/* ------------------------------------------------------------------------------------------- */
+/*
+ * Part 3: save the minutes locally
+ */
+
 /**
  * Save the minutes.
  *
  * Take the content out of the 'minutes' text area, turn it into a Blob, set the right attributes
  * of an `<a>` element with `@download`, and activate it.
+ * Note: the 'download' link element is in the HTML form, but it is not displayed...
  */
 function save_minutes() {
     const minutes = document.getElementById('minutes').value
@@ -294,26 +349,26 @@ function save_minutes() {
     }
 }
 
+/* ------------------------------------------------------------------------------------------- */
+/*
+ * Part 4: set up the event handlers
+ */
+
 /**
  * Bind the functions to their respective HTML equivalents...
- * Necessary to do it this way with the usage of browserify
+ * Necessary to do it this way with the usage of browserify.
+ * Some extra initialization is also done: get the initial value for all presets from the local store
+ * and set the date input to today's date.
  */
 window.addEventListener( 'load', (e) => {
+    // Local initialization
     const all_presets = localStorage.getItem(storage_key);
     if (all_presets) {
         generate_preset_menu(JSON.parse(all_presets));
     } else {
         store_presets({});
     }
-
-    // Set today's date
-    const zeropadding  = (n) => (n < 10 ? `0${n}` : `${n}`);
-    const date         = new Date();
-    const month        = zeropadding(date.getMonth() + 1);
-    const day          = zeropadding(date.getDate());
-    const year         = date.getFullYear();
-    const date_input   = document.getElementById('date');
-    date_input.value = `${year}-${month}-${day}`;
+    set_todays_date();
 
     // Set up the event handlers
     const presets_button = document.getElementById('presets');
@@ -322,7 +377,7 @@ window.addEventListener( 'load', (e) => {
     });
 
     const reset_button = document.getElementById('reset');
-    reset_button.addEventListener('click', reset_preset_menu);
+    reset_button.addEventListener('click', reset);
 
     const upload_log_button = document.getElementById('upload_log');
     upload_log_button.addEventListener('change', (e) => {

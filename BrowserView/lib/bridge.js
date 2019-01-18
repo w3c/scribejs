@@ -8,9 +8,13 @@ const nicknames = require('./nicknames');
 const convert = require('../../lib/convert')
 
 /**
- * The main entry point, invoked when the user pushes the submit.
+ * The main entry point, invoked when the user pushes the submit. Collect the
+ * configuration date, call the converter, and store the minutes in the
+ * relevant text area.
  *
- * @param {HTMLElement} form
+ * This function is set as the call back for the form submission.
+ *
+ * @param {HTMLFormElement} form
  */
 async function bridge(form) {
     const config = {
@@ -33,9 +37,8 @@ async function bridge(form) {
     target.value = minutes;
 }
 
-
 window.addEventListener( 'load', (e) => {
-    // Set up the event handlers
+    // Set up the event handler
     const submit_button = document.getElementById('submit_button');
     submit_button.addEventListener('click', (e) => {
         const the_form = document.getElementById('main_form');
