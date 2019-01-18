@@ -49,6 +49,7 @@ async function main() {
         // Get the IRC log itself
         const irc_log = await io.get_irc_log(config);
 
+        console.log(config);
         // The main step: convert the IRC log into a markdown text
         const minutes = convert.to_markdown(irc_log, config);
 

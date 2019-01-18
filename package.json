@@ -39,11 +39,13 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
+    "browserify": "^16.2.3",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.13.0",
     "mocha": "^5.2.0",
-    "nsp": "^3.2.1"
+    "nsp": "^3.2.1",
+    "uglify-js": "^3.4.9"
   },
   "scripts": {
     "nsp": "nsp check",

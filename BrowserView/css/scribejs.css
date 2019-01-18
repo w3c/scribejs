@@ -1,0 +1,167 @@
+
+/* By default, the github options are not shown. It is too messy to handle the gh user token... */
+/*fieldset#gh_options {
+	display: none;
+}*/
+
+html { padding: 1em; }
+
+body {
+	font-family: 'Noto Sans';
+	font-size: 90%;
+}
+
+dl dl dt::before {
+	content: "“";
+}
+
+dl dl dt::after {
+	content: "”";
+}
+
+form, fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	vertical-align: baseline;
+	color: #1f2126;
+	line-height: 1;
+}
+
+a:link, a:visited {
+	text-decoration: underline;
+	color: #365D95;
+}
+
+a:hover, a:active {
+	text-decoration: underline;
+	color: #1f2126;
+}
+
+ul, ol {
+	margin-left: 3em;
+}
+
+td, th {
+	padding: 6px;
+}
+
+textarea {
+	font-family: Monaco, "Courier New", Monospace;
+	font-size: 0.9em;
+	border: 1px solid #bbb;
+	border-top: 1px solid #777;
+	border-bottom: 1px solid #ddd;
+	background: #fefefe;
+	padding: 0.2em 0.2em;
+	max-width: 1000px;
+	font-variant: normal;
+	width: 98.5%;
+}
+
+input#text, input#uploaded {
+	width: 30em;
+	margin: 0.3em 0 0 1em;
+}
+
+p.submit_button input {
+	overflow: visible;
+    /*width: auto;*/
+	background: #fff;
+    color: #365D95;
+    padding: 0.3em 0.4em 0.1em 0.3em;
+	font-size: 1.1em;
+	width: 12em;
+	text-align: center;
+	border-bottom: 2px solid #888;
+	border-right: 2px solid #888;
+	border-top: 1px solid #aaa;
+	border-left: 1px solid #aaa;
+	background: #eee;
+	cursor: pointer;
+	border-radius: 8px;
+}
+
+p.submit_button input:active {
+    color: #1f2126;
+	border-bottom: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	border-top: 2px solid #888;
+	border-left: 2px solid #888;
+}
+
+input#reset {
+    color: red;
+}
+
+.load, .preset_control {
+	background: #fff;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.load:active {
+    color: #1f2126;
+	border-bottom: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	border-top: 2px solid #888;
+	border-left: 2px solid #888;
+}
+
+label {
+	font-size: 0.9em;
+	padding-left: .2em;
+	padding-right: .2em;
+	margin-right: 0.3em;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+th, th label {
+	font-weight: normal;
+}
+td, th {
+	padding: 0.5em 1.1em 0.5em 0;
+	text-align: left;
+}
+
+td input {
+	margin-right: 0.2em;
+}
+
+select {
+	width: 20%;
+}
+
+div.main-options {
+	border-top: 1px solid #cbcdd5;
+	padding: 0.7em 0 0.5em 1em;
+}
+
+legend {
+	font-size: 1.1em;
+	padding: 1em 0 0.23em;
+	font-weight: normal;
+}
+
+p.submit_button {
+	padding: 0.6em 0 0;
+	margin: 0;
+	text-align: center;
+}
+
+label {
+	  margin-top:	0.5em;
+}
+
+form {
+	  padding: 			1em;
+}
+
+input {
+	  font-size: 		0.9em;
+	  padding: 			0.2em 0.2em;
+	  font-variant: 	normal;
+}
