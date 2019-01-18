@@ -1,6 +1,3 @@
-/* Most of the style file has been shamelessly stolen (ok, copy-pasted) from validator.w3.org/style/base.css ... */
-
-@import url(fonts.css);
 
 /* By default, the github options are not shown. It is too messy to handle the gh user token... */
 /*fieldset#gh_options {
@@ -15,11 +12,11 @@ body {
 }
 
 dl dl dt::before {
-	content: open-quote;
+	content: "“";
 }
 
 dl dl dt::after {
-	content: close-quote;
+	content: "”";
 }
 
 form, fieldset {
