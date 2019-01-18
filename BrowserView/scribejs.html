@@ -57,7 +57,7 @@
                             <td><input name="group" id="group" size="70" type="text"></td>
                         </tr>
                         <tr>
-                            <th><label for="nicknames">Nickname file name or URL:</label></th>
+                            <th><label for="nicknames">Nickname URL:</label></th>
                             <td><input name="nicknames" id="nicknames" size="70" type="text"></td>
                         </tr>
                         <tr>
@@ -187,9 +187,10 @@
                     The name of the IRC channel (without the # sign). Used for the URL of the IRC log on the W3C site.
                 </dd>
 
-                <dt>Nickname file name or URL</dt>
+                <dt>Nickname URL</dt>
                 <dd>
-                    Identify a JSON data file providing a mapping from IRC nicknames to real names. Used to display the participants’ proper name everywhere in the minutes. See <a href="https://github.com/w3c/scribejs/blob/master/README.md#nickname-mapping">the more detailed description</a> for further details.
+                    Identify a JSON data file providing a mapping from IRC nicknames to real names. Used to display the participants’ proper name everywhere in the minutes. See <a href="https://github.com/w3c/scribejs/blob/master/README.md#nickname-mapping">the more detailed description</a> for further details.<br/>
+                    Note that if the nickname is available on the user’s machine, then an (absolute) file name can also be used in place of the nicknames.
                 </dd>
 
                 <dt>Adapt the output to Jekyll</dt>
@@ -284,6 +285,42 @@
             </dl>
         </dd>
     </dl>
+    <h2>Example presets</h2>
 
+    <h3>Publishing Working Group</h3>
+    <dl>
+        <dt>IRC channel</dt>
+        <dd>pwg</dd>
+        <dt>Nickname URL</dt>
+        <dd>https://www.w3.org/publishing/groups/publ-wg/assets/nicknames.json</dd>
+        <dt>Adapt output to Jekyll</dt>
+        <dd>Yes, using Kramdown</dd>
+        <dt>Are the minutes final</dt>
+        <dd>No</dd>
+    </dl>
 
-</body></html>
+    <h3>Publishing Business Group</h3>
+    <dl>
+        <dt>IRC channel</dt>
+        <dd>pbg</dd>
+        <dt>Nickname URL</dt>
+        <dd>https://w3c.github.io/publ-bg/assets/nicknames.json</dd>
+        <dt>Adapt output to Jekyll</dt>
+        <dd>Yes, using Kramdown</dd>
+        <dt>Are the minutes final</dt>
+        <dd>Yes</dd>
+    </dl>
+
+    <h3>JSON-LD Working Group</h3>
+    <dl>
+        <dt>IRC channel</dt>
+        <dd>json-ld</dd>
+        <dt>Nickname URL</dt>
+        <dd>https://www.w3.org/2018/json-ld-wg/assets/nicknames.json</dd>
+        <dt>Adapt output to Jekyll</dt>
+        <dd>Yes, using Kramdown</dd>
+        <dt>Are the minutes final</dt>
+        <dd>No</dd>
+    </dl>
+</body>
+</html>
