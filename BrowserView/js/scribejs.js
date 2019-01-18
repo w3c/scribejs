@@ -254,7 +254,6 @@ const store_presets      = (all_presets) => {
  */
 // eslint-disable-next-line no-unused-vars
 function set_presets(val) {
-    reset_preset_menu();
     if (val !== 'None') {
         const all_presets = retrieve_presets();
         if (!_.isEmpty(all_presets)) {
@@ -282,6 +281,8 @@ function set_presets(val) {
                 });
             }
         }
+    } else {
+        reset_preset_menu();
     }
 }
 
@@ -290,9 +291,12 @@ function set_presets(val) {
  */
 // eslint-disable-next-line no-unused-vars
 function reset_preset_menu() {
+    ['group', 'nicknames', 'fullname'].forEach((id) => {
+        document.getElementById(id).value = '';
+    })
+    document.getElementById('jekyll').selectedIndex = 0;
+    document.getElementById('final').selectedIndex = 0;
     const presets = document.getElementById('presets');
-    // This will generate a 'change' event on 'presets' which takes care of
-    // clearing the form elements on the screen
     presets.selectedIndex = 0;
 }
 
@@ -303,11 +307,9 @@ function reset_preset_menu() {
  */
 function reset() {
     reset_preset_menu();
-    ['text', 'group', 'nicknames'].forEach((id) => {
+    ['text', 'minutes'].forEach((id) => {
         document.getElementById(id).value = '';
     })
-    document.getElementById('jekyll').selectedIndex = 0;
-    document.getElementById('final').selectedIndex = 0;
     set_todays_date();
 }
 
