@@ -8,10 +8,12 @@ const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 
+const nodeCmd = process.platform === 'win32' ? 'node' : 'npx';
+
 const invokeScribeJS = (params = [], handlers = null) => {
     const fixedParams = params;
     fixedParams.unshift('.');
-    const proc = spawn('npx', fixedParams);
+    const proc = spawn(nodeCmd, fixedParams);
     const explodedHandlers = Object.entries(handlers);
     for (let event = 0; event < explodedHandlers.length; event++) {
         if (explodedHandlers[event][0] === 'data') {
