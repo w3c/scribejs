@@ -1,4 +1,5 @@
 'use strict';
+
 /**
  * Various functions handling user interactions on the scribejs page:
  *
@@ -101,7 +102,9 @@ function set_presets(val) {
                             element.selectedIndex = value ? 1 : 0;
                         } else if (key === 'jekyll') {
                             // eslint-disable-next-line no-nested-ternary
-                            element.selectedIndex = (value === JEKYLL_MARKDOWN) ? 1 : ((value === JEKYLL_KRAMDOWN) ? 2 : 0);
+                            element.selectedIndex = (value === JEKYLL_MARKDOWN)
+                                ? 1
+                                : ((value === JEKYLL_KRAMDOWN) ? 2 : 0);
                         } else {
                             element.value = value;
                         }
@@ -121,7 +124,7 @@ function set_presets(val) {
 function reset_preset_menu() {
     ['group', 'nicknames', 'fullname'].forEach((id) => {
         document.getElementById(id).value = '';
-    })
+    });
     document.getElementById('jekyll').selectedIndex = 0;
     document.getElementById('final').selectedIndex = 0;
     const presets = document.getElementById('presets');
@@ -137,7 +140,7 @@ function reset() {
     reset_preset_menu();
     ['text', 'minutes'].forEach((id) => {
         document.getElementById(id).value = '';
-    })
+    });
     set_todays_date();
 }
 
@@ -161,7 +164,7 @@ function generate_preset_menu(all_presets) {
     select_element.appendChild(none_element);
 
     if (_.isEmpty(all_presets)) {
-        ; // console.log('No Presets');
+        // console.log('No Presets');
     } else {
         _.forEach(all_presets, (value, key) => {
             const descr          = value.fullname;
@@ -180,9 +183,9 @@ function generate_preset_menu(all_presets) {
 function list_presets() {
     console.log('--- Presets');
     // eslint-disable-next-line no-unused-vars
-    let all_presets = retrieve_presets();
+    const all_presets = retrieve_presets();
     // eslint-disable-next-line no-undef
-    _.forEach(get_presets(), (value, key) => {
+    _.forEach(get_presets(), (value) => {
         console.log(value);
     });
     console.log('---');
@@ -216,7 +219,8 @@ function store_preset() {
     const group = document.getElementById('group').value;
     if (group !== '') {
         // In fact, the form currently does not handle the 'gh' attributes, but keep it here just in case...
-        const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch', 'ghname', 'ghemail', 'ghtoken', 'fullname'];
+        const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch',
+            'ghname', 'ghemail', 'ghtoken', 'fullname'];
         _.forEach(targets, (key) => {
             const el = document.getElementById(key);
             if (el) {
@@ -240,9 +244,12 @@ function store_preset() {
 
         const element = document.getElementById('jekyll');
         // eslint-disable-next-line no-nested-ternary
-        to_be_stored.jekyll = element.selectedIndex === 1 ? JEKYLL_MARKDOWN : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN : JEKYLL_NONE);
+        to_be_stored.jekyll = element.selectedIndex === 1
+            ? JEKYLL_MARKDOWN
+            : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN : JEKYLL_NONE);
 
-        /* Here comes the meat: adding the object to the full list of presents in the local store, and append the new one */
+        /* Here comes the meat: adding the object to the full list of presents
+         * in the local store, and append the new one */
         const all_presets = retrieve_presets();
         all_presets[group] = to_be_stored;
         store_presets(all_presets);
@@ -312,7 +319,7 @@ function fetch_log() {
 // eslint-disable-next-line no-unused-vars
 function load_log(file) {
     const reader = new FileReader();
-    reader.addEventListener('loadend', (e) => {
+    reader.addEventListener('loadend', () => {
         const target = document.getElementById('text');
         // console.log(reader.result);
         target.value = reader.result;
@@ -333,15 +340,17 @@ function load_log(file) {
  * Note: the 'download' link element is in the HTML form, but it is not displayed...
  */
 function save_minutes() {
-    const minutes = document.getElementById('minutes').value
+    const minutes = document.getElementById('minutes').value;
     if (minutes && minutes !== '') {
         // Get hold of the content
-        const mBlob = new Blob([minutes], {type: 'text/markdown'});
+        const mBlob = new Blob([minutes], { type: 'text/markdown' });
         const mURI = URL.createObjectURL(mBlob);
 
         const [year, month, day] = document.getElementById('date').value.split('-');
         const group = document.getElementById('group').value;
-        const file_name = (group && group !== '') ? `${year}-${month}-${day}-${group}.md` : `${year}-${month}-${day}.md`
+        const file_name = (group && group !== '')
+            ? `${year}-${month}-${day}-${group}.md`
+            : `${year}-${month}-${day}.md`;
 
         // Pull it all together
         const download = document.getElementById('download');
@@ -362,7 +371,7 @@ function save_minutes() {
  * Some extra initialization is also done: get the initial value for all presets from the local store
  * and set the date input to today's date.
  */
-window.addEventListener( 'load', (e) => {
+window.addEventListener('load', () => {
     // Local initialization
     const all_presets = localStorage.getItem(storage_key);
     if (all_presets) {
@@ -374,7 +383,7 @@ window.addEventListener( 'load', (e) => {
 
     // Set up the event handlers
     const presets_button = document.getElementById('presets');
-    presets_button.addEventListener('change', (e) => {
+    presets_button.addEventListener('change', () => {
         set_presets(presets_button.value);
     });
 
@@ -382,7 +391,7 @@ window.addEventListener( 'load', (e) => {
     reset_button.addEventListener('click', reset);
 
     const upload_log_button = document.getElementById('upload_log');
-    upload_log_button.addEventListener('change', (e) => {
+    upload_log_button.addEventListener('change', () => {
         load_log(upload_log_button.files[0])
     });
 
@@ -400,5 +409,4 @@ window.addEventListener( 'load', (e) => {
 
     const save_button = document.getElementById('save');
     save_button.addEventListener('click', save_minutes);
-})
-
+});

@@ -1,11 +1,14 @@
+/* eslint-env browser */
+
 'use strict';
+
 /**
  * The "bridge" between the HTML Form and the scribejs environment.
  */
 
 // Experimenting for now...
 const nicknames = require('./nicknames');
-const convert = require('../../lib/convert')
+const convert = require('../../lib/convert');
 
 /**
  * The main entry point, invoked when the user pushes the submit. Collect the
@@ -18,31 +21,30 @@ const convert = require('../../lib/convert')
  */
 async function bridge(form) {
     const config = {
-        date          : form.elements['date'].value,
-        final         : form.elements['final'].value === 'true' ? true : false,
+        date          : form.elements.date.value,
+        final         : form.elements.final.value === 'true',
         torepo        : false,
-        jekyll        : form.elements['jekyll'].value,
+        jekyll        : form.elements.jekyll.value,
         pandoc        : true,
         nick_mappings : [],
-        nicknames     : form.elements['nicknames'].value,
+        nicknames     : form.elements.nicknames.value,
         irc_format    : undefined,
         ghname        : '',
         ghemail       : '',
-        ghtoken       : '',
+        ghtoken       : ''
     };
     config.nicks = await nicknames.get_nick_mapping(config);
-    const irc_log  = form.elements['text'].value;
+    const irc_log  = form.elements.text.value;
     const minutes = convert.to_markdown(irc_log, config);
     const target = document.getElementById('minutes');
     target.value = minutes;
 }
 
-window.addEventListener( 'load', (e) => {
+window.addEventListener('load', () => {
     // Set up the event handler
     const submit_button = document.getElementById('submit_button');
-    submit_button.addEventListener('click', (e) => {
+    submit_button.addEventListener('click', () => {
         const the_form = document.getElementById('main_form');
         bridge(the_form);
     });
-})
-
+});

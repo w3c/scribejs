@@ -1,4 +1,7 @@
+/* eslint-env browser */
+
 'use strict';
+
 /**
  * Get the nickname files via its URL, with a basic sanity check on the URL
  * (Just to be on the safe side)
@@ -116,4 +119,3 @@ exports.get_nick_mapping = (conf) => {
         }
     });
 };
-
