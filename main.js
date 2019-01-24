@@ -41,7 +41,8 @@ async function main() {
         // Validate the nickname mapping object against the appropriate JSON schema
         const valid = schemas.validate_nicknames(config.nicks);
         if (!valid) {
-            console.warn(`Warning: scribejs validation error in nicknames:\n${schemas.validation_errors(schemas.validate_nicknames)}`);
+            console.warn(`Warning: scribejs validation error in nicknames:
+                         ${schemas.validation_errors(schemas.validate_nicknames)}`);
             console.warn('(nicknames ignored)');
             config.nicks = [];
         }
