@@ -7,10 +7,16 @@ This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and 
 The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. This means that the current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members.
 
 ## [Usage](id:usage)
+
+### Browser
+
+The `BrowserView/` directory contains an HTML file which provides a basic UI for loading and editing IRC logs and processing them into Markdown. See the [Installation](#installation) section below for more information.
+
+### Command Line
 The script runs on top of `node.js`. The “entry point” is the `main.js` file, which accepts the following command line arguments:
 
 ```
-scribjs [options] [filename]
+scribejs [options] [filename]
 [--date|-d] date:    Date of the meeting in ISO (i.e., YYYY-MM-DD) format.
                      Default: today.
 [--group|-g] group:  Name of the IRC channel used by the group.
@@ -126,12 +132,30 @@ If the generated minutes are in kramdown format then a number of sections/paragr
 
 ## Installation
 
-Standard Node.js practices have been followed.
+Setup the project locally and install Node.js dependencies:
 
 ```bash
 git clone https://github.com/w3c/scribejs.git
 cd scribejs
 npm install
+```
+
+Follow specific instructions based on your needs/interestes below.
+
+### Browser
+
+```bash
+npm run build
+npm run serve
+```
+
+You should be able to load the UX via `http://localhost:8080` (or whichever port was chosen by `http-server`).
+
+### Command Line
+
+Standard Node.js practices have been followed.
+
+```bash
 cp config.json.sample ~/.scribejs.json
 $EDITOR ~/.scribejs.json                  # Fill in details: your GH token, etc
 ```
