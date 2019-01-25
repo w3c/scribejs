@@ -6,7 +6,7 @@ This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and 
 
 The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. This means that the current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members.
 
-## [Usage](id:usage)
+## Usage
 
 ### Browser
 
@@ -37,7 +37,7 @@ scribejs [options] [filename]
                      Default: undefined, meaning that the log provided by W3C's RRSAgent is used.
 ```
 
-### [Configuration files](id:conf)
+### Configuration files
 While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file `~/.scribejs.json` will be used, if present.
 
 The keys are as follows (see also the [description of the command line](#usage) for their explanation). Use only those keys that have a meaningful value.
@@ -70,7 +70,7 @@ A typical usage of the configuration files is:
 There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead.
 
 
-### [Choice of the output](id:output)
+### Choice of the output
 
 The script’s choice of where resulting file is stored is as follows:
 
@@ -86,7 +86,7 @@ scribejs IRC-log-file
 
 which takes the log from the local `IRC-log-file` and sends the markdown minutes to standard output.
 
-### [Nickname mapping](id:nick)
+### Nickname mapping
 
 This JSON file is used to provide mapping among IRC nicknames and real names. The file itself is an array of objects; each object can use the following keys (use only those with a meaningful value):
 
@@ -98,11 +98,11 @@ This JSON file is used to provide mapping among IRC nicknames and real names. Th
 
 There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname mapping file. The validation is also done run-time; the script warns (on `stderr`) if the nickname mapping file is invalid, and an empty mapping is used instead.
 
-## [Pandoc](id:pandoc)
+## Pandoc
 
 The generated minutes may be converted into some other format using [pandoc](https://pandoc.org). If so, a special [title header]((https://pandoc.org/MANUAL.html#metadata-blocks)) is added, to be used by pandoc when generating HTML or LaTeX.
 
-### [Jekyll option](id:jekyll)
+### Jekyll option
 
 The generated minutes may be part of a page hosted by GitHub via the [Github+Jekyll](https://help.github.com/articles/about-github-pages-and-jekyll/) combination. The possible options, and their meaning, are as follows.
 
@@ -116,7 +116,7 @@ The generated minutes may be part of a page hosted by GitHub via the [Github+Jek
     ```
 
     Furthermore, the W3C logo is _not_ added to the minutes; this can be done by the layout used for the minutes. The syntax is (Github) markdown.
-* `kd`: beyond the features of the `md` option, the minutes are generated in [kramdown](https://kramdown.gettalong.org/documentation.html) syntax and not in (standard Github) markdown. This is the markdown dialect used by Jekyll; the notable difference, in terms of the generated minutes, is the syntax used to assign an identifier to a header, resolution, or an action. (The standard markdown syntax, i.e., `#[header](id:theid)`, is not understood by Jekyll.) As a bonus, the resolutions and the actions are assigned a class name (`resolution` and `action`, respectively) which can be used for extra styling.
+* `kd`: beyond the features of the `md` option, the minutes are generated in [kramdown](https://kramdown.gettalong.org/documentation.html) syntax and not in (standard Github) markdown. This is the markdown dialect used by Jekyll; the notable difference, in terms of the generated minutes, is the syntax used to assign an identifier to a header, resolution, or an action. As a bonus, the resolutions and the actions are assigned a class name (`resolution` and `action`, respectively) which can be used for extra styling.
 
 #### Generated class names
 
