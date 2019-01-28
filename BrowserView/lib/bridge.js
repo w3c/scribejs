@@ -6,6 +6,8 @@
  * The "bridge" between the HTML Form and the scribejs environment.
  */
 
+const marked = require('marked-it-core');
+
 // Experimenting for now...
 const nicknames = require('./nicknames');
 const convert = require('../../lib/convert');
@@ -46,5 +48,24 @@ window.addEventListener('load', () => {
     submit_button.addEventListener('click', () => {
         const the_form = document.getElementById('main_form');
         bridge(the_form);
+    });
+    const preview_markdown = document.getElementById('preview_markdown');
+    preview_markdown.addEventListener('change', (ev) => {
+        const editorTab = document.getElementById('editor-tab');
+        const previewerTab = document.getElementById('previewer-tab');
+        if (ev.target.checked) {
+            const minutes = document.getElementById('minutes');
+            const preview = document.getElementById('preview');
+            const results = marked.generate(minutes.value);
+            while (preview.firstChild) {
+                preview.removeChild(preview.firstChild);
+            }
+            preview.insertAdjacentHTML('afterbegin', results.html.text);
+            editorTab.classList.remove('active');
+            previewerTab.classList.add('active');
+        } else {
+            editorTab.classList.add('active');
+            previewerTab.classList.remove('active');
+        }
     });
 });

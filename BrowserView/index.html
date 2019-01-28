@@ -147,14 +147,29 @@
 
     <fieldset id='minutes_frame' class="ui form segment">
         <legend class="ui small grey sub header">Generated Minutes</legend>
-        <div class="main-options">
-            <textarea name="minutes" id="minutes" cols="100" rows="20"></textarea>
-            <div class="field">
-                <button title='save' id='save' type='button' class="ui positive button">
-                    <i class="download icon"></i> Save
-                </button>
-                <a style='display:none' id='download'>test</a>
+        <div class="field">
+            <div class="ui toggle checkbox">
+              <input type="checkbox" name="preview_markdown" id="preview_markdown">
+              <label for="preview_markdown">Preview Markdown</label>
             </div>
+        </div>
+        <!-- editor or previewer -->
+        <div class="ui active tab" id="editor-tab">
+            <div class="field">
+                <textarea name="minutes" id="minutes" cols="100" rows="20"></textarea>
+            </div>
+        </div>
+        <div class="ui tab" id="previewer-tab">
+            <div class="ui segment field">
+                <div class="ui top left attached label">Preview</div>
+                <div id="preview"></div>
+            </div>
+        </div>
+        <div class="field">
+            <button title='save' id='save' type='button' class="ui positive button">
+                <i class="download icon"></i> Save
+            </button>
+            <a style='display:none' id='download'>test</a>
         </div>
     </fieldset>
 
