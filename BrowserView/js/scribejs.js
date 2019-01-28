@@ -1,12 +1,15 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+/* eslint-env browser */
+
 'use strict';
+
 /**
  * The "bridge" between the HTML Form and the scribejs environment.
  */
 
 // Experimenting for now...
 const nicknames = require('./nicknames');
-const convert = require('../../lib/convert')
+const convert = require('../../lib/convert');
 
 /**
  * The main entry point, invoked when the user pushes the submit. Collect the
@@ -19,37 +22,39 @@ const convert = require('../../lib/convert')
  */
 async function bridge(form) {
     const config = {
-        date          : form.elements['date'].value,
-        final         : form.elements['final'].value === 'true' ? true : false,
+        date          : form.elements.date.value,
+        final         : form.elements.final.value === 'true',
         torepo        : false,
-        jekyll        : form.elements['jekyll'].value,
+        jekyll        : form.elements.jekyll.value,
         pandoc        : true,
         nick_mappings : [],
-        nicknames     : form.elements['nicknames'].value,
+        nicknames     : form.elements.nicknames.value,
         irc_format    : undefined,
         ghname        : '',
         ghemail       : '',
-        ghtoken       : '',
+        ghtoken       : ''
     };
     config.nicks = await nicknames.get_nick_mapping(config);
-    const irc_log  = form.elements['text'].value;
+    const irc_log  = form.elements.text.value;
     const minutes = convert.to_markdown(irc_log, config);
     const target = document.getElementById('minutes');
     target.value = minutes;
 }
 
-window.addEventListener( 'load', (e) => {
+window.addEventListener('load', () => {
     // Set up the event handler
     const submit_button = document.getElementById('submit_button');
-    submit_button.addEventListener('click', (e) => {
+    submit_button.addEventListener('click', () => {
         const the_form = document.getElementById('main_form');
         bridge(the_form);
     });
-})
-
+});
 
 },{"../../lib/convert":4,"./nicknames":2}],2:[function(require,module,exports){
+/* eslint-env browser */
+
 'use strict';
+
 /**
  * Get the nickname files via its URL, with a basic sanity check on the URL
  * (Just to be on the safe side)
@@ -168,9 +173,9 @@ exports.get_nick_mapping = (conf) => {
     });
 };
 
-
 },{"underscore":15,"url":16,"valid-url":18}],3:[function(require,module,exports){
 'use strict';
+
 /**
  * Various functions handling user interactions on the scribejs page:
  *
@@ -273,7 +278,9 @@ function set_presets(val) {
                             element.selectedIndex = value ? 1 : 0;
                         } else if (key === 'jekyll') {
                             // eslint-disable-next-line no-nested-ternary
-                            element.selectedIndex = (value === JEKYLL_MARKDOWN) ? 1 : ((value === JEKYLL_KRAMDOWN) ? 2 : 0);
+                            element.selectedIndex = (value === JEKYLL_MARKDOWN)
+                                ? 1
+                                : ((value === JEKYLL_KRAMDOWN) ? 2 : 0);
                         } else {
                             element.value = value;
                         }
@@ -293,7 +300,7 @@ function set_presets(val) {
 function reset_preset_menu() {
     ['group', 'nicknames', 'fullname'].forEach((id) => {
         document.getElementById(id).value = '';
-    })
+    });
     document.getElementById('jekyll').selectedIndex = 0;
     document.getElementById('final').selectedIndex = 0;
     const presets = document.getElementById('presets');
@@ -309,7 +316,7 @@ function reset() {
     reset_preset_menu();
     ['text', 'minutes'].forEach((id) => {
         document.getElementById(id).value = '';
-    })
+    });
     set_todays_date();
 }
 
@@ -333,7 +340,7 @@ function generate_preset_menu(all_presets) {
     select_element.appendChild(none_element);
 
     if (_.isEmpty(all_presets)) {
-        ; // console.log('No Presets');
+        // console.log('No Presets');
     } else {
         _.forEach(all_presets, (value, key) => {
             const descr          = value.fullname;
@@ -352,9 +359,9 @@ function generate_preset_menu(all_presets) {
 function list_presets() {
     console.log('--- Presets');
     // eslint-disable-next-line no-unused-vars
-    let all_presets = retrieve_presets();
+    const all_presets = retrieve_presets();
     // eslint-disable-next-line no-undef
-    _.forEach(get_presets(), (value, key) => {
+    _.forEach(get_presets(), (value) => {
         console.log(value);
     });
     console.log('---');
@@ -388,7 +395,8 @@ function store_preset() {
     const group = document.getElementById('group').value;
     if (group !== '') {
         // In fact, the form currently does not handle the 'gh' attributes, but keep it here just in case...
-        const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch', 'ghname', 'ghemail', 'ghtoken', 'fullname'];
+        const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch',
+            'ghname', 'ghemail', 'ghtoken', 'fullname'];
         _.forEach(targets, (key) => {
             const el = document.getElementById(key);
             if (el) {
@@ -412,9 +420,12 @@ function store_preset() {
 
         const element = document.getElementById('jekyll');
         // eslint-disable-next-line no-nested-ternary
-        to_be_stored.jekyll = element.selectedIndex === 1 ? JEKYLL_MARKDOWN : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN : JEKYLL_NONE);
+        to_be_stored.jekyll = element.selectedIndex === 1
+            ? JEKYLL_MARKDOWN
+            : (element.selectedIndex === 2 ? JEKYLL_KRAMDOWN : JEKYLL_NONE);
 
-        /* Here comes the meat: adding the object to the full list of presents in the local store, and append the new one */
+        /* Here comes the meat: adding the object to the full list of presents
+         * in the local store, and append the new one */
         const all_presets = retrieve_presets();
         all_presets[group] = to_be_stored;
         store_presets(all_presets);
@@ -484,7 +495,7 @@ function fetch_log() {
 // eslint-disable-next-line no-unused-vars
 function load_log(file) {
     const reader = new FileReader();
-    reader.addEventListener('loadend', (e) => {
+    reader.addEventListener('loadend', () => {
         const target = document.getElementById('text');
         // console.log(reader.result);
         target.value = reader.result;
@@ -505,15 +516,17 @@ function load_log(file) {
  * Note: the 'download' link element is in the HTML form, but it is not displayed...
  */
 function save_minutes() {
-    const minutes = document.getElementById('minutes').value
+    const minutes = document.getElementById('minutes').value;
     if (minutes && minutes !== '') {
         // Get hold of the content
-        const mBlob = new Blob([minutes], {type: 'text/markdown'});
+        const mBlob = new Blob([minutes], { type: 'text/markdown' });
         const mURI = URL.createObjectURL(mBlob);
 
         const [year, month, day] = document.getElementById('date').value.split('-');
         const group = document.getElementById('group').value;
-        const file_name = (group && group !== '') ? `${year}-${month}-${day}-${group}.md` : `${year}-${month}-${day}.md`
+        const file_name = (group && group !== '')
+            ? `${year}-${month}-${day}-${group}.md`
+            : `${year}-${month}-${day}.md`;
 
         // Pull it all together
         const download = document.getElementById('download');
@@ -534,7 +547,7 @@ function save_minutes() {
  * Some extra initialization is also done: get the initial value for all presets from the local store
  * and set the date input to today's date.
  */
-window.addEventListener( 'load', (e) => {
+window.addEventListener('load', () => {
     // Local initialization
     const all_presets = localStorage.getItem(storage_key);
     if (all_presets) {
@@ -546,7 +559,7 @@ window.addEventListener( 'load', (e) => {
 
     // Set up the event handlers
     const presets_button = document.getElementById('presets');
-    presets_button.addEventListener('change', (e) => {
+    presets_button.addEventListener('change', () => {
         set_presets(presets_button.value);
     });
 
@@ -554,7 +567,7 @@ window.addEventListener( 'load', (e) => {
     reset_button.addEventListener('click', reset);
 
     const upload_log_button = document.getElementById('upload_log');
-    upload_log_button.addEventListener('change', (e) => {
+    upload_log_button.addEventListener('change', () => {
         load_log(upload_log_button.files[0])
     });
 
@@ -572,8 +585,7 @@ window.addEventListener( 'load', (e) => {
 
     const save_button = document.getElementById('save');
     save_button.addEventListener('click', save_minutes);
-})
-
+});
 
 },{"underscore":15}],4:[function(require,module,exports){
 'use strict';
@@ -1401,10 +1413,12 @@ ${no_toc}
             }
             if (kramdown) {
                 content_md = content_md.concat('\n\n', `${header_level}${numbering}. ${content}\n{: #${id}}`);
+                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${content}](#${id})\n`);
             } else {
-                content_md = content_md.concat('\n\n', `${header_level}[${numbering}. ${content}](id:${id})`);
+                const auto_id = `${numbering}-${content.toLowerCase().replace(/ /g, '-')}`;
+                content_md = content_md.concat('\n\n', `${header_level}${numbering}. ${content}`);
+                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${content}](#${auto_id})\n`);
             }
-            TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${content}](#${id})\n`);
         }
 
 
@@ -1416,12 +1430,14 @@ ${no_toc}
         function add_resolution(content) {
             const id = `resolution${rcounter}`;
             if (kramdown) {
-                content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***
-                                               {: #${id} .resolution}`);
+                content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***`
+                                               + ` {: #${id} .resolution}`);
+                resolutions = resolutions.concat(`\n* [Resolution #${rcounter}](#${id}): ${content}`);
             } else {
-                content_md = content_md.concat(`\n\n> [***Resolution #${rcounter}: ${content}***](id:${id})`);
+                content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***`);
+                // GFM and CommonMark do not support anchor creation...so we can't link to the resolutions T_T
+                resolutions = resolutions.concat(`\n* Resolution #${rcounter}: ${content}`);
             }
-            resolutions = resolutions.concat(`\n* [Resolution #${rcounter}](#${id}): ${content}`);
             rcounter += 1;
         }
 
@@ -1438,10 +1454,12 @@ ${no_toc}
             const id = `action${acounter}`;
             if (kramdown) {
                 content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`);
+                actions = actions.concat(`\n* [Action #${acounter}](#${id}): ${final_content}`);
             } else {
-                content_md = content_md.concat(`\n\n> [***Action #${acounter}: ${final_content}***](id:${id})`);
+                content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${final_content}***`);
+                // GFM and CommonMark do not support anchor creation...so we can't link to the actions T_T
+                actions = actions.concat(`\n* Action #${acounter}: ${final_content}`);
             }
-            actions = actions.concat(`\n* [Action #${acounter}](#${id}): ${final_content}`);
             acounter += 1;
         }
 
@@ -1568,22 +1586,24 @@ ${no_toc}
         if (rcounter > 1) {
             // There has been at least one resolution
             sec_number_level_1 += 1;
-            TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#res)\n`);
             if (kramdown) {
+                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#res)\n`);
                 content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n${resolutions}`);
             } else {
-                content_md = content_md.concat(`\n\n### [${sec_number_level_1}. Resolutions](id:res)\n${resolutions}`);
+                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#${sec_number_level_1}-resolutions)\n`);
+                content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Resolutions\n${resolutions}`);
             }
         }
         if (acounter > 1) {
             // There has been at least one resolution
             // TODO: un plusplus
             sec_number_level_1 += 1;
-            TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#act)\n`);
             if (kramdown) {
+                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#act)\n`);
                 content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n${actions}`);
             } else {
-                content_md = content_md.concat(`\n\n### [${sec_number_level_1}. Action Items](id:act)\n${actions}`);
+                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`);
+                content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Action Items\n${actions}`);
             }
         }
 
