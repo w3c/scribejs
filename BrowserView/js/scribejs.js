@@ -189,7 +189,7 @@ exports.get_nick_mapping = (conf) => {
     });
 };
 
-},{"underscore":57,"url":64,"valid-url":59}],3:[function(require,module,exports){
+},{"underscore":57,"url":65,"valid-url":59}],3:[function(require,module,exports){
 /* eslint-disable no-alert */
 
 'use strict';
@@ -619,38 +619,8 @@ window.addEventListener('load', () => {
  *
  */
 
-// eslint-disable-next-line quotes
-const nicknames_schema = JSON.parse(`{
-    "title": "Schema for scribejs nickname files",
-    "description": "Nicknames for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/nicknames_schema.js",
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "nick": {
-                "title": "list of possible nicknames",
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "name": {
-                "title": "Name to be used in the minutes",
-                "type": "string"
-            },
-            "github": {
-                "title": "Github ID of the person. Not really used, could be used later to add links to the minutes.",
-                "type": "string"
-            }
-        },
-        "required": [
-            "nick", "name"
-        ]
-    }
-}`);
 
+const nicknames_schema = require('../../schemas/nicknames_schema.json');
 
 /*
 * The real interface... creation of a new Ajv object, and then the creation of
@@ -680,7 +650,7 @@ exports.validate_nicknames = ajv.compile(nicknames_schema);
  */
 exports.validation_errors = (validator) => ajv.errorsText(validator.errors, { separator: '\n' });
 
-},{"ajv":6,"ajv/lib/refs/json-schema-draft-06.json":46}],5:[function(require,module,exports){
+},{"../../schemas/nicknames_schema.json":60,"ajv":6,"ajv/lib/refs/json-schema-draft-06.json":46}],5:[function(require,module,exports){
 'use strict';
 
 const _    = require('underscore');
@@ -1730,7 +1700,7 @@ ${no_toc}
     return (generate_header_md(headers) + generate_content_md(lines));
 };
 
-},{"safe-regex":56,"underscore":57,"url":64}],6:[function(require,module,exports){
+},{"safe-regex":56,"underscore":57,"url":65}],6:[function(require,module,exports){
 'use strict';
 
 var compileSchema = require('./compile')
@@ -11331,6 +11301,38 @@ Object.defineProperty(exports, '__esModule', { value: true });
 })(module);
 
 },{}],60:[function(require,module,exports){
+module.exports={
+    "title": "Schema for scribejs nickname files",
+    "description": "Nicknames for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/nicknames_schema.js",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "nick": {
+                "title": "list of possible nicknames",
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "name": {
+                "title": "Name to be used in the minutes",
+                "type": "string"
+            },
+            "github": {
+                "title": "Github ID of the person. Currently not really used, could be used later to add links to the minutes.",
+                "type": "string"
+            }
+        },
+        "required": [
+            "nick", "name"
+        ]
+    }
+}
+
+},{}],61:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -11867,7 +11869,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -11953,7 +11955,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],62:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -12040,13 +12042,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":61,"./encode":62}],64:[function(require,module,exports){
+},{"./decode":62,"./encode":63}],65:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -12780,7 +12782,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":65,"punycode":60,"querystring":63}],65:[function(require,module,exports){
+},{"./util":66,"punycode":61,"querystring":64}],66:[function(require,module,exports){
 'use strict';
 
 module.exports = {

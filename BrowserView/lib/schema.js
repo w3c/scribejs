@@ -12,38 +12,8 @@
  *
  */
 
-// eslint-disable-next-line quotes
-const nicknames_schema = JSON.parse(`{
-    "title": "Schema for scribejs nickname files",
-    "description": "Nicknames for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/nicknames_schema.js",
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "nick": {
-                "title": "list of possible nicknames",
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "name": {
-                "title": "Name to be used in the minutes",
-                "type": "string"
-            },
-            "github": {
-                "title": "Github ID of the person. Not really used, could be used later to add links to the minutes.",
-                "type": "string"
-            }
-        },
-        "required": [
-            "nick", "name"
-        ]
-    }
-}`);
 
+const nicknames_schema = require('../../schemas/nicknames_schema.json');
 
 /*
 * The real interface... creation of a new Ajv object, and then the creation of
