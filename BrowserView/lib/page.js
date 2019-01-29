@@ -1,3 +1,5 @@
+/* eslint-disable no-alert */
+
 'use strict';
 
 /**
@@ -260,7 +262,7 @@ function store_preset() {
 
 /* ------------------------------------------------------------------------------------------- */
 /*
- * Part 2: taking care of populating the text area with the IRC Loc.
+ * Part 2: taking care of populating the text area with the IRC Log.
  */
 
 /*
@@ -303,10 +305,9 @@ function fetch_log() {
             .catch((err) => {
                 const message = `Problem accessing remote file ${url}: ${err.message}`;
                 alert(message);
-                reject(message);
             });
     } else {
-        alert('No irc name or no valid date...')
+        alert('No irc name or no valid date...');
     }
 }
 
@@ -392,7 +393,7 @@ window.addEventListener('load', () => {
 
     const upload_log_button = document.getElementById('upload_log');
     upload_log_button.addEventListener('change', () => {
-        load_log(upload_log_button.files[0])
+        load_log(upload_log_button.files[0]);
     });
 
     const fetch_log_button = document.getElementById('fetch_log');

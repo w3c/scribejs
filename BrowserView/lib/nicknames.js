@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-env browser */
 
 'use strict';
@@ -106,11 +107,13 @@ exports.get_nick_mapping = (conf) => {
                         try {
                             json_content = JSON.parse(body);
                         } catch (err) {
-                            throw new Error(`JSON parsing error in ${conf.nicknames}: ${err}`);
+                            alert(`JSON parsing error in ${conf.nicknames}: ${err}`)
+                            reject(new Error(`JSON parsing error in ${conf.nicknames}: ${err}`));
                         }
                         resolve(lower_nicks(json_content));
                     })
                     .catch((err) => {
+                        alert(`problem accessing remote file ${conf.nicknames}: ${err.message}`);
                         reject(new Error(`problem accessing remote file ${conf.nicknames}: ${err.message}`));
                     });
             }
