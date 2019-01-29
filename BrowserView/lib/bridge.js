@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-env browser */
 
 'use strict';
@@ -9,6 +10,7 @@
 // Experimenting for now...
 const nicknames = require('./nicknames');
 const convert = require('../../lib/convert');
+const schema = require('./schema');
 
 /**
  * The main entry point, invoked when the user pushes the submit. Collect the
@@ -34,6 +36,17 @@ async function bridge(form) {
         ghtoken       : ''
     };
     config.nicks = await nicknames.get_nick_mapping(config);
+
+    // Validate the nickname mapping object against the appropriate JSON schema
+    if (!schema.validate_nicknames(config.nicks)) {
+        const errors = schema.validation_errors(schema.validate_nicknames);
+        console.warn(`Warning: scribejs validation error in nicknames: ${errors}
+(nicknames ignored)`);
+        alert(`Warning: scribejs validation error in nicknames: ${errors}
+(nicknames ignored)`);
+        config.nicks = [];
+    }
+
     const irc_log  = form.elements.text.value;
     const minutes = convert.to_markdown(irc_log, config);
     const target = document.getElementById('minutes');
