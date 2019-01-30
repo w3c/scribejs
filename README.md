@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/w3c/scribejs.svg?branch=master)](https://travis-ci.org/w3c/scribejs)
+[Generate Minutes in your Browser!](https://w3c.github.io/scribejs/BrowserView/)
 
 # Converter of RSSAgent IRC logs into minutes in markdown
 
