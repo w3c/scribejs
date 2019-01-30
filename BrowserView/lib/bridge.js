@@ -53,31 +53,35 @@ function renderPreview(markdown) {
     preview.insertAdjacentHTML('afterbegin', results.html.text);
 }
 
+function previewToggle(ev, minutes) {
+    const editorTab = document.getElementById('editor-tab');
+    const previewerTab = document.getElementById('previewer-tab');
+    if (ev.target.checked) {
+        renderPreview(minutes.value);
+        editorTab.classList.remove('active');
+        previewerTab.classList.add('active');
+    } else {
+        editorTab.classList.add('active');
+        previewerTab.classList.remove('active');
+    }
+}
+
+function submit(minutes) {
+    const the_form = document.getElementById('main_form');
+    const markdown = bridge(the_form);
+    markdown.then((md) => {
+        minutes.value = md;
+        renderPreview(md);
+    });
+}
+
 window.addEventListener('load', () => {
     const minutes = document.getElementById('minutes');
     const preview_markdown = document.getElementById('preview_markdown');
     preview_markdown.checked = false;
-    preview_markdown.addEventListener('change', (ev) => {
-        const editorTab = document.getElementById('editor-tab');
-        const previewerTab = document.getElementById('previewer-tab');
-        if (ev.target.checked) {
-            renderPreview(minutes.value);
-            editorTab.classList.remove('active');
-            previewerTab.classList.add('active');
-        } else {
-            editorTab.classList.add('active');
-            previewerTab.classList.remove('active');
-        }
-    });
+    preview_markdown.addEventListener('change', (ev) => previewToggle(ev, minutes));
 
     // Set up the event handler
     const submit_button = document.getElementById('submit_button');
-    submit_button.addEventListener('click', () => {
-        const the_form = document.getElementById('main_form');
-        const markdown = bridge(the_form);
-        markdown.then((md) => {
-            minutes.value = md;
-            renderPreview(md);
-        });
-    });
+    submit_button.addEventListener('click', () => submit(minutes));
 });
