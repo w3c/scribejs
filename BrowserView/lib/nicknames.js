@@ -31,12 +31,13 @@ const _        = require('underscore');
 * 3. Check that the port (if specified) is in the allowed range, ie, > 1024
 * 4. Don't allow localhost in a CGI answer...
 *
-* @param {string} address: the URL to be checked.
+* @param {string} _address: the URL to be checked.
 * @return {string}: the URL itself (which might be slightly improved by the
 *     valid-url method) or null this is, in fact, not a URL
 * @throws {exception}: if it pretends to be a URL, but it is not acceptable for some reasons.
 */
-function check_url(address) {
+function check_url(_address) {
+    const address = _address.trim();
     const parsed = url.parse(address);
     if (parsed.protocol === null) {
         // This is not a URL, should be used as a file name
