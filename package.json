@@ -13,6 +13,13 @@
     "email": "ivan@w3.org",
     "url": "https://www.w3.org/People/Ivan/"
   },
+  "contributors": [
+    {
+      "name": "BigBlueHat",
+      "email": "byoung@bigbluehat.com",
+      "url": "http://bigbluehat.com/"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/w3c/scribejs/issues",
     "email": "ivan@w3.org"
