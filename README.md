@@ -14,6 +14,7 @@ The reason of writing this script is that the current approach of producing HTML
 The `BrowserView/` directory contains an HTML file which provides a basic UI for loading and editing IRC logs and processing them into Markdown. See the [Installation](#installation) section below for more information.
 
 ### Command Line
+
 The script runs on top of `node.js`. The “entry point” is the `main.js` file, which accepts the following command line arguments:
 
 ```
@@ -39,6 +40,7 @@ scribejs [options] [filename]
 ```
 
 ### Configuration files
+
 While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file `~/.scribejs.json` will be used, if present.
 
 The keys are as follows (see also the [description of the command line](#usage) for their explanation). Use only those keys that have a meaningful value.
@@ -81,7 +83,7 @@ The script’s choice of where resulting file is stored is as follows:
 
 This means that the simplest possible usage of the script boils down to:
 
-```
+```bash
 scribejs IRC-log-file
 ```
 
@@ -141,7 +143,7 @@ cd scribejs
 npm install
 ```
 
-Follow specific instructions based on your needs/interestes below.
+Follow specific instructions based on your needs/interests below.
 
 ### Browser
 
@@ -204,3 +206,7 @@ npm run lint -- main.js
 ```
 
 It will be run using the configuration settings found in `.eslintrc.yml`.
+
+---
+
+Maintainers: [Ivan Herman](https://github.com/iherman) and [Benjamin Young](https://github.com/BigBlueHat)
