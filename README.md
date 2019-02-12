@@ -11,7 +11,7 @@ The reason of writing this script is that the current approach of producing HTML
 
 ### Browser
 
-The `BrowserView/` directory contains an HTML file which provides a basic UI for loading and editing IRC logs and processing them into Markdown. See the [Installation](#installation) section below for more information.
+The `BrowserView/` directory contains an HTML file which provides a basic UI for loading and editing IRC logs and processing them into Markdown (see the [service on-line](https://w3c.github.io/scribejs/BrowserView/index.html)). See the [Installation](#installation) section below for more information.
 
 ### Command Line
 
