@@ -15,7 +15,7 @@ rules: # see https://eslint.org/docs/rules/
     strict: off
     max-len:
         - error
-        - code: 120
+        - code: 140
     key-spacing:
         - error
         - align:
