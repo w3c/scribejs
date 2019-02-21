@@ -100,7 +100,7 @@ window.addEventListener('load', () => {
     submit_button.addEventListener('click', () => submit(minutes));
 });
 
-},{"../../lib/convert":5,"./nicknames":2,"./schema":4,"marked-it-core":114}],2:[function(require,module,exports){
+},{"../../lib/convert":5,"./nicknames":2,"./schema":4,"marked-it-core":113}],2:[function(require,module,exports){
 /* eslint-disable no-alert */
 /* eslint-env browser */
 
@@ -227,7 +227,7 @@ exports.get_nick_mapping = (conf) => {
     });
 };
 
-},{"underscore":236,"url":238,"valid-url":243}],3:[function(require,module,exports){
+},{"underscore":235,"url":237,"valid-url":242}],3:[function(require,module,exports){
 /* eslint-disable no-alert */
 
 'use strict';
@@ -642,7 +642,7 @@ window.addEventListener('load', () => {
     save_button.addEventListener('click', save_minutes);
 });
 
-},{"underscore":236}],4:[function(require,module,exports){
+},{"underscore":235}],4:[function(require,module,exports){
 
 
 'use strict';
@@ -688,7 +688,7 @@ exports.validate_nicknames = ajv.compile(nicknames_schema);
  */
 exports.validation_errors = (validator) => ajv.errorsText(validator.errors, { separator: '\n' });
 
-},{"../../schemas/nicknames_schema.json":244,"ajv":6,"ajv/lib/refs/json-schema-draft-06.json":46}],5:[function(require,module,exports){
+},{"../../schemas/nicknames_schema.json":243,"ajv":6,"ajv/lib/refs/json-schema-draft-06.json":46}],5:[function(require,module,exports){
 'use strict';
 
 const _    = require('underscore');
@@ -1522,7 +1522,6 @@ ${no_toc}
             }
         }
 
-
         /**
         * Resolution handling: the resolution receives an ID, and a list of
         * resolution is repeated at the end
@@ -1531,8 +1530,7 @@ ${no_toc}
         function add_resolution(content) {
             const id = `resolution${rcounter}`;
             if (kramdown) {
-                content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***`
-                                               + ` {: #${id} .resolution}`);
+                content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`);
                 resolutions = resolutions.concat(`\n* [Resolution #${rcounter}](#${id}): ${content}`);
             } else {
                 content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***`);
@@ -1738,7 +1736,7 @@ ${no_toc}
     return (generate_header_md(headers) + generate_content_md(lines));
 };
 
-},{"safe-regex":229,"underscore":236,"url":238}],6:[function(require,module,exports){
+},{"safe-regex":228,"underscore":235,"url":237}],6:[function(require,module,exports){
 'use strict';
 
 var compileSchema = require('./compile')
@@ -2243,7 +2241,7 @@ function setLogger(self) {
 
 function noop() {}
 
-},{"./cache":7,"./compile":11,"./compile/async":8,"./compile/error_classes":9,"./compile/formats":10,"./compile/resolve":12,"./compile/rules":13,"./compile/schema_obj":14,"./compile/util":16,"./data":17,"./keyword":44,"./refs/data.json":45,"./refs/json-schema-draft-07.json":47,"fast-json-stable-stringify":97}],7:[function(require,module,exports){
+},{"./cache":7,"./compile":11,"./compile/async":8,"./compile/error_classes":9,"./compile/formats":10,"./compile/resolve":12,"./compile/rules":13,"./compile/schema_obj":14,"./compile/util":16,"./data":17,"./keyword":44,"./refs/data.json":45,"./refs/json-schema-draft-07.json":47,"fast-json-stable-stringify":96}],7:[function(require,module,exports){
 'use strict';
 
 
@@ -2931,7 +2929,7 @@ function vars(arr, statement) {
   return code;
 }
 
-},{"../dotjs/validate":43,"./error_classes":9,"./resolve":12,"./util":16,"fast-deep-equal":96,"fast-json-stable-stringify":97}],12:[function(require,module,exports){
+},{"../dotjs/validate":43,"./error_classes":9,"./resolve":12,"./util":16,"fast-deep-equal":95,"fast-json-stable-stringify":96}],12:[function(require,module,exports){
 'use strict';
 
 var URI = require('uri-js')
@@ -3203,7 +3201,7 @@ function resolveIds(schema) {
   return localRefs;
 }
 
-},{"./schema_obj":14,"./util":16,"fast-deep-equal":96,"json-schema-traverse":111,"uri-js":237}],13:[function(require,module,exports){
+},{"./schema_obj":14,"./util":16,"fast-deep-equal":95,"json-schema-traverse":110,"uri-js":236}],13:[function(require,module,exports){
 'use strict';
 
 var ruleModules = require('../dotjs')
@@ -3573,7 +3571,7 @@ function unescapeJsonPointer(str) {
   return str.replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
-},{"./ucs2length":15,"fast-deep-equal":96}],17:[function(require,module,exports){
+},{"./ucs2length":15,"fast-deep-equal":95}],17:[function(require,module,exports){
 'use strict';
 
 var KEYWORDS = [
@@ -9801,7 +9799,7 @@ function numberIsNaN (obj) {
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":48,"ieee754":106}],52:[function(require,module,exports){
+},{"base64-js":48,"ieee754":105}],52:[function(require,module,exports){
 module.exports = require('./src/table');
 },{"./src/table":66}],53:[function(require,module,exports){
 /*
@@ -10006,7 +10004,7 @@ for (var map in colors.maps) {
 
 defineProps(colors, init());
 
-},{"./custom/trap":54,"./custom/zalgo":55,"./maps/america":56,"./maps/rainbow":57,"./maps/random":58,"./maps/zebra":59,"./styles":60,"./system/supports-colors":62,"util":242}],54:[function(require,module,exports){
+},{"./custom/trap":54,"./custom/zalgo":55,"./maps/america":56,"./maps/rainbow":57,"./maps/random":58,"./maps/zebra":59,"./styles":60,"./system/supports-colors":62,"util":241}],54:[function(require,module,exports){
 module['exports'] = function runTheTrap(text, options) {
   var result = '';
   text = text || 'Run the trap, drop the bass';
@@ -10329,7 +10327,7 @@ module.exports = function(flag, argv) {
 };
 
 }).call(this,require('_process'))
-},{"_process":155}],62:[function(require,module,exports){
+},{"_process":154}],62:[function(require,module,exports){
 (function (process){
 /*
 The MIT License (MIT)
@@ -10484,7 +10482,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./has-flag.js":61,"_process":155,"os":151}],63:[function(require,module,exports){
+},{"./has-flag.js":61,"_process":154,"os":150}],63:[function(require,module,exports){
 //
 // Remark: Requiring this file will use the "safe" colors API,
 // which will not touch String.prototype.
@@ -11103,7 +11101,7 @@ function makeComputeWidths(colSpan, desiredWidth, x, forcedMin) {
   };
 }
 
-},{"./cell":64,"object-assign":150}],66:[function(require,module,exports){
+},{"./cell":64,"object-assign":149}],66:[function(require,module,exports){
 const utils = require('./utils');
 const tableLayout = require('./layout-manager');
 
@@ -11487,7 +11485,7 @@ module.exports = {
   colorizeLines: colorizeLines,
 };
 
-},{"object-assign":150,"string-width":231}],68:[function(require,module,exports){
+},{"object-assign":149,"string-width":230}],68:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -11598,41 +11596,12 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":108}],69:[function(require,module,exports){
+},{"../../is-buffer/index.js":107}],69:[function(require,module,exports){
 /*
   Module dependencies
 */
 var ElementType = require('domelementtype');
 var entities = require('entities');
-
-/*
-  Boolean Attributes
-*/
-var booleanAttributes = {
-  __proto__: null,
-  allowfullscreen: true,
-  async: true,
-  autofocus: true,
-  autoplay: true,
-  checked: true,
-  controls: true,
-  default: true,
-  defer: true,
-  disabled: true,
-  hidden: true,
-  ismap: true,
-  loop: true,
-  multiple: true,
-  muted: true,
-  open: true,
-  readonly: true,
-  required: true,
-  reversed: true,
-  scoped: true,
-  seamless: true,
-  selected: true,
-  typemustmatch: true
-};
 
 var unencodedElements = {
   __proto__: null,
@@ -11662,10 +11631,9 @@ function formatAttrs(attributes, opts) {
       output += ' ';
     }
 
-    if (!value && booleanAttributes[key]) {
-      output += key;
-    } else {
-      output += key + '="' + (opts.decodeEntities ? entities.encodeXML(value) : value) + '"';
+    output += key;
+    if ((value !== null && value !== '') || opts.xmlMode) {
+        output += '="' + (opts.decodeEntities ? entities.encodeXML(value) : value) + '"';
     }
   }
 
@@ -11778,22 +11746,7 @@ function renderComment(elem) {
   return '<!--' + elem.data + '-->';
 }
 
-},{"domelementtype":70,"entities":71}],70:[function(require,module,exports){
-//Types of elements found in the DOM
-module.exports = {
-	Text: "text", //Text
-	Directive: "directive", //<? ... ?>
-	Comment: "comment", //<!-- ... -->
-	Script: "script", //<script> tags
-	Style: "style", //<style> tags
-	Tag: "tag", //Any tag
-	CDATA: "cdata", //<![CDATA[ ... ]]>
-
-	isTag: function(elem){
-		return elem.type === "tag" || elem.type === "script" || elem.type === "style";
-	}
-};
-},{}],71:[function(require,module,exports){
+},{"domelementtype":78,"entities":70}],70:[function(require,module,exports){
 var encode = require("./lib/encode.js"),
     decode = require("./lib/decode.js");
 
@@ -11821,7 +11774,7 @@ exports.decodeHTML4Strict = exports.decodeHTML5Strict = exports.decodeHTMLStrict
 
 exports.escape = encode.escape;
 
-},{"./lib/decode.js":72,"./lib/encode.js":74}],72:[function(require,module,exports){
+},{"./lib/decode.js":71,"./lib/encode.js":73}],71:[function(require,module,exports){
 var entityMap = require("../maps/entities.json"),
     legacyMap = require("../maps/legacy.json"),
     xmlMap = require("../maps/xml.json"),
@@ -11893,7 +11846,7 @@ module.exports = {
     HTMLStrict: decodeHTMLStrict
 };
 
-},{"../maps/entities.json":76,"../maps/legacy.json":77,"../maps/xml.json":78,"./decode_codepoint.js":73}],73:[function(require,module,exports){
+},{"../maps/entities.json":75,"../maps/legacy.json":76,"../maps/xml.json":77,"./decode_codepoint.js":72}],72:[function(require,module,exports){
 var decodeMap = require("../maps/decode.json");
 
 module.exports = decodeCodePoint;
@@ -11920,7 +11873,7 @@ function decodeCodePoint(codePoint) {
     return output;
 }
 
-},{"../maps/decode.json":75}],74:[function(require,module,exports){
+},{"../maps/decode.json":74}],73:[function(require,module,exports){
 var inverseXML = getInverseObj(require("../maps/xml.json")),
     xmlReplacer = getInverseReplacer(inverseXML);
 
@@ -12004,16 +11957,16 @@ function escapeXML(data) {
 
 exports.escape = escapeXML;
 
-},{"../maps/entities.json":76,"../maps/xml.json":78}],75:[function(require,module,exports){
+},{"../maps/entities.json":75,"../maps/xml.json":77}],74:[function(require,module,exports){
 module.exports={"0":65533,"128":8364,"130":8218,"131":402,"132":8222,"133":8230,"134":8224,"135":8225,"136":710,"137":8240,"138":352,"139":8249,"140":338,"142":381,"145":8216,"146":8217,"147":8220,"148":8221,"149":8226,"150":8211,"151":8212,"152":732,"153":8482,"154":353,"155":8250,"156":339,"158":382,"159":376}
-},{}],76:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Abreve":"\u0102","abreve":"\u0103","ac":"\u223E","acd":"\u223F","acE":"\u223E\u0333","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","Acy":"\u0410","acy":"\u0430","AElig":"\u00C6","aelig":"\u00E6","af":"\u2061","Afr":"\uD835\uDD04","afr":"\uD835\uDD1E","Agrave":"\u00C0","agrave":"\u00E0","alefsym":"\u2135","aleph":"\u2135","Alpha":"\u0391","alpha":"\u03B1","Amacr":"\u0100","amacr":"\u0101","amalg":"\u2A3F","amp":"&","AMP":"&","andand":"\u2A55","And":"\u2A53","and":"\u2227","andd":"\u2A5C","andslope":"\u2A58","andv":"\u2A5A","ang":"\u2220","ange":"\u29A4","angle":"\u2220","angmsdaa":"\u29A8","angmsdab":"\u29A9","angmsdac":"\u29AA","angmsdad":"\u29AB","angmsdae":"\u29AC","angmsdaf":"\u29AD","angmsdag":"\u29AE","angmsdah":"\u29AF","angmsd":"\u2221","angrt":"\u221F","angrtvb":"\u22BE","angrtvbd":"\u299D","angsph":"\u2222","angst":"\u00C5","angzarr":"\u237C","Aogon":"\u0104","aogon":"\u0105","Aopf":"\uD835\uDD38","aopf":"\uD835\uDD52","apacir":"\u2A6F","ap":"\u2248","apE":"\u2A70","ape":"\u224A","apid":"\u224B","apos":"'","ApplyFunction":"\u2061","approx":"\u2248","approxeq":"\u224A","Aring":"\u00C5","aring":"\u00E5","Ascr":"\uD835\uDC9C","ascr":"\uD835\uDCB6","Assign":"\u2254","ast":"*","asymp":"\u2248","asympeq":"\u224D","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","awconint":"\u2233","awint":"\u2A11","backcong":"\u224C","backepsilon":"\u03F6","backprime":"\u2035","backsim":"\u223D","backsimeq":"\u22CD","Backslash":"\u2216","Barv":"\u2AE7","barvee":"\u22BD","barwed":"\u2305","Barwed":"\u2306","barwedge":"\u2305","bbrk":"\u23B5","bbrktbrk":"\u23B6","bcong":"\u224C","Bcy":"\u0411","bcy":"\u0431","bdquo":"\u201E","becaus":"\u2235","because":"\u2235","Because":"\u2235","bemptyv":"\u29B0","bepsi":"\u03F6","bernou":"\u212C","Bernoullis":"\u212C","Beta":"\u0392","beta":"\u03B2","beth":"\u2136","between":"\u226C","Bfr":"\uD835\uDD05","bfr":"\uD835\uDD1F","bigcap":"\u22C2","bigcirc":"\u25EF","bigcup":"\u22C3","bigodot":"\u2A00","bigoplus":"\u2A01","bigotimes":"\u2A02","bigsqcup":"\u2A06","bigstar":"\u2605","bigtriangledown":"\u25BD","bigtriangleup":"\u25B3","biguplus":"\u2A04","bigvee":"\u22C1","bigwedge":"\u22C0","bkarow":"\u290D","blacklozenge":"\u29EB","blacksquare":"\u25AA","blacktriangle":"\u25B4","blacktriangledown":"\u25BE","blacktriangleleft":"\u25C2","blacktriangleright":"\u25B8","blank":"\u2423","blk12":"\u2592","blk14":"\u2591","blk34":"\u2593","block":"\u2588","bne":"=\u20E5","bnequiv":"\u2261\u20E5","bNot":"\u2AED","bnot":"\u2310","Bopf":"\uD835\uDD39","bopf":"\uD835\uDD53","bot":"\u22A5","bottom":"\u22A5","bowtie":"\u22C8","boxbox":"\u29C9","boxdl":"\u2510","boxdL":"\u2555","boxDl":"\u2556","boxDL":"\u2557","boxdr":"\u250C","boxdR":"\u2552","boxDr":"\u2553","boxDR":"\u2554","boxh":"\u2500","boxH":"\u2550","boxhd":"\u252C","boxHd":"\u2564","boxhD":"\u2565","boxHD":"\u2566","boxhu":"\u2534","boxHu":"\u2567","boxhU":"\u2568","boxHU":"\u2569","boxminus":"\u229F","boxplus":"\u229E","boxtimes":"\u22A0","boxul":"\u2518","boxuL":"\u255B","boxUl":"\u255C","boxUL":"\u255D","boxur":"\u2514","boxuR":"\u2558","boxUr":"\u2559","boxUR":"\u255A","boxv":"\u2502","boxV":"\u2551","boxvh":"\u253C","boxvH":"\u256A","boxVh":"\u256B","boxVH":"\u256C","boxvl":"\u2524","boxvL":"\u2561","boxVl":"\u2562","boxVL":"\u2563","boxvr":"\u251C","boxvR":"\u255E","boxVr":"\u255F","boxVR":"\u2560","bprime":"\u2035","breve":"\u02D8","Breve":"\u02D8","brvbar":"\u00A6","bscr":"\uD835\uDCB7","Bscr":"\u212C","bsemi":"\u204F","bsim":"\u223D","bsime":"\u22CD","bsolb":"\u29C5","bsol":"\\","bsolhsub":"\u27C8","bull":"\u2022","bullet":"\u2022","bump":"\u224E","bumpE":"\u2AAE","bumpe":"\u224F","Bumpeq":"\u224E","bumpeq":"\u224F","Cacute":"\u0106","cacute":"\u0107","capand":"\u2A44","capbrcup":"\u2A49","capcap":"\u2A4B","cap":"\u2229","Cap":"\u22D2","capcup":"\u2A47","capdot":"\u2A40","CapitalDifferentialD":"\u2145","caps":"\u2229\uFE00","caret":"\u2041","caron":"\u02C7","Cayleys":"\u212D","ccaps":"\u2A4D","Ccaron":"\u010C","ccaron":"\u010D","Ccedil":"\u00C7","ccedil":"\u00E7","Ccirc":"\u0108","ccirc":"\u0109","Cconint":"\u2230","ccups":"\u2A4C","ccupssm":"\u2A50","Cdot":"\u010A","cdot":"\u010B","cedil":"\u00B8","Cedilla":"\u00B8","cemptyv":"\u29B2","cent":"\u00A2","centerdot":"\u00B7","CenterDot":"\u00B7","cfr":"\uD835\uDD20","Cfr":"\u212D","CHcy":"\u0427","chcy":"\u0447","check":"\u2713","checkmark":"\u2713","Chi":"\u03A7","chi":"\u03C7","circ":"\u02C6","circeq":"\u2257","circlearrowleft":"\u21BA","circlearrowright":"\u21BB","circledast":"\u229B","circledcirc":"\u229A","circleddash":"\u229D","CircleDot":"\u2299","circledR":"\u00AE","circledS":"\u24C8","CircleMinus":"\u2296","CirclePlus":"\u2295","CircleTimes":"\u2297","cir":"\u25CB","cirE":"\u29C3","cire":"\u2257","cirfnint":"\u2A10","cirmid":"\u2AEF","cirscir":"\u29C2","ClockwiseContourIntegral":"\u2232","CloseCurlyDoubleQuote":"\u201D","CloseCurlyQuote":"\u2019","clubs":"\u2663","clubsuit":"\u2663","colon":":","Colon":"\u2237","Colone":"\u2A74","colone":"\u2254","coloneq":"\u2254","comma":",","commat":"@","comp":"\u2201","compfn":"\u2218","complement":"\u2201","complexes":"\u2102","cong":"\u2245","congdot":"\u2A6D","Congruent":"\u2261","conint":"\u222E","Conint":"\u222F","ContourIntegral":"\u222E","copf":"\uD835\uDD54","Copf":"\u2102","coprod":"\u2210","Coproduct":"\u2210","copy":"\u00A9","COPY":"\u00A9","copysr":"\u2117","CounterClockwiseContourIntegral":"\u2233","crarr":"\u21B5","cross":"\u2717","Cross":"\u2A2F","Cscr":"\uD835\uDC9E","cscr":"\uD835\uDCB8","csub":"\u2ACF","csube":"\u2AD1","csup":"\u2AD0","csupe":"\u2AD2","ctdot":"\u22EF","cudarrl":"\u2938","cudarrr":"\u2935","cuepr":"\u22DE","cuesc":"\u22DF","cularr":"\u21B6","cularrp":"\u293D","cupbrcap":"\u2A48","cupcap":"\u2A46","CupCap":"\u224D","cup":"\u222A","Cup":"\u22D3","cupcup":"\u2A4A","cupdot":"\u228D","cupor":"\u2A45","cups":"\u222A\uFE00","curarr":"\u21B7","curarrm":"\u293C","curlyeqprec":"\u22DE","curlyeqsucc":"\u22DF","curlyvee":"\u22CE","curlywedge":"\u22CF","curren":"\u00A4","curvearrowleft":"\u21B6","curvearrowright":"\u21B7","cuvee":"\u22CE","cuwed":"\u22CF","cwconint":"\u2232","cwint":"\u2231","cylcty":"\u232D","dagger":"\u2020","Dagger":"\u2021","daleth":"\u2138","darr":"\u2193","Darr":"\u21A1","dArr":"\u21D3","dash":"\u2010","Dashv":"\u2AE4","dashv":"\u22A3","dbkarow":"\u290F","dblac":"\u02DD","Dcaron":"\u010E","dcaron":"\u010F","Dcy":"\u0414","dcy":"\u0434","ddagger":"\u2021","ddarr":"\u21CA","DD":"\u2145","dd":"\u2146","DDotrahd":"\u2911","ddotseq":"\u2A77","deg":"\u00B0","Del":"\u2207","Delta":"\u0394","delta":"\u03B4","demptyv":"\u29B1","dfisht":"\u297F","Dfr":"\uD835\uDD07","dfr":"\uD835\uDD21","dHar":"\u2965","dharl":"\u21C3","dharr":"\u21C2","DiacriticalAcute":"\u00B4","DiacriticalDot":"\u02D9","DiacriticalDoubleAcute":"\u02DD","DiacriticalGrave":"`","DiacriticalTilde":"\u02DC","diam":"\u22C4","diamond":"\u22C4","Diamond":"\u22C4","diamondsuit":"\u2666","diams":"\u2666","die":"\u00A8","DifferentialD":"\u2146","digamma":"\u03DD","disin":"\u22F2","div":"\u00F7","divide":"\u00F7","divideontimes":"\u22C7","divonx":"\u22C7","DJcy":"\u0402","djcy":"\u0452","dlcorn":"\u231E","dlcrop":"\u230D","dollar":"$","Dopf":"\uD835\uDD3B","dopf":"\uD835\uDD55","Dot":"\u00A8","dot":"\u02D9","DotDot":"\u20DC","doteq":"\u2250","doteqdot":"\u2251","DotEqual":"\u2250","dotminus":"\u2238","dotplus":"\u2214","dotsquare":"\u22A1","doublebarwedge":"\u2306","DoubleContourIntegral":"\u222F","DoubleDot":"\u00A8","DoubleDownArrow":"\u21D3","DoubleLeftArrow":"\u21D0","DoubleLeftRightArrow":"\u21D4","DoubleLeftTee":"\u2AE4","DoubleLongLeftArrow":"\u27F8","DoubleLongLeftRightArrow":"\u27FA","DoubleLongRightArrow":"\u27F9","DoubleRightArrow":"\u21D2","DoubleRightTee":"\u22A8","DoubleUpArrow":"\u21D1","DoubleUpDownArrow":"\u21D5","DoubleVerticalBar":"\u2225","DownArrowBar":"\u2913","downarrow":"\u2193","DownArrow":"\u2193","Downarrow":"\u21D3","DownArrowUpArrow":"\u21F5","DownBreve":"\u0311","downdownarrows":"\u21CA","downharpoonleft":"\u21C3","downharpoonright":"\u21C2","DownLeftRightVector":"\u2950","DownLeftTeeVector":"\u295E","DownLeftVectorBar":"\u2956","DownLeftVector":"\u21BD","DownRightTeeVector":"\u295F","DownRightVectorBar":"\u2957","DownRightVector":"\u21C1","DownTeeArrow":"\u21A7","DownTee":"\u22A4","drbkarow":"\u2910","drcorn":"\u231F","drcrop":"\u230C","Dscr":"\uD835\uDC9F","dscr":"\uD835\uDCB9","DScy":"\u0405","dscy":"\u0455","dsol":"\u29F6","Dstrok":"\u0110","dstrok":"\u0111","dtdot":"\u22F1","dtri":"\u25BF","dtrif":"\u25BE","duarr":"\u21F5","duhar":"\u296F","dwangle":"\u29A6","DZcy":"\u040F","dzcy":"\u045F","dzigrarr":"\u27FF","Eacute":"\u00C9","eacute":"\u00E9","easter":"\u2A6E","Ecaron":"\u011A","ecaron":"\u011B","Ecirc":"\u00CA","ecirc":"\u00EA","ecir":"\u2256","ecolon":"\u2255","Ecy":"\u042D","ecy":"\u044D","eDDot":"\u2A77","Edot":"\u0116","edot":"\u0117","eDot":"\u2251","ee":"\u2147","efDot":"\u2252","Efr":"\uD835\uDD08","efr":"\uD835\uDD22","eg":"\u2A9A","Egrave":"\u00C8","egrave":"\u00E8","egs":"\u2A96","egsdot":"\u2A98","el":"\u2A99","Element":"\u2208","elinters":"\u23E7","ell":"\u2113","els":"\u2A95","elsdot":"\u2A97","Emacr":"\u0112","emacr":"\u0113","empty":"\u2205","emptyset":"\u2205","EmptySmallSquare":"\u25FB","emptyv":"\u2205","EmptyVerySmallSquare":"\u25AB","emsp13":"\u2004","emsp14":"\u2005","emsp":"\u2003","ENG":"\u014A","eng":"\u014B","ensp":"\u2002","Eogon":"\u0118","eogon":"\u0119","Eopf":"\uD835\uDD3C","eopf":"\uD835\uDD56","epar":"\u22D5","eparsl":"\u29E3","eplus":"\u2A71","epsi":"\u03B5","Epsilon":"\u0395","epsilon":"\u03B5","epsiv":"\u03F5","eqcirc":"\u2256","eqcolon":"\u2255","eqsim":"\u2242","eqslantgtr":"\u2A96","eqslantless":"\u2A95","Equal":"\u2A75","equals":"=","EqualTilde":"\u2242","equest":"\u225F","Equilibrium":"\u21CC","equiv":"\u2261","equivDD":"\u2A78","eqvparsl":"\u29E5","erarr":"\u2971","erDot":"\u2253","escr":"\u212F","Escr":"\u2130","esdot":"\u2250","Esim":"\u2A73","esim":"\u2242","Eta":"\u0397","eta":"\u03B7","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","euro":"\u20AC","excl":"!","exist":"\u2203","Exists":"\u2203","expectation":"\u2130","exponentiale":"\u2147","ExponentialE":"\u2147","fallingdotseq":"\u2252","Fcy":"\u0424","fcy":"\u0444","female":"\u2640","ffilig":"\uFB03","fflig":"\uFB00","ffllig":"\uFB04","Ffr":"\uD835\uDD09","ffr":"\uD835\uDD23","filig":"\uFB01","FilledSmallSquare":"\u25FC","FilledVerySmallSquare":"\u25AA","fjlig":"fj","flat":"\u266D","fllig":"\uFB02","fltns":"\u25B1","fnof":"\u0192","Fopf":"\uD835\uDD3D","fopf":"\uD835\uDD57","forall":"\u2200","ForAll":"\u2200","fork":"\u22D4","forkv":"\u2AD9","Fouriertrf":"\u2131","fpartint":"\u2A0D","frac12":"\u00BD","frac13":"\u2153","frac14":"\u00BC","frac15":"\u2155","frac16":"\u2159","frac18":"\u215B","frac23":"\u2154","frac25":"\u2156","frac34":"\u00BE","frac35":"\u2157","frac38":"\u215C","frac45":"\u2158","frac56":"\u215A","frac58":"\u215D","frac78":"\u215E","frasl":"\u2044","frown":"\u2322","fscr":"\uD835\uDCBB","Fscr":"\u2131","gacute":"\u01F5","Gamma":"\u0393","gamma":"\u03B3","Gammad":"\u03DC","gammad":"\u03DD","gap":"\u2A86","Gbreve":"\u011E","gbreve":"\u011F","Gcedil":"\u0122","Gcirc":"\u011C","gcirc":"\u011D","Gcy":"\u0413","gcy":"\u0433","Gdot":"\u0120","gdot":"\u0121","ge":"\u2265","gE":"\u2267","gEl":"\u2A8C","gel":"\u22DB","geq":"\u2265","geqq":"\u2267","geqslant":"\u2A7E","gescc":"\u2AA9","ges":"\u2A7E","gesdot":"\u2A80","gesdoto":"\u2A82","gesdotol":"\u2A84","gesl":"\u22DB\uFE00","gesles":"\u2A94","Gfr":"\uD835\uDD0A","gfr":"\uD835\uDD24","gg":"\u226B","Gg":"\u22D9","ggg":"\u22D9","gimel":"\u2137","GJcy":"\u0403","gjcy":"\u0453","gla":"\u2AA5","gl":"\u2277","glE":"\u2A92","glj":"\u2AA4","gnap":"\u2A8A","gnapprox":"\u2A8A","gne":"\u2A88","gnE":"\u2269","gneq":"\u2A88","gneqq":"\u2269","gnsim":"\u22E7","Gopf":"\uD835\uDD3E","gopf":"\uD835\uDD58","grave":"`","GreaterEqual":"\u2265","GreaterEqualLess":"\u22DB","GreaterFullEqual":"\u2267","GreaterGreater":"\u2AA2","GreaterLess":"\u2277","GreaterSlantEqual":"\u2A7E","GreaterTilde":"\u2273","Gscr":"\uD835\uDCA2","gscr":"\u210A","gsim":"\u2273","gsime":"\u2A8E","gsiml":"\u2A90","gtcc":"\u2AA7","gtcir":"\u2A7A","gt":">","GT":">","Gt":"\u226B","gtdot":"\u22D7","gtlPar":"\u2995","gtquest":"\u2A7C","gtrapprox":"\u2A86","gtrarr":"\u2978","gtrdot":"\u22D7","gtreqless":"\u22DB","gtreqqless":"\u2A8C","gtrless":"\u2277","gtrsim":"\u2273","gvertneqq":"\u2269\uFE00","gvnE":"\u2269\uFE00","Hacek":"\u02C7","hairsp":"\u200A","half":"\u00BD","hamilt":"\u210B","HARDcy":"\u042A","hardcy":"\u044A","harrcir":"\u2948","harr":"\u2194","hArr":"\u21D4","harrw":"\u21AD","Hat":"^","hbar":"\u210F","Hcirc":"\u0124","hcirc":"\u0125","hearts":"\u2665","heartsuit":"\u2665","hellip":"\u2026","hercon":"\u22B9","hfr":"\uD835\uDD25","Hfr":"\u210C","HilbertSpace":"\u210B","hksearow":"\u2925","hkswarow":"\u2926","hoarr":"\u21FF","homtht":"\u223B","hookleftarrow":"\u21A9","hookrightarrow":"\u21AA","hopf":"\uD835\uDD59","Hopf":"\u210D","horbar":"\u2015","HorizontalLine":"\u2500","hscr":"\uD835\uDCBD","Hscr":"\u210B","hslash":"\u210F","Hstrok":"\u0126","hstrok":"\u0127","HumpDownHump":"\u224E","HumpEqual":"\u224F","hybull":"\u2043","hyphen":"\u2010","Iacute":"\u00CD","iacute":"\u00ED","ic":"\u2063","Icirc":"\u00CE","icirc":"\u00EE","Icy":"\u0418","icy":"\u0438","Idot":"\u0130","IEcy":"\u0415","iecy":"\u0435","iexcl":"\u00A1","iff":"\u21D4","ifr":"\uD835\uDD26","Ifr":"\u2111","Igrave":"\u00CC","igrave":"\u00EC","ii":"\u2148","iiiint":"\u2A0C","iiint":"\u222D","iinfin":"\u29DC","iiota":"\u2129","IJlig":"\u0132","ijlig":"\u0133","Imacr":"\u012A","imacr":"\u012B","image":"\u2111","ImaginaryI":"\u2148","imagline":"\u2110","imagpart":"\u2111","imath":"\u0131","Im":"\u2111","imof":"\u22B7","imped":"\u01B5","Implies":"\u21D2","incare":"\u2105","in":"\u2208","infin":"\u221E","infintie":"\u29DD","inodot":"\u0131","intcal":"\u22BA","int":"\u222B","Int":"\u222C","integers":"\u2124","Integral":"\u222B","intercal":"\u22BA","Intersection":"\u22C2","intlarhk":"\u2A17","intprod":"\u2A3C","InvisibleComma":"\u2063","InvisibleTimes":"\u2062","IOcy":"\u0401","iocy":"\u0451","Iogon":"\u012E","iogon":"\u012F","Iopf":"\uD835\uDD40","iopf":"\uD835\uDD5A","Iota":"\u0399","iota":"\u03B9","iprod":"\u2A3C","iquest":"\u00BF","iscr":"\uD835\uDCBE","Iscr":"\u2110","isin":"\u2208","isindot":"\u22F5","isinE":"\u22F9","isins":"\u22F4","isinsv":"\u22F3","isinv":"\u2208","it":"\u2062","Itilde":"\u0128","itilde":"\u0129","Iukcy":"\u0406","iukcy":"\u0456","Iuml":"\u00CF","iuml":"\u00EF","Jcirc":"\u0134","jcirc":"\u0135","Jcy":"\u0419","jcy":"\u0439","Jfr":"\uD835\uDD0D","jfr":"\uD835\uDD27","jmath":"\u0237","Jopf":"\uD835\uDD41","jopf":"\uD835\uDD5B","Jscr":"\uD835\uDCA5","jscr":"\uD835\uDCBF","Jsercy":"\u0408","jsercy":"\u0458","Jukcy":"\u0404","jukcy":"\u0454","Kappa":"\u039A","kappa":"\u03BA","kappav":"\u03F0","Kcedil":"\u0136","kcedil":"\u0137","Kcy":"\u041A","kcy":"\u043A","Kfr":"\uD835\uDD0E","kfr":"\uD835\uDD28","kgreen":"\u0138","KHcy":"\u0425","khcy":"\u0445","KJcy":"\u040C","kjcy":"\u045C","Kopf":"\uD835\uDD42","kopf":"\uD835\uDD5C","Kscr":"\uD835\uDCA6","kscr":"\uD835\uDCC0","lAarr":"\u21DA","Lacute":"\u0139","lacute":"\u013A","laemptyv":"\u29B4","lagran":"\u2112","Lambda":"\u039B","lambda":"\u03BB","lang":"\u27E8","Lang":"\u27EA","langd":"\u2991","langle":"\u27E8","lap":"\u2A85","Laplacetrf":"\u2112","laquo":"\u00AB","larrb":"\u21E4","larrbfs":"\u291F","larr":"\u2190","Larr":"\u219E","lArr":"\u21D0","larrfs":"\u291D","larrhk":"\u21A9","larrlp":"\u21AB","larrpl":"\u2939","larrsim":"\u2973","larrtl":"\u21A2","latail":"\u2919","lAtail":"\u291B","lat":"\u2AAB","late":"\u2AAD","lates":"\u2AAD\uFE00","lbarr":"\u290C","lBarr":"\u290E","lbbrk":"\u2772","lbrace":"{","lbrack":"[","lbrke":"\u298B","lbrksld":"\u298F","lbrkslu":"\u298D","Lcaron":"\u013D","lcaron":"\u013E","Lcedil":"\u013B","lcedil":"\u013C","lceil":"\u2308","lcub":"{","Lcy":"\u041B","lcy":"\u043B","ldca":"\u2936","ldquo":"\u201C","ldquor":"\u201E","ldrdhar":"\u2967","ldrushar":"\u294B","ldsh":"\u21B2","le":"\u2264","lE":"\u2266","LeftAngleBracket":"\u27E8","LeftArrowBar":"\u21E4","leftarrow":"\u2190","LeftArrow":"\u2190","Leftarrow":"\u21D0","LeftArrowRightArrow":"\u21C6","leftarrowtail":"\u21A2","LeftCeiling":"\u2308","LeftDoubleBracket":"\u27E6","LeftDownTeeVector":"\u2961","LeftDownVectorBar":"\u2959","LeftDownVector":"\u21C3","LeftFloor":"\u230A","leftharpoondown":"\u21BD","leftharpoonup":"\u21BC","leftleftarrows":"\u21C7","leftrightarrow":"\u2194","LeftRightArrow":"\u2194","Leftrightarrow":"\u21D4","leftrightarrows":"\u21C6","leftrightharpoons":"\u21CB","leftrightsquigarrow":"\u21AD","LeftRightVector":"\u294E","LeftTeeArrow":"\u21A4","LeftTee":"\u22A3","LeftTeeVector":"\u295A","leftthreetimes":"\u22CB","LeftTriangleBar":"\u29CF","LeftTriangle":"\u22B2","LeftTriangleEqual":"\u22B4","LeftUpDownVector":"\u2951","LeftUpTeeVector":"\u2960","LeftUpVectorBar":"\u2958","LeftUpVector":"\u21BF","LeftVectorBar":"\u2952","LeftVector":"\u21BC","lEg":"\u2A8B","leg":"\u22DA","leq":"\u2264","leqq":"\u2266","leqslant":"\u2A7D","lescc":"\u2AA8","les":"\u2A7D","lesdot":"\u2A7F","lesdoto":"\u2A81","lesdotor":"\u2A83","lesg":"\u22DA\uFE00","lesges":"\u2A93","lessapprox":"\u2A85","lessdot":"\u22D6","lesseqgtr":"\u22DA","lesseqqgtr":"\u2A8B","LessEqualGreater":"\u22DA","LessFullEqual":"\u2266","LessGreater":"\u2276","lessgtr":"\u2276","LessLess":"\u2AA1","lesssim":"\u2272","LessSlantEqual":"\u2A7D","LessTilde":"\u2272","lfisht":"\u297C","lfloor":"\u230A","Lfr":"\uD835\uDD0F","lfr":"\uD835\uDD29","lg":"\u2276","lgE":"\u2A91","lHar":"\u2962","lhard":"\u21BD","lharu":"\u21BC","lharul":"\u296A","lhblk":"\u2584","LJcy":"\u0409","ljcy":"\u0459","llarr":"\u21C7","ll":"\u226A","Ll":"\u22D8","llcorner":"\u231E","Lleftarrow":"\u21DA","llhard":"\u296B","lltri":"\u25FA","Lmidot":"\u013F","lmidot":"\u0140","lmoustache":"\u23B0","lmoust":"\u23B0","lnap":"\u2A89","lnapprox":"\u2A89","lne":"\u2A87","lnE":"\u2268","lneq":"\u2A87","lneqq":"\u2268","lnsim":"\u22E6","loang":"\u27EC","loarr":"\u21FD","lobrk":"\u27E6","longleftarrow":"\u27F5","LongLeftArrow":"\u27F5","Longleftarrow":"\u27F8","longleftrightarrow":"\u27F7","LongLeftRightArrow":"\u27F7","Longleftrightarrow":"\u27FA","longmapsto":"\u27FC","longrightarrow":"\u27F6","LongRightArrow":"\u27F6","Longrightarrow":"\u27F9","looparrowleft":"\u21AB","looparrowright":"\u21AC","lopar":"\u2985","Lopf":"\uD835\uDD43","lopf":"\uD835\uDD5D","loplus":"\u2A2D","lotimes":"\u2A34","lowast":"\u2217","lowbar":"_","LowerLeftArrow":"\u2199","LowerRightArrow":"\u2198","loz":"\u25CA","lozenge":"\u25CA","lozf":"\u29EB","lpar":"(","lparlt":"\u2993","lrarr":"\u21C6","lrcorner":"\u231F","lrhar":"\u21CB","lrhard":"\u296D","lrm":"\u200E","lrtri":"\u22BF","lsaquo":"\u2039","lscr":"\uD835\uDCC1","Lscr":"\u2112","lsh":"\u21B0","Lsh":"\u21B0","lsim":"\u2272","lsime":"\u2A8D","lsimg":"\u2A8F","lsqb":"[","lsquo":"\u2018","lsquor":"\u201A","Lstrok":"\u0141","lstrok":"\u0142","ltcc":"\u2AA6","ltcir":"\u2A79","lt":"<","LT":"<","Lt":"\u226A","ltdot":"\u22D6","lthree":"\u22CB","ltimes":"\u22C9","ltlarr":"\u2976","ltquest":"\u2A7B","ltri":"\u25C3","ltrie":"\u22B4","ltrif":"\u25C2","ltrPar":"\u2996","lurdshar":"\u294A","luruhar":"\u2966","lvertneqq":"\u2268\uFE00","lvnE":"\u2268\uFE00","macr":"\u00AF","male":"\u2642","malt":"\u2720","maltese":"\u2720","Map":"\u2905","map":"\u21A6","mapsto":"\u21A6","mapstodown":"\u21A7","mapstoleft":"\u21A4","mapstoup":"\u21A5","marker":"\u25AE","mcomma":"\u2A29","Mcy":"\u041C","mcy":"\u043C","mdash":"\u2014","mDDot":"\u223A","measuredangle":"\u2221","MediumSpace":"\u205F","Mellintrf":"\u2133","Mfr":"\uD835\uDD10","mfr":"\uD835\uDD2A","mho":"\u2127","micro":"\u00B5","midast":"*","midcir":"\u2AF0","mid":"\u2223","middot":"\u00B7","minusb":"\u229F","minus":"\u2212","minusd":"\u2238","minusdu":"\u2A2A","MinusPlus":"\u2213","mlcp":"\u2ADB","mldr":"\u2026","mnplus":"\u2213","models":"\u22A7","Mopf":"\uD835\uDD44","mopf":"\uD835\uDD5E","mp":"\u2213","mscr":"\uD835\uDCC2","Mscr":"\u2133","mstpos":"\u223E","Mu":"\u039C","mu":"\u03BC","multimap":"\u22B8","mumap":"\u22B8","nabla":"\u2207","Nacute":"\u0143","nacute":"\u0144","nang":"\u2220\u20D2","nap":"\u2249","napE":"\u2A70\u0338","napid":"\u224B\u0338","napos":"\u0149","napprox":"\u2249","natural":"\u266E","naturals":"\u2115","natur":"\u266E","nbsp":"\u00A0","nbump":"\u224E\u0338","nbumpe":"\u224F\u0338","ncap":"\u2A43","Ncaron":"\u0147","ncaron":"\u0148","Ncedil":"\u0145","ncedil":"\u0146","ncong":"\u2247","ncongdot":"\u2A6D\u0338","ncup":"\u2A42","Ncy":"\u041D","ncy":"\u043D","ndash":"\u2013","nearhk":"\u2924","nearr":"\u2197","neArr":"\u21D7","nearrow":"\u2197","ne":"\u2260","nedot":"\u2250\u0338","NegativeMediumSpace":"\u200B","NegativeThickSpace":"\u200B","NegativeThinSpace":"\u200B","NegativeVeryThinSpace":"\u200B","nequiv":"\u2262","nesear":"\u2928","nesim":"\u2242\u0338","NestedGreaterGreater":"\u226B","NestedLessLess":"\u226A","NewLine":"\n","nexist":"\u2204","nexists":"\u2204","Nfr":"\uD835\uDD11","nfr":"\uD835\uDD2B","ngE":"\u2267\u0338","nge":"\u2271","ngeq":"\u2271","ngeqq":"\u2267\u0338","ngeqslant":"\u2A7E\u0338","nges":"\u2A7E\u0338","nGg":"\u22D9\u0338","ngsim":"\u2275","nGt":"\u226B\u20D2","ngt":"\u226F","ngtr":"\u226F","nGtv":"\u226B\u0338","nharr":"\u21AE","nhArr":"\u21CE","nhpar":"\u2AF2","ni":"\u220B","nis":"\u22FC","nisd":"\u22FA","niv":"\u220B","NJcy":"\u040A","njcy":"\u045A","nlarr":"\u219A","nlArr":"\u21CD","nldr":"\u2025","nlE":"\u2266\u0338","nle":"\u2270","nleftarrow":"\u219A","nLeftarrow":"\u21CD","nleftrightarrow":"\u21AE","nLeftrightarrow":"\u21CE","nleq":"\u2270","nleqq":"\u2266\u0338","nleqslant":"\u2A7D\u0338","nles":"\u2A7D\u0338","nless":"\u226E","nLl":"\u22D8\u0338","nlsim":"\u2274","nLt":"\u226A\u20D2","nlt":"\u226E","nltri":"\u22EA","nltrie":"\u22EC","nLtv":"\u226A\u0338","nmid":"\u2224","NoBreak":"\u2060","NonBreakingSpace":"\u00A0","nopf":"\uD835\uDD5F","Nopf":"\u2115","Not":"\u2AEC","not":"\u00AC","NotCongruent":"\u2262","NotCupCap":"\u226D","NotDoubleVerticalBar":"\u2226","NotElement":"\u2209","NotEqual":"\u2260","NotEqualTilde":"\u2242\u0338","NotExists":"\u2204","NotGreater":"\u226F","NotGreaterEqual":"\u2271","NotGreaterFullEqual":"\u2267\u0338","NotGreaterGreater":"\u226B\u0338","NotGreaterLess":"\u2279","NotGreaterSlantEqual":"\u2A7E\u0338","NotGreaterTilde":"\u2275","NotHumpDownHump":"\u224E\u0338","NotHumpEqual":"\u224F\u0338","notin":"\u2209","notindot":"\u22F5\u0338","notinE":"\u22F9\u0338","notinva":"\u2209","notinvb":"\u22F7","notinvc":"\u22F6","NotLeftTriangleBar":"\u29CF\u0338","NotLeftTriangle":"\u22EA","NotLeftTriangleEqual":"\u22EC","NotLess":"\u226E","NotLessEqual":"\u2270","NotLessGreater":"\u2278","NotLessLess":"\u226A\u0338","NotLessSlantEqual":"\u2A7D\u0338","NotLessTilde":"\u2274","NotNestedGreaterGreater":"\u2AA2\u0338","NotNestedLessLess":"\u2AA1\u0338","notni":"\u220C","notniva":"\u220C","notnivb":"\u22FE","notnivc":"\u22FD","NotPrecedes":"\u2280","NotPrecedesEqual":"\u2AAF\u0338","NotPrecedesSlantEqual":"\u22E0","NotReverseElement":"\u220C","NotRightTriangleBar":"\u29D0\u0338","NotRightTriangle":"\u22EB","NotRightTriangleEqual":"\u22ED","NotSquareSubset":"\u228F\u0338","NotSquareSubsetEqual":"\u22E2","NotSquareSuperset":"\u2290\u0338","NotSquareSupersetEqual":"\u22E3","NotSubset":"\u2282\u20D2","NotSubsetEqual":"\u2288","NotSucceeds":"\u2281","NotSucceedsEqual":"\u2AB0\u0338","NotSucceedsSlantEqual":"\u22E1","NotSucceedsTilde":"\u227F\u0338","NotSuperset":"\u2283\u20D2","NotSupersetEqual":"\u2289","NotTilde":"\u2241","NotTildeEqual":"\u2244","NotTildeFullEqual":"\u2247","NotTildeTilde":"\u2249","NotVerticalBar":"\u2224","nparallel":"\u2226","npar":"\u2226","nparsl":"\u2AFD\u20E5","npart":"\u2202\u0338","npolint":"\u2A14","npr":"\u2280","nprcue":"\u22E0","nprec":"\u2280","npreceq":"\u2AAF\u0338","npre":"\u2AAF\u0338","nrarrc":"\u2933\u0338","nrarr":"\u219B","nrArr":"\u21CF","nrarrw":"\u219D\u0338","nrightarrow":"\u219B","nRightarrow":"\u21CF","nrtri":"\u22EB","nrtrie":"\u22ED","nsc":"\u2281","nsccue":"\u22E1","nsce":"\u2AB0\u0338","Nscr":"\uD835\uDCA9","nscr":"\uD835\uDCC3","nshortmid":"\u2224","nshortparallel":"\u2226","nsim":"\u2241","nsime":"\u2244","nsimeq":"\u2244","nsmid":"\u2224","nspar":"\u2226","nsqsube":"\u22E2","nsqsupe":"\u22E3","nsub":"\u2284","nsubE":"\u2AC5\u0338","nsube":"\u2288","nsubset":"\u2282\u20D2","nsubseteq":"\u2288","nsubseteqq":"\u2AC5\u0338","nsucc":"\u2281","nsucceq":"\u2AB0\u0338","nsup":"\u2285","nsupE":"\u2AC6\u0338","nsupe":"\u2289","nsupset":"\u2283\u20D2","nsupseteq":"\u2289","nsupseteqq":"\u2AC6\u0338","ntgl":"\u2279","Ntilde":"\u00D1","ntilde":"\u00F1","ntlg":"\u2278","ntriangleleft":"\u22EA","ntrianglelefteq":"\u22EC","ntriangleright":"\u22EB","ntrianglerighteq":"\u22ED","Nu":"\u039D","nu":"\u03BD","num":"#","numero":"\u2116","numsp":"\u2007","nvap":"\u224D\u20D2","nvdash":"\u22AC","nvDash":"\u22AD","nVdash":"\u22AE","nVDash":"\u22AF","nvge":"\u2265\u20D2","nvgt":">\u20D2","nvHarr":"\u2904","nvinfin":"\u29DE","nvlArr":"\u2902","nvle":"\u2264\u20D2","nvlt":"<\u20D2","nvltrie":"\u22B4\u20D2","nvrArr":"\u2903","nvrtrie":"\u22B5\u20D2","nvsim":"\u223C\u20D2","nwarhk":"\u2923","nwarr":"\u2196","nwArr":"\u21D6","nwarrow":"\u2196","nwnear":"\u2927","Oacute":"\u00D3","oacute":"\u00F3","oast":"\u229B","Ocirc":"\u00D4","ocirc":"\u00F4","ocir":"\u229A","Ocy":"\u041E","ocy":"\u043E","odash":"\u229D","Odblac":"\u0150","odblac":"\u0151","odiv":"\u2A38","odot":"\u2299","odsold":"\u29BC","OElig":"\u0152","oelig":"\u0153","ofcir":"\u29BF","Ofr":"\uD835\uDD12","ofr":"\uD835\uDD2C","ogon":"\u02DB","Ograve":"\u00D2","ograve":"\u00F2","ogt":"\u29C1","ohbar":"\u29B5","ohm":"\u03A9","oint":"\u222E","olarr":"\u21BA","olcir":"\u29BE","olcross":"\u29BB","oline":"\u203E","olt":"\u29C0","Omacr":"\u014C","omacr":"\u014D","Omega":"\u03A9","omega":"\u03C9","Omicron":"\u039F","omicron":"\u03BF","omid":"\u29B6","ominus":"\u2296","Oopf":"\uD835\uDD46","oopf":"\uD835\uDD60","opar":"\u29B7","OpenCurlyDoubleQuote":"\u201C","OpenCurlyQuote":"\u2018","operp":"\u29B9","oplus":"\u2295","orarr":"\u21BB","Or":"\u2A54","or":"\u2228","ord":"\u2A5D","order":"\u2134","orderof":"\u2134","ordf":"\u00AA","ordm":"\u00BA","origof":"\u22B6","oror":"\u2A56","orslope":"\u2A57","orv":"\u2A5B","oS":"\u24C8","Oscr":"\uD835\uDCAA","oscr":"\u2134","Oslash":"\u00D8","oslash":"\u00F8","osol":"\u2298","Otilde":"\u00D5","otilde":"\u00F5","otimesas":"\u2A36","Otimes":"\u2A37","otimes":"\u2297","Ouml":"\u00D6","ouml":"\u00F6","ovbar":"\u233D","OverBar":"\u203E","OverBrace":"\u23DE","OverBracket":"\u23B4","OverParenthesis":"\u23DC","para":"\u00B6","parallel":"\u2225","par":"\u2225","parsim":"\u2AF3","parsl":"\u2AFD","part":"\u2202","PartialD":"\u2202","Pcy":"\u041F","pcy":"\u043F","percnt":"%","period":".","permil":"\u2030","perp":"\u22A5","pertenk":"\u2031","Pfr":"\uD835\uDD13","pfr":"\uD835\uDD2D","Phi":"\u03A6","phi":"\u03C6","phiv":"\u03D5","phmmat":"\u2133","phone":"\u260E","Pi":"\u03A0","pi":"\u03C0","pitchfork":"\u22D4","piv":"\u03D6","planck":"\u210F","planckh":"\u210E","plankv":"\u210F","plusacir":"\u2A23","plusb":"\u229E","pluscir":"\u2A22","plus":"+","plusdo":"\u2214","plusdu":"\u2A25","pluse":"\u2A72","PlusMinus":"\u00B1","plusmn":"\u00B1","plussim":"\u2A26","plustwo":"\u2A27","pm":"\u00B1","Poincareplane":"\u210C","pointint":"\u2A15","popf":"\uD835\uDD61","Popf":"\u2119","pound":"\u00A3","prap":"\u2AB7","Pr":"\u2ABB","pr":"\u227A","prcue":"\u227C","precapprox":"\u2AB7","prec":"\u227A","preccurlyeq":"\u227C","Precedes":"\u227A","PrecedesEqual":"\u2AAF","PrecedesSlantEqual":"\u227C","PrecedesTilde":"\u227E","preceq":"\u2AAF","precnapprox":"\u2AB9","precneqq":"\u2AB5","precnsim":"\u22E8","pre":"\u2AAF","prE":"\u2AB3","precsim":"\u227E","prime":"\u2032","Prime":"\u2033","primes":"\u2119","prnap":"\u2AB9","prnE":"\u2AB5","prnsim":"\u22E8","prod":"\u220F","Product":"\u220F","profalar":"\u232E","profline":"\u2312","profsurf":"\u2313","prop":"\u221D","Proportional":"\u221D","Proportion":"\u2237","propto":"\u221D","prsim":"\u227E","prurel":"\u22B0","Pscr":"\uD835\uDCAB","pscr":"\uD835\uDCC5","Psi":"\u03A8","psi":"\u03C8","puncsp":"\u2008","Qfr":"\uD835\uDD14","qfr":"\uD835\uDD2E","qint":"\u2A0C","qopf":"\uD835\uDD62","Qopf":"\u211A","qprime":"\u2057","Qscr":"\uD835\uDCAC","qscr":"\uD835\uDCC6","quaternions":"\u210D","quatint":"\u2A16","quest":"?","questeq":"\u225F","quot":"\"","QUOT":"\"","rAarr":"\u21DB","race":"\u223D\u0331","Racute":"\u0154","racute":"\u0155","radic":"\u221A","raemptyv":"\u29B3","rang":"\u27E9","Rang":"\u27EB","rangd":"\u2992","range":"\u29A5","rangle":"\u27E9","raquo":"\u00BB","rarrap":"\u2975","rarrb":"\u21E5","rarrbfs":"\u2920","rarrc":"\u2933","rarr":"\u2192","Rarr":"\u21A0","rArr":"\u21D2","rarrfs":"\u291E","rarrhk":"\u21AA","rarrlp":"\u21AC","rarrpl":"\u2945","rarrsim":"\u2974","Rarrtl":"\u2916","rarrtl":"\u21A3","rarrw":"\u219D","ratail":"\u291A","rAtail":"\u291C","ratio":"\u2236","rationals":"\u211A","rbarr":"\u290D","rBarr":"\u290F","RBarr":"\u2910","rbbrk":"\u2773","rbrace":"}","rbrack":"]","rbrke":"\u298C","rbrksld":"\u298E","rbrkslu":"\u2990","Rcaron":"\u0158","rcaron":"\u0159","Rcedil":"\u0156","rcedil":"\u0157","rceil":"\u2309","rcub":"}","Rcy":"\u0420","rcy":"\u0440","rdca":"\u2937","rdldhar":"\u2969","rdquo":"\u201D","rdquor":"\u201D","rdsh":"\u21B3","real":"\u211C","realine":"\u211B","realpart":"\u211C","reals":"\u211D","Re":"\u211C","rect":"\u25AD","reg":"\u00AE","REG":"\u00AE","ReverseElement":"\u220B","ReverseEquilibrium":"\u21CB","ReverseUpEquilibrium":"\u296F","rfisht":"\u297D","rfloor":"\u230B","rfr":"\uD835\uDD2F","Rfr":"\u211C","rHar":"\u2964","rhard":"\u21C1","rharu":"\u21C0","rharul":"\u296C","Rho":"\u03A1","rho":"\u03C1","rhov":"\u03F1","RightAngleBracket":"\u27E9","RightArrowBar":"\u21E5","rightarrow":"\u2192","RightArrow":"\u2192","Rightarrow":"\u21D2","RightArrowLeftArrow":"\u21C4","rightarrowtail":"\u21A3","RightCeiling":"\u2309","RightDoubleBracket":"\u27E7","RightDownTeeVector":"\u295D","RightDownVectorBar":"\u2955","RightDownVector":"\u21C2","RightFloor":"\u230B","rightharpoondown":"\u21C1","rightharpoonup":"\u21C0","rightleftarrows":"\u21C4","rightleftharpoons":"\u21CC","rightrightarrows":"\u21C9","rightsquigarrow":"\u219D","RightTeeArrow":"\u21A6","RightTee":"\u22A2","RightTeeVector":"\u295B","rightthreetimes":"\u22CC","RightTriangleBar":"\u29D0","RightTriangle":"\u22B3","RightTriangleEqual":"\u22B5","RightUpDownVector":"\u294F","RightUpTeeVector":"\u295C","RightUpVectorBar":"\u2954","RightUpVector":"\u21BE","RightVectorBar":"\u2953","RightVector":"\u21C0","ring":"\u02DA","risingdotseq":"\u2253","rlarr":"\u21C4","rlhar":"\u21CC","rlm":"\u200F","rmoustache":"\u23B1","rmoust":"\u23B1","rnmid":"\u2AEE","roang":"\u27ED","roarr":"\u21FE","robrk":"\u27E7","ropar":"\u2986","ropf":"\uD835\uDD63","Ropf":"\u211D","roplus":"\u2A2E","rotimes":"\u2A35","RoundImplies":"\u2970","rpar":")","rpargt":"\u2994","rppolint":"\u2A12","rrarr":"\u21C9","Rrightarrow":"\u21DB","rsaquo":"\u203A","rscr":"\uD835\uDCC7","Rscr":"\u211B","rsh":"\u21B1","Rsh":"\u21B1","rsqb":"]","rsquo":"\u2019","rsquor":"\u2019","rthree":"\u22CC","rtimes":"\u22CA","rtri":"\u25B9","rtrie":"\u22B5","rtrif":"\u25B8","rtriltri":"\u29CE","RuleDelayed":"\u29F4","ruluhar":"\u2968","rx":"\u211E","Sacute":"\u015A","sacute":"\u015B","sbquo":"\u201A","scap":"\u2AB8","Scaron":"\u0160","scaron":"\u0161","Sc":"\u2ABC","sc":"\u227B","sccue":"\u227D","sce":"\u2AB0","scE":"\u2AB4","Scedil":"\u015E","scedil":"\u015F","Scirc":"\u015C","scirc":"\u015D","scnap":"\u2ABA","scnE":"\u2AB6","scnsim":"\u22E9","scpolint":"\u2A13","scsim":"\u227F","Scy":"\u0421","scy":"\u0441","sdotb":"\u22A1","sdot":"\u22C5","sdote":"\u2A66","searhk":"\u2925","searr":"\u2198","seArr":"\u21D8","searrow":"\u2198","sect":"\u00A7","semi":";","seswar":"\u2929","setminus":"\u2216","setmn":"\u2216","sext":"\u2736","Sfr":"\uD835\uDD16","sfr":"\uD835\uDD30","sfrown":"\u2322","sharp":"\u266F","SHCHcy":"\u0429","shchcy":"\u0449","SHcy":"\u0428","shcy":"\u0448","ShortDownArrow":"\u2193","ShortLeftArrow":"\u2190","shortmid":"\u2223","shortparallel":"\u2225","ShortRightArrow":"\u2192","ShortUpArrow":"\u2191","shy":"\u00AD","Sigma":"\u03A3","sigma":"\u03C3","sigmaf":"\u03C2","sigmav":"\u03C2","sim":"\u223C","simdot":"\u2A6A","sime":"\u2243","simeq":"\u2243","simg":"\u2A9E","simgE":"\u2AA0","siml":"\u2A9D","simlE":"\u2A9F","simne":"\u2246","simplus":"\u2A24","simrarr":"\u2972","slarr":"\u2190","SmallCircle":"\u2218","smallsetminus":"\u2216","smashp":"\u2A33","smeparsl":"\u29E4","smid":"\u2223","smile":"\u2323","smt":"\u2AAA","smte":"\u2AAC","smtes":"\u2AAC\uFE00","SOFTcy":"\u042C","softcy":"\u044C","solbar":"\u233F","solb":"\u29C4","sol":"/","Sopf":"\uD835\uDD4A","sopf":"\uD835\uDD64","spades":"\u2660","spadesuit":"\u2660","spar":"\u2225","sqcap":"\u2293","sqcaps":"\u2293\uFE00","sqcup":"\u2294","sqcups":"\u2294\uFE00","Sqrt":"\u221A","sqsub":"\u228F","sqsube":"\u2291","sqsubset":"\u228F","sqsubseteq":"\u2291","sqsup":"\u2290","sqsupe":"\u2292","sqsupset":"\u2290","sqsupseteq":"\u2292","square":"\u25A1","Square":"\u25A1","SquareIntersection":"\u2293","SquareSubset":"\u228F","SquareSubsetEqual":"\u2291","SquareSuperset":"\u2290","SquareSupersetEqual":"\u2292","SquareUnion":"\u2294","squarf":"\u25AA","squ":"\u25A1","squf":"\u25AA","srarr":"\u2192","Sscr":"\uD835\uDCAE","sscr":"\uD835\uDCC8","ssetmn":"\u2216","ssmile":"\u2323","sstarf":"\u22C6","Star":"\u22C6","star":"\u2606","starf":"\u2605","straightepsilon":"\u03F5","straightphi":"\u03D5","strns":"\u00AF","sub":"\u2282","Sub":"\u22D0","subdot":"\u2ABD","subE":"\u2AC5","sube":"\u2286","subedot":"\u2AC3","submult":"\u2AC1","subnE":"\u2ACB","subne":"\u228A","subplus":"\u2ABF","subrarr":"\u2979","subset":"\u2282","Subset":"\u22D0","subseteq":"\u2286","subseteqq":"\u2AC5","SubsetEqual":"\u2286","subsetneq":"\u228A","subsetneqq":"\u2ACB","subsim":"\u2AC7","subsub":"\u2AD5","subsup":"\u2AD3","succapprox":"\u2AB8","succ":"\u227B","succcurlyeq":"\u227D","Succeeds":"\u227B","SucceedsEqual":"\u2AB0","SucceedsSlantEqual":"\u227D","SucceedsTilde":"\u227F","succeq":"\u2AB0","succnapprox":"\u2ABA","succneqq":"\u2AB6","succnsim":"\u22E9","succsim":"\u227F","SuchThat":"\u220B","sum":"\u2211","Sum":"\u2211","sung":"\u266A","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","sup":"\u2283","Sup":"\u22D1","supdot":"\u2ABE","supdsub":"\u2AD8","supE":"\u2AC6","supe":"\u2287","supedot":"\u2AC4","Superset":"\u2283","SupersetEqual":"\u2287","suphsol":"\u27C9","suphsub":"\u2AD7","suplarr":"\u297B","supmult":"\u2AC2","supnE":"\u2ACC","supne":"\u228B","supplus":"\u2AC0","supset":"\u2283","Supset":"\u22D1","supseteq":"\u2287","supseteqq":"\u2AC6","supsetneq":"\u228B","supsetneqq":"\u2ACC","supsim":"\u2AC8","supsub":"\u2AD4","supsup":"\u2AD6","swarhk":"\u2926","swarr":"\u2199","swArr":"\u21D9","swarrow":"\u2199","swnwar":"\u292A","szlig":"\u00DF","Tab":"\t","target":"\u2316","Tau":"\u03A4","tau":"\u03C4","tbrk":"\u23B4","Tcaron":"\u0164","tcaron":"\u0165","Tcedil":"\u0162","tcedil":"\u0163","Tcy":"\u0422","tcy":"\u0442","tdot":"\u20DB","telrec":"\u2315","Tfr":"\uD835\uDD17","tfr":"\uD835\uDD31","there4":"\u2234","therefore":"\u2234","Therefore":"\u2234","Theta":"\u0398","theta":"\u03B8","thetasym":"\u03D1","thetav":"\u03D1","thickapprox":"\u2248","thicksim":"\u223C","ThickSpace":"\u205F\u200A","ThinSpace":"\u2009","thinsp":"\u2009","thkap":"\u2248","thksim":"\u223C","THORN":"\u00DE","thorn":"\u00FE","tilde":"\u02DC","Tilde":"\u223C","TildeEqual":"\u2243","TildeFullEqual":"\u2245","TildeTilde":"\u2248","timesbar":"\u2A31","timesb":"\u22A0","times":"\u00D7","timesd":"\u2A30","tint":"\u222D","toea":"\u2928","topbot":"\u2336","topcir":"\u2AF1","top":"\u22A4","Topf":"\uD835\uDD4B","topf":"\uD835\uDD65","topfork":"\u2ADA","tosa":"\u2929","tprime":"\u2034","trade":"\u2122","TRADE":"\u2122","triangle":"\u25B5","triangledown":"\u25BF","triangleleft":"\u25C3","trianglelefteq":"\u22B4","triangleq":"\u225C","triangleright":"\u25B9","trianglerighteq":"\u22B5","tridot":"\u25EC","trie":"\u225C","triminus":"\u2A3A","TripleDot":"\u20DB","triplus":"\u2A39","trisb":"\u29CD","tritime":"\u2A3B","trpezium":"\u23E2","Tscr":"\uD835\uDCAF","tscr":"\uD835\uDCC9","TScy":"\u0426","tscy":"\u0446","TSHcy":"\u040B","tshcy":"\u045B","Tstrok":"\u0166","tstrok":"\u0167","twixt":"\u226C","twoheadleftarrow":"\u219E","twoheadrightarrow":"\u21A0","Uacute":"\u00DA","uacute":"\u00FA","uarr":"\u2191","Uarr":"\u219F","uArr":"\u21D1","Uarrocir":"\u2949","Ubrcy":"\u040E","ubrcy":"\u045E","Ubreve":"\u016C","ubreve":"\u016D","Ucirc":"\u00DB","ucirc":"\u00FB","Ucy":"\u0423","ucy":"\u0443","udarr":"\u21C5","Udblac":"\u0170","udblac":"\u0171","udhar":"\u296E","ufisht":"\u297E","Ufr":"\uD835\uDD18","ufr":"\uD835\uDD32","Ugrave":"\u00D9","ugrave":"\u00F9","uHar":"\u2963","uharl":"\u21BF","uharr":"\u21BE","uhblk":"\u2580","ulcorn":"\u231C","ulcorner":"\u231C","ulcrop":"\u230F","ultri":"\u25F8","Umacr":"\u016A","umacr":"\u016B","uml":"\u00A8","UnderBar":"_","UnderBrace":"\u23DF","UnderBracket":"\u23B5","UnderParenthesis":"\u23DD","Union":"\u22C3","UnionPlus":"\u228E","Uogon":"\u0172","uogon":"\u0173","Uopf":"\uD835\uDD4C","uopf":"\uD835\uDD66","UpArrowBar":"\u2912","uparrow":"\u2191","UpArrow":"\u2191","Uparrow":"\u21D1","UpArrowDownArrow":"\u21C5","updownarrow":"\u2195","UpDownArrow":"\u2195","Updownarrow":"\u21D5","UpEquilibrium":"\u296E","upharpoonleft":"\u21BF","upharpoonright":"\u21BE","uplus":"\u228E","UpperLeftArrow":"\u2196","UpperRightArrow":"\u2197","upsi":"\u03C5","Upsi":"\u03D2","upsih":"\u03D2","Upsilon":"\u03A5","upsilon":"\u03C5","UpTeeArrow":"\u21A5","UpTee":"\u22A5","upuparrows":"\u21C8","urcorn":"\u231D","urcorner":"\u231D","urcrop":"\u230E","Uring":"\u016E","uring":"\u016F","urtri":"\u25F9","Uscr":"\uD835\uDCB0","uscr":"\uD835\uDCCA","utdot":"\u22F0","Utilde":"\u0168","utilde":"\u0169","utri":"\u25B5","utrif":"\u25B4","uuarr":"\u21C8","Uuml":"\u00DC","uuml":"\u00FC","uwangle":"\u29A7","vangrt":"\u299C","varepsilon":"\u03F5","varkappa":"\u03F0","varnothing":"\u2205","varphi":"\u03D5","varpi":"\u03D6","varpropto":"\u221D","varr":"\u2195","vArr":"\u21D5","varrho":"\u03F1","varsigma":"\u03C2","varsubsetneq":"\u228A\uFE00","varsubsetneqq":"\u2ACB\uFE00","varsupsetneq":"\u228B\uFE00","varsupsetneqq":"\u2ACC\uFE00","vartheta":"\u03D1","vartriangleleft":"\u22B2","vartriangleright":"\u22B3","vBar":"\u2AE8","Vbar":"\u2AEB","vBarv":"\u2AE9","Vcy":"\u0412","vcy":"\u0432","vdash":"\u22A2","vDash":"\u22A8","Vdash":"\u22A9","VDash":"\u22AB","Vdashl":"\u2AE6","veebar":"\u22BB","vee":"\u2228","Vee":"\u22C1","veeeq":"\u225A","vellip":"\u22EE","verbar":"|","Verbar":"\u2016","vert":"|","Vert":"\u2016","VerticalBar":"\u2223","VerticalLine":"|","VerticalSeparator":"\u2758","VerticalTilde":"\u2240","VeryThinSpace":"\u200A","Vfr":"\uD835\uDD19","vfr":"\uD835\uDD33","vltri":"\u22B2","vnsub":"\u2282\u20D2","vnsup":"\u2283\u20D2","Vopf":"\uD835\uDD4D","vopf":"\uD835\uDD67","vprop":"\u221D","vrtri":"\u22B3","Vscr":"\uD835\uDCB1","vscr":"\uD835\uDCCB","vsubnE":"\u2ACB\uFE00","vsubne":"\u228A\uFE00","vsupnE":"\u2ACC\uFE00","vsupne":"\u228B\uFE00","Vvdash":"\u22AA","vzigzag":"\u299A","Wcirc":"\u0174","wcirc":"\u0175","wedbar":"\u2A5F","wedge":"\u2227","Wedge":"\u22C0","wedgeq":"\u2259","weierp":"\u2118","Wfr":"\uD835\uDD1A","wfr":"\uD835\uDD34","Wopf":"\uD835\uDD4E","wopf":"\uD835\uDD68","wp":"\u2118","wr":"\u2240","wreath":"\u2240","Wscr":"\uD835\uDCB2","wscr":"\uD835\uDCCC","xcap":"\u22C2","xcirc":"\u25EF","xcup":"\u22C3","xdtri":"\u25BD","Xfr":"\uD835\uDD1B","xfr":"\uD835\uDD35","xharr":"\u27F7","xhArr":"\u27FA","Xi":"\u039E","xi":"\u03BE","xlarr":"\u27F5","xlArr":"\u27F8","xmap":"\u27FC","xnis":"\u22FB","xodot":"\u2A00","Xopf":"\uD835\uDD4F","xopf":"\uD835\uDD69","xoplus":"\u2A01","xotime":"\u2A02","xrarr":"\u27F6","xrArr":"\u27F9","Xscr":"\uD835\uDCB3","xscr":"\uD835\uDCCD","xsqcup":"\u2A06","xuplus":"\u2A04","xutri":"\u25B3","xvee":"\u22C1","xwedge":"\u22C0","Yacute":"\u00DD","yacute":"\u00FD","YAcy":"\u042F","yacy":"\u044F","Ycirc":"\u0176","ycirc":"\u0177","Ycy":"\u042B","ycy":"\u044B","yen":"\u00A5","Yfr":"\uD835\uDD1C","yfr":"\uD835\uDD36","YIcy":"\u0407","yicy":"\u0457","Yopf":"\uD835\uDD50","yopf":"\uD835\uDD6A","Yscr":"\uD835\uDCB4","yscr":"\uD835\uDCCE","YUcy":"\u042E","yucy":"\u044E","yuml":"\u00FF","Yuml":"\u0178","Zacute":"\u0179","zacute":"\u017A","Zcaron":"\u017D","zcaron":"\u017E","Zcy":"\u0417","zcy":"\u0437","Zdot":"\u017B","zdot":"\u017C","zeetrf":"\u2128","ZeroWidthSpace":"\u200B","Zeta":"\u0396","zeta":"\u03B6","zfr":"\uD835\uDD37","Zfr":"\u2128","ZHcy":"\u0416","zhcy":"\u0436","zigrarr":"\u21DD","zopf":"\uD835\uDD6B","Zopf":"\u2124","Zscr":"\uD835\uDCB5","zscr":"\uD835\uDCCF","zwj":"\u200D","zwnj":"\u200C"}
-},{}],77:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","AElig":"\u00C6","aelig":"\u00E6","Agrave":"\u00C0","agrave":"\u00E0","amp":"&","AMP":"&","Aring":"\u00C5","aring":"\u00E5","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","brvbar":"\u00A6","Ccedil":"\u00C7","ccedil":"\u00E7","cedil":"\u00B8","cent":"\u00A2","copy":"\u00A9","COPY":"\u00A9","curren":"\u00A4","deg":"\u00B0","divide":"\u00F7","Eacute":"\u00C9","eacute":"\u00E9","Ecirc":"\u00CA","ecirc":"\u00EA","Egrave":"\u00C8","egrave":"\u00E8","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","frac12":"\u00BD","frac14":"\u00BC","frac34":"\u00BE","gt":">","GT":">","Iacute":"\u00CD","iacute":"\u00ED","Icirc":"\u00CE","icirc":"\u00EE","iexcl":"\u00A1","Igrave":"\u00CC","igrave":"\u00EC","iquest":"\u00BF","Iuml":"\u00CF","iuml":"\u00EF","laquo":"\u00AB","lt":"<","LT":"<","macr":"\u00AF","micro":"\u00B5","middot":"\u00B7","nbsp":"\u00A0","not":"\u00AC","Ntilde":"\u00D1","ntilde":"\u00F1","Oacute":"\u00D3","oacute":"\u00F3","Ocirc":"\u00D4","ocirc":"\u00F4","Ograve":"\u00D2","ograve":"\u00F2","ordf":"\u00AA","ordm":"\u00BA","Oslash":"\u00D8","oslash":"\u00F8","Otilde":"\u00D5","otilde":"\u00F5","Ouml":"\u00D6","ouml":"\u00F6","para":"\u00B6","plusmn":"\u00B1","pound":"\u00A3","quot":"\"","QUOT":"\"","raquo":"\u00BB","reg":"\u00AE","REG":"\u00AE","sect":"\u00A7","shy":"\u00AD","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","szlig":"\u00DF","THORN":"\u00DE","thorn":"\u00FE","times":"\u00D7","Uacute":"\u00DA","uacute":"\u00FA","Ucirc":"\u00DB","ucirc":"\u00FB","Ugrave":"\u00D9","ugrave":"\u00F9","uml":"\u00A8","Uuml":"\u00DC","uuml":"\u00FC","Yacute":"\u00DD","yacute":"\u00FD","yen":"\u00A5","yuml":"\u00FF"}
-},{}],78:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 module.exports={"amp":"&","apos":"'","gt":">","lt":"<","quot":"\""}
 
-},{}],79:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 //Types of elements found in the DOM
 module.exports = {
 	Text: "text", //Text
@@ -12030,7 +11983,7 @@ module.exports = {
 	}
 };
 
-},{}],80:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 var ElementType = require("domelementtype");
 
 var re_whitespace = /\s+/g;
@@ -12214,7 +12167,7 @@ DomHandler.prototype.onprocessinginstruction = function(name, data){
 
 module.exports = DomHandler;
 
-},{"./lib/element":81,"./lib/node":82,"domelementtype":79}],81:[function(require,module,exports){
+},{"./lib/element":80,"./lib/node":81,"domelementtype":78}],80:[function(require,module,exports){
 // DOM-Level-1-compliant structure
 var NodePrototype = require('./node');
 var ElementPrototype = module.exports = Object.create(NodePrototype);
@@ -12236,7 +12189,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{"./node":82}],82:[function(require,module,exports){
+},{"./node":81}],81:[function(require,module,exports){
 // This object will be used as the prototype for Nodes when creating a
 // DOM-Level-1-compliant structure.
 var NodePrototype = module.exports = {
@@ -12282,7 +12235,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{}],83:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var DomUtils = module.exports;
 
 [
@@ -12298,7 +12251,7 @@ var DomUtils = module.exports;
 	});
 });
 
-},{"./lib/helpers":84,"./lib/legacy":85,"./lib/manipulation":86,"./lib/querying":87,"./lib/stringify":88,"./lib/traversal":89}],84:[function(require,module,exports){
+},{"./lib/helpers":83,"./lib/legacy":84,"./lib/manipulation":85,"./lib/querying":86,"./lib/stringify":87,"./lib/traversal":88}],83:[function(require,module,exports){
 // removeSubsets
 // Given an array of nodes, remove any member that is contained by another.
 exports.removeSubsets = function(nodes) {
@@ -12441,7 +12394,7 @@ exports.uniqueSort = function(nodes) {
 	return nodes;
 };
 
-},{}],85:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var ElementType = require("domelementtype");
 var isTag = exports.isTag = ElementType.isTag;
 
@@ -12530,7 +12483,7 @@ exports.getElementsByTagType = function(type, element, recurse, limit){
 	return this.filter(Checks.tag_type(type), element, recurse, limit);
 };
 
-},{"domelementtype":79}],86:[function(require,module,exports){
+},{"domelementtype":78}],85:[function(require,module,exports){
 exports.removeElement = function(elem){
 	if(elem.prev) elem.prev.next = elem.next;
 	if(elem.next) elem.next.prev = elem.prev;
@@ -12609,7 +12562,7 @@ exports.prepend = function(elem, prev){
 
 
 
-},{}],87:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 var isTag = require("domelementtype").isTag;
 
 module.exports = {
@@ -12705,7 +12658,7 @@ function findAll(test, elems){
 	return result;
 }
 
-},{"domelementtype":79}],88:[function(require,module,exports){
+},{"domelementtype":78}],87:[function(require,module,exports){
 var ElementType = require("domelementtype"),
     getOuterHTML = require("dom-serializer"),
     isTag = ElementType.isTag;
@@ -12729,7 +12682,7 @@ function getText(elem){
 	return "";
 }
 
-},{"dom-serializer":69,"domelementtype":79}],89:[function(require,module,exports){
+},{"dom-serializer":69,"domelementtype":78}],88:[function(require,module,exports){
 var getChildren = exports.getChildren = function(elem){
 	return elem.children;
 };
@@ -12755,7 +12708,7 @@ exports.getName = function(elem){
 	return elem.name;
 };
 
-},{}],90:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 var decodeMap = require("../maps/decode.json");
 
 module.exports = decodeCodePoint;
@@ -12783,15 +12736,15 @@ function decodeCodePoint(codePoint){
 	return output;
 }
 
-},{"../maps/decode.json":91}],91:[function(require,module,exports){
+},{"../maps/decode.json":90}],90:[function(require,module,exports){
+arguments[4][74][0].apply(exports,arguments)
+},{"dup":74}],91:[function(require,module,exports){
 arguments[4][75][0].apply(exports,arguments)
 },{"dup":75}],92:[function(require,module,exports){
 arguments[4][76][0].apply(exports,arguments)
 },{"dup":76}],93:[function(require,module,exports){
 arguments[4][77][0].apply(exports,arguments)
 },{"dup":77}],94:[function(require,module,exports){
-arguments[4][78][0].apply(exports,arguments)
-},{"dup":78}],95:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -13316,7 +13269,7 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}],96:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 'use strict';
 
 var isArray = Array.isArray;
@@ -13373,7 +13326,7 @@ module.exports = function equal(a, b) {
   return a!==a && b!==b;
 };
 
-},{}],97:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 'use strict';
 
 module.exports = function (data, opts) {
@@ -13434,7 +13387,7 @@ module.exports = function (data, opts) {
     })(data);
 };
 
-},{}],98:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 module.exports = CollectingHandler;
 
 function CollectingHandler(cbs){
@@ -13491,7 +13444,7 @@ CollectingHandler.prototype.restart = function(){
 	}
 };
 
-},{"./":105}],99:[function(require,module,exports){
+},{"./":104}],98:[function(require,module,exports){
 var index = require("./index.js"),
     DomHandler = index.DomHandler,
 	DomUtils = index.DomUtils;
@@ -13588,7 +13541,7 @@ FeedHandler.prototype.onend = function(){
 
 module.exports = FeedHandler;
 
-},{"./index.js":105,"util":242}],100:[function(require,module,exports){
+},{"./index.js":104,"util":241}],99:[function(require,module,exports){
 var Tokenizer = require("./Tokenizer.js");
 
 /*
@@ -13940,7 +13893,7 @@ Parser.prototype.done = Parser.prototype.end;
 
 module.exports = Parser;
 
-},{"./Tokenizer.js":103,"events":95,"util":242}],101:[function(require,module,exports){
+},{"./Tokenizer.js":102,"events":94,"util":241}],100:[function(require,module,exports){
 module.exports = ProxyHandler;
 
 function ProxyHandler(cbs){
@@ -13968,7 +13921,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments");
 	}
 });
-},{"./":105}],102:[function(require,module,exports){
+},{"./":104}],101:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./WritableStream.js");
@@ -14004,7 +13957,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments!");
 	}
 });
-},{"../":105,"./WritableStream.js":104,"util":242}],103:[function(require,module,exports){
+},{"../":104,"./WritableStream.js":103,"util":241}],102:[function(require,module,exports){
 module.exports = Tokenizer;
 
 var decodeCodePoint = require("entities/lib/decode_codepoint.js"),
@@ -14912,7 +14865,7 @@ Tokenizer.prototype._emitPartial = function(value){
 	}
 };
 
-},{"entities/lib/decode_codepoint.js":90,"entities/maps/entities.json":92,"entities/maps/legacy.json":93,"entities/maps/xml.json":94}],104:[function(require,module,exports){
+},{"entities/lib/decode_codepoint.js":89,"entities/maps/entities.json":91,"entities/maps/legacy.json":92,"entities/maps/xml.json":93}],103:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./Parser.js"),
@@ -14934,7 +14887,7 @@ WritableStream.prototype._write = function(chunk, encoding, cb){
 	this._parser.write(chunk);
 	cb();
 };
-},{"./Parser.js":100,"readable-stream":49,"stream":230,"util":242}],105:[function(require,module,exports){
+},{"./Parser.js":99,"readable-stream":49,"stream":229,"util":241}],104:[function(require,module,exports){
 var Parser = require("./Parser.js"),
     DomHandler = require("domhandler");
 
@@ -15004,7 +14957,7 @@ module.exports = {
 	}
 };
 
-},{"./CollectingHandler.js":98,"./FeedHandler.js":99,"./Parser.js":100,"./ProxyHandler.js":101,"./Stream.js":102,"./Tokenizer.js":103,"./WritableStream.js":104,"domelementtype":79,"domhandler":80,"domutils":83}],106:[function(require,module,exports){
+},{"./CollectingHandler.js":97,"./FeedHandler.js":98,"./Parser.js":99,"./ProxyHandler.js":100,"./Stream.js":101,"./Tokenizer.js":102,"./WritableStream.js":103,"domelementtype":78,"domhandler":79,"domutils":82}],105:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -15090,7 +15043,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],107:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -15115,7 +15068,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],108:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -15138,7 +15091,7 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],109:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 'use strict';
 /* eslint-disable yoda */
 module.exports = x => {
@@ -15186,14 +15139,14 @@ module.exports = x => {
 	return false;
 };
 
-},{}],110:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],111:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 'use strict';
 
 var traverse = module.exports = function (schema, opts, cb) {
@@ -15284,7 +15237,7 @@ function escapeJsonPtr(str) {
   return str.replace(/~/g, '~0').replace(/\//g, '~1');
 }
 
-},{}],112:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -15375,7 +15328,7 @@ module.exports.htmlToDom = htmlToDom;
 module.exports.domUtils = htmlparser.DomUtils;
 module.exports.invokeExtensions = invokeExtensions;
 
-},{"htmlparser2":105}],113:[function(require,module,exports){
+},{"htmlparser2":104}],112:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -15407,10 +15360,10 @@ var tocBuilders;
 var processAttributes;
 var extensions;
 
-var blockAttributeRegex = /(^|(?:\r\n|\r|\n))(([ \t>]*)(\{:(?:\\\}|[^\}])*\})[ \t]*(?:\r\n|\r|\n))/g;
+var blockAttributeRegex = /(^|(?:\r\n|\r|\n))(([^\S\r\n]*)(\{:(?:\\\}|[^\}])*\})[^\S\r\n]*(?:\r\n|\r|\n))/g;
 var spanAttributeRegex = /\{:((?:\\\}|[^\}])*)\}/;
-var headerIALRegex = /[ \t]+\{:((?:\\\}|[^\}])*)\}[ \t]*$/;
-var listItemIALRegex = /^(<p>)?(?:[ \t>]*)\{:((?:\\\}|[^\}])*)\}/;
+var headerIALRegex = /[^\S\r\n]+\{:((?:\\\}|[^\}])*)\}[^\S\r\n]*$/;
+var listItemIALRegex = /^(<p>)?(?:[^\S\r\n]*)\{:((?:\\\}|[^\}])*)\}/;
 
 var _NEWLINE = "\n";
 
@@ -15428,6 +15381,16 @@ function generate(text, toc_builders, data) {
 	processAttributes = data.processAttributes;
 	extensions = data.extensions;
 	markedOptions = data.markedOptions;
+
+	var result = {html: {}};
+
+	if (data.fixInvalidHeaders) {
+		text = text.replace(/((?:^|[\r\n])#{1,6})[^#\s][^\r\n]*/g, function(string, capture1) {
+			result.html.errors = result.html.errors || [];
+			result.html.errors.push("Auto-fixed invalid header syntax: " + string.substring(1));
+			return string.substring(0, capture1.length) + " " + string.substring(capture1.length);
+		});
+	}
 
 	/* hook our custom renderer and create the parser instance */
 	markedOptions.renderer = customRenderer;
@@ -15520,7 +15483,9 @@ function generate(text, toc_builders, data) {
 		tokens.links = rootBlock.links;
 		html += parser.parse(tokens);
 	});
-	return html;
+
+	result.html.text = html;
+	return result;
 }
 
 function accumulateTokens(block, _result) {
@@ -15703,8 +15668,8 @@ customRenderer.hr = function() {
 	result = applyToken(result, token);
 	return invokeExtensions("html.onHr", result, {src: token.src});
 };
-customRenderer.list = function(body, ordered) {
-	var result = marked.Renderer.prototype.list.call(this, body, ordered);
+customRenderer.list = function(body, ordered, start) {
+	var result = marked.Renderer.prototype.list.call(this, body, ordered, start);
 	var token = tokensStack.pop();
 	result = applyToken(result, token);
 	return invokeExtensions("html.onList", result);
@@ -15952,11 +15917,11 @@ var _TYPEID_HEADING = "markup.heading.markdown";
 var _TYPEID_LISTITEM = "markup.list.item.markdown";
 var _TYPEID_PARAGRAPH = "markup.other.paragraph.markdown";
 var _atxDetectRegex = /[>\s]*#/g;
-var _blockquoteStartRegex = /[ \t]*>[ \t]?/g;
+var _blockquoteStartRegex = /[^\S\r\n]*>[^\S\r\n]?/g;
 var _fencedCodeBlockRegex = /`{3,}|~{3,}/g;
-var _hrRegex = /([ \t]*[-*_]){3,}/g;
+var _hrRegex = /([^\S\r\n]*[-*_]){3,}/g;
 var _newlineRegex = /\r\n|\r|\n/g;
-var _spacesAndTabsRegex = /[ \t]*/g;
+var _spacesAndTabsRegex = /[^\S\r\n]*/g;
 var _whitespaceRegex = /\s+/g;
 
 function advanceIndex(text, token, index) {
@@ -16394,7 +16359,7 @@ Block.prototype = {
 
 module.exports.generate = generate;
 
-},{"./common":112,"marked":149}],114:[function(require,module,exports){
+},{"./common":111,"marked":148}],113:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -16476,15 +16441,21 @@ function generate(source, options) {
 		tocGenerators.push(jsonGenerator);
 	}
 
-	result.html.text = htmlGenerator.generate(
+	var htmlResult = htmlGenerator.generate(
 		source,
 		tocGenerators,
 		{
 			processAttributes: options.processAttributes,
 			extensions: extensions,
-			markedOptions: markedOptions
+			markedOptions: markedOptions,
+			fixInvalidHeaders: options.fixInvalidHeaders
 		}
 	);
+	result.html.text = htmlResult.html.text;
+	if (htmlResult.html.errors) {
+		result.html.errors = result.html.errors || [];
+		result.html.errors.push.apply(result.html.errors, htmlResult.html.errors);
+	}
 
 	result.properties = {document: {}};
 	var title = tocGenerators[0].getTitle();
@@ -16613,7 +16584,7 @@ module.exports.generate = generate;
 module.exports.tocJSONadapter = tocJSONadapter;
 module.exports.tocXMLadapter = tocXMLadapter;
 
-},{"./htmlGenerator":113,"./tocJSONadapter":115,"./tocJSONgenerator":116,"./tocXMLadapter":117,"./tocXMLgenerator":118,"js-yaml":119}],115:[function(require,module,exports){
+},{"./htmlGenerator":112,"./tocJSONadapter":114,"./tocJSONgenerator":115,"./tocXMLadapter":116,"./tocXMLgenerator":117,"js-yaml":118}],114:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -16747,7 +16718,7 @@ tocJSONadapter.prototype = {
 
 module.exports = tocJSONadapter;
 
-},{"./common":112,"path":152}],116:[function(require,module,exports){
+},{"./common":111,"path":151}],115:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -16849,7 +16820,7 @@ module.exports = function(callbacks, urlPrefix, tocDepth) {
 
 })();
 
-},{"./common":112}],117:[function(require,module,exports){
+},{"./common":111}],116:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -16965,7 +16936,7 @@ tocXMLadapter.prototype = {
 
 module.exports = tocXMLadapter;
 
-},{"./common":112,"path":152,"pretty-data":153}],118:[function(require,module,exports){
+},{"./common":111,"path":151,"pretty-data":152}],117:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -17064,7 +17035,7 @@ module.exports = function(callbacks, urlPrefix, tocDepth, xmlMode) {
 
 })();
 
-},{"./common":112}],119:[function(require,module,exports){
+},{"./common":111}],118:[function(require,module,exports){
 'use strict';
 
 
@@ -17073,7 +17044,7 @@ var yaml = require('./lib/js-yaml.js');
 
 module.exports = yaml;
 
-},{"./lib/js-yaml.js":120}],120:[function(require,module,exports){
+},{"./lib/js-yaml.js":119}],119:[function(require,module,exports){
 'use strict';
 
 
@@ -17114,7 +17085,7 @@ module.exports.parse          = deprecated('parse');
 module.exports.compose        = deprecated('compose');
 module.exports.addConstructor = deprecated('addConstructor');
 
-},{"./js-yaml/dumper":122,"./js-yaml/exception":123,"./js-yaml/loader":124,"./js-yaml/schema":126,"./js-yaml/schema/core":127,"./js-yaml/schema/default_full":128,"./js-yaml/schema/default_safe":129,"./js-yaml/schema/failsafe":130,"./js-yaml/schema/json":131,"./js-yaml/type":132}],121:[function(require,module,exports){
+},{"./js-yaml/dumper":121,"./js-yaml/exception":122,"./js-yaml/loader":123,"./js-yaml/schema":125,"./js-yaml/schema/core":126,"./js-yaml/schema/default_full":127,"./js-yaml/schema/default_safe":128,"./js-yaml/schema/failsafe":129,"./js-yaml/schema/json":130,"./js-yaml/type":131}],120:[function(require,module,exports){
 'use strict';
 
 
@@ -17175,7 +17146,7 @@ module.exports.repeat         = repeat;
 module.exports.isNegativeZero = isNegativeZero;
 module.exports.extend         = extend;
 
-},{}],122:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable no-use-before-define*/
@@ -17987,7 +17958,7 @@ function safeDump(input, options) {
 module.exports.dump     = dump;
 module.exports.safeDump = safeDump;
 
-},{"./common":121,"./exception":123,"./schema/default_full":128,"./schema/default_safe":129}],123:[function(require,module,exports){
+},{"./common":120,"./exception":122,"./schema/default_full":127,"./schema/default_safe":128}],122:[function(require,module,exports){
 // YAML error class. http://stackoverflow.com/questions/8458984
 //
 'use strict';
@@ -18032,7 +18003,7 @@ YAMLException.prototype.toString = function toString(compact) {
 
 module.exports = YAMLException;
 
-},{}],124:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable max-len,no-use-before-define*/
@@ -19620,7 +19591,7 @@ module.exports.load        = load;
 module.exports.safeLoadAll = safeLoadAll;
 module.exports.safeLoad    = safeLoad;
 
-},{"./common":121,"./exception":123,"./mark":125,"./schema/default_full":128,"./schema/default_safe":129}],125:[function(require,module,exports){
+},{"./common":120,"./exception":122,"./mark":124,"./schema/default_full":127,"./schema/default_safe":128}],124:[function(require,module,exports){
 'use strict';
 
 
@@ -19698,7 +19669,7 @@ Mark.prototype.toString = function toString(compact) {
 
 module.exports = Mark;
 
-},{"./common":121}],126:[function(require,module,exports){
+},{"./common":120}],125:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable max-len*/
@@ -19804,7 +19775,7 @@ Schema.create = function createSchema() {
 
 module.exports = Schema;
 
-},{"./common":121,"./exception":123,"./type":132}],127:[function(require,module,exports){
+},{"./common":120,"./exception":122,"./type":131}],126:[function(require,module,exports){
 // Standard YAML's Core schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2804923
 //
@@ -19824,7 +19795,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":126,"./json":131}],128:[function(require,module,exports){
+},{"../schema":125,"./json":130}],127:[function(require,module,exports){
 // JS-YAML's default schema for `load` function.
 // It is not described in the YAML specification.
 //
@@ -19851,7 +19822,7 @@ module.exports = Schema.DEFAULT = new Schema({
   ]
 });
 
-},{"../schema":126,"../type/js/function":137,"../type/js/regexp":138,"../type/js/undefined":139,"./default_safe":129}],129:[function(require,module,exports){
+},{"../schema":125,"../type/js/function":136,"../type/js/regexp":137,"../type/js/undefined":138,"./default_safe":128}],128:[function(require,module,exports){
 // JS-YAML's default schema for `safeLoad` function.
 // It is not described in the YAML specification.
 //
@@ -19881,7 +19852,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":126,"../type/binary":133,"../type/merge":141,"../type/omap":143,"../type/pairs":144,"../type/set":146,"../type/timestamp":148,"./core":127}],130:[function(require,module,exports){
+},{"../schema":125,"../type/binary":132,"../type/merge":140,"../type/omap":142,"../type/pairs":143,"../type/set":145,"../type/timestamp":147,"./core":126}],129:[function(require,module,exports){
 // Standard YAML's Failsafe schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2802346
 
@@ -19900,7 +19871,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":126,"../type/map":140,"../type/seq":145,"../type/str":147}],131:[function(require,module,exports){
+},{"../schema":125,"../type/map":139,"../type/seq":144,"../type/str":146}],130:[function(require,module,exports){
 // Standard YAML's JSON schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2803231
 //
@@ -19927,7 +19898,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":126,"../type/bool":134,"../type/float":135,"../type/int":136,"../type/null":142,"./failsafe":130}],132:[function(require,module,exports){
+},{"../schema":125,"../type/bool":133,"../type/float":134,"../type/int":135,"../type/null":141,"./failsafe":129}],131:[function(require,module,exports){
 'use strict';
 
 var YAMLException = require('./exception');
@@ -19990,7 +19961,7 @@ function Type(tag, options) {
 
 module.exports = Type;
 
-},{"./exception":123}],133:[function(require,module,exports){
+},{"./exception":122}],132:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable no-bitwise*/
@@ -20122,7 +20093,7 @@ module.exports = new Type('tag:yaml.org,2002:binary', {
   represent: representYamlBinary
 });
 
-},{"../type":132,"buffer":49}],134:[function(require,module,exports){
+},{"../type":131,"buffer":49}],133:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20159,7 +20130,7 @@ module.exports = new Type('tag:yaml.org,2002:bool', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":132}],135:[function(require,module,exports){
+},{"../type":131}],134:[function(require,module,exports){
 'use strict';
 
 var common = require('../common');
@@ -20266,7 +20237,7 @@ module.exports = new Type('tag:yaml.org,2002:float', {
   defaultStyle: 'lowercase'
 });
 
-},{"../common":121,"../type":132}],136:[function(require,module,exports){
+},{"../common":120,"../type":131}],135:[function(require,module,exports){
 'use strict';
 
 var common = require('../common');
@@ -20436,7 +20407,7 @@ module.exports = new Type('tag:yaml.org,2002:int', {
   }
 });
 
-},{"../common":121,"../type":132}],137:[function(require,module,exports){
+},{"../common":120,"../type":131}],136:[function(require,module,exports){
 'use strict';
 
 var esprima;
@@ -20522,7 +20493,7 @@ module.exports = new Type('tag:yaml.org,2002:js/function', {
   represent: representJavascriptFunction
 });
 
-},{"../../type":132}],138:[function(require,module,exports){
+},{"../../type":131}],137:[function(require,module,exports){
 'use strict';
 
 var Type = require('../../type');
@@ -20584,7 +20555,7 @@ module.exports = new Type('tag:yaml.org,2002:js/regexp', {
   represent: representJavascriptRegExp
 });
 
-},{"../../type":132}],139:[function(require,module,exports){
+},{"../../type":131}],138:[function(require,module,exports){
 'use strict';
 
 var Type = require('../../type');
@@ -20614,7 +20585,7 @@ module.exports = new Type('tag:yaml.org,2002:js/undefined', {
   represent: representJavascriptUndefined
 });
 
-},{"../../type":132}],140:[function(require,module,exports){
+},{"../../type":131}],139:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20624,7 +20595,7 @@ module.exports = new Type('tag:yaml.org,2002:map', {
   construct: function (data) { return data !== null ? data : {}; }
 });
 
-},{"../type":132}],141:[function(require,module,exports){
+},{"../type":131}],140:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20638,7 +20609,7 @@ module.exports = new Type('tag:yaml.org,2002:merge', {
   resolve: resolveYamlMerge
 });
 
-},{"../type":132}],142:[function(require,module,exports){
+},{"../type":131}],141:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20674,7 +20645,7 @@ module.exports = new Type('tag:yaml.org,2002:null', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":132}],143:[function(require,module,exports){
+},{"../type":131}],142:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20720,7 +20691,7 @@ module.exports = new Type('tag:yaml.org,2002:omap', {
   construct: constructYamlOmap
 });
 
-},{"../type":132}],144:[function(require,module,exports){
+},{"../type":131}],143:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20775,7 +20746,7 @@ module.exports = new Type('tag:yaml.org,2002:pairs', {
   construct: constructYamlPairs
 });
 
-},{"../type":132}],145:[function(require,module,exports){
+},{"../type":131}],144:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20785,7 +20756,7 @@ module.exports = new Type('tag:yaml.org,2002:seq', {
   construct: function (data) { return data !== null ? data : []; }
 });
 
-},{"../type":132}],146:[function(require,module,exports){
+},{"../type":131}],145:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20816,7 +20787,7 @@ module.exports = new Type('tag:yaml.org,2002:set', {
   construct: constructYamlSet
 });
 
-},{"../type":132}],147:[function(require,module,exports){
+},{"../type":131}],146:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20826,7 +20797,7 @@ module.exports = new Type('tag:yaml.org,2002:str', {
   construct: function (data) { return data !== null ? data : ''; }
 });
 
-},{"../type":132}],148:[function(require,module,exports){
+},{"../type":131}],147:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -20909,16 +20880,15 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
   represent: representYamlTimestamp
 });
 
-},{"../type":132}],149:[function(require,module,exports){
+},{"../type":131}],148:[function(require,module,exports){
 (function (global){
 /**
  * marked - a markdown parser
- * Copyright (c) 2011-2018, Christopher Jeffrey. (MIT Licensed)
- * https://github.com/markedjs/marked
+ * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
+ * https://github.com/chjj/marked
  */
 
-;(function(root) {
-'use strict';
+;(function() {
 
 /**
  * Block-Level Grammar
@@ -20928,70 +20898,51 @@ var block = {
   newline: /^\n+/,
   code: /^( {4}[^\n]+\n*)+/,
   fences: noop,
-  hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
-  heading: /^ *(#{1,6}) *([^\n]+?) *(?:#+ *)?(?:\n+|$)/,
+  hr: /^( *[-*_]){3,} *(?:\n+|$)/,
+  heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
   nptable: noop,
-  blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
-  list: /^( {0,3})(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
-  html: '^ {0,3}(?:' // optional indentation
-    + '<(script|pre|style)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)' // (1)
-    + '|comment[^\\n]*(\\n+|$)' // (2)
-    + '|<\\?[\\s\\S]*?\\?>\\n*' // (3)
-    + '|<![A-Z][\\s\\S]*?>\\n*' // (4)
-    + '|<!\\[CDATA\\[[\\s\\S]*?\\]\\]>\\n*' // (5)
-    + '|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:\\n{2,}|$)' // (6)
-    + '|<(?!script|pre|style)([a-z][\\w-]*)(?:attribute)*? */?>(?=\\h*\\n)[\\s\\S]*?(?:\\n{2,}|$)' // (7) open tag
-    + '|</(?!script|pre|style)[a-z][\\w-]*\\s*>(?=\\h*\\n)[\\s\\S]*?(?:\\n{2,}|$)' // (7) closing tag
-    + ')',
-  def: /^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,
-  table: noop,
   lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-  paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading| {0,3}>|<\/?(?:tag)(?: +|\n|\/?>)|<(?:script|pre|style|!--))[^\n]+)*)/,
+  blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
+  list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
+  html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
+  def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
+  table: noop,
+  paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
   text: /^[^\n]+/
 };
 
-block._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/;
-block._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
-block.def = edit(block.def)
-  .replace('label', block._label)
-  .replace('title', block._title)
-  .getRegex();
+block.bullet = /(?:[*+-]|\d+\.)/;
+block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
+block.item = replace(block.item, 'gm')
+  (/bull/g, block.bullet)
+  ();
 
-block.bullet = /(?:[*+-]|\d{1,9}\.)/;
-block.item = /^( *)(bull) ?[^\n]*(?:\n(?!\1bull ?)[^\n]*)*/;
-block.item = edit(block.item, 'gm')
-  .replace(/bull/g, block.bullet)
-  .getRegex();
+block.list = replace(block.list)
+  (/bull/g, block.bullet)
+  ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
+  ('def', '\\n+(?=' + block.def.source + ')')
+  ();
 
-block.list = edit(block.list)
-  .replace(/bull/g, block.bullet)
-  .replace('hr', '\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))')
-  .replace('def', '\\n+(?=' + block.def.source + ')')
-  .getRegex();
+block._tag = '(?!(?:'
+  + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
+  + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
+  + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
 
-block._tag = 'address|article|aside|base|basefont|blockquote|body|caption'
-  + '|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption'
-  + '|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe'
-  + '|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option'
-  + '|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr'
-  + '|track|ul';
-block._comment = /<!--(?!-?>)[\s\S]*?-->/;
-block.html = edit(block.html, 'i')
-  .replace('comment', block._comment)
-  .replace('tag', block._tag)
-  .replace('attribute', / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/)
-  .getRegex();
+block.html = replace(block.html)
+  ('comment', /<!--[\s\S]*?-->/)
+  ('closed', /<(tag)[\s\S]+?<\/\1>/)
+  ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+  (/tag/g, block._tag)
+  ();
 
-block.paragraph = edit(block.paragraph)
-  .replace('hr', block.hr)
-  .replace('heading', block.heading)
-  .replace('lheading', block.lheading)
-  .replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
-  .getRegex();
-
-block.blockquote = edit(block.blockquote)
-  .replace('paragraph', block.paragraph)
-  .getRegex();
+block.paragraph = replace(block.paragraph)
+  ('hr', block.hr)
+  ('heading', block.heading)
+  ('lheading', block.lheading)
+  ('blockquote', block.blockquote)
+  ('tag', '<' + block._tag)
+  ('def', block.def)
+  ();
 
 /**
  * Normal Block Grammar
@@ -21004,42 +20955,24 @@ block.normal = merge({}, block);
  */
 
 block.gfm = merge({}, block.normal, {
-  fences: /^ {0,3}(`{3,}|~{3,})([^`\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?:\n+|$)|$)/,
+  fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
   paragraph: /^/,
   heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
 });
 
-block.gfm.paragraph = edit(block.paragraph)
-  .replace('(?!', '(?!'
+block.gfm.paragraph = replace(block.paragraph)
+  ('(?!', '(?!'
     + block.gfm.fences.source.replace('\\1', '\\2') + '|'
     + block.list.source.replace('\\1', '\\3') + '|')
-  .getRegex();
+  ();
 
 /**
  * GFM + Tables Block Grammar
  */
 
 block.tables = merge({}, block.gfm, {
-  nptable: /^ *([^|\n ].*\|.*)\n *([-:]+ *\|[-| :]*)(?:\n((?:.*[^>\n ].*(?:\n|$))*)\n*|$)/,
-  table: /^ *\|(.+)\n *\|?( *[-:]+[-| :]*)(?:\n((?: *[^>\n ].*(?:\n|$))*)\n*|$)/
-});
-
-/**
- * Pedantic grammar
- */
-
-block.pedantic = merge({}, block.normal, {
-  html: edit(
-    '^ *(?:comment *(?:\\n|\\s*$)'
-    + '|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)' // closed tag
-    + '|<tag(?:"[^"]*"|\'[^\']*\'|\\s[^\'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))')
-    .replace('comment', block._comment)
-    .replace(/tag/g, '(?!(?:'
-      + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub'
-      + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)'
-      + '\\b)\\w+(?!:|[^\\w\\s@]*@)\\b')
-    .getRegex(),
-  def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/
+  nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
+  table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
 });
 
 /**
@@ -21048,13 +20981,11 @@ block.pedantic = merge({}, block.normal, {
 
 function Lexer(options) {
   this.tokens = [];
-  this.tokens.links = Object.create(null);
+  this.tokens.links = {};
   this.options = options || marked.defaults;
   this.rules = block.normal;
 
-  if (this.options.pedantic) {
-    this.rules = block.pedantic;
-  } else if (this.options.gfm) {
+  if (this.options.gfm) {
     if (this.options.tables) {
       this.rules = block.tables;
     } else {
@@ -21096,24 +21027,17 @@ Lexer.prototype.lex = function(src) {
  * Lexing
  */
 
-Lexer.prototype.token = function(src, top) {
-  src = src.replace(/^ +$/gm, '');
-  var next,
-      loose,
-      cap,
-      bull,
-      b,
-      item,
-      listStart,
-      listItems,
-      t,
-      space,
-      i,
-      tag,
-      l,
-      isordered,
-      istask,
-      ischecked;
+Lexer.prototype.token = function(src, top, bq) {
+  var src = src.replace(/^ +$/gm, '')
+    , next
+    , loose
+    , cap
+    , bull
+    , b
+    , item
+    , space
+    , i
+    , l;
 
   while (src) {
     // newline
@@ -21133,7 +21057,7 @@ Lexer.prototype.token = function(src, top) {
       this.tokens.push({
         type: 'code',
         text: !this.options.pedantic
-          ? rtrim(cap, '\n')
+          ? cap.replace(/\n+$/, '')
           : cap
       });
       continue;
@@ -21144,7 +21068,7 @@ Lexer.prototype.token = function(src, top) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'code',
-        lang: cap[2] ? cap[2].trim() : cap[2],
+        lang: cap[2],
         text: cap[3] || ''
       });
       continue;
@@ -21163,36 +21087,45 @@ Lexer.prototype.token = function(src, top) {
 
     // table no leading pipe (gfm)
     if (top && (cap = this.rules.nptable.exec(src))) {
+      src = src.substring(cap[0].length);
+
       item = {
         type: 'table',
-        header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
+        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : []
+        cells: cap[3].replace(/\n$/, '').split('\n')
       };
 
-      if (item.header.length === item.align.length) {
-        src = src.substring(cap[0].length);
-
-        for (i = 0; i < item.align.length; i++) {
-          if (/^ *-+: *$/.test(item.align[i])) {
-            item.align[i] = 'right';
-          } else if (/^ *:-+: *$/.test(item.align[i])) {
-            item.align[i] = 'center';
-          } else if (/^ *:-+ *$/.test(item.align[i])) {
-            item.align[i] = 'left';
-          } else {
-            item.align[i] = null;
-          }
+      for (i = 0; i < item.align.length; i++) {
+        if (/^ *-+: *$/.test(item.align[i])) {
+          item.align[i] = 'right';
+        } else if (/^ *:-+: *$/.test(item.align[i])) {
+          item.align[i] = 'center';
+        } else if (/^ *:-+ *$/.test(item.align[i])) {
+          item.align[i] = 'left';
+        } else {
+          item.align[i] = null;
         }
-
-        for (i = 0; i < item.cells.length; i++) {
-          item.cells[i] = splitCells(item.cells[i], item.header.length);
-        }
-
-        this.tokens.push(item);
-
-        continue;
       }
+
+      for (i = 0; i < item.cells.length; i++) {
+        item.cells[i] = item.cells[i].split(/ *\| */);
+      }
+
+      this.tokens.push(item);
+
+      continue;
+    }
+
+    // lheading
+    if (cap = this.rules.lheading.exec(src)) {
+      src = src.substring(cap[0].length);
+      this.tokens.push({
+        type: 'heading',
+        depth: cap[2] === '=' ? 1 : 2,
+        text: cap[1]
+      });
+      continue;
     }
 
     // hr
@@ -21217,7 +21150,7 @@ Lexer.prototype.token = function(src, top) {
       // Pass `top` to keep the current
       // "toplevel" state. This is exactly
       // how markdown.pl works.
-      this.token(cap, top);
+      this.token(cap, top, true);
 
       this.tokens.push({
         type: 'blockquote_end'
@@ -21230,21 +21163,15 @@ Lexer.prototype.token = function(src, top) {
     if (cap = this.rules.list.exec(src)) {
       src = src.substring(cap[0].length);
       bull = cap[2];
-      isordered = bull.length > 1;
 
-      listStart = {
+      this.tokens.push({
         type: 'list_start',
-        ordered: isordered,
-        start: isordered ? +bull : '',
-        loose: false
-      };
-
-      this.tokens.push(listStart);
+        ordered: bull.length > 1
+      });
 
       // Get each top-level item.
       cap = cap[0].match(this.rules.item);
 
-      listItems = [];
       next = false;
       l = cap.length;
       i = 0;
@@ -21255,7 +21182,7 @@ Lexer.prototype.token = function(src, top) {
         // Remove the list item's bullet
         // so it is seen as the next token.
         space = item.length;
-        item = item.replace(/^ *([*+-]|\d+\.) */, '');
+        item = item.replace(/^ *([*+-]|\d+\.) +/, '');
 
         // Outdent whatever the
         // list item contains. Hacky.
@@ -21268,10 +21195,9 @@ Lexer.prototype.token = function(src, top) {
 
         // Determine whether the next list item belongs here.
         // Backpedal if it does not belong in this list.
-        if (i !== l - 1) {
+        if (this.options.smartLists && i !== l - 1) {
           b = block.bullet.exec(cap[i + 1])[0];
-          if (bull.length > 1 ? b.length === 1
-            : (b.length > 1 || (this.options.smartLists && b !== bull))) {
+          if (bull !== b && !(bull.length > 1 && b.length > 1)) {
             src = cap.slice(i + 1).join('\n') + src;
             i = l - 1;
           }
@@ -21286,42 +21212,18 @@ Lexer.prototype.token = function(src, top) {
           if (!loose) loose = next;
         }
 
-        if (loose) {
-          listStart.loose = true;
-        }
-
-        // Check for task list items
-        istask = /^\[[ xX]\] /.test(item);
-        ischecked = undefined;
-        if (istask) {
-          ischecked = item[1] !== ' ';
-          item = item.replace(/^\[[ xX]\] +/, '');
-        }
-
-        t = {
-          type: 'list_item_start',
-          task: istask,
-          checked: ischecked,
-          loose: loose
-        };
-
-        listItems.push(t);
-        this.tokens.push(t);
+        this.tokens.push({
+          type: loose
+            ? 'loose_item_start'
+            : 'list_item_start'
+        });
 
         // Recurse.
-        this.token(item, false);
+        this.token(item, false, bq);
 
         this.tokens.push({
           type: 'list_item_end'
         });
-      }
-
-      if (listStart.loose) {
-        l = listItems.length;
-        i = 0;
-        for (; i < l; i++) {
-          listItems[i].loose = true;
-        }
       }
 
       this.tokens.push({
@@ -21346,63 +21248,46 @@ Lexer.prototype.token = function(src, top) {
     }
 
     // def
-    if (top && (cap = this.rules.def.exec(src))) {
+    if ((!bq && top) && (cap = this.rules.def.exec(src))) {
       src = src.substring(cap[0].length);
-      if (cap[3]) cap[3] = cap[3].substring(1, cap[3].length - 1);
-      tag = cap[1].toLowerCase().replace(/\s+/g, ' ');
-      if (!this.tokens.links[tag]) {
-        this.tokens.links[tag] = {
-          href: cap[2],
-          title: cap[3]
-        };
-      }
+      this.tokens.links[cap[1].toLowerCase()] = {
+        href: cap[2],
+        title: cap[3]
+      };
       continue;
     }
 
     // table (gfm)
     if (top && (cap = this.rules.table.exec(src))) {
+      src = src.substring(cap[0].length);
+
       item = {
         type: 'table',
-        header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
+        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3] ? cap[3].replace(/(?: *\| *)?\n$/, '').split('\n') : []
+        cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
       };
 
-      if (item.header.length === item.align.length) {
-        src = src.substring(cap[0].length);
-
-        for (i = 0; i < item.align.length; i++) {
-          if (/^ *-+: *$/.test(item.align[i])) {
-            item.align[i] = 'right';
-          } else if (/^ *:-+: *$/.test(item.align[i])) {
-            item.align[i] = 'center';
-          } else if (/^ *:-+ *$/.test(item.align[i])) {
-            item.align[i] = 'left';
-          } else {
-            item.align[i] = null;
-          }
+      for (i = 0; i < item.align.length; i++) {
+        if (/^ *-+: *$/.test(item.align[i])) {
+          item.align[i] = 'right';
+        } else if (/^ *:-+: *$/.test(item.align[i])) {
+          item.align[i] = 'center';
+        } else if (/^ *:-+ *$/.test(item.align[i])) {
+          item.align[i] = 'left';
+        } else {
+          item.align[i] = null;
         }
-
-        for (i = 0; i < item.cells.length; i++) {
-          item.cells[i] = splitCells(
-            item.cells[i].replace(/^ *\| *| *\| *$/g, ''),
-            item.header.length);
-        }
-
-        this.tokens.push(item);
-
-        continue;
       }
-    }
 
-    // lheading
-    if (cap = this.rules.lheading.exec(src)) {
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: 'heading',
-        depth: cap[2] === '=' ? 1 : 2,
-        text: cap[1]
-      });
+      for (i = 0; i < item.cells.length; i++) {
+        item.cells[i] = item.cells[i]
+          .replace(/^ *\| *| *\| *$/g, '')
+          .split(/ *\| */);
+      }
+
+      this.tokens.push(item);
+
       continue;
     }
 
@@ -21430,7 +21315,8 @@ Lexer.prototype.token = function(src, top) {
     }
 
     if (src) {
-      throw new Error('Infinite loop on byte: ' + src.charCodeAt(0));
+      throw new
+        Error('Infinite loop on byte: ' + src.charCodeAt(0));
     }
   }
 
@@ -21442,60 +21328,32 @@ Lexer.prototype.token = function(src, top) {
  */
 
 var inline = {
-  escape: /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,
-  autolink: /^<(scheme:[^\s\x00-\x1f<>]*|email)>/,
+  escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
+  autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
   url: noop,
-  tag: '^comment'
-    + '|^</[a-zA-Z][\\w:-]*\\s*>' // self-closing tag
-    + '|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>' // open tag
-    + '|^<\\?[\\s\\S]*?\\?>' // processing instruction, e.g. <?php ?>
-    + '|^<![a-zA-Z]+\\s[\\s\\S]*?>' // declaration, e.g. <!DOCTYPE html>
-    + '|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>', // CDATA section
-  link: /^!?\[(label)\]\(href(?:\s+(title))?\s*\)/,
-  reflink: /^!?\[(label)\]\[(?!\s*\])((?:\\[\[\]]?|[^\[\]\\])+)\]/,
-  nolink: /^!?\[(?!\s*\])((?:\[[^\[\]]*\]|\\[\[\]]|[^\[\]])*)\](?:\[\])?/,
-  strong: /^__([^\s_])__(?!_)|^\*\*([^\s*])\*\*(?!\*)|^__([^\s][\s\S]*?[^\s])__(?!_)|^\*\*([^\s][\s\S]*?[^\s])\*\*(?!\*)/,
-  em: /^_([^\s_])_(?!_)|^\*([^\s*"<\[])\*(?!\*)|^_([^\s][\s\S]*?[^\s_])_(?!_|[^\spunctuation])|^_([^\s_][\s\S]*?[^\s])_(?!_|[^\spunctuation])|^\*([^\s"<\[][\s\S]*?[^\s*])\*(?!\*)|^\*([^\s*"<\[][\s\S]*?[^\s])\*(?!\*)/,
-  code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
-  br: /^( {2,}|\\)\n(?!\s*$)/,
+  tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
+  link: /^!?\[(inside)\]\(href\)/,
+  reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
+  nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
+  strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
+  em: /^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
+  code: /^(`+)([\s\S]*?[^`])\1(?!`)/,
+  br: /^ {2,}\n(?!\s*$)/,
   del: noop,
-  text: /^(`+|[^`])[\s\S]*?(?=[\\<!\[`*]|\b_| {2,}\n|$)/
+  text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/
 };
 
-// list of punctuation marks from common mark spec
-// without ` and ] to workaround Rule 17 (inline code blocks/links)
-inline._punctuation = '!"#$%&\'()*+,\\-./:;<=>?@\\[^_{|}~';
-inline.em = edit(inline.em).replace(/punctuation/g, inline._punctuation).getRegex();
+inline._inside = /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;
+inline._href = /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
 
-inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
+inline.link = replace(inline.link)
+  ('inside', inline._inside)
+  ('href', inline._href)
+  ();
 
-inline._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
-inline._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
-inline.autolink = edit(inline.autolink)
-  .replace('scheme', inline._scheme)
-  .replace('email', inline._email)
-  .getRegex();
-
-inline._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
-
-inline.tag = edit(inline.tag)
-  .replace('comment', block._comment)
-  .replace('attribute', inline._attribute)
-  .getRegex();
-
-inline._label = /(?:\[[^\[\]]*\]|\\[\[\]]?|`[^`]*`|[^\[\]\\])*?/;
-inline._href = /\s*(<(?:\\[<>]?|[^\s<>\\])*>|(?:\\[()]?|\([^\s\x00-\x1f\\]*\)|[^\s\x00-\x1f()\\])*?)/;
-inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
-
-inline.link = edit(inline.link)
-  .replace('label', inline._label)
-  .replace('href', inline._href)
-  .replace('title', inline._title)
-  .getRegex();
-
-inline.reflink = edit(inline.reflink)
-  .replace('label', inline._label)
-  .getRegex();
+inline.reflink = replace(inline.reflink)
+  ('inside', inline._inside)
+  ();
 
 /**
  * Normal Inline Grammar
@@ -21509,13 +21367,7 @@ inline.normal = merge({}, inline);
 
 inline.pedantic = merge({}, inline.normal, {
   strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
-  em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/,
-  link: edit(/^!?\[(label)\]\((.*?)\)/)
-    .replace('label', inline._label)
-    .getRegex(),
-  reflink: edit(/^!?\[(label)\]\s*\[([^\]]*)\]/)
-    .replace('label', inline._label)
-    .getRegex()
+  em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
 });
 
 /**
@@ -21523,27 +21375,22 @@ inline.pedantic = merge({}, inline.normal, {
  */
 
 inline.gfm = merge({}, inline.normal, {
-  escape: edit(inline.escape).replace('])', '~|])').getRegex(),
-  _extended_email: /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,
-  url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
-  _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
-  del: /^~+(?=\S)([\s\S]*?\S)~+/,
-  text: edit(inline.text)
-    .replace(']|', '~]|')
-    .replace('|$', '|https?://|ftp://|www\\.|[a-zA-Z0-9.!#$%&\'*+/=?^_`{\\|}~-]+@|$')
-    .getRegex()
+  escape: replace(inline.escape)('])', '~|])')(),
+  url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
+  del: /^~~(?=\S)([\s\S]*?\S)~~/,
+  text: replace(inline.text)
+    (']|', '~]|')
+    ('|', '|https?://|')
+    ()
 });
 
-inline.gfm.url = edit(inline.gfm.url, 'i')
-  .replace('email', inline.gfm._extended_email)
-  .getRegex();
 /**
  * GFM + Line Breaks Inline Grammar
  */
 
 inline.breaks = merge({}, inline.gfm, {
-  br: edit(inline.br).replace('{2,}', '*').getRegex(),
-  text: edit(inline.gfm.text).replace('{2,}', '*').getRegex()
+  br: replace(inline.br)('{2,}', '*')(),
+  text: replace(inline.gfm.text)('{2,}', '*')()
 });
 
 /**
@@ -21554,21 +21401,22 @@ function InlineLexer(links, options) {
   this.options = options || marked.defaults;
   this.links = links;
   this.rules = inline.normal;
-  this.renderer = this.options.renderer || new Renderer();
+  this.renderer = this.options.renderer || new Renderer;
   this.renderer.options = this.options;
 
   if (!this.links) {
-    throw new Error('Tokens array requires a `links` property.');
+    throw new
+      Error('Tokens array requires a `links` property.');
   }
 
-  if (this.options.pedantic) {
-    this.rules = inline.pedantic;
-  } else if (this.options.gfm) {
+  if (this.options.gfm) {
     if (this.options.breaks) {
       this.rules = inline.breaks;
     } else {
       this.rules = inline.gfm;
     }
+  } else if (this.options.pedantic) {
+    this.rules = inline.pedantic;
   }
 }
 
@@ -21592,19 +21440,44 @@ InlineLexer.output = function(src, links, options) {
  */
 
 InlineLexer.prototype.output = function(src) {
-  var out = '',
-      link,
-      text,
-      href,
-      title,
-      cap,
-      prevCapZero;
+  var out = ''
+    , link
+    , text
+    , href
+    , cap;
 
   while (src) {
     // escape
     if (cap = this.rules.escape.exec(src)) {
       src = src.substring(cap[0].length);
-      out += escape(cap[1]);
+      out += cap[1];
+      continue;
+    }
+
+    // autolink
+    if (cap = this.rules.autolink.exec(src)) {
+      src = src.substring(cap[0].length);
+      if (cap[2] === '@') {
+        text = escape(
+          cap[1].charAt(6) === ':'
+          ? this.mangle(cap[1].substring(7))
+          : this.mangle(cap[1])
+        );
+        href = this.mangle('mailto:') + text;
+      } else {
+        text = escape(cap[1]);
+        href = text;
+      }
+      out += this.renderer.link(href, null, text);
+      continue;
+    }
+
+    // url (gfm)
+    if (!this.inLink && (cap = this.rules.url.exec(src))) {
+      src = src.substring(cap[0].length);
+      text = escape(cap[1]);
+      href = text;
+      out += this.renderer.link(href, null, text);
       continue;
     }
 
@@ -21615,18 +21488,12 @@ InlineLexer.prototype.output = function(src) {
       } else if (this.inLink && /^<\/a>/i.test(cap[0])) {
         this.inLink = false;
       }
-      if (!this.inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
-        this.inRawBlock = true;
-      } else if (this.inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
-        this.inRawBlock = false;
-      }
-
       src = src.substring(cap[0].length);
       out += this.options.sanitize
         ? this.options.sanitizer
           ? this.options.sanitizer(cap[0])
           : escape(cap[0])
-        : cap[0];
+        : cap[0]
       continue;
     }
 
@@ -21634,23 +21501,9 @@ InlineLexer.prototype.output = function(src) {
     if (cap = this.rules.link.exec(src)) {
       src = src.substring(cap[0].length);
       this.inLink = true;
-      href = cap[2];
-      if (this.options.pedantic) {
-        link = /^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(href);
-
-        if (link) {
-          href = link[1];
-          title = link[3];
-        } else {
-          title = '';
-        }
-      } else {
-        title = cap[3] ? cap[3].slice(1, -1) : '';
-      }
-      href = href.trim().replace(/^<([\s\S]*)>$/, '$1');
       out += this.outputLink(cap, {
-        href: InlineLexer.escapes(href),
-        title: InlineLexer.escapes(title)
+        href: cap[2],
+        title: cap[3]
       });
       this.inLink = false;
       continue;
@@ -21676,14 +21529,14 @@ InlineLexer.prototype.output = function(src) {
     // strong
     if (cap = this.rules.strong.exec(src)) {
       src = src.substring(cap[0].length);
-      out += this.renderer.strong(this.output(cap[4] || cap[3] || cap[2] || cap[1]));
+      out += this.renderer.strong(this.output(cap[2] || cap[1]));
       continue;
     }
 
     // em
     if (cap = this.rules.em.exec(src)) {
       src = src.substring(cap[0].length);
-      out += this.renderer.em(this.output(cap[6] || cap[5] || cap[4] || cap[3] || cap[2] || cap[1]));
+      out += this.renderer.em(this.output(cap[2] || cap[1]));
       continue;
     }
 
@@ -21708,64 +21561,20 @@ InlineLexer.prototype.output = function(src) {
       continue;
     }
 
-    // autolink
-    if (cap = this.rules.autolink.exec(src)) {
-      src = src.substring(cap[0].length);
-      if (cap[2] === '@') {
-        text = escape(this.mangle(cap[1]));
-        href = 'mailto:' + text;
-      } else {
-        text = escape(cap[1]);
-        href = text;
-      }
-      out += this.renderer.link(href, null, text);
-      continue;
-    }
-
-    // url (gfm)
-    if (!this.inLink && (cap = this.rules.url.exec(src))) {
-      if (cap[2] === '@') {
-        text = escape(cap[0]);
-        href = 'mailto:' + text;
-      } else {
-        // do extended autolink path validation
-        do {
-          prevCapZero = cap[0];
-          cap[0] = this.rules._backpedal.exec(cap[0])[0];
-        } while (prevCapZero !== cap[0]);
-        text = escape(cap[0]);
-        if (cap[1] === 'www.') {
-          href = 'http://' + text;
-        } else {
-          href = text;
-        }
-      }
-      src = src.substring(cap[0].length);
-      out += this.renderer.link(href, null, text);
-      continue;
-    }
-
     // text
     if (cap = this.rules.text.exec(src)) {
       src = src.substring(cap[0].length);
-      if (this.inRawBlock) {
-        out += this.renderer.text(cap[0]);
-      } else {
-        out += this.renderer.text(escape(this.smartypants(cap[0])));
-      }
+      out += this.renderer.text(escape(this.smartypants(cap[0])));
       continue;
     }
 
     if (src) {
-      throw new Error('Infinite loop on byte: ' + src.charCodeAt(0));
+      throw new
+        Error('Infinite loop on byte: ' + src.charCodeAt(0));
     }
   }
 
   return out;
-};
-
-InlineLexer.escapes = function(text) {
-  return text ? text.replace(InlineLexer.rules._escapes, '$1') : text;
 };
 
 /**
@@ -21773,8 +21582,8 @@ InlineLexer.escapes = function(text) {
  */
 
 InlineLexer.prototype.outputLink = function(cap, link) {
-  var href = link.href,
-      title = link.title ? escape(link.title) : null;
+  var href = escape(link.href)
+    , title = link.title ? escape(link.title) : null;
 
   return cap[0].charAt(0) !== '!'
     ? this.renderer.link(href, title, this.output(cap[1]))
@@ -21810,10 +21619,10 @@ InlineLexer.prototype.smartypants = function(text) {
 
 InlineLexer.prototype.mangle = function(text) {
   if (!this.options.mangle) return text;
-  var out = '',
-      l = text.length,
-      i = 0,
-      ch;
+  var out = ''
+    , l = text.length
+    , i = 0
+    , ch;
 
   for (; i < l; i++) {
     ch = text.charCodeAt(i);
@@ -21831,11 +21640,10 @@ InlineLexer.prototype.mangle = function(text) {
  */
 
 function Renderer(options) {
-  this.options = options || marked.defaults;
+  this.options = options || {};
 }
 
-Renderer.prototype.code = function(code, infostring, escaped) {
-  var lang = (infostring || '').match(/\S*/)[0];
+Renderer.prototype.code = function(code, lang, escaped) {
   if (this.options.highlight) {
     var out = this.options.highlight(code, lang);
     if (out != null && out !== code) {
@@ -21847,7 +21655,7 @@ Renderer.prototype.code = function(code, infostring, escaped) {
   if (!lang) {
     return '<pre><code>'
       + (escaped ? code : escape(code, true))
-      + '</code></pre>';
+      + '\n</code></pre>';
   }
 
   return '<pre><code class="'
@@ -21855,7 +21663,7 @@ Renderer.prototype.code = function(code, infostring, escaped) {
     + escape(lang, true)
     + '">'
     + (escaped ? code : escape(code, true))
-    + '</code></pre>\n';
+    + '\n</code></pre>\n';
 };
 
 Renderer.prototype.blockquote = function(quote) {
@@ -21866,43 +21674,30 @@ Renderer.prototype.html = function(html) {
   return html;
 };
 
-Renderer.prototype.heading = function(text, level, raw, slugger) {
-  if (this.options.headerIds) {
-    return '<h'
-      + level
-      + ' id="'
-      + this.options.headerPrefix
-      + slugger.slug(raw)
-      + '">'
-      + text
-      + '</h'
-      + level
-      + '>\n';
-  }
-  // ignore IDs
-  return '<h' + level + '>' + text + '</h' + level + '>\n';
+Renderer.prototype.heading = function(text, level, raw) {
+  return '<h'
+    + level
+    + ' id="'
+    + this.options.headerPrefix
+    + raw.toLowerCase().replace(/[^\w]+/g, '-')
+    + '">'
+    + text
+    + '</h'
+    + level
+    + '>\n';
 };
 
 Renderer.prototype.hr = function() {
   return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
 };
 
-Renderer.prototype.list = function(body, ordered, start) {
-  var type = ordered ? 'ol' : 'ul',
-      startatt = (ordered && start !== 1) ? (' start="' + start + '"') : '';
-  return '<' + type + startatt + '>\n' + body + '</' + type + '>\n';
+Renderer.prototype.list = function(body, ordered) {
+  var type = ordered ? 'ol' : 'ul';
+  return '<' + type + '>\n' + body + '</' + type + '>\n';
 };
 
 Renderer.prototype.listitem = function(text) {
   return '<li>' + text + '</li>\n';
-};
-
-Renderer.prototype.checkbox = function(checked) {
-  return '<input '
-    + (checked ? 'checked="" ' : '')
-    + 'disabled="" type="checkbox"'
-    + (this.options.xhtml ? ' /' : '')
-    + '> ';
 };
 
 Renderer.prototype.paragraph = function(text) {
@@ -21910,13 +21705,13 @@ Renderer.prototype.paragraph = function(text) {
 };
 
 Renderer.prototype.table = function(header, body) {
-  if (body) body = '<tbody>' + body + '</tbody>';
-
   return '<table>\n'
     + '<thead>\n'
     + header
     + '</thead>\n'
+    + '<tbody>\n'
     + body
+    + '</tbody>\n'
     + '</table>\n';
 };
 
@@ -21927,7 +21722,7 @@ Renderer.prototype.tablerow = function(content) {
 Renderer.prototype.tablecell = function(content, flags) {
   var type = flags.header ? 'th' : 'td';
   var tag = flags.align
-    ? '<' + type + ' align="' + flags.align + '">'
+    ? '<' + type + ' style="text-align:' + flags.align + '">'
     : '<' + type + '>';
   return tag + content + '</' + type + '>\n';
 };
@@ -21954,11 +21749,22 @@ Renderer.prototype.del = function(text) {
 };
 
 Renderer.prototype.link = function(href, title, text) {
-  href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
-  if (href === null) {
-    return text;
+  if (this.options.sanitize) {
+    try {
+      var prot = decodeURIComponent(unescape(href))
+        .replace(/[^\w:]/g, '')
+        .toLowerCase();
+    } catch (e) {
+      return '';
+    }
+    if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0 || prot.indexOf('data:') === 0) {
+      return '';
+    }
   }
-  var out = '<a href="' + escape(href) + '"';
+  if (this.options.baseUrl && !originIndependentUrl.test(href)) {
+    href = resolveUrl(this.options.baseUrl, href);
+  }
+  var out = '<a href="' + href + '"';
   if (title) {
     out += ' title="' + title + '"';
   }
@@ -21967,11 +21773,9 @@ Renderer.prototype.link = function(href, title, text) {
 };
 
 Renderer.prototype.image = function(href, title, text) {
-  href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
-  if (href === null) {
-    return text;
+  if (this.options.baseUrl && !originIndependentUrl.test(href)) {
+    href = resolveUrl(this.options.baseUrl, href);
   }
-
   var out = '<img src="' + href + '" alt="' + text + '"';
   if (title) {
     out += ' title="' + title + '"';
@@ -21985,32 +21789,6 @@ Renderer.prototype.text = function(text) {
 };
 
 /**
- * TextRenderer
- * returns only the textual part of the token
- */
-
-function TextRenderer() {}
-
-// no need for block level renderers
-
-TextRenderer.prototype.strong =
-TextRenderer.prototype.em =
-TextRenderer.prototype.codespan =
-TextRenderer.prototype.del =
-TextRenderer.prototype.text = function (text) {
-  return text;
-};
-
-TextRenderer.prototype.link =
-TextRenderer.prototype.image = function(href, title, text) {
-  return '' + text;
-};
-
-TextRenderer.prototype.br = function() {
-  return '';
-};
-
-/**
  * Parsing & Compiling
  */
 
@@ -22018,18 +21796,17 @@ function Parser(options) {
   this.tokens = [];
   this.token = null;
   this.options = options || marked.defaults;
-  this.options.renderer = this.options.renderer || new Renderer();
+  this.options.renderer = this.options.renderer || new Renderer;
   this.renderer = this.options.renderer;
   this.renderer.options = this.options;
-  this.slugger = new Slugger();
 }
 
 /**
  * Static Parse Method
  */
 
-Parser.parse = function(src, options) {
-  var parser = new Parser(options);
+Parser.parse = function(src, options, renderer) {
+  var parser = new Parser(options, renderer);
   return parser.parse(src);
 };
 
@@ -22038,12 +21815,7 @@ Parser.parse = function(src, options) {
  */
 
 Parser.prototype.parse = function(src) {
-  this.inline = new InlineLexer(src.links, this.options);
-  // use an InlineLexer with a TextRenderer to extract pure text
-  this.inlineText = new InlineLexer(
-    src.links,
-    merge({}, this.options, {renderer: new TextRenderer()})
-  );
+  this.inline = new InlineLexer(src.links, this.options, this.renderer);
   this.tokens = src.reverse();
 
   var out = '';
@@ -22100,8 +21872,7 @@ Parser.prototype.tok = function() {
       return this.renderer.heading(
         this.inline.output(this.token.text),
         this.token.depth,
-        unescape(this.inlineText.output(this.token.text)),
-        this.slugger);
+        this.token.text);
     }
     case 'code': {
       return this.renderer.code(this.token.text,
@@ -22109,16 +21880,18 @@ Parser.prototype.tok = function() {
         this.token.escaped);
     }
     case 'table': {
-      var header = '',
-          body = '',
-          i,
-          row,
-          cell,
-          j;
+      var header = ''
+        , body = ''
+        , i
+        , row
+        , cell
+        , flags
+        , j;
 
       // header
       cell = '';
       for (i = 0; i < this.token.header.length; i++) {
+        flags = { header: true, align: this.token.align[i] };
         cell += this.renderer.tablecell(
           this.inline.output(this.token.header[i]),
           { header: true, align: this.token.align[i] }
@@ -22142,7 +21915,7 @@ Parser.prototype.tok = function() {
       return this.renderer.table(header, body);
     }
     case 'blockquote_start': {
-      body = '';
+      var body = '';
 
       while (this.next().type !== 'blockquote_end') {
         body += this.tok();
@@ -22151,35 +21924,40 @@ Parser.prototype.tok = function() {
       return this.renderer.blockquote(body);
     }
     case 'list_start': {
-      body = '';
-      var ordered = this.token.ordered,
-          start = this.token.start;
+      var body = ''
+        , ordered = this.token.ordered;
 
       while (this.next().type !== 'list_end') {
         body += this.tok();
       }
 
-      return this.renderer.list(body, ordered, start);
+      return this.renderer.list(body, ordered);
     }
     case 'list_item_start': {
-      body = '';
-      var loose = this.token.loose;
-
-      if (this.token.task) {
-        body += this.renderer.checkbox(this.token.checked);
-      }
+      var body = '';
 
       while (this.next().type !== 'list_item_end') {
-        body += !loose && this.token.type === 'text'
+        body += this.token.type === 'text'
           ? this.parseText()
           : this.tok();
       }
 
       return this.renderer.listitem(body);
     }
+    case 'loose_item_start': {
+      var body = '';
+
+      while (this.next().type !== 'list_item_end') {
+        body += this.tok();
+      }
+
+      return this.renderer.listitem(body);
+    }
     case 'html': {
-      // TODO parse inline content if parameter markdown=1
-      return this.renderer.html(this.token.text);
+      var html = !this.token.pre && !this.options.pedantic
+        ? this.inline.output(this.token.text)
+        : this.token.text;
+      return this.renderer.html(html);
     }
     case 'paragraph': {
       return this.renderer.paragraph(this.inline.output(this.token.text));
@@ -22187,46 +21965,7 @@ Parser.prototype.tok = function() {
     case 'text': {
       return this.renderer.paragraph(this.parseText());
     }
-    default: {
-      var errMsg = 'Token with "' + this.token.type + '" type was not found.';
-      if (this.options.silent) {
-        console.log(errMsg);
-      } else {
-        throw new Error(errMsg);
-      }
-    }
   }
-};
-
-/**
- * Slugger generates header id
- */
-
-function Slugger () {
-  this.seen = {};
-}
-
-/**
- * Convert string to unique id
- */
-
-Slugger.prototype.slug = function (value) {
-  var slug = value
-    .toLowerCase()
-    .trim()
-    .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g, '')
-    .replace(/\s/g, '-');
-
-  if (this.seen.hasOwnProperty(slug)) {
-    var originalSlug = slug;
-    do {
-      this.seen[originalSlug]++;
-      slug = originalSlug + '-' + this.seen[originalSlug];
-    } while (this.seen.hasOwnProperty(slug));
-  }
-  this.seen[slug] = 0;
-
-  return slug;
 };
 
 /**
@@ -22234,34 +21973,16 @@ Slugger.prototype.slug = function (value) {
  */
 
 function escape(html, encode) {
-  if (encode) {
-    if (escape.escapeTest.test(html)) {
-      return html.replace(escape.escapeReplace, function (ch) { return escape.replacements[ch]; });
-    }
-  } else {
-    if (escape.escapeTestNoEncode.test(html)) {
-      return html.replace(escape.escapeReplaceNoEncode, function (ch) { return escape.replacements[ch]; });
-    }
-  }
-
-  return html;
+  return html
+    .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-escape.escapeTest = /[&<>"']/;
-escape.escapeReplace = /[&<>"']/g;
-escape.replacements = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;'
-};
-
-escape.escapeTestNoEncode = /[<>"']|&(?!#?\w+;)/;
-escape.escapeReplaceNoEncode = /[<>"']|&(?!#?\w+;)/g;
-
 function unescape(html) {
-  // explicitly match decimal, hex, and named HTML entities
+	// explicitly match decimal, hex, and named HTML entities
   return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, function(_, n) {
     n = n.toLowerCase();
     if (n === 'colon') return ':';
@@ -22274,44 +21995,16 @@ function unescape(html) {
   });
 }
 
-function edit(regex, opt) {
-  regex = regex.source || regex;
+function replace(regex, opt) {
+  regex = regex.source;
   opt = opt || '';
-  return {
-    replace: function(name, val) {
-      val = val.source || val;
-      val = val.replace(/(^|[^\[])\^/g, '$1');
-      regex = regex.replace(name, val);
-      return this;
-    },
-    getRegex: function() {
-      return new RegExp(regex, opt);
-    }
+  return function self(name, val) {
+    if (!name) return new RegExp(regex, opt);
+    val = val.source || val;
+    val = val.replace(/(^|[^\[])\^/g, '$1');
+    regex = regex.replace(name, val);
+    return self;
   };
-}
-
-function cleanUrl(sanitize, base, href) {
-  if (sanitize) {
-    try {
-      var prot = decodeURIComponent(unescape(href))
-        .replace(/[^\w:]/g, '')
-        .toLowerCase();
-    } catch (e) {
-      return null;
-    }
-    if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0 || prot.indexOf('data:') === 0) {
-      return null;
-    }
-  }
-  if (base && !originIndependentUrl.test(href)) {
-    href = resolveUrl(base, href);
-  }
-  try {
-    href = encodeURI(href).replace(/%25/g, '%');
-  } catch (e) {
-    return null;
-  }
-  return href;
 }
 
 function resolveUrl(base, href) {
@@ -22322,29 +22015,29 @@ function resolveUrl(base, href) {
     if (/^[^:]+:\/*[^/]*$/.test(base)) {
       baseUrls[' ' + base] = base + '/';
     } else {
-      baseUrls[' ' + base] = rtrim(base, '/', true);
+      baseUrls[' ' + base] = base.replace(/[^/]*$/, '');
     }
   }
   base = baseUrls[' ' + base];
 
   if (href.slice(0, 2) === '//') {
-    return base.replace(/:[\s\S]*/, ':') + href;
+    return base.replace(/:[^]*/, ':') + href;
   } else if (href.charAt(0) === '/') {
-    return base.replace(/(:\/*[^/]*)[\s\S]*/, '$1') + href;
+    return base.replace(/(:\/*[^/]*)[^]*/, '$1') + href;
   } else {
     return base + href;
   }
 }
-var baseUrls = {};
-var originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
+baseUrls = {};
+originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
 
 function noop() {}
 noop.exec = noop;
 
 function merge(obj) {
-  var i = 1,
-      target,
-      key;
+  var i = 1
+    , target
+    , key;
 
   for (; i < arguments.length; i++) {
     target = arguments[i];
@@ -22358,78 +22051,12 @@ function merge(obj) {
   return obj;
 }
 
-function splitCells(tableRow, count) {
-  // ensure that every cell-delimiting pipe has a space
-  // before it to distinguish it from an escaped pipe
-  var row = tableRow.replace(/\|/g, function (match, offset, str) {
-        var escaped = false,
-            curr = offset;
-        while (--curr >= 0 && str[curr] === '\\') escaped = !escaped;
-        if (escaped) {
-          // odd number of slashes means | is escaped
-          // so we leave it alone
-          return '|';
-        } else {
-          // add space before unescaped |
-          return ' |';
-        }
-      }),
-      cells = row.split(/ \|/),
-      i = 0;
-
-  if (cells.length > count) {
-    cells.splice(count);
-  } else {
-    while (cells.length < count) cells.push('');
-  }
-
-  for (; i < cells.length; i++) {
-    // leading or trailing whitespace is ignored per the gfm spec
-    cells[i] = cells[i].trim().replace(/\\\|/g, '|');
-  }
-  return cells;
-}
-
-// Remove trailing 'c's. Equivalent to str.replace(/c*$/, '').
-// /c*$/ is vulnerable to REDOS.
-// invert: Remove suffix of non-c chars instead. Default falsey.
-function rtrim(str, c, invert) {
-  if (str.length === 0) {
-    return '';
-  }
-
-  // Length of suffix matching the invert condition.
-  var suffLen = 0;
-
-  // Step left until we fail to match the invert condition.
-  while (suffLen < str.length) {
-    var currChar = str.charAt(str.length - suffLen - 1);
-    if (currChar === c && !invert) {
-      suffLen++;
-    } else if (currChar !== c && invert) {
-      suffLen++;
-    } else {
-      break;
-    }
-  }
-
-  return str.substr(0, str.length - suffLen);
-}
 
 /**
  * Marked
  */
 
 function marked(src, opt, callback) {
-  // throw error in case of non string input
-  if (typeof src === 'undefined' || src === null) {
-    throw new Error('marked(): input parameter is undefined or null');
-  }
-  if (typeof src !== 'string') {
-    throw new Error('marked(): input parameter is of type '
-      + Object.prototype.toString.call(src) + ', string expected');
-  }
-
   if (callback || typeof opt === 'function') {
     if (!callback) {
       callback = opt;
@@ -22438,13 +22065,13 @@ function marked(src, opt, callback) {
 
     opt = merge({}, marked.defaults, opt || {});
 
-    var highlight = opt.highlight,
-        tokens,
-        pending,
-        i = 0;
+    var highlight = opt.highlight
+      , tokens
+      , pending
+      , i = 0;
 
     try {
-      tokens = Lexer.lex(src, opt);
+      tokens = Lexer.lex(src, opt)
     } catch (e) {
       return callback(e);
     }
@@ -22503,9 +22130,9 @@ function marked(src, opt, callback) {
     if (opt) opt = merge({}, marked.defaults, opt);
     return Parser.parse(Lexer.lex(src, opt), opt);
   } catch (e) {
-    e.message += '\nPlease report this to https://github.com/markedjs/marked.';
+    e.message += '\nPlease report this to https://github.com/chjj/marked.';
     if ((opt || marked.defaults).silent) {
-      return '<p>An error occurred:</p><pre>'
+      return '<p>An error occured:</p><pre>'
         + escape(e.message + '', true)
         + '</pre>';
     }
@@ -22523,29 +22150,24 @@ marked.setOptions = function(opt) {
   return marked;
 };
 
-marked.getDefaults = function () {
-  return {
-    baseUrl: null,
-    breaks: false,
-    gfm: true,
-    headerIds: true,
-    headerPrefix: '',
-    highlight: null,
-    langPrefix: 'language-',
-    mangle: true,
-    pedantic: false,
-    renderer: new Renderer(),
-    sanitize: false,
-    sanitizer: null,
-    silent: false,
-    smartLists: false,
-    smartypants: false,
-    tables: true,
-    xhtml: false
-  };
+marked.defaults = {
+  gfm: true,
+  tables: true,
+  breaks: false,
+  pedantic: false,
+  sanitize: false,
+  sanitizer: null,
+  mangle: true,
+  smartLists: false,
+  silent: false,
+  highlight: null,
+  langPrefix: 'lang-',
+  smartypants: false,
+  headerPrefix: '',
+  renderer: new Renderer,
+  xhtml: false,
+  baseUrl: null
 };
-
-marked.defaults = marked.getDefaults();
 
 /**
  * Expose
@@ -22555,15 +22177,12 @@ marked.Parser = Parser;
 marked.parser = Parser.parse;
 
 marked.Renderer = Renderer;
-marked.TextRenderer = TextRenderer;
 
 marked.Lexer = Lexer;
 marked.lexer = Lexer.lex;
 
 marked.InlineLexer = InlineLexer;
 marked.inlineLexer = InlineLexer.output;
-
-marked.Slugger = Slugger;
 
 marked.parse = marked;
 
@@ -22572,12 +22191,15 @@ if (typeof module !== 'undefined' && typeof exports === 'object') {
 } else if (typeof define === 'function' && define.amd) {
   define(function() { return marked; });
 } else {
-  root.marked = marked;
+  this.marked = marked;
 }
-})(this || (typeof window !== 'undefined' ? window : global));
+
+}).call(function() {
+  return this || (typeof window !== 'undefined' ? window : global);
+}());
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],150:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -22669,7 +22291,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],151:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 exports.endianness = function () { return 'LE' };
 
 exports.hostname = function () {
@@ -22720,7 +22342,7 @@ exports.homedir = function () {
 	return '/'
 };
 
-},{}],152:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 (function (process){
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
@@ -23026,7 +22648,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":155}],153:[function(require,module,exports){
+},{"_process":154}],152:[function(require,module,exports){
 /**
 * pretty-data - nodejs plugin to pretty-print or minify data in XML, JSON and CSS formats.
 *  
@@ -23372,7 +22994,7 @@ exports.pd= new pp;
 
 
 
-},{}],154:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -23420,7 +23042,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":155}],155:[function(require,module,exports){
+},{"_process":154}],154:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -23606,7 +23228,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],156:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23692,7 +23314,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],157:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23779,16 +23401,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],158:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":156,"./encode":157}],159:[function(require,module,exports){
+},{"./decode":155,"./encode":156}],158:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":160}],160:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":159}],159:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23920,7 +23542,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":162,"./_stream_writable":164,"core-util-is":68,"inherits":107,"process-nextick-args":154}],161:[function(require,module,exports){
+},{"./_stream_readable":161,"./_stream_writable":163,"core-util-is":68,"inherits":106,"process-nextick-args":153}],160:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23968,7 +23590,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":163,"core-util-is":68,"inherits":107}],162:[function(require,module,exports){
+},{"./_stream_transform":162,"core-util-is":68,"inherits":106}],161:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -24990,7 +24612,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":160,"./internal/streams/BufferList":165,"./internal/streams/destroy":166,"./internal/streams/stream":167,"_process":155,"core-util-is":68,"events":95,"inherits":107,"isarray":110,"process-nextick-args":154,"safe-buffer":228,"string_decoder/":232,"util":49}],163:[function(require,module,exports){
+},{"./_stream_duplex":159,"./internal/streams/BufferList":164,"./internal/streams/destroy":165,"./internal/streams/stream":166,"_process":154,"core-util-is":68,"events":94,"inherits":106,"isarray":109,"process-nextick-args":153,"safe-buffer":227,"string_decoder/":231,"util":49}],162:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25205,7 +24827,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":160,"core-util-is":68,"inherits":107}],164:[function(require,module,exports){
+},{"./_stream_duplex":159,"core-util-is":68,"inherits":106}],163:[function(require,module,exports){
 (function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -25895,7 +25517,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":160,"./internal/streams/destroy":166,"./internal/streams/stream":167,"_process":155,"core-util-is":68,"inherits":107,"process-nextick-args":154,"safe-buffer":228,"timers":235,"util-deprecate":240}],165:[function(require,module,exports){
+},{"./_stream_duplex":159,"./internal/streams/destroy":165,"./internal/streams/stream":166,"_process":154,"core-util-is":68,"inherits":106,"process-nextick-args":153,"safe-buffer":227,"timers":234,"util-deprecate":239}],164:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -25975,7 +25597,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":228,"util":49}],166:[function(require,module,exports){
+},{"safe-buffer":227,"util":49}],165:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -26050,13 +25672,13 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":154}],167:[function(require,module,exports){
+},{"process-nextick-args":153}],166:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":95}],168:[function(require,module,exports){
+},{"events":94}],167:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":169}],169:[function(require,module,exports){
+},{"./readable":168}],168:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -26065,13 +25687,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":160,"./lib/_stream_passthrough.js":161,"./lib/_stream_readable.js":162,"./lib/_stream_transform.js":163,"./lib/_stream_writable.js":164}],170:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":159,"./lib/_stream_passthrough.js":160,"./lib/_stream_readable.js":161,"./lib/_stream_transform.js":162,"./lib/_stream_writable.js":163}],169:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":169}],171:[function(require,module,exports){
+},{"./readable":168}],170:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":164}],172:[function(require,module,exports){
+},{"./lib/_stream_writable.js":163}],171:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26122,7 +25744,7 @@ module.exports = {
     return result;
   }
 };
-},{"../transform":210,"./transforms":177}],173:[function(require,module,exports){
+},{"../transform":209,"./transforms":176}],172:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26246,7 +25868,7 @@ var RegExpTree = function () {
 module.exports = {
   RegExpTree: RegExpTree
 };
-},{}],174:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26316,7 +25938,7 @@ module.exports = {
     });
   }
 };
-},{}],175:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26375,7 +25997,7 @@ module.exports = {
     node.reference = node.number;
   }
 };
-},{}],176:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26399,7 +26021,7 @@ module.exports = {
     }
   }
 };
-},{}],177:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26417,7 +26039,7 @@ module.exports = {
   // `x` flag
   xFlag: require('./compat-x-flag-transform')
 };
-},{"./compat-dotall-s-transform":174,"./compat-named-capturing-groups-transform":175,"./compat-x-flag-transform":176}],178:[function(require,module,exports){
+},{"./compat-dotall-s-transform":173,"./compat-named-capturing-groups-transform":174,"./compat-x-flag-transform":175}],177:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26584,7 +26206,7 @@ module.exports = {
    */
   generate: gen
 };
-},{}],179:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26997,7 +26619,7 @@ function goToSameSet(s1, s2, table, symbol) {
 module.exports = {
   minimize: minimize
 };
-},{}],180:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -27428,7 +27050,7 @@ var DFA = function () {
 }();
 
 module.exports = DFA;
-},{"../special-symbols":186,"../table-printer":188,"./dfa-minimizer":179,"colors":220}],181:[function(require,module,exports){
+},{"../special-symbols":185,"../table-printer":187,"./dfa-minimizer":178,"colors":219}],180:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -27488,7 +27110,7 @@ module.exports = {
     return this.toDFA(regexp).matches(string);
   }
 };
-},{"./dfa/dfa":180,"./nfa/builders":182,"./nfa/nfa":185,"./nfa/nfa-from-regexp":183}],182:[function(require,module,exports){
+},{"./dfa/dfa":179,"./nfa/builders":181,"./nfa/nfa":184,"./nfa/nfa-from-regexp":182}],181:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -27716,7 +27338,7 @@ module.exports = {
   plusRep: plusRep,
   questionRep: questionRep
 };
-},{"../special-symbols":186,"./nfa":185,"./nfa-state":184}],183:[function(require,module,exports){
+},{"../special-symbols":185,"./nfa":184,"./nfa-state":183}],182:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -27811,7 +27433,7 @@ module.exports = {
     return gen(ast);
   }
 };
-},{"../../../parser":208,"./builders":182}],184:[function(require,module,exports){
+},{"../../../parser":207,"./builders":181}],183:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -28032,7 +27654,7 @@ var NFAState = function (_State) {
 }(State);
 
 module.exports = NFAState;
-},{"../special-symbols":186,"../state":187}],185:[function(require,module,exports){
+},{"../special-symbols":185,"../state":186}],184:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -28322,7 +27944,7 @@ var NFA = function () {
 }();
 
 module.exports = NFA;
-},{"../special-symbols":186,"../table-printer":188,"colors":220}],186:[function(require,module,exports){
+},{"../special-symbols":185,"../table-printer":187,"colors":219}],185:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -28345,7 +27967,7 @@ module.exports = {
   EPSILON: EPSILON,
   EPSILON_CLOSURE: EPSILON_CLOSURE
 };
-},{}],187:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -28427,7 +28049,7 @@ var State = function () {
 }();
 
 module.exports = State;
-},{}],188:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -28455,7 +28077,7 @@ var TablePrinter = function TablePrinter(options) {
 };
 
 module.exports = TablePrinter;
-},{"cli-table3":52}],189:[function(require,module,exports){
+},{"cli-table3":52}],188:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -28539,7 +28161,7 @@ module.exports = {
     return result;
   }
 };
-},{"../parser":208,"../transform":210,"../utils/clone":214,"./transforms":202}],190:[function(require,module,exports){
+},{"../parser":207,"../transform":209,"../utils/clone":213,"./transforms":201}],189:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -28650,7 +28272,7 @@ function getSurrogatePairFromCodePoint(codePoint) {
     trail: trail.toString(16)
   };
 }
-},{}],191:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -28990,7 +28612,7 @@ function charCombinesWithPrecedingChars(expression, index, expressions) {
 function isMetaWCharOrCode(expression) {
   return expression && expression.type === 'Char' && !isNaN(expression.codePoint) && (fitsInMetaW(expression, false) || expression.kind === 'unicode' || expression.kind === 'hex' || expression.kind === 'oct' || expression.kind === 'decimal');
 }
-},{}],192:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29021,7 +28643,7 @@ module.exports = {
     }
   }
 };
-},{}],193:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29055,7 +28677,7 @@ module.exports = {
     }
   }
 };
-},{}],194:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29267,7 +28889,7 @@ function isU017fPath(node) {
 function isU212aPath(node) {
   return node.type === 'Char' && node.kind === 'unicode' && node.codePoint === 0x212a;
 }
-},{}],195:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29339,7 +28961,7 @@ function shouldEscape(value) {
   return (/[*[()+?$./{}|]/.test(value)
   );
 }
-},{}],196:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29424,7 +29046,7 @@ function needsEscape(symbol, parentType) {
   return (/[*[()+?^$./\\|{}]/.test(symbol)
   );
 }
-},{}],197:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29568,7 +29190,7 @@ function preservesClosingCurlyBraceEscape(index, parent) {
   }
   return false;
 }
-},{}],198:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29596,7 +29218,7 @@ module.exports = {
     delete node.isSurrogatePair;
   }
 };
-},{}],199:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29792,7 +29414,7 @@ function combineRepetitionWithPrevious(alternative, child, index) {
   }
   return index;
 }
-},{"../../transform/utils":211,"../../traverse/node-path":213}],200:[function(require,module,exports){
+},{"../../transform/utils":210,"../../traverse/node-path":212}],199:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29837,7 +29459,7 @@ module.exports = {
     path.replace(listToDisjunction(parts));
   }
 };
-},{"../../transform/utils":211,"../../traverse/node-path":213}],201:[function(require,module,exports){
+},{"../../transform/utils":210,"../../traverse/node-path":212}],200:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29930,7 +29552,7 @@ function shouldProcess(expression, charset) {
 
   return false;
 }
-},{}],202:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -29987,7 +29609,7 @@ module.exports = {
   // abcabcabc -> (?:abc){3}
   'combineRepeatingPatterns': require('./combine-repeating-patterns-transform')
 };
-},{"./char-case-insensitive-lowercase-transform":190,"./char-class-classranges-merge-transform":191,"./char-class-classranges-to-chars-transform":192,"./char-class-remove-duplicates-transform":193,"./char-class-to-meta-transform":194,"./char-class-to-single-char-transform":195,"./char-code-to-simple-char-transform":196,"./char-escape-unescape-transform":197,"./char-surrogate-pair-to-single-unicode-transform":198,"./combine-repeating-patterns-transform":199,"./disjunction-remove-duplicates-transform":200,"./group-single-chars-to-char-class":201,"./quantifier-range-to-symbol-transform":203,"./quantifiers-merge-transform":204,"./remove-empty-group-transform":205,"./ungroup-transform":206}],203:[function(require,module,exports){
+},{"./char-case-insensitive-lowercase-transform":189,"./char-class-classranges-merge-transform":190,"./char-class-classranges-to-chars-transform":191,"./char-class-remove-duplicates-transform":192,"./char-class-to-meta-transform":193,"./char-class-to-single-char-transform":194,"./char-code-to-simple-char-transform":195,"./char-escape-unescape-transform":196,"./char-surrogate-pair-to-single-unicode-transform":197,"./combine-repeating-patterns-transform":198,"./disjunction-remove-duplicates-transform":199,"./group-single-chars-to-char-class":200,"./quantifier-range-to-symbol-transform":202,"./quantifiers-merge-transform":203,"./remove-empty-group-transform":204,"./ungroup-transform":205}],202:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -30062,7 +29684,7 @@ function rewriteExactOne(path) {
 
   path.parentPath.replace(path.parentPath.node.expression);
 }
-},{}],204:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -30176,7 +29798,7 @@ function extractFromTo(quantifier) {
   }
   return { from: from, to: to };
 }
-},{"../../transform/utils":211}],205:[function(require,module,exports){
+},{"../../transform/utils":210}],204:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -30211,7 +29833,7 @@ module.exports = {
     }
   }
 };
-},{}],206:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -30267,7 +29889,7 @@ module.exports = {
     }
   }
 };
-},{}],207:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 /**
  * LR parser generated by the Syntax tool.
  *
@@ -31534,7 +31156,7 @@ function parseError(message) {
 }
 
 module.exports = yyparse;
-},{}],208:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -31563,7 +31185,7 @@ regexpTreeParser.parse = function (regexp, options) {
 regexpTreeParser.setOptions({ captureLocations: false });
 
 module.exports = regexpTreeParser;
-},{"./generated/regexp-tree":207}],209:[function(require,module,exports){
+},{"./generated/regexp-tree":206}],208:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -31742,7 +31364,7 @@ var regexpTree = {
 };
 
 module.exports = regexpTree;
-},{"./compat-transpiler":172,"./compat-transpiler/runtime":173,"./generator":178,"./interpreter/finite-automaton":181,"./optimizer":189,"./parser":208,"./transform":210,"./traverse":212}],210:[function(require,module,exports){
+},{"./compat-transpiler":171,"./compat-transpiler/runtime":172,"./generator":177,"./interpreter/finite-automaton":180,"./optimizer":188,"./parser":207,"./transform":209,"./traverse":211}],209:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -31881,7 +31503,7 @@ module.exports = {
     return new TransformResult(ast);
   }
 };
-},{"../generator":178,"../parser":208,"../traverse":212}],211:[function(require,module,exports){
+},{"../generator":177,"../parser":207,"../traverse":211}],210:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -31970,7 +31592,7 @@ module.exports = {
   listToDisjunction: listToDisjunction,
   increaseQuantifierByOne: increaseQuantifierByOne
 };
-},{}],212:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -32284,7 +31906,7 @@ module.exports = {
     });
   }
 };
-},{"./node-path":213}],213:[function(require,module,exports){
+},{"./node-path":212}],212:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -32711,7 +32333,7 @@ function jsonSkipLoc(prop, value) {
 }
 
 module.exports = NodePath;
-},{}],214:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -32741,7 +32363,7 @@ module.exports = function clone(obj) {
   }
   return res;
 };
-},{}],215:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -32750,13 +32372,13 @@ module.exports = function clone(obj) {
 'use strict';
 
 module.exports = require('./dist/regexp-tree');
-},{"./dist/regexp-tree":209}],216:[function(require,module,exports){
+},{"./dist/regexp-tree":208}],215:[function(require,module,exports){
 arguments[4][53][0].apply(exports,arguments)
-},{"./custom/trap":217,"./custom/zalgo":218,"./maps/america":221,"./maps/rainbow":222,"./maps/random":223,"./maps/zebra":224,"./styles":225,"./system/supports-colors":227,"dup":53,"util":242}],217:[function(require,module,exports){
+},{"./custom/trap":216,"./custom/zalgo":217,"./maps/america":220,"./maps/rainbow":221,"./maps/random":222,"./maps/zebra":223,"./styles":224,"./system/supports-colors":226,"dup":53,"util":241}],216:[function(require,module,exports){
 arguments[4][54][0].apply(exports,arguments)
-},{"dup":54}],218:[function(require,module,exports){
+},{"dup":54}],217:[function(require,module,exports){
 arguments[4][55][0].apply(exports,arguments)
-},{"dup":55}],219:[function(require,module,exports){
+},{"dup":55}],218:[function(require,module,exports){
 var colors = require('./colors');
 
 module['exports'] = function() {
@@ -32868,7 +32490,7 @@ module['exports'] = function() {
   };
 };
 
-},{"./colors":216}],220:[function(require,module,exports){
+},{"./colors":215}],219:[function(require,module,exports){
 var colors = require('./colors');
 module['exports'] = colors;
 
@@ -32883,21 +32505,21 @@ module['exports'] = colors;
 //
 require('./extendStringPrototype')();
 
-},{"./colors":216,"./extendStringPrototype":219}],221:[function(require,module,exports){
+},{"./colors":215,"./extendStringPrototype":218}],220:[function(require,module,exports){
 arguments[4][56][0].apply(exports,arguments)
-},{"dup":56}],222:[function(require,module,exports){
+},{"dup":56}],221:[function(require,module,exports){
 arguments[4][57][0].apply(exports,arguments)
-},{"dup":57}],223:[function(require,module,exports){
+},{"dup":57}],222:[function(require,module,exports){
 arguments[4][58][0].apply(exports,arguments)
-},{"dup":58}],224:[function(require,module,exports){
+},{"dup":58}],223:[function(require,module,exports){
 arguments[4][59][0].apply(exports,arguments)
-},{"dup":59}],225:[function(require,module,exports){
+},{"dup":59}],224:[function(require,module,exports){
 arguments[4][60][0].apply(exports,arguments)
-},{"dup":60}],226:[function(require,module,exports){
+},{"dup":60}],225:[function(require,module,exports){
 arguments[4][61][0].apply(exports,arguments)
-},{"_process":155,"dup":61}],227:[function(require,module,exports){
+},{"_process":154,"dup":61}],226:[function(require,module,exports){
 arguments[4][62][0].apply(exports,arguments)
-},{"./has-flag.js":226,"_process":155,"dup":62,"os":151}],228:[function(require,module,exports){
+},{"./has-flag.js":225,"_process":154,"dup":62,"os":150}],227:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -32961,7 +32583,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":51}],229:[function(require,module,exports){
+},{"buffer":51}],228:[function(require,module,exports){
 const regexpTree = require('regexp-tree');
 
 module.exports = function (re, opts) {
@@ -33013,7 +32635,7 @@ module.exports = function (re, opts) {
   return (maxObservedStarHeight <= 1) && (repetitionCount <= replimit);
 };
 
-},{"regexp-tree":215}],230:[function(require,module,exports){
+},{"regexp-tree":214}],229:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -33142,7 +32764,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":95,"inherits":107,"readable-stream/duplex.js":159,"readable-stream/passthrough.js":168,"readable-stream/readable.js":169,"readable-stream/transform.js":170,"readable-stream/writable.js":171}],231:[function(require,module,exports){
+},{"events":94,"inherits":106,"readable-stream/duplex.js":158,"readable-stream/passthrough.js":167,"readable-stream/readable.js":168,"readable-stream/transform.js":169,"readable-stream/writable.js":170}],230:[function(require,module,exports){
 'use strict';
 const stripAnsi = require('strip-ansi');
 const isFullwidthCodePoint = require('is-fullwidth-code-point');
@@ -33180,7 +32802,7 @@ module.exports = str => {
 	return width;
 };
 
-},{"is-fullwidth-code-point":109,"strip-ansi":233}],232:[function(require,module,exports){
+},{"is-fullwidth-code-point":108,"strip-ansi":232}],231:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -33477,13 +33099,13 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":228}],233:[function(require,module,exports){
+},{"safe-buffer":227}],232:[function(require,module,exports){
 'use strict';
 const ansiRegex = require('ansi-regex');
 
 module.exports = input => typeof input === 'string' ? input.replace(ansiRegex(), '') : input;
 
-},{"ansi-regex":234}],234:[function(require,module,exports){
+},{"ansi-regex":233}],233:[function(require,module,exports){
 'use strict';
 
 module.exports = () => {
@@ -33495,7 +33117,7 @@ module.exports = () => {
 	return new RegExp(pattern, 'g');
 };
 
-},{}],235:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -33574,7 +33196,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":155,"timers":235}],236:[function(require,module,exports){
+},{"process/browser.js":154,"timers":234}],235:[function(require,module,exports){
 (function (global){
 //     Underscore.js 1.9.1
 //     http://underscorejs.org
@@ -35270,7 +34892,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
 }());
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],237:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 /** @license URI.js v4.2.1 (c) 2011 Gary Court. License: http://github.com/garycourt/uri-js */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -36661,7 +36283,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 })));
 
 
-},{}],238:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -37395,7 +37017,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":239,"punycode":50,"querystring":158}],239:[function(require,module,exports){
+},{"./util":238,"punycode":50,"querystring":157}],238:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -37413,7 +37035,7 @@ module.exports = {
   }
 };
 
-},{}],240:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 (function (global){
 
 /**
@@ -37484,14 +37106,14 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],241:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],242:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -38081,7 +37703,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":241,"_process":155,"inherits":107}],243:[function(require,module,exports){
+},{"./support/isBuffer":240,"_process":154,"inherits":106}],242:[function(require,module,exports){
 (function(module) {
     'use strict';
 
@@ -38236,7 +37858,7 @@ function hasOwnProperty(obj, prop) {
 
 })(module);
 
-},{}],244:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 module.exports={
     "title": "Schema for scribejs nickname files",
     "description": "Nicknames for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
