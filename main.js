@@ -14,6 +14,7 @@ const debug   = false;
 const io      = require('./lib/io');
 const convert = require('./lib/convert');
 const conf    = require('./lib/conf');
+const { ActionList, get_action_list } = require('./lib/actions');
 
 let schemas = {};
 try {
@@ -47,14 +48,25 @@ async function main() {
             config.nicks = [];
         }
 
+        // Get the action list, if set
+        let actions;
+        if (config.actions) {
+            const current_action_list = await get_action_list(config)
+            actions = new ActionList(current_action_list);
+        } else {
+            actions = undefined;
+        }
+
         // Get the IRC log itself
         const irc_log = await io.get_irc_log(config);
 
         // The main step: convert the IRC log into a markdown text
-        const minutes = convert.to_markdown(irc_log, config);
+        const minutes = convert.to_markdown(irc_log, config, actions);
 
         // Either upload the minutes to Github or dump into a local file
         const message = await io.output_minutes(minutes, config);
+
+        if (config.actions) console.log(actions.toString());
 
         // That is it, folks!
         console.log(message);
