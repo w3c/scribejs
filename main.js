@@ -14,7 +14,7 @@ const debug   = false;
 const io      = require('./lib/io');
 const convert = require('./lib/convert');
 const conf    = require('./lib/conf');
-const { ActionList, get_action_list } = require('./lib/actions');
+const { ActionList, get_action_list, store_action_list } = require('./lib/actions');
 
 let schemas = {};
 try {
@@ -66,7 +66,12 @@ async function main() {
         // Either upload the minutes to Github or dump into a local file
         const message = await io.output_minutes(minutes, config);
 
-        if (config.actions) console.log(actions.toString());
+        if (config.actions && actions.changed) {
+            console.log('Writing action list');
+            await store_action_list(config, actions);
+        } else {
+            console.log('No change in actions');
+        }
 
         // That is it, folks!
         console.log(message);
