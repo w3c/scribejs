@@ -1,0 +1,51 @@
+{
+    "title": "Schema for scribejs action lists",
+    "description": "Action list for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://github.com/w3c/scribejs/blob/master/schemas/actions_schema.js",
+    "type": "object",
+    "properties": {
+        "config": {
+            "type": "object",
+            "properties"  : {
+                "url_pattern" : {
+                    "type" : "string",
+                    "title": "The URL pattern for the actions"
+                }
+            },
+            "required" : [ "url_pattern"]
+        },
+        "actions": {
+            "type" : "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "date" : {
+                            "title": "Date in ISO format",
+                            "type": "string"
+                        },
+                        "id" : {
+                            "title": "The fragment ID of the entry",
+                            "type" : "string"
+                        },
+                        "url" : {
+                            "title": "URL of the action in the minutes",
+                            "type": "string"
+                        },
+                        "action": {
+                            "type": "string",
+                            "title": "The action text"
+                        },
+                        "open" : {
+                            "type": "boolean",
+                            "title": "whether the action is open or completed"
+                        }
+                    },
+                    "required": ["action", "date", "url"]
+                }
+            }
+        }
+    }
+}

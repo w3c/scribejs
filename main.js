@@ -42,19 +42,24 @@ async function main() {
         // Validate the nickname mapping object against the appropriate JSON schema
         const valid = schemas.validate_nicknames(config.nicks);
         if (!valid) {
-            console.warn(`Warning: scribejs validation error in nicknames:
-                         ${schemas.validation_errors(schemas.validate_nicknames)}`);
+            console.warn(`Warning: scribejs validation error in nicknames: ${schemas.validation_errors(schemas.validate_nicknames)}`);
             console.warn('(nicknames ignored)');
             config.nicks = [];
         }
 
         // Get the action list, if set
-        let actions;
+        // eslint-disable-next-line no-undef-init
+        let actions = undefined;
         if (config.actions) {
-            const current_action_list = await get_action_list(config)
-            actions = new ActionList(current_action_list);
-        } else {
-            actions = undefined;
+            const current_action_list = await get_action_list(config);
+            // console.log(JSON.stringify(current_action_list,null,4));
+            const valid_act = schemas.validate_actions(current_action_list);
+            if (!valid_act) {
+                console.warn(`Warning: scribejs validation error in the action list: ${schemas.validation_errors(schemas.validate_actions)}`);
+                console.warn('(action list ignored)');
+            } else {
+                actions = new ActionList(current_action_list);
+            }
         }
 
         // Get the IRC log itself
@@ -66,7 +71,7 @@ async function main() {
         // Either upload the minutes to Github or dump into a local file
         const message = await io.output_minutes(minutes, config);
 
-        if (config.actions && actions.changed) {
+        if (actions !== undefined && actions.changed) {
             console.log('Writing action list');
             await store_action_list(config, actions);
         } else {
