@@ -9,21 +9,21 @@
                 "id": "action3",
                 "url": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-01-18-json-ld#action3",
                 "action": "document simple input and expected processing of them",
-                "open:": true
+                "open": true
             },
             {
                 "date": "2019-01-18",
                 "id": "action2",
                 "url": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-01-18-json-ld#action2",
                 "action": "update the web page",
-                "open:": true
+                "open": true
             },
             {
                 "date": "2019-01-25",
                 "id": "action1",
                 "url": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-01-25-json-ld#action1",
                 "action": "ping niklas about rdflib plans for 1.1",
-                "open:": true
+                "open": true
             }
         ],
         "Gregg Kellogg": [
@@ -41,7 +41,7 @@
                 "id": "action2",
                 "url": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-01-25-json-ld#action2",
                 "action": "write spec text of his mental model",
-                "open:": true
+                "open": true
             },
             {
                 "date": "2019-02-08",
@@ -57,7 +57,7 @@
                 "id": "action1",
                 "url": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-01-18-json-ld#action1",
                 "action": "update the playground instead of scribing",
-                "open:": true
+                "open": true
             }
         ],
         "Dave Longley": [
@@ -66,7 +66,7 @@
                 "id": "action4",
                 "url": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-01-18-json-ld#action4",
                 "action": "review azaroth's text and add further examples",
-                "open:": true
+                "open": true
             }
         ],
         "Benjamin Young": [
