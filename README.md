@@ -19,24 +19,25 @@ The script runs on top of `node.js`. The “entry point” is the `main.js` file
 
 ```
 scribejs [options] [filename]
-[--date|-d] date:    Date of the meeting in ISO (i.e., YYYY-MM-DD) format.
-                     Default: today.
-[--group|-g] group:  Name of the IRC channel used by the group.
-[--config|-c] cfile: JSON configuration file (see [below](#conf)). Command
-                     line arguments have a higher priority.
-[--nick|-n] nfile:   JSON nickname mapping URL or filename (see [below](#nick)).
-[--output|-o] ofile: Output file name. See [below](#output) on how the final output is chosen.
-[--final|-f]:        The minutes are final, i.e., they won't be labeled as "DRAFT".
-[--repo|-r]:         Whether the output should be stored in a github repository.
-                     Default: false.
-[--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
-                     Default: false.
-[--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination.
-                     Value can be "none", "md", or "kd" (see [below](#jekyll) for further details.)
-                     Default: "md".
-[--irc|-i] client:   Whether the input is of the log format of a particular IRC client.
-                     Value can be "textual", for the Textual IRC client; other values are (currently) ignored.
-                     Default: undefined, meaning that the log provided by W3C's RRSAgent is used.
+[--date|-d] date:     Date of the meeting in ISO (i.e., YYYY-MM-DD) format.
+                      Default: today.
+[--group|-g] group:   Name of the IRC channel used by the group.
+[--config|-c] cfile:  JSON configuration file (see [below](#conf)). Command
+                      line arguments have a higher priority.
+[--nick|-n] nfile:    JSON nickname mapping: URL or filename (see [below](#nick)).
+[--actions|-a] afile: List of actions in a JSON format: filename.
+[--output|-o] ofile:  Output file name. See [below](#output) on how the final output is chosen.
+[--final|-f]:         The minutes are final, i.e., they won't be labeled as "DRAFT".
+[--repo|-r]:          Whether the output should be stored in a github repository.
+                      Default: false.
+[--pandoc|-p]:        Whether the output is meant to be converted further by pandoc.
+                      Default: false.
+[--jekyll|-j]:        Whether the output should be adapted to a Github+Jekyll combination.
+                      Value can be "none", "md", or "kd" (see [below](#jekyll) for further details.)
+                      Default: "md".
+[--irc|-i] client:    Whether the input is of the log format of a particular IRC client.
+                      Value can be "textual", for the Textual IRC client; other values are (currently) ignored.
+                      Default: undefined, meaning that the log provided by W3C's RRSAgent is used.
 ```
 
 ### Configuration files
@@ -50,6 +51,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `input`      : Input
 * `output`     : Output file name; irrelevant if `torepo` is `true`
 * `nicknames`  : Nickname file reference in the form of a URL or a filename
+* `actions`    : Action file reference in the form of a filename
 * `final`      : `true`|`false`
 * `torepo`     : `true`|`false`
 * `pandoc`     : `true`|`false`
@@ -71,7 +73,6 @@ A typical usage of the configuration files is:
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
 There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead.
-
 
 ### Choice of the output
 
@@ -100,6 +101,10 @@ This JSON file is used to provide mapping among IRC nicknames and real names. Th
 
 
 There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname mapping file. The validation is also done run-time; the script warns (on `stderr`) if the nickname mapping file is invalid, and an empty mapping is used instead.
+
+### Recording actions
+
+If an action file reference is provided in the config file, then the actions are recorded in that file alongside the generation of the minutes. Existing actions are not duplicated. The file itself is in JSON with a simple structure.
 
 ### Pandoc
 
