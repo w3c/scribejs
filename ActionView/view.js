@@ -29,13 +29,11 @@ async function get_actions(address) {
                 try {
                     json_content = JSON.parse(body);
                 } catch (err) {
-                    alert(`JSON parsing error in ${address}: ${err}`);
                     reject(new Error(`JSON parsing error in ${address}: ${err}`));
                 }
                 resolve(json_content);
             })
             .catch((err) => {
-                alert(`Problem accessing remote file ${address}: ${err.message}`);
                 reject(new Error(`Problem accessing remote file ${address}: ${err.message}`));
             });
     });
@@ -79,10 +77,26 @@ function display_actions(action_list, target) {
  */
 async function show_actions() {
     const target = document.getElementById('actions');
-    if (target && target.dataset.actionlist) {
-        // url is a reference to the action list
-        const actions = await get_actions(target.dataset.actionlist);
-        display_actions(actions.actions, target);
+    if (target && target.dataset.actions) {
+        // Use the URL api to get the final address (the data-actions value may be a relative URL):
+        const url = new URL(target.dataset.actions, target.baseURI);
+
+        try {
+            // Get the action object from the JSON file:
+            const action_object = await get_actions(url.href);
+
+            // See if the target is a `<dl>` element; if not, one is created as a child
+            const create_dl = () => {
+                const dl = document.createElement('dl');
+                target.appendChild(dl);
+                return dl;
+            };
+            const final_target = target.tagName === 'DL' ? target : create_dl();
+            display_actions(action_object.actions, final_target);
+        } catch (e) {
+            // by using console, the error is displayed in the developer console...
+            console.error(`Error while trying to display the actions: ${e}`);
+        }
     }
 }
 
