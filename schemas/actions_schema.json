@@ -47,5 +47,6 @@
                 }
             }
         }
-    }
+    },
+    "required" : [ "config", "actions"]
 }

@@ -104,7 +104,30 @@ There is a [JSON schema](schemas/nicknames_schema.json) to validate the nickname
 
 ### Recording actions
 
-If an action file reference is provided in the config file, then the actions are recorded in that file alongside the generation of the minutes. Existing actions are not duplicated. The file itself is in JSON with a simple structure.
+If an action file reference is provided in the config file, then the actions are recorded in that file alongside the generation of the minutes. Existing actions are not duplicated. The file itself is in JSON.
+
+The JSON file has a simple structure: it is a single object with two properties:
+
+* `config`: the value is an object which, currently, has only one property, namely:
+    * `url_pattern`: the value is a URL pattern string. This string is used to generate final URL-s for minutes where the actions are assigned. The pattern may include:
+        * `%YEAR%`: replaced by the year of the meeting whose minutes contain the action
+        * `%MONTH%`: replaced by the two-digit number of the month of the meeting whose minutes contain the action
+        * `%DAY%`: replaced by the two-digit number of the day of the meeting whose minutes contain the action
+        * `%YEAR%`: replaced the full (ISO-formatted) data of the meeting whose minutes contain the action
+* `actions`: the value is an object, whose properties are the (full) names of the persons, and each of the values is an array of objects containing the `id`, `date`, `url`, and `action` (text) of the action.
+
+Only the `url_pattern` has to be set up at installation; the script fills the action themselves. I.e., a minimal setup may be something like:
+
+```json
+{
+    "config": {
+        "url_pattern": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/%YEAR%/%DATE%-json-ld"
+    },
+    "actions": {}
+}
+```
+
+There is a [JSON schema](schemas/actions_schema.json) to validate the action mapping file.
 
 ### Pandoc
 
