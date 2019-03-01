@@ -108,7 +108,7 @@ exports.get_nick_mapping = (conf) => {
                         try {
                             json_content = JSON.parse(body);
                         } catch (err) {
-                            alert(`JSON parsing error in ${conf.nicknames}: ${err}`)
+                            alert(`JSON parsing error in ${conf.nicknames}: ${err}`);
                             reject(new Error(`JSON parsing error in ${conf.nicknames}: ${err}`));
                         }
                         resolve(lower_nicks(json_content));
