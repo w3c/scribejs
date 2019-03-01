@@ -11,10 +11,10 @@
  */
 
 const debug   = false;
-const io      = require('./lib/io');
-const convert = require('./lib/convert');
-const conf    = require('./lib/conf');
-const { ActionList, get_action_list, store_action_list } = require('./lib/actions');
+const io             = require('./lib/io');
+const convert        = require('./lib/convert');
+const conf           = require('./lib/conf');
+const { ActionList } = require('./lib/actions');
 
 let schemas = {};
 try {
@@ -42,7 +42,7 @@ async function main() {
         // Validate the nickname mapping object against the appropriate JSON schema
         const valid = schemas.validate_nicknames(config.nicks);
         if (!valid) {
-            console.warn(`Warning: scribejs validation error in nicknames: ${schemas.validation_errors(schemas.validate_nicknames)}`);
+            console.warn(`Warning: validation error in nicknames: ${schemas.validation_errors(schemas.validate_nicknames)}`);
             console.warn('(nicknames ignored)');
             config.nicks = [];
         }
@@ -51,11 +51,11 @@ async function main() {
         // eslint-disable-next-line no-undef-init
         let actions = undefined;
         if (config.actions) {
-            const current_action_list = await get_action_list(config);
+            const current_action_list = await io.get_action_list(config);
             // console.log(JSON.stringify(current_action_list,null,4));
             const valid_act = schemas.validate_actions(current_action_list);
             if (!valid_act) {
-                console.warn(`Warning: scribejs validation error in the action list: ${schemas.validation_errors(schemas.validate_actions)}`);
+                console.warn(`Warning: validation error in the action list: ${schemas.validation_errors(schemas.validate_actions)}`);
                 console.warn('(action list ignored)');
             } else {
                 actions = new ActionList(current_action_list);
@@ -73,7 +73,7 @@ async function main() {
 
         if (actions !== undefined && actions.changed) {
             console.log('Writing action list');
-            await store_action_list(config, actions);
+            await io.store_action_list(config, actions);
         } else {
             console.log('No change in actions');
         }
@@ -81,7 +81,7 @@ async function main() {
         // That is it, folks!
         console.log(message);
     } catch (err) {
-        console.error(`Scribejs ${err}`);
+        console.error(`Scribejs: ${err}`);
         process.exit(255);
     }
 }
