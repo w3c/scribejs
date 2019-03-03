@@ -77,6 +77,15 @@
                 "action": "update json-ld.org home page for 1.1 coming features",
                 "open": true
             }
+        ],
+        "Ivan Herman": [
+            {
+                "date": "2019-03-01",
+                "url": "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-03-01-json-ld#action1",
+                "id": "action1",
+                "action": "set up a new repo for the best practices",
+                "open": true
+            }
         ]
     }
 }

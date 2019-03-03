@@ -71,8 +71,8 @@ async function main() {
         // Either upload the minutes to Github or dump into a local file
         const message = await io.output_minutes(minutes, config);
 
+        console.log('\nFinished processing');
         if (actions !== undefined && actions.changed) {
-            console.log('Writing action list');
             await io.store_action_list(config, actions);
         } else {
             console.log('No change in actions');
