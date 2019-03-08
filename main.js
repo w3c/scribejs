@@ -11,9 +11,10 @@
  */
 
 const debug   = false;
-const io      = require('./lib/io');
-const convert = require('./lib/convert');
-const conf    = require('./lib/conf');
+const io          = require('./lib/io');
+const convert     = require('./lib/convert');
+const conf        = require('./lib/conf');
+const { Actions } = require('./lib/actions');
 
 let schemas = {};
 try {
@@ -47,14 +48,22 @@ async function main() {
             config.nicks = [];
         }
 
+        // Set up the action handling
+        const actions = new Actions(config);
+
         // Get the IRC log itself
         const irc_log = await io.get_irc_log(config);
 
         // The main step: convert the IRC log into a markdown text
-        const minutes = convert.to_markdown(irc_log, config);
+        const minutes = convert.to_markdown(irc_log, config, actions);
+
+        // TODO: the two steps below could be done somehow in parallel with a Promise.all; to be explored later
 
         // Either upload the minutes to Github or dump into a local file
         const message = await io.output_minutes(minutes, config);
+
+        // Store the actions as github issues (if properly set up)
+        await actions.raise_action_issues();
 
         // That is it, folks!
         console.log(message);

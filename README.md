@@ -45,22 +45,24 @@ While some of the values can be set on a command line, most of the configuration
 
 The keys are as follows (see also the [description of the command line](#usage) for their explanation). Use only those keys that have a meaningful value.
 
-* `date`       : Date in ISO Format
-* `group`      : Group's IRC name
-* `input`      : Input
-* `output`     : Output file name; irrelevant if `torepo` is `true`
-* `nicknames`  : Nickname file reference in the form of a URL or a filename
-* `final`      : `true`|`false`
-* `torepo`     : `true`|`false`
-* `pandoc`     : `true`|`false`
-* `jekyll`     : `"none"`|`"md"`|`"kd"`
-* `irc_format` : `"textual"`|`undefined`
-* `ghrepo`     : repository name, eg, `w3c/scribejs`
-* `ghpath`     : path in the repository to the folder where the minutes are to be stored
-* `ghbranch`   : branch of the repository where the minutes should be stored. If not set, default is used
-* `ghname`     : github login name
-* `ghemail`    : github email
-* `ghtoken`    : OAUTH personal access token (see the [relevant GitHub site](https://github.com/settings/tokens) for further details on OAUTH tokens and to generate one)
+* `date`         : Date in ISO Format
+* `group`        : Group's IRC name
+* `input`        : Input
+* `output`       : Output file name; irrelevant if `torepo` is `true`
+* `nicknames`    : Nickname file reference in the form of a URL or a filename
+* `final`        : `true`|`false`
+* `torepo`       : `true`|`false`
+* `pandoc`       : `true`|`false`
+* `jekyll`       : `"none"`|`"md"`|`"kd"`
+* `irc_format`   : `"textual"`|`undefined`
+* `ghrepo`       : repository name, eg, `w3c/scribejs`
+* `ghpath`       : path in the repository to the folder where the minutes are to be stored
+* `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
+* `acrepo`       : repository name where action issues should be generated. If not set, the value of `ghrepo` is used (if set).
+* `acurlpattern` : url pattern used to store the minutes. The strings `%YEAR%`, `%MONTH%`, `%DAY%`, and `%DATE%` are replaced by the respective values. Used to put references into the minutes when generating issues for actions.
+* `ghname`       : github login name
+* `ghemail`      : github email
+* `ghtoken`      : OAUTH personal access token (see the [relevant GitHub site](https://github.com/settings/tokens) for further details on OAUTH tokens and to generate one)
 
 The final configuration is a combination of the command line arguments, the (optional) configuration file provided through the command line, and the user-level configuration file (if it exists), in decreasing priority.
 
@@ -95,7 +97,7 @@ This JSON file is used to provide mapping among IRC nicknames and real names. Th
 
 * `nick` : the value is an _array_ of strings, each representing a possible IRC handle (nickname); this array (even if empty) is _required_.
 * `name` : the value is a string, providing the name to be displayed for that person; this string is _required_.
-* `github` : the GitHub id of the person (currently not used, but may be used later).
+* `github` : the GitHub id of the person
 * `url` : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later).
 
 
