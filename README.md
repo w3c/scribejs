@@ -59,7 +59,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
 * `acrepo`       : repository name where action issues should be generated. If not set, the value of `ghrepo` is used (if set).
-* `acurlpattern` : url pattern used to store the minutes. The strings `%YEAR%`, `%MONTH%`, `%DAY%`, and `%DATE%` are replaced by the respective values. Used to put references into the minutes when generating issues for actions.
+* `acurlpattern` : url pattern used to refer the minutes. The strings `%YEAR%`, `%MONTH%`, `%DAY%`, and `%DATE%` are replaced by the respective values. Used to put references into the minutes when generating issues for actions.
 * `ghname`       : github login name
 * `ghemail`      : github email
 * `ghtoken`      : OAUTH personal access token (see the [relevant GitHub site](https://github.com/settings/tokens) for further details on OAUTH tokens and to generate one)
@@ -68,12 +68,11 @@ The final configuration is a combination of the command line arguments, the (opt
 
 A typical usage of the configuration files is:
 
-* set the group‘s repository data (e.g., `ghrepo`, `ghpath`, `ghbranch`, `group`, `nicknames`) in a shared configuration file that can be part of the repository itself;
-* use the user-level configuration for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences and invalidates those tokens immediately…)
+* set the group‘s repository data (e.g., `ghrepo`, `ghpath`, `ghbranch`, `acrepo`, `acurlpattern`, `group`, `nicknames`) in a shared configuration file that can be part of the repository itself;
+* use the user-level configuration for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
 There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead.
-
 
 ### Choice of the output
 

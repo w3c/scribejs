@@ -65,6 +65,14 @@
             "title": "Branch of the repository where the minutes should be stored. If not set, default is used.",
             "type": "string"
         },
+        "acrepo": {
+            "title": "Github repo name for action issues.",
+            "type": "string"
+        },
+        "acurlpattern": {
+            "title": "URL pattern used to refer the minutes.",
+            "type": "string"
+        },
         "ghname": {
             "title": "Github login name",
             "type": "string"
