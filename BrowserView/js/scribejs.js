@@ -10,10 +10,15 @@
 
 const marked = require('marked-it-core');
 
-// Experimenting for now...
 const nicknames = require('./nicknames');
 const convert = require('../../lib/convert');
 const schema = require('./schema');
+const { Actions } = require('../../lib/actions');
+
+// Experimenting for now...
+
+let theActions = {};
+const getActions = () => theActions;
 
 /**
  * The main entry point, invoked when the user pushes the submit. Collect the
@@ -41,7 +46,7 @@ async function bridge(form) {
         ghbranch      : '',
         ghtoken       : form.elements.ghtoken.value,
         acrepo        : form.elements.acrepo.value,
-        acurlpattern  : form.elements.acrepo.acurlpattern
+        acurlpattern  : form.elements.acurlpattern.value
     };
     config.nicks = await nicknames.get_nick_mapping(config);
 
@@ -54,10 +59,12 @@ async function bridge(form) {
 (nicknames ignored)`);
         config.nicks = [];
     }
+    // Set up the action handling
+    theActions = new Actions(config);
 
     const irc_log  = form.elements.text.value;
     // undefined for testing...
-    return convert.to_markdown(irc_log, config, undefined);
+    return convert.to_markdown(irc_log, config, theActions);
 }
 
 function emptyNode(n) {
@@ -106,7 +113,9 @@ window.addEventListener('load', () => {
     submit_button.addEventListener('click', () => submit(minutes));
 });
 
-},{"../../lib/convert":5,"./nicknames":2,"./schema":4,"marked-it-core":103}],2:[function(require,module,exports){
+module.exports = { getActions };
+
+},{"../../lib/actions":5,"../../lib/convert":6,"./nicknames":2,"./schema":4,"marked-it-core":107}],2:[function(require,module,exports){
 /* eslint-disable no-alert */
 /* eslint-env browser */
 
@@ -233,10 +242,17 @@ exports.get_nick_mapping = (conf) => {
     });
 };
 
-},{"underscore":201,"url":239,"valid-url":203}],3:[function(require,module,exports){
+},{"underscore":233,"url":271,"valid-url":235}],3:[function(require,module,exports){
 /* eslint-disable no-alert */
 
 'use strict';
+
+/*
+  TODO notes:
+  - the value of acurlpattern can be retrieved from the form; if present, it should be used for the file name
+  in the save action.
+
+*/
 
 /**
  * Various functions handling user interactions on the scribejs page:
@@ -259,6 +275,9 @@ exports.get_nick_mapping = (conf) => {
 /* eslint-env browser */
 
 const _ = require('underscore');
+
+// Experimenting for now...
+const { getActions } = require('./bridge');
 
 const JEKYLL_NONE     = 'none';
 const JEKYLL_MARKDOWN = 'md';
@@ -577,6 +596,9 @@ function load_log(file) {
  * Note: the 'download' link element is in the HTML form, but it is not displayed...
  */
 function save_minutes() {
+    console.log('zxczczvzvzxvzf');
+    console.log(JSON.stringify(getActions(), null, 4));
+
     const minutes = document.getElementById('minutes').value;
     if (minutes && minutes !== '') {
         // Get hold of the content
@@ -648,7 +670,7 @@ window.addEventListener('load', () => {
     save_button.addEventListener('click', save_minutes);
 });
 
-},{"underscore":201}],4:[function(require,module,exports){
+},{"./bridge":1,"underscore":233}],4:[function(require,module,exports){
 
 
 'use strict';
@@ -694,7 +716,188 @@ exports.validate_nicknames = ajv.compile(nicknames_schema);
  */
 exports.validation_errors = (validator) => ajv.errorsText(validator.errors, { separator: '\n' });
 
-},{"../../schemas/nicknames_schema.json":204,"ajv":6,"ajv/lib/refs/json-schema-draft-06.json":46}],5:[function(require,module,exports){
+},{"../../schemas/nicknames_schema.json":236,"ajv":7,"ajv/lib/refs/json-schema-draft-06.json":47}],5:[function(require,module,exports){
+/* eslint-disable no-underscore-dangle */
+const Octokat = require('octokat');
+
+class Actions {
+    constructor(conf) {
+        this._valid = false;
+        this._actions = [];
+        this._assignees = [];
+        this._date = '';
+        this._url_pattern = conf.acurlpattern || undefined;
+        const repo_name = conf.acrepo || conf.ghrepo;
+        if (repo_name && conf.ghname && conf.ghtoken) {
+            const github = new Octokat({ token: conf.ghtoken });
+            this._repo = github.repos(...repo_name.split('/'));
+            // this._repo = github.repos('w3c','json-ld-wg');
+            this._valid = true;
+        } else {
+            console.log('Action setup data missing. Provide acrepo, ghname, and ghtoken');
+        }
+    }
+
+    /**
+     *
+     * Get the list of action titles from github; this should be done once to filter
+     * out the actions that have already been added.
+     *
+     * @async
+     * @return {Array} - list of action issue titles on the repo.
+     */
+    async _get_issue_titles() {
+        const filter_issue = (issue) => {
+            // check if the issue is open
+            if (issue.state === 'open' && issue.pullRequest === undefined) {
+                // check whether this is indeed an action item!
+                return issue.labels.map((label) => label.name).includes('action');
+                // return labels.includes('action');
+            }
+            return false;
+        };
+        const extract_titles = (open_issues) => {
+            return open_issues.items.filter(filter_issue).map((issue) => issue.title);
+        };
+
+        // Get the titles of issues already stored.
+        // The number of action issues may not be that high, better avoid pagination...
+        let issues = await this._repo.issues.fetch({ per_page: 200 });
+        let issue_titles = extract_titles(issues);
+        // ... but take care of pages nevertheless
+        while (issues.nextPage !== undefined) {
+            // eslint-disable-next-line no-await-in-loop
+            issues = await issues.nextPage.fetch();
+            issue_titles = [...issue_titles, ...extract_titles(issues)];
+        }
+        return issue_titles;
+    }
+
+    /**
+     *
+     * Get the list of possible assignees from github; this is used whether an
+     * explicit assignee can be set for an issue or not.
+     *
+     * @async
+     * @return {Array} - list of github id-s of users who can appear as assignees.
+     */
+    async _get_assignees() {
+        // The number of assignees  may not be that high, better avoid pagination...
+        let assignee_structures = await this._repo.assignees.fetch({ per_page: 200 });
+        let assignees = assignee_structures.items.map((object) => object.login);
+        // ... but take care of pages nevertheless
+        while (assignee_structures.nextPage !== undefined) {
+            // eslint-disable-next-line no-await-in-loop
+            assignee_structures = await assignee_structures.nextPage.fetch();
+            assignees = [...assignees, ...assignee_structures.items.map((object) => object.login)];
+        }
+        return assignees;
+    }
+
+    /**
+     * Retrieve repo data that might be relevant for raising issues.
+     *
+     * Note that this function belongs, structurally, to the constructor but has to be invoked explicitly. The
+     * reason is that this method accesses the github API, and it is better to do that only if there are actions
+     * to deal with, ie, at the end of the minute generation process.
+     *
+     * The method
+     * * filters the accumulated actions in `this._actions` to retain only the new one; the results
+     * * fills the `this._assignees` array with the github id's of persons who can be assigned an action on an issue
+     *
+     * @async
+     */
+    async _retrieve_repo_data() {
+        const [titles, assignees] = await Promise.all([this._get_issue_titles(), this._get_assignees()]);
+
+        // filter the accumulated actions
+        const action_not_defined = (action) => titles.find((title) => title.startsWith(action.gh_action_id)) === undefined;
+        this._actions = this._actions.filter(action_not_defined);
+        if (this._actions.length > 0) {
+            console.log(`Raising ${this._actions.length} new issue(s) handling actions`);
+        } else {
+            console.log('No new actions');
+        }
+        this._assignees = assignees;
+    }
+
+    /**
+     * Store actions, i.e., raise github issues using the octocat library.
+     *
+     * @async
+     */
+    async _store_actions() {
+        // Set up an array of Promises to raise actions
+        const raised_issues = this._actions.map((action) => {
+            const issue = {
+                title  : action.title,
+                body   : action.body,
+                labels : ['action']
+            };
+            if (action.assignee && this._assignees.includes(action.assignee)) {
+                issue.assignees = [action.assignee];
+            }
+            return this._repo.issues.create(issue);
+        });
+        await Promise.all(raised_issues);
+    }
+
+    // ------------------------ "Public" methods ----------------------------------------
+
+    /**
+     * Set the date of all actions. This method is called by the minute generator once the
+     * date has been established (e.g., from a 'date' line in the IRC log)
+     *
+     * @param {String} date - date of the minutes
+     */
+    set_date(date) {
+        this._date = date;
+        if (this._url_pattern) {
+            const [year, month, day] = date.split('-');
+            this._url = this._url_pattern
+                .replace('%YEAR%', year)
+                .replace('%MONTH%', month)
+                .replace('%DAY%', day)
+                .replace('%DATE%', date);
+        }
+    }
+
+    /**
+     * Add a new action to the list of actions for these minutes.
+     *
+     * @param {String} id - the ID of the action (i.e., the fragment ID used in the minutes)
+     * @param {String} message - description of the action
+     * @param {String} name - the name of the assignee
+     * @param {String} assignee - the github id of the assignee
+     */
+    add_action(id, message, name, assignee) {
+        if (this._valid) {
+            const gh_action_id = `${this._date}-${id}`;
+            const short_message = `${message} (${name})`;
+            const full_message = this._url ? `${short_message} ([see details](${this._url}#${id}))` : short_message;
+            this._actions.push({
+                gh_action_id,
+                title : `${gh_action_id}: ${short_message}`,
+                body  : `${full_message}\n\nCc: @${assignee}`,
+                assignee
+            });
+        }
+    }
+
+    async raise_action_issues() {
+        if (this._actions.length !== 0) {
+            await this._retrieve_repo_data();
+            await this._store_actions();
+        } else {
+            console.log('No new actions');
+        }
+    }
+}
+
+
+module.exports = { Actions };
+
+},{"octokat":171}],6:[function(require,module,exports){
 'use strict';
 
 const _    = require('underscore');
@@ -1771,7 +1974,7 @@ ${no_toc}
     return (generate_header_md(headers) + generate_content_md(lines));
 };
 
-},{"safe-regex":197,"underscore":201,"url":239}],6:[function(require,module,exports){
+},{"safe-regex":229,"underscore":233,"url":271}],7:[function(require,module,exports){
 'use strict';
 
 var compileSchema = require('./compile')
@@ -2276,7 +2479,7 @@ function setLogger(self) {
 
 function noop() {}
 
-},{"./cache":7,"./compile":11,"./compile/async":8,"./compile/error_classes":9,"./compile/formats":10,"./compile/resolve":12,"./compile/rules":13,"./compile/schema_obj":14,"./compile/util":16,"./data":17,"./keyword":44,"./refs/data.json":45,"./refs/json-schema-draft-07.json":47,"fast-json-stable-stringify":90}],7:[function(require,module,exports){
+},{"./cache":8,"./compile":12,"./compile/async":9,"./compile/error_classes":10,"./compile/formats":11,"./compile/resolve":13,"./compile/rules":14,"./compile/schema_obj":15,"./compile/util":17,"./data":18,"./keyword":45,"./refs/data.json":46,"./refs/json-schema-draft-07.json":48,"fast-json-stable-stringify":91}],8:[function(require,module,exports){
 'use strict';
 
 
@@ -2304,7 +2507,7 @@ Cache.prototype.clear = function Cache_clear() {
   this._cache = {};
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var MissingRefError = require('./error_classes').MissingRef;
@@ -2396,7 +2599,7 @@ function compileAsync(schema, meta, callback) {
   }
 }
 
-},{"./error_classes":9}],9:[function(require,module,exports){
+},{"./error_classes":10}],10:[function(require,module,exports){
 'use strict';
 
 var resolve = require('./resolve');
@@ -2432,7 +2635,7 @@ function errorSubclass(Subclass) {
   return Subclass;
 }
 
-},{"./resolve":12}],10:[function(require,module,exports){
+},{"./resolve":13}],11:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -2583,7 +2786,7 @@ function regex(str) {
   }
 }
 
-},{"./util":16}],11:[function(require,module,exports){
+},{"./util":17}],12:[function(require,module,exports){
 'use strict';
 
 var resolve = require('./resolve')
@@ -2964,7 +3167,7 @@ function vars(arr, statement) {
   return code;
 }
 
-},{"../dotjs/validate":43,"./error_classes":9,"./resolve":12,"./util":16,"fast-deep-equal":89,"fast-json-stable-stringify":90}],12:[function(require,module,exports){
+},{"../dotjs/validate":44,"./error_classes":10,"./resolve":13,"./util":17,"fast-deep-equal":90,"fast-json-stable-stringify":91}],13:[function(require,module,exports){
 'use strict';
 
 var URI = require('uri-js')
@@ -3236,7 +3439,7 @@ function resolveIds(schema) {
   return localRefs;
 }
 
-},{"./schema_obj":14,"./util":16,"fast-deep-equal":89,"json-schema-traverse":100,"uri-js":202}],13:[function(require,module,exports){
+},{"./schema_obj":15,"./util":17,"fast-deep-equal":90,"json-schema-traverse":101,"uri-js":234}],14:[function(require,module,exports){
 'use strict';
 
 var ruleModules = require('../dotjs')
@@ -3304,7 +3507,7 @@ module.exports = function rules() {
   return RULES;
 };
 
-},{"../dotjs":32,"./util":16}],14:[function(require,module,exports){
+},{"../dotjs":33,"./util":17}],15:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -3315,7 +3518,7 @@ function SchemaObject(obj) {
   util.copy(obj, this);
 }
 
-},{"./util":16}],15:[function(require,module,exports){
+},{"./util":17}],16:[function(require,module,exports){
 'use strict';
 
 // https://mathiasbynens.be/notes/javascript-encoding
@@ -3337,7 +3540,7 @@ module.exports = function ucs2length(str) {
   return length;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 
@@ -3606,7 +3809,7 @@ function unescapeJsonPointer(str) {
   return str.replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
-},{"./ucs2length":15,"fast-deep-equal":89}],17:[function(require,module,exports){
+},{"./ucs2length":16,"fast-deep-equal":90}],18:[function(require,module,exports){
 'use strict';
 
 var KEYWORDS = [
@@ -3657,7 +3860,7 @@ module.exports = function (metaSchema, keywordsJsonPointers) {
   return metaSchema;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limit(it, $keyword, $ruleType) {
   var out = ' ';
@@ -3814,7 +4017,7 @@ module.exports = function generate__limit(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limitItems(it, $keyword, $ruleType) {
   var out = ' ';
@@ -3892,7 +4095,7 @@ module.exports = function generate__limitItems(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limitLength(it, $keyword, $ruleType) {
   var out = ' ';
@@ -3975,7 +4178,7 @@ module.exports = function generate__limitLength(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limitProperties(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4053,7 +4256,7 @@ module.exports = function generate__limitProperties(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 module.exports = function generate_allOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4098,7 +4301,7 @@ module.exports = function generate_allOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 module.exports = function generate_anyOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4173,7 +4376,7 @@ module.exports = function generate_anyOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 module.exports = function generate_comment(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4189,7 +4392,7 @@ module.exports = function generate_comment(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 module.exports = function generate_const(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4246,7 +4449,7 @@ module.exports = function generate_const(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 module.exports = function generate_contains(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4329,7 +4532,7 @@ module.exports = function generate_contains(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 module.exports = function generate_custom(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4557,7 +4760,7 @@ module.exports = function generate_custom(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 module.exports = function generate_dependencies(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4726,7 +4929,7 @@ module.exports = function generate_dependencies(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 module.exports = function generate_enum(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4793,7 +4996,7 @@ module.exports = function generate_enum(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 module.exports = function generate_format(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4944,7 +5147,7 @@ module.exports = function generate_format(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 module.exports = function generate_if(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5049,7 +5252,7 @@ module.exports = function generate_if(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 //all requires must be explicit because browserify won't work with dynamic requires
@@ -5084,7 +5287,7 @@ module.exports = {
   validate: require('./validate')
 };
 
-},{"./_limit":18,"./_limitItems":19,"./_limitLength":20,"./_limitProperties":21,"./allOf":22,"./anyOf":23,"./comment":24,"./const":25,"./contains":26,"./dependencies":28,"./enum":29,"./format":30,"./if":31,"./items":33,"./multipleOf":34,"./not":35,"./oneOf":36,"./pattern":37,"./properties":38,"./propertyNames":39,"./ref":40,"./required":41,"./uniqueItems":42,"./validate":43}],33:[function(require,module,exports){
+},{"./_limit":19,"./_limitItems":20,"./_limitLength":21,"./_limitProperties":22,"./allOf":23,"./anyOf":24,"./comment":25,"./const":26,"./contains":27,"./dependencies":29,"./enum":30,"./format":31,"./if":32,"./items":34,"./multipleOf":35,"./not":36,"./oneOf":37,"./pattern":38,"./properties":39,"./propertyNames":40,"./ref":41,"./required":42,"./uniqueItems":43,"./validate":44}],34:[function(require,module,exports){
 'use strict';
 module.exports = function generate_items(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5226,7 +5429,7 @@ module.exports = function generate_items(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 module.exports = function generate_multipleOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5304,7 +5507,7 @@ module.exports = function generate_multipleOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 module.exports = function generate_not(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5389,7 +5592,7 @@ module.exports = function generate_not(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 module.exports = function generate_oneOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5463,7 +5666,7 @@ module.exports = function generate_oneOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 module.exports = function generate_pattern(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5539,7 +5742,7 @@ module.exports = function generate_pattern(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 module.exports = function generate_properties(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5869,7 +6072,7 @@ module.exports = function generate_properties(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 module.exports = function generate_propertyNames(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5952,7 +6155,7 @@ module.exports = function generate_propertyNames(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 module.exports = function generate_ref(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6077,7 +6280,7 @@ module.exports = function generate_ref(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 module.exports = function generate_required(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6347,7 +6550,7 @@ module.exports = function generate_required(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 module.exports = function generate_uniqueItems(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6434,7 +6637,7 @@ module.exports = function generate_uniqueItems(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 module.exports = function generate_validate(it, $keyword, $ruleType) {
   var out = '';
@@ -6881,7 +7084,7 @@ module.exports = function generate_validate(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 var IDENTIFIER = /^[a-z_$][a-z0-9_$-]*$/i;
@@ -7018,7 +7221,7 @@ function removeKeyword(keyword) {
   return this;
 }
 
-},{"./dotjs/custom":27}],45:[function(require,module,exports){
+},{"./dotjs/custom":28}],46:[function(require,module,exports){
 module.exports={
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://raw.githubusercontent.com/epoberezkin/ajv/master/lib/refs/data.json#",
@@ -7037,7 +7240,7 @@ module.exports={
     "additionalProperties": false
 }
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports={
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://json-schema.org/draft-06/schema#",
@@ -7193,7 +7396,7 @@ module.exports={
     "default": {}
 }
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports={
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://json-schema.org/draft-07/schema#",
@@ -7363,9 +7566,9 @@ module.exports={
     "default": true
 }
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 module.exports = require('./src/table');
-},{"./src/table":62}],49:[function(require,module,exports){
+},{"./src/table":63}],50:[function(require,module,exports){
 /*
 
 The MIT License (MIT)
@@ -7568,7 +7771,7 @@ for (var map in colors.maps) {
 
 defineProps(colors, init());
 
-},{"./custom/trap":50,"./custom/zalgo":51,"./maps/america":52,"./maps/rainbow":53,"./maps/random":54,"./maps/zebra":55,"./styles":56,"./system/supports-colors":58,"util":243}],50:[function(require,module,exports){
+},{"./custom/trap":51,"./custom/zalgo":52,"./maps/america":53,"./maps/rainbow":54,"./maps/random":55,"./maps/zebra":56,"./styles":57,"./system/supports-colors":59,"util":275}],51:[function(require,module,exports){
 module['exports'] = function runTheTrap(text, options) {
   var result = '';
   text = text || 'Run the trap, drop the bass';
@@ -7616,7 +7819,7 @@ module['exports'] = function runTheTrap(text, options) {
   return result;
 };
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 // please no
 module['exports'] = function zalgo(text, options) {
   text = text || '   he is here   ';
@@ -7728,7 +7931,7 @@ module['exports'] = function zalgo(text, options) {
 };
 
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module['exports'] = function(colors) {
   return function(letter, i, exploded) {
     if (letter === ' ') return letter;
@@ -7740,7 +7943,7 @@ module['exports'] = function(colors) {
   };
 };
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module['exports'] = function(colors) {
   // RoY G BiV
   var rainbowColors = ['red', 'yellow', 'green', 'blue', 'magenta'];
@@ -7754,7 +7957,7 @@ module['exports'] = function(colors) {
 };
 
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module['exports'] = function(colors) {
   var available = ['underline', 'inverse', 'grey', 'yellow', 'red', 'green',
     'blue', 'white', 'cyan', 'magenta'];
@@ -7766,14 +7969,14 @@ module['exports'] = function(colors) {
   };
 };
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 module['exports'] = function(colors) {
   return function(letter, i, exploded) {
     return i % 2 === 0 ? letter : colors.inverse(letter);
   };
 };
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 /*
 The MIT License (MIT)
 
@@ -7852,7 +8055,7 @@ Object.keys(codes).forEach(function(key) {
   style.close = '\u001b[' + val[1] + 'm';
 });
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 (function (process){
 /*
 MIT License
@@ -7891,7 +8094,7 @@ module.exports = function(flag, argv) {
 };
 
 }).call(this,require('_process'))
-},{"_process":217}],58:[function(require,module,exports){
+},{"_process":249}],59:[function(require,module,exports){
 (function (process){
 /*
 The MIT License (MIT)
@@ -8046,7 +8249,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./has-flag.js":57,"_process":217,"os":214}],59:[function(require,module,exports){
+},{"./has-flag.js":58,"_process":249,"os":246}],60:[function(require,module,exports){
 //
 // Remark: Requiring this file will use the "safe" colors API,
 // which will not touch String.prototype.
@@ -8058,7 +8261,7 @@ module.exports = {
 var colors = require('./lib/colors');
 module['exports'] = colors;
 
-},{"./lib/colors":49}],60:[function(require,module,exports){
+},{"./lib/colors":50}],61:[function(require,module,exports){
 const utils = require('./utils');
 
 class Cell {
@@ -8431,7 +8634,7 @@ module.exports = Cell;
 module.exports.ColSpanCell = ColSpanCell;
 module.exports.RowSpanCell = RowSpanCell;
 
-},{"./utils":63,"colors/safe":59}],61:[function(require,module,exports){
+},{"./utils":64,"colors/safe":60}],62:[function(require,module,exports){
 const objectAssign = require('object-assign');
 const Cell = require('./cell');
 const { ColSpanCell, RowSpanCell } = Cell;
@@ -8665,7 +8868,7 @@ function makeComputeWidths(colSpan, desiredWidth, x, forcedMin) {
   };
 }
 
-},{"./cell":60,"object-assign":139}],62:[function(require,module,exports){
+},{"./cell":61,"object-assign":143}],63:[function(require,module,exports){
 const utils = require('./utils');
 const tableLayout = require('./layout-manager');
 
@@ -8744,7 +8947,7 @@ function doDraw(row, lineNum, result) {
 
 module.exports = Table;
 
-},{"./layout-manager":61,"./utils":63}],63:[function(require,module,exports){
+},{"./layout-manager":62,"./utils":64}],64:[function(require,module,exports){
 const objectAssign = require('object-assign');
 const stringWidth = require('string-width');
 
@@ -9049,7 +9252,7 @@ module.exports = {
   colorizeLines: colorizeLines,
 };
 
-},{"object-assign":139,"string-width":198}],64:[function(require,module,exports){
+},{"object-assign":143,"string-width":230}],65:[function(require,module,exports){
 /*
   Module dependencies
 */
@@ -9199,7 +9402,7 @@ function renderComment(elem) {
   return '<!--' + elem.data + '-->';
 }
 
-},{"domelementtype":73,"entities":65}],65:[function(require,module,exports){
+},{"domelementtype":74,"entities":66}],66:[function(require,module,exports){
 var encode = require("./lib/encode.js"),
     decode = require("./lib/decode.js");
 
@@ -9227,7 +9430,7 @@ exports.decodeHTML4Strict = exports.decodeHTML5Strict = exports.decodeHTMLStrict
 
 exports.escape = encode.escape;
 
-},{"./lib/decode.js":66,"./lib/encode.js":68}],66:[function(require,module,exports){
+},{"./lib/decode.js":67,"./lib/encode.js":69}],67:[function(require,module,exports){
 var entityMap = require("../maps/entities.json"),
     legacyMap = require("../maps/legacy.json"),
     xmlMap = require("../maps/xml.json"),
@@ -9299,7 +9502,7 @@ module.exports = {
     HTMLStrict: decodeHTMLStrict
 };
 
-},{"../maps/entities.json":70,"../maps/legacy.json":71,"../maps/xml.json":72,"./decode_codepoint.js":67}],67:[function(require,module,exports){
+},{"../maps/entities.json":71,"../maps/legacy.json":72,"../maps/xml.json":73,"./decode_codepoint.js":68}],68:[function(require,module,exports){
 var decodeMap = require("../maps/decode.json");
 
 module.exports = decodeCodePoint;
@@ -9326,7 +9529,7 @@ function decodeCodePoint(codePoint) {
     return output;
 }
 
-},{"../maps/decode.json":69}],68:[function(require,module,exports){
+},{"../maps/decode.json":70}],69:[function(require,module,exports){
 var inverseXML = getInverseObj(require("../maps/xml.json")),
     xmlReplacer = getInverseReplacer(inverseXML);
 
@@ -9410,16 +9613,16 @@ function escapeXML(data) {
 
 exports.escape = escapeXML;
 
-},{"../maps/entities.json":70,"../maps/xml.json":72}],69:[function(require,module,exports){
+},{"../maps/entities.json":71,"../maps/xml.json":73}],70:[function(require,module,exports){
 module.exports={"0":65533,"128":8364,"130":8218,"131":402,"132":8222,"133":8230,"134":8224,"135":8225,"136":710,"137":8240,"138":352,"139":8249,"140":338,"142":381,"145":8216,"146":8217,"147":8220,"148":8221,"149":8226,"150":8211,"151":8212,"152":732,"153":8482,"154":353,"155":8250,"156":339,"158":382,"159":376}
-},{}],70:[function(require,module,exports){
-module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Abreve":"\u0102","abreve":"\u0103","ac":"\u223E","acd":"\u223F","acE":"\u223E\u0333","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","Acy":"\u0410","acy":"\u0430","AElig":"\u00C6","aelig":"\u00E6","af":"\u2061","Afr":"\uD835\uDD04","afr":"\uD835\uDD1E","Agrave":"\u00C0","agrave":"\u00E0","alefsym":"\u2135","aleph":"\u2135","Alpha":"\u0391","alpha":"\u03B1","Amacr":"\u0100","amacr":"\u0101","amalg":"\u2A3F","amp":"&","AMP":"&","andand":"\u2A55","And":"\u2A53","and":"\u2227","andd":"\u2A5C","andslope":"\u2A58","andv":"\u2A5A","ang":"\u2220","ange":"\u29A4","angle":"\u2220","angmsdaa":"\u29A8","angmsdab":"\u29A9","angmsdac":"\u29AA","angmsdad":"\u29AB","angmsdae":"\u29AC","angmsdaf":"\u29AD","angmsdag":"\u29AE","angmsdah":"\u29AF","angmsd":"\u2221","angrt":"\u221F","angrtvb":"\u22BE","angrtvbd":"\u299D","angsph":"\u2222","angst":"\u00C5","angzarr":"\u237C","Aogon":"\u0104","aogon":"\u0105","Aopf":"\uD835\uDD38","aopf":"\uD835\uDD52","apacir":"\u2A6F","ap":"\u2248","apE":"\u2A70","ape":"\u224A","apid":"\u224B","apos":"'","ApplyFunction":"\u2061","approx":"\u2248","approxeq":"\u224A","Aring":"\u00C5","aring":"\u00E5","Ascr":"\uD835\uDC9C","ascr":"\uD835\uDCB6","Assign":"\u2254","ast":"*","asymp":"\u2248","asympeq":"\u224D","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","awconint":"\u2233","awint":"\u2A11","backcong":"\u224C","backepsilon":"\u03F6","backprime":"\u2035","backsim":"\u223D","backsimeq":"\u22CD","Backslash":"\u2216","Barv":"\u2AE7","barvee":"\u22BD","barwed":"\u2305","Barwed":"\u2306","barwedge":"\u2305","bbrk":"\u23B5","bbrktbrk":"\u23B6","bcong":"\u224C","Bcy":"\u0411","bcy":"\u0431","bdquo":"\u201E","becaus":"\u2235","because":"\u2235","Because":"\u2235","bemptyv":"\u29B0","bepsi":"\u03F6","bernou":"\u212C","Bernoullis":"\u212C","Beta":"\u0392","beta":"\u03B2","beth":"\u2136","between":"\u226C","Bfr":"\uD835\uDD05","bfr":"\uD835\uDD1F","bigcap":"\u22C2","bigcirc":"\u25EF","bigcup":"\u22C3","bigodot":"\u2A00","bigoplus":"\u2A01","bigotimes":"\u2A02","bigsqcup":"\u2A06","bigstar":"\u2605","bigtriangledown":"\u25BD","bigtriangleup":"\u25B3","biguplus":"\u2A04","bigvee":"\u22C1","bigwedge":"\u22C0","bkarow":"\u290D","blacklozenge":"\u29EB","blacksquare":"\u25AA","blacktriangle":"\u25B4","blacktriangledown":"\u25BE","blacktriangleleft":"\u25C2","blacktriangleright":"\u25B8","blank":"\u2423","blk12":"\u2592","blk14":"\u2591","blk34":"\u2593","block":"\u2588","bne":"=\u20E5","bnequiv":"\u2261\u20E5","bNot":"\u2AED","bnot":"\u2310","Bopf":"\uD835\uDD39","bopf":"\uD835\uDD53","bot":"\u22A5","bottom":"\u22A5","bowtie":"\u22C8","boxbox":"\u29C9","boxdl":"\u2510","boxdL":"\u2555","boxDl":"\u2556","boxDL":"\u2557","boxdr":"\u250C","boxdR":"\u2552","boxDr":"\u2553","boxDR":"\u2554","boxh":"\u2500","boxH":"\u2550","boxhd":"\u252C","boxHd":"\u2564","boxhD":"\u2565","boxHD":"\u2566","boxhu":"\u2534","boxHu":"\u2567","boxhU":"\u2568","boxHU":"\u2569","boxminus":"\u229F","boxplus":"\u229E","boxtimes":"\u22A0","boxul":"\u2518","boxuL":"\u255B","boxUl":"\u255C","boxUL":"\u255D","boxur":"\u2514","boxuR":"\u2558","boxUr":"\u2559","boxUR":"\u255A","boxv":"\u2502","boxV":"\u2551","boxvh":"\u253C","boxvH":"\u256A","boxVh":"\u256B","boxVH":"\u256C","boxvl":"\u2524","boxvL":"\u2561","boxVl":"\u2562","boxVL":"\u2563","boxvr":"\u251C","boxvR":"\u255E","boxVr":"\u255F","boxVR":"\u2560","bprime":"\u2035","breve":"\u02D8","Breve":"\u02D8","brvbar":"\u00A6","bscr":"\uD835\uDCB7","Bscr":"\u212C","bsemi":"\u204F","bsim":"\u223D","bsime":"\u22CD","bsolb":"\u29C5","bsol":"\\","bsolhsub":"\u27C8","bull":"\u2022","bullet":"\u2022","bump":"\u224E","bumpE":"\u2AAE","bumpe":"\u224F","Bumpeq":"\u224E","bumpeq":"\u224F","Cacute":"\u0106","cacute":"\u0107","capand":"\u2A44","capbrcup":"\u2A49","capcap":"\u2A4B","cap":"\u2229","Cap":"\u22D2","capcup":"\u2A47","capdot":"\u2A40","CapitalDifferentialD":"\u2145","caps":"\u2229\uFE00","caret":"\u2041","caron":"\u02C7","Cayleys":"\u212D","ccaps":"\u2A4D","Ccaron":"\u010C","ccaron":"\u010D","Ccedil":"\u00C7","ccedil":"\u00E7","Ccirc":"\u0108","ccirc":"\u0109","Cconint":"\u2230","ccups":"\u2A4C","ccupssm":"\u2A50","Cdot":"\u010A","cdot":"\u010B","cedil":"\u00B8","Cedilla":"\u00B8","cemptyv":"\u29B2","cent":"\u00A2","centerdot":"\u00B7","CenterDot":"\u00B7","cfr":"\uD835\uDD20","Cfr":"\u212D","CHcy":"\u0427","chcy":"\u0447","check":"\u2713","checkmark":"\u2713","Chi":"\u03A7","chi":"\u03C7","circ":"\u02C6","circeq":"\u2257","circlearrowleft":"\u21BA","circlearrowright":"\u21BB","circledast":"\u229B","circledcirc":"\u229A","circleddash":"\u229D","CircleDot":"\u2299","circledR":"\u00AE","circledS":"\u24C8","CircleMinus":"\u2296","CirclePlus":"\u2295","CircleTimes":"\u2297","cir":"\u25CB","cirE":"\u29C3","cire":"\u2257","cirfnint":"\u2A10","cirmid":"\u2AEF","cirscir":"\u29C2","ClockwiseContourIntegral":"\u2232","CloseCurlyDoubleQuote":"\u201D","CloseCurlyQuote":"\u2019","clubs":"\u2663","clubsuit":"\u2663","colon":":","Colon":"\u2237","Colone":"\u2A74","colone":"\u2254","coloneq":"\u2254","comma":",","commat":"@","comp":"\u2201","compfn":"\u2218","complement":"\u2201","complexes":"\u2102","cong":"\u2245","congdot":"\u2A6D","Congruent":"\u2261","conint":"\u222E","Conint":"\u222F","ContourIntegral":"\u222E","copf":"\uD835\uDD54","Copf":"\u2102","coprod":"\u2210","Coproduct":"\u2210","copy":"\u00A9","COPY":"\u00A9","copysr":"\u2117","CounterClockwiseContourIntegral":"\u2233","crarr":"\u21B5","cross":"\u2717","Cross":"\u2A2F","Cscr":"\uD835\uDC9E","cscr":"\uD835\uDCB8","csub":"\u2ACF","csube":"\u2AD1","csup":"\u2AD0","csupe":"\u2AD2","ctdot":"\u22EF","cudarrl":"\u2938","cudarrr":"\u2935","cuepr":"\u22DE","cuesc":"\u22DF","cularr":"\u21B6","cularrp":"\u293D","cupbrcap":"\u2A48","cupcap":"\u2A46","CupCap":"\u224D","cup":"\u222A","Cup":"\u22D3","cupcup":"\u2A4A","cupdot":"\u228D","cupor":"\u2A45","cups":"\u222A\uFE00","curarr":"\u21B7","curarrm":"\u293C","curlyeqprec":"\u22DE","curlyeqsucc":"\u22DF","curlyvee":"\u22CE","curlywedge":"\u22CF","curren":"\u00A4","curvearrowleft":"\u21B6","curvearrowright":"\u21B7","cuvee":"\u22CE","cuwed":"\u22CF","cwconint":"\u2232","cwint":"\u2231","cylcty":"\u232D","dagger":"\u2020","Dagger":"\u2021","daleth":"\u2138","darr":"\u2193","Darr":"\u21A1","dArr":"\u21D3","dash":"\u2010","Dashv":"\u2AE4","dashv":"\u22A3","dbkarow":"\u290F","dblac":"\u02DD","Dcaron":"\u010E","dcaron":"\u010F","Dcy":"\u0414","dcy":"\u0434","ddagger":"\u2021","ddarr":"\u21CA","DD":"\u2145","dd":"\u2146","DDotrahd":"\u2911","ddotseq":"\u2A77","deg":"\u00B0","Del":"\u2207","Delta":"\u0394","delta":"\u03B4","demptyv":"\u29B1","dfisht":"\u297F","Dfr":"\uD835\uDD07","dfr":"\uD835\uDD21","dHar":"\u2965","dharl":"\u21C3","dharr":"\u21C2","DiacriticalAcute":"\u00B4","DiacriticalDot":"\u02D9","DiacriticalDoubleAcute":"\u02DD","DiacriticalGrave":"`","DiacriticalTilde":"\u02DC","diam":"\u22C4","diamond":"\u22C4","Diamond":"\u22C4","diamondsuit":"\u2666","diams":"\u2666","die":"\u00A8","DifferentialD":"\u2146","digamma":"\u03DD","disin":"\u22F2","div":"\u00F7","divide":"\u00F7","divideontimes":"\u22C7","divonx":"\u22C7","DJcy":"\u0402","djcy":"\u0452","dlcorn":"\u231E","dlcrop":"\u230D","dollar":"$","Dopf":"\uD835\uDD3B","dopf":"\uD835\uDD55","Dot":"\u00A8","dot":"\u02D9","DotDot":"\u20DC","doteq":"\u2250","doteqdot":"\u2251","DotEqual":"\u2250","dotminus":"\u2238","dotplus":"\u2214","dotsquare":"\u22A1","doublebarwedge":"\u2306","DoubleContourIntegral":"\u222F","DoubleDot":"\u00A8","DoubleDownArrow":"\u21D3","DoubleLeftArrow":"\u21D0","DoubleLeftRightArrow":"\u21D4","DoubleLeftTee":"\u2AE4","DoubleLongLeftArrow":"\u27F8","DoubleLongLeftRightArrow":"\u27FA","DoubleLongRightArrow":"\u27F9","DoubleRightArrow":"\u21D2","DoubleRightTee":"\u22A8","DoubleUpArrow":"\u21D1","DoubleUpDownArrow":"\u21D5","DoubleVerticalBar":"\u2225","DownArrowBar":"\u2913","downarrow":"\u2193","DownArrow":"\u2193","Downarrow":"\u21D3","DownArrowUpArrow":"\u21F5","DownBreve":"\u0311","downdownarrows":"\u21CA","downharpoonleft":"\u21C3","downharpoonright":"\u21C2","DownLeftRightVector":"\u2950","DownLeftTeeVector":"\u295E","DownLeftVectorBar":"\u2956","DownLeftVector":"\u21BD","DownRightTeeVector":"\u295F","DownRightVectorBar":"\u2957","DownRightVector":"\u21C1","DownTeeArrow":"\u21A7","DownTee":"\u22A4","drbkarow":"\u2910","drcorn":"\u231F","drcrop":"\u230C","Dscr":"\uD835\uDC9F","dscr":"\uD835\uDCB9","DScy":"\u0405","dscy":"\u0455","dsol":"\u29F6","Dstrok":"\u0110","dstrok":"\u0111","dtdot":"\u22F1","dtri":"\u25BF","dtrif":"\u25BE","duarr":"\u21F5","duhar":"\u296F","dwangle":"\u29A6","DZcy":"\u040F","dzcy":"\u045F","dzigrarr":"\u27FF","Eacute":"\u00C9","eacute":"\u00E9","easter":"\u2A6E","Ecaron":"\u011A","ecaron":"\u011B","Ecirc":"\u00CA","ecirc":"\u00EA","ecir":"\u2256","ecolon":"\u2255","Ecy":"\u042D","ecy":"\u044D","eDDot":"\u2A77","Edot":"\u0116","edot":"\u0117","eDot":"\u2251","ee":"\u2147","efDot":"\u2252","Efr":"\uD835\uDD08","efr":"\uD835\uDD22","eg":"\u2A9A","Egrave":"\u00C8","egrave":"\u00E8","egs":"\u2A96","egsdot":"\u2A98","el":"\u2A99","Element":"\u2208","elinters":"\u23E7","ell":"\u2113","els":"\u2A95","elsdot":"\u2A97","Emacr":"\u0112","emacr":"\u0113","empty":"\u2205","emptyset":"\u2205","EmptySmallSquare":"\u25FB","emptyv":"\u2205","EmptyVerySmallSquare":"\u25AB","emsp13":"\u2004","emsp14":"\u2005","emsp":"\u2003","ENG":"\u014A","eng":"\u014B","ensp":"\u2002","Eogon":"\u0118","eogon":"\u0119","Eopf":"\uD835\uDD3C","eopf":"\uD835\uDD56","epar":"\u22D5","eparsl":"\u29E3","eplus":"\u2A71","epsi":"\u03B5","Epsilon":"\u0395","epsilon":"\u03B5","epsiv":"\u03F5","eqcirc":"\u2256","eqcolon":"\u2255","eqsim":"\u2242","eqslantgtr":"\u2A96","eqslantless":"\u2A95","Equal":"\u2A75","equals":"=","EqualTilde":"\u2242","equest":"\u225F","Equilibrium":"\u21CC","equiv":"\u2261","equivDD":"\u2A78","eqvparsl":"\u29E5","erarr":"\u2971","erDot":"\u2253","escr":"\u212F","Escr":"\u2130","esdot":"\u2250","Esim":"\u2A73","esim":"\u2242","Eta":"\u0397","eta":"\u03B7","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","euro":"\u20AC","excl":"!","exist":"\u2203","Exists":"\u2203","expectation":"\u2130","exponentiale":"\u2147","ExponentialE":"\u2147","fallingdotseq":"\u2252","Fcy":"\u0424","fcy":"\u0444","female":"\u2640","ffilig":"\uFB03","fflig":"\uFB00","ffllig":"\uFB04","Ffr":"\uD835\uDD09","ffr":"\uD835\uDD23","filig":"\uFB01","FilledSmallSquare":"\u25FC","FilledVerySmallSquare":"\u25AA","fjlig":"fj","flat":"\u266D","fllig":"\uFB02","fltns":"\u25B1","fnof":"\u0192","Fopf":"\uD835\uDD3D","fopf":"\uD835\uDD57","forall":"\u2200","ForAll":"\u2200","fork":"\u22D4","forkv":"\u2AD9","Fouriertrf":"\u2131","fpartint":"\u2A0D","frac12":"\u00BD","frac13":"\u2153","frac14":"\u00BC","frac15":"\u2155","frac16":"\u2159","frac18":"\u215B","frac23":"\u2154","frac25":"\u2156","frac34":"\u00BE","frac35":"\u2157","frac38":"\u215C","frac45":"\u2158","frac56":"\u215A","frac58":"\u215D","frac78":"\u215E","frasl":"\u2044","frown":"\u2322","fscr":"\uD835\uDCBB","Fscr":"\u2131","gacute":"\u01F5","Gamma":"\u0393","gamma":"\u03B3","Gammad":"\u03DC","gammad":"\u03DD","gap":"\u2A86","Gbreve":"\u011E","gbreve":"\u011F","Gcedil":"\u0122","Gcirc":"\u011C","gcirc":"\u011D","Gcy":"\u0413","gcy":"\u0433","Gdot":"\u0120","gdot":"\u0121","ge":"\u2265","gE":"\u2267","gEl":"\u2A8C","gel":"\u22DB","geq":"\u2265","geqq":"\u2267","geqslant":"\u2A7E","gescc":"\u2AA9","ges":"\u2A7E","gesdot":"\u2A80","gesdoto":"\u2A82","gesdotol":"\u2A84","gesl":"\u22DB\uFE00","gesles":"\u2A94","Gfr":"\uD835\uDD0A","gfr":"\uD835\uDD24","gg":"\u226B","Gg":"\u22D9","ggg":"\u22D9","gimel":"\u2137","GJcy":"\u0403","gjcy":"\u0453","gla":"\u2AA5","gl":"\u2277","glE":"\u2A92","glj":"\u2AA4","gnap":"\u2A8A","gnapprox":"\u2A8A","gne":"\u2A88","gnE":"\u2269","gneq":"\u2A88","gneqq":"\u2269","gnsim":"\u22E7","Gopf":"\uD835\uDD3E","gopf":"\uD835\uDD58","grave":"`","GreaterEqual":"\u2265","GreaterEqualLess":"\u22DB","GreaterFullEqual":"\u2267","GreaterGreater":"\u2AA2","GreaterLess":"\u2277","GreaterSlantEqual":"\u2A7E","GreaterTilde":"\u2273","Gscr":"\uD835\uDCA2","gscr":"\u210A","gsim":"\u2273","gsime":"\u2A8E","gsiml":"\u2A90","gtcc":"\u2AA7","gtcir":"\u2A7A","gt":">","GT":">","Gt":"\u226B","gtdot":"\u22D7","gtlPar":"\u2995","gtquest":"\u2A7C","gtrapprox":"\u2A86","gtrarr":"\u2978","gtrdot":"\u22D7","gtreqless":"\u22DB","gtreqqless":"\u2A8C","gtrless":"\u2277","gtrsim":"\u2273","gvertneqq":"\u2269\uFE00","gvnE":"\u2269\uFE00","Hacek":"\u02C7","hairsp":"\u200A","half":"\u00BD","hamilt":"\u210B","HARDcy":"\u042A","hardcy":"\u044A","harrcir":"\u2948","harr":"\u2194","hArr":"\u21D4","harrw":"\u21AD","Hat":"^","hbar":"\u210F","Hcirc":"\u0124","hcirc":"\u0125","hearts":"\u2665","heartsuit":"\u2665","hellip":"\u2026","hercon":"\u22B9","hfr":"\uD835\uDD25","Hfr":"\u210C","HilbertSpace":"\u210B","hksearow":"\u2925","hkswarow":"\u2926","hoarr":"\u21FF","homtht":"\u223B","hookleftarrow":"\u21A9","hookrightarrow":"\u21AA","hopf":"\uD835\uDD59","Hopf":"\u210D","horbar":"\u2015","HorizontalLine":"\u2500","hscr":"\uD835\uDCBD","Hscr":"\u210B","hslash":"\u210F","Hstrok":"\u0126","hstrok":"\u0127","HumpDownHump":"\u224E","HumpEqual":"\u224F","hybull":"\u2043","hyphen":"\u2010","Iacute":"\u00CD","iacute":"\u00ED","ic":"\u2063","Icirc":"\u00CE","icirc":"\u00EE","Icy":"\u0418","icy":"\u0438","Idot":"\u0130","IEcy":"\u0415","iecy":"\u0435","iexcl":"\u00A1","iff":"\u21D4","ifr":"\uD835\uDD26","Ifr":"\u2111","Igrave":"\u00CC","igrave":"\u00EC","ii":"\u2148","iiiint":"\u2A0C","iiint":"\u222D","iinfin":"\u29DC","iiota":"\u2129","IJlig":"\u0132","ijlig":"\u0133","Imacr":"\u012A","imacr":"\u012B","image":"\u2111","ImaginaryI":"\u2148","imagline":"\u2110","imagpart":"\u2111","imath":"\u0131","Im":"\u2111","imof":"\u22B7","imped":"\u01B5","Implies":"\u21D2","incare":"\u2105","in":"\u2208","infin":"\u221E","infintie":"\u29DD","inodot":"\u0131","intcal":"\u22BA","int":"\u222B","Int":"\u222C","integers":"\u2124","Integral":"\u222B","intercal":"\u22BA","Intersection":"\u22C2","intlarhk":"\u2A17","intprod":"\u2A3C","InvisibleComma":"\u2063","InvisibleTimes":"\u2062","IOcy":"\u0401","iocy":"\u0451","Iogon":"\u012E","iogon":"\u012F","Iopf":"\uD835\uDD40","iopf":"\uD835\uDD5A","Iota":"\u0399","iota":"\u03B9","iprod":"\u2A3C","iquest":"\u00BF","iscr":"\uD835\uDCBE","Iscr":"\u2110","isin":"\u2208","isindot":"\u22F5","isinE":"\u22F9","isins":"\u22F4","isinsv":"\u22F3","isinv":"\u2208","it":"\u2062","Itilde":"\u0128","itilde":"\u0129","Iukcy":"\u0406","iukcy":"\u0456","Iuml":"\u00CF","iuml":"\u00EF","Jcirc":"\u0134","jcirc":"\u0135","Jcy":"\u0419","jcy":"\u0439","Jfr":"\uD835\uDD0D","jfr":"\uD835\uDD27","jmath":"\u0237","Jopf":"\uD835\uDD41","jopf":"\uD835\uDD5B","Jscr":"\uD835\uDCA5","jscr":"\uD835\uDCBF","Jsercy":"\u0408","jsercy":"\u0458","Jukcy":"\u0404","jukcy":"\u0454","Kappa":"\u039A","kappa":"\u03BA","kappav":"\u03F0","Kcedil":"\u0136","kcedil":"\u0137","Kcy":"\u041A","kcy":"\u043A","Kfr":"\uD835\uDD0E","kfr":"\uD835\uDD28","kgreen":"\u0138","KHcy":"\u0425","khcy":"\u0445","KJcy":"\u040C","kjcy":"\u045C","Kopf":"\uD835\uDD42","kopf":"\uD835\uDD5C","Kscr":"\uD835\uDCA6","kscr":"\uD835\uDCC0","lAarr":"\u21DA","Lacute":"\u0139","lacute":"\u013A","laemptyv":"\u29B4","lagran":"\u2112","Lambda":"\u039B","lambda":"\u03BB","lang":"\u27E8","Lang":"\u27EA","langd":"\u2991","langle":"\u27E8","lap":"\u2A85","Laplacetrf":"\u2112","laquo":"\u00AB","larrb":"\u21E4","larrbfs":"\u291F","larr":"\u2190","Larr":"\u219E","lArr":"\u21D0","larrfs":"\u291D","larrhk":"\u21A9","larrlp":"\u21AB","larrpl":"\u2939","larrsim":"\u2973","larrtl":"\u21A2","latail":"\u2919","lAtail":"\u291B","lat":"\u2AAB","late":"\u2AAD","lates":"\u2AAD\uFE00","lbarr":"\u290C","lBarr":"\u290E","lbbrk":"\u2772","lbrace":"{","lbrack":"[","lbrke":"\u298B","lbrksld":"\u298F","lbrkslu":"\u298D","Lcaron":"\u013D","lcaron":"\u013E","Lcedil":"\u013B","lcedil":"\u013C","lceil":"\u2308","lcub":"{","Lcy":"\u041B","lcy":"\u043B","ldca":"\u2936","ldquo":"\u201C","ldquor":"\u201E","ldrdhar":"\u2967","ldrushar":"\u294B","ldsh":"\u21B2","le":"\u2264","lE":"\u2266","LeftAngleBracket":"\u27E8","LeftArrowBar":"\u21E4","leftarrow":"\u2190","LeftArrow":"\u2190","Leftarrow":"\u21D0","LeftArrowRightArrow":"\u21C6","leftarrowtail":"\u21A2","LeftCeiling":"\u2308","LeftDoubleBracket":"\u27E6","LeftDownTeeVector":"\u2961","LeftDownVectorBar":"\u2959","LeftDownVector":"\u21C3","LeftFloor":"\u230A","leftharpoondown":"\u21BD","leftharpoonup":"\u21BC","leftleftarrows":"\u21C7","leftrightarrow":"\u2194","LeftRightArrow":"\u2194","Leftrightarrow":"\u21D4","leftrightarrows":"\u21C6","leftrightharpoons":"\u21CB","leftrightsquigarrow":"\u21AD","LeftRightVector":"\u294E","LeftTeeArrow":"\u21A4","LeftTee":"\u22A3","LeftTeeVector":"\u295A","leftthreetimes":"\u22CB","LeftTriangleBar":"\u29CF","LeftTriangle":"\u22B2","LeftTriangleEqual":"\u22B4","LeftUpDownVector":"\u2951","LeftUpTeeVector":"\u2960","LeftUpVectorBar":"\u2958","LeftUpVector":"\u21BF","LeftVectorBar":"\u2952","LeftVector":"\u21BC","lEg":"\u2A8B","leg":"\u22DA","leq":"\u2264","leqq":"\u2266","leqslant":"\u2A7D","lescc":"\u2AA8","les":"\u2A7D","lesdot":"\u2A7F","lesdoto":"\u2A81","lesdotor":"\u2A83","lesg":"\u22DA\uFE00","lesges":"\u2A93","lessapprox":"\u2A85","lessdot":"\u22D6","lesseqgtr":"\u22DA","lesseqqgtr":"\u2A8B","LessEqualGreater":"\u22DA","LessFullEqual":"\u2266","LessGreater":"\u2276","lessgtr":"\u2276","LessLess":"\u2AA1","lesssim":"\u2272","LessSlantEqual":"\u2A7D","LessTilde":"\u2272","lfisht":"\u297C","lfloor":"\u230A","Lfr":"\uD835\uDD0F","lfr":"\uD835\uDD29","lg":"\u2276","lgE":"\u2A91","lHar":"\u2962","lhard":"\u21BD","lharu":"\u21BC","lharul":"\u296A","lhblk":"\u2584","LJcy":"\u0409","ljcy":"\u0459","llarr":"\u21C7","ll":"\u226A","Ll":"\u22D8","llcorner":"\u231E","Lleftarrow":"\u21DA","llhard":"\u296B","lltri":"\u25FA","Lmidot":"\u013F","lmidot":"\u0140","lmoustache":"\u23B0","lmoust":"\u23B0","lnap":"\u2A89","lnapprox":"\u2A89","lne":"\u2A87","lnE":"\u2268","lneq":"\u2A87","lneqq":"\u2268","lnsim":"\u22E6","loang":"\u27EC","loarr":"\u21FD","lobrk":"\u27E6","longleftarrow":"\u27F5","LongLeftArrow":"\u27F5","Longleftarrow":"\u27F8","longleftrightarrow":"\u27F7","LongLeftRightArrow":"\u27F7","Longleftrightarrow":"\u27FA","longmapsto":"\u27FC","longrightarrow":"\u27F6","LongRightArrow":"\u27F6","Longrightarrow":"\u27F9","looparrowleft":"\u21AB","looparrowright":"\u21AC","lopar":"\u2985","Lopf":"\uD835\uDD43","lopf":"\uD835\uDD5D","loplus":"\u2A2D","lotimes":"\u2A34","lowast":"\u2217","lowbar":"_","LowerLeftArrow":"\u2199","LowerRightArrow":"\u2198","loz":"\u25CA","lozenge":"\u25CA","lozf":"\u29EB","lpar":"(","lparlt":"\u2993","lrarr":"\u21C6","lrcorner":"\u231F","lrhar":"\u21CB","lrhard":"\u296D","lrm":"\u200E","lrtri":"\u22BF","lsaquo":"\u2039","lscr":"\uD835\uDCC1","Lscr":"\u2112","lsh":"\u21B0","Lsh":"\u21B0","lsim":"\u2272","lsime":"\u2A8D","lsimg":"\u2A8F","lsqb":"[","lsquo":"\u2018","lsquor":"\u201A","Lstrok":"\u0141","lstrok":"\u0142","ltcc":"\u2AA6","ltcir":"\u2A79","lt":"<","LT":"<","Lt":"\u226A","ltdot":"\u22D6","lthree":"\u22CB","ltimes":"\u22C9","ltlarr":"\u2976","ltquest":"\u2A7B","ltri":"\u25C3","ltrie":"\u22B4","ltrif":"\u25C2","ltrPar":"\u2996","lurdshar":"\u294A","luruhar":"\u2966","lvertneqq":"\u2268\uFE00","lvnE":"\u2268\uFE00","macr":"\u00AF","male":"\u2642","malt":"\u2720","maltese":"\u2720","Map":"\u2905","map":"\u21A6","mapsto":"\u21A6","mapstodown":"\u21A7","mapstoleft":"\u21A4","mapstoup":"\u21A5","marker":"\u25AE","mcomma":"\u2A29","Mcy":"\u041C","mcy":"\u043C","mdash":"\u2014","mDDot":"\u223A","measuredangle":"\u2221","MediumSpace":"\u205F","Mellintrf":"\u2133","Mfr":"\uD835\uDD10","mfr":"\uD835\uDD2A","mho":"\u2127","micro":"\u00B5","midast":"*","midcir":"\u2AF0","mid":"\u2223","middot":"\u00B7","minusb":"\u229F","minus":"\u2212","minusd":"\u2238","minusdu":"\u2A2A","MinusPlus":"\u2213","mlcp":"\u2ADB","mldr":"\u2026","mnplus":"\u2213","models":"\u22A7","Mopf":"\uD835\uDD44","mopf":"\uD835\uDD5E","mp":"\u2213","mscr":"\uD835\uDCC2","Mscr":"\u2133","mstpos":"\u223E","Mu":"\u039C","mu":"\u03BC","multimap":"\u22B8","mumap":"\u22B8","nabla":"\u2207","Nacute":"\u0143","nacute":"\u0144","nang":"\u2220\u20D2","nap":"\u2249","napE":"\u2A70\u0338","napid":"\u224B\u0338","napos":"\u0149","napprox":"\u2249","natural":"\u266E","naturals":"\u2115","natur":"\u266E","nbsp":"\u00A0","nbump":"\u224E\u0338","nbumpe":"\u224F\u0338","ncap":"\u2A43","Ncaron":"\u0147","ncaron":"\u0148","Ncedil":"\u0145","ncedil":"\u0146","ncong":"\u2247","ncongdot":"\u2A6D\u0338","ncup":"\u2A42","Ncy":"\u041D","ncy":"\u043D","ndash":"\u2013","nearhk":"\u2924","nearr":"\u2197","neArr":"\u21D7","nearrow":"\u2197","ne":"\u2260","nedot":"\u2250\u0338","NegativeMediumSpace":"\u200B","NegativeThickSpace":"\u200B","NegativeThinSpace":"\u200B","NegativeVeryThinSpace":"\u200B","nequiv":"\u2262","nesear":"\u2928","nesim":"\u2242\u0338","NestedGreaterGreater":"\u226B","NestedLessLess":"\u226A","NewLine":"\n","nexist":"\u2204","nexists":"\u2204","Nfr":"\uD835\uDD11","nfr":"\uD835\uDD2B","ngE":"\u2267\u0338","nge":"\u2271","ngeq":"\u2271","ngeqq":"\u2267\u0338","ngeqslant":"\u2A7E\u0338","nges":"\u2A7E\u0338","nGg":"\u22D9\u0338","ngsim":"\u2275","nGt":"\u226B\u20D2","ngt":"\u226F","ngtr":"\u226F","nGtv":"\u226B\u0338","nharr":"\u21AE","nhArr":"\u21CE","nhpar":"\u2AF2","ni":"\u220B","nis":"\u22FC","nisd":"\u22FA","niv":"\u220B","NJcy":"\u040A","njcy":"\u045A","nlarr":"\u219A","nlArr":"\u21CD","nldr":"\u2025","nlE":"\u2266\u0338","nle":"\u2270","nleftarrow":"\u219A","nLeftarrow":"\u21CD","nleftrightarrow":"\u21AE","nLeftrightarrow":"\u21CE","nleq":"\u2270","nleqq":"\u2266\u0338","nleqslant":"\u2A7D\u0338","nles":"\u2A7D\u0338","nless":"\u226E","nLl":"\u22D8\u0338","nlsim":"\u2274","nLt":"\u226A\u20D2","nlt":"\u226E","nltri":"\u22EA","nltrie":"\u22EC","nLtv":"\u226A\u0338","nmid":"\u2224","NoBreak":"\u2060","NonBreakingSpace":"\u00A0","nopf":"\uD835\uDD5F","Nopf":"\u2115","Not":"\u2AEC","not":"\u00AC","NotCongruent":"\u2262","NotCupCap":"\u226D","NotDoubleVerticalBar":"\u2226","NotElement":"\u2209","NotEqual":"\u2260","NotEqualTilde":"\u2242\u0338","NotExists":"\u2204","NotGreater":"\u226F","NotGreaterEqual":"\u2271","NotGreaterFullEqual":"\u2267\u0338","NotGreaterGreater":"\u226B\u0338","NotGreaterLess":"\u2279","NotGreaterSlantEqual":"\u2A7E\u0338","NotGreaterTilde":"\u2275","NotHumpDownHump":"\u224E\u0338","NotHumpEqual":"\u224F\u0338","notin":"\u2209","notindot":"\u22F5\u0338","notinE":"\u22F9\u0338","notinva":"\u2209","notinvb":"\u22F7","notinvc":"\u22F6","NotLeftTriangleBar":"\u29CF\u0338","NotLeftTriangle":"\u22EA","NotLeftTriangleEqual":"\u22EC","NotLess":"\u226E","NotLessEqual":"\u2270","NotLessGreater":"\u2278","NotLessLess":"\u226A\u0338","NotLessSlantEqual":"\u2A7D\u0338","NotLessTilde":"\u2274","NotNestedGreaterGreater":"\u2AA2\u0338","NotNestedLessLess":"\u2AA1\u0338","notni":"\u220C","notniva":"\u220C","notnivb":"\u22FE","notnivc":"\u22FD","NotPrecedes":"\u2280","NotPrecedesEqual":"\u2AAF\u0338","NotPrecedesSlantEqual":"\u22E0","NotReverseElement":"\u220C","NotRightTriangleBar":"\u29D0\u0338","NotRightTriangle":"\u22EB","NotRightTriangleEqual":"\u22ED","NotSquareSubset":"\u228F\u0338","NotSquareSubsetEqual":"\u22E2","NotSquareSuperset":"\u2290\u0338","NotSquareSupersetEqual":"\u22E3","NotSubset":"\u2282\u20D2","NotSubsetEqual":"\u2288","NotSucceeds":"\u2281","NotSucceedsEqual":"\u2AB0\u0338","NotSucceedsSlantEqual":"\u22E1","NotSucceedsTilde":"\u227F\u0338","NotSuperset":"\u2283\u20D2","NotSupersetEqual":"\u2289","NotTilde":"\u2241","NotTildeEqual":"\u2244","NotTildeFullEqual":"\u2247","NotTildeTilde":"\u2249","NotVerticalBar":"\u2224","nparallel":"\u2226","npar":"\u2226","nparsl":"\u2AFD\u20E5","npart":"\u2202\u0338","npolint":"\u2A14","npr":"\u2280","nprcue":"\u22E0","nprec":"\u2280","npreceq":"\u2AAF\u0338","npre":"\u2AAF\u0338","nrarrc":"\u2933\u0338","nrarr":"\u219B","nrArr":"\u21CF","nrarrw":"\u219D\u0338","nrightarrow":"\u219B","nRightarrow":"\u21CF","nrtri":"\u22EB","nrtrie":"\u22ED","nsc":"\u2281","nsccue":"\u22E1","nsce":"\u2AB0\u0338","Nscr":"\uD835\uDCA9","nscr":"\uD835\uDCC3","nshortmid":"\u2224","nshortparallel":"\u2226","nsim":"\u2241","nsime":"\u2244","nsimeq":"\u2244","nsmid":"\u2224","nspar":"\u2226","nsqsube":"\u22E2","nsqsupe":"\u22E3","nsub":"\u2284","nsubE":"\u2AC5\u0338","nsube":"\u2288","nsubset":"\u2282\u20D2","nsubseteq":"\u2288","nsubseteqq":"\u2AC5\u0338","nsucc":"\u2281","nsucceq":"\u2AB0\u0338","nsup":"\u2285","nsupE":"\u2AC6\u0338","nsupe":"\u2289","nsupset":"\u2283\u20D2","nsupseteq":"\u2289","nsupseteqq":"\u2AC6\u0338","ntgl":"\u2279","Ntilde":"\u00D1","ntilde":"\u00F1","ntlg":"\u2278","ntriangleleft":"\u22EA","ntrianglelefteq":"\u22EC","ntriangleright":"\u22EB","ntrianglerighteq":"\u22ED","Nu":"\u039D","nu":"\u03BD","num":"#","numero":"\u2116","numsp":"\u2007","nvap":"\u224D\u20D2","nvdash":"\u22AC","nvDash":"\u22AD","nVdash":"\u22AE","nVDash":"\u22AF","nvge":"\u2265\u20D2","nvgt":">\u20D2","nvHarr":"\u2904","nvinfin":"\u29DE","nvlArr":"\u2902","nvle":"\u2264\u20D2","nvlt":"<\u20D2","nvltrie":"\u22B4\u20D2","nvrArr":"\u2903","nvrtrie":"\u22B5\u20D2","nvsim":"\u223C\u20D2","nwarhk":"\u2923","nwarr":"\u2196","nwArr":"\u21D6","nwarrow":"\u2196","nwnear":"\u2927","Oacute":"\u00D3","oacute":"\u00F3","oast":"\u229B","Ocirc":"\u00D4","ocirc":"\u00F4","ocir":"\u229A","Ocy":"\u041E","ocy":"\u043E","odash":"\u229D","Odblac":"\u0150","odblac":"\u0151","odiv":"\u2A38","odot":"\u2299","odsold":"\u29BC","OElig":"\u0152","oelig":"\u0153","ofcir":"\u29BF","Ofr":"\uD835\uDD12","ofr":"\uD835\uDD2C","ogon":"\u02DB","Ograve":"\u00D2","ograve":"\u00F2","ogt":"\u29C1","ohbar":"\u29B5","ohm":"\u03A9","oint":"\u222E","olarr":"\u21BA","olcir":"\u29BE","olcross":"\u29BB","oline":"\u203E","olt":"\u29C0","Omacr":"\u014C","omacr":"\u014D","Omega":"\u03A9","omega":"\u03C9","Omicron":"\u039F","omicron":"\u03BF","omid":"\u29B6","ominus":"\u2296","Oopf":"\uD835\uDD46","oopf":"\uD835\uDD60","opar":"\u29B7","OpenCurlyDoubleQuote":"\u201C","OpenCurlyQuote":"\u2018","operp":"\u29B9","oplus":"\u2295","orarr":"\u21BB","Or":"\u2A54","or":"\u2228","ord":"\u2A5D","order":"\u2134","orderof":"\u2134","ordf":"\u00AA","ordm":"\u00BA","origof":"\u22B6","oror":"\u2A56","orslope":"\u2A57","orv":"\u2A5B","oS":"\u24C8","Oscr":"\uD835\uDCAA","oscr":"\u2134","Oslash":"\u00D8","oslash":"\u00F8","osol":"\u2298","Otilde":"\u00D5","otilde":"\u00F5","otimesas":"\u2A36","Otimes":"\u2A37","otimes":"\u2297","Ouml":"\u00D6","ouml":"\u00F6","ovbar":"\u233D","OverBar":"\u203E","OverBrace":"\u23DE","OverBracket":"\u23B4","OverParenthesis":"\u23DC","para":"\u00B6","parallel":"\u2225","par":"\u2225","parsim":"\u2AF3","parsl":"\u2AFD","part":"\u2202","PartialD":"\u2202","Pcy":"\u041F","pcy":"\u043F","percnt":"%","period":".","permil":"\u2030","perp":"\u22A5","pertenk":"\u2031","Pfr":"\uD835\uDD13","pfr":"\uD835\uDD2D","Phi":"\u03A6","phi":"\u03C6","phiv":"\u03D5","phmmat":"\u2133","phone":"\u260E","Pi":"\u03A0","pi":"\u03C0","pitchfork":"\u22D4","piv":"\u03D6","planck":"\u210F","planckh":"\u210E","plankv":"\u210F","plusacir":"\u2A23","plusb":"\u229E","pluscir":"\u2A22","plus":"+","plusdo":"\u2214","plusdu":"\u2A25","pluse":"\u2A72","PlusMinus":"\u00B1","plusmn":"\u00B1","plussim":"\u2A26","plustwo":"\u2A27","pm":"\u00B1","Poincareplane":"\u210C","pointint":"\u2A15","popf":"\uD835\uDD61","Popf":"\u2119","pound":"\u00A3","prap":"\u2AB7","Pr":"\u2ABB","pr":"\u227A","prcue":"\u227C","precapprox":"\u2AB7","prec":"\u227A","preccurlyeq":"\u227C","Precedes":"\u227A","PrecedesEqual":"\u2AAF","PrecedesSlantEqual":"\u227C","PrecedesTilde":"\u227E","preceq":"\u2AAF","precnapprox":"\u2AB9","precneqq":"\u2AB5","precnsim":"\u22E8","pre":"\u2AAF","prE":"\u2AB3","precsim":"\u227E","prime":"\u2032","Prime":"\u2033","primes":"\u2119","prnap":"\u2AB9","prnE":"\u2AB5","prnsim":"\u22E8","prod":"\u220F","Product":"\u220F","profalar":"\u232E","profline":"\u2312","profsurf":"\u2313","prop":"\u221D","Proportional":"\u221D","Proportion":"\u2237","propto":"\u221D","prsim":"\u227E","prurel":"\u22B0","Pscr":"\uD835\uDCAB","pscr":"\uD835\uDCC5","Psi":"\u03A8","psi":"\u03C8","puncsp":"\u2008","Qfr":"\uD835\uDD14","qfr":"\uD835\uDD2E","qint":"\u2A0C","qopf":"\uD835\uDD62","Qopf":"\u211A","qprime":"\u2057","Qscr":"\uD835\uDCAC","qscr":"\uD835\uDCC6","quaternions":"\u210D","quatint":"\u2A16","quest":"?","questeq":"\u225F","quot":"\"","QUOT":"\"","rAarr":"\u21DB","race":"\u223D\u0331","Racute":"\u0154","racute":"\u0155","radic":"\u221A","raemptyv":"\u29B3","rang":"\u27E9","Rang":"\u27EB","rangd":"\u2992","range":"\u29A5","rangle":"\u27E9","raquo":"\u00BB","rarrap":"\u2975","rarrb":"\u21E5","rarrbfs":"\u2920","rarrc":"\u2933","rarr":"\u2192","Rarr":"\u21A0","rArr":"\u21D2","rarrfs":"\u291E","rarrhk":"\u21AA","rarrlp":"\u21AC","rarrpl":"\u2945","rarrsim":"\u2974","Rarrtl":"\u2916","rarrtl":"\u21A3","rarrw":"\u219D","ratail":"\u291A","rAtail":"\u291C","ratio":"\u2236","rationals":"\u211A","rbarr":"\u290D","rBarr":"\u290F","RBarr":"\u2910","rbbrk":"\u2773","rbrace":"}","rbrack":"]","rbrke":"\u298C","rbrksld":"\u298E","rbrkslu":"\u2990","Rcaron":"\u0158","rcaron":"\u0159","Rcedil":"\u0156","rcedil":"\u0157","rceil":"\u2309","rcub":"}","Rcy":"\u0420","rcy":"\u0440","rdca":"\u2937","rdldhar":"\u2969","rdquo":"\u201D","rdquor":"\u201D","rdsh":"\u21B3","real":"\u211C","realine":"\u211B","realpart":"\u211C","reals":"\u211D","Re":"\u211C","rect":"\u25AD","reg":"\u00AE","REG":"\u00AE","ReverseElement":"\u220B","ReverseEquilibrium":"\u21CB","ReverseUpEquilibrium":"\u296F","rfisht":"\u297D","rfloor":"\u230B","rfr":"\uD835\uDD2F","Rfr":"\u211C","rHar":"\u2964","rhard":"\u21C1","rharu":"\u21C0","rharul":"\u296C","Rho":"\u03A1","rho":"\u03C1","rhov":"\u03F1","RightAngleBracket":"\u27E9","RightArrowBar":"\u21E5","rightarrow":"\u2192","RightArrow":"\u2192","Rightarrow":"\u21D2","RightArrowLeftArrow":"\u21C4","rightarrowtail":"\u21A3","RightCeiling":"\u2309","RightDoubleBracket":"\u27E7","RightDownTeeVector":"\u295D","RightDownVectorBar":"\u2955","RightDownVector":"\u21C2","RightFloor":"\u230B","rightharpoondown":"\u21C1","rightharpoonup":"\u21C0","rightleftarrows":"\u21C4","rightleftharpoons":"\u21CC","rightrightarrows":"\u21C9","rightsquigarrow":"\u219D","RightTeeArrow":"\u21A6","RightTee":"\u22A2","RightTeeVector":"\u295B","rightthreetimes":"\u22CC","RightTriangleBar":"\u29D0","RightTriangle":"\u22B3","RightTriangleEqual":"\u22B5","RightUpDownVector":"\u294F","RightUpTeeVector":"\u295C","RightUpVectorBar":"\u2954","RightUpVector":"\u21BE","RightVectorBar":"\u2953","RightVector":"\u21C0","ring":"\u02DA","risingdotseq":"\u2253","rlarr":"\u21C4","rlhar":"\u21CC","rlm":"\u200F","rmoustache":"\u23B1","rmoust":"\u23B1","rnmid":"\u2AEE","roang":"\u27ED","roarr":"\u21FE","robrk":"\u27E7","ropar":"\u2986","ropf":"\uD835\uDD63","Ropf":"\u211D","roplus":"\u2A2E","rotimes":"\u2A35","RoundImplies":"\u2970","rpar":")","rpargt":"\u2994","rppolint":"\u2A12","rrarr":"\u21C9","Rrightarrow":"\u21DB","rsaquo":"\u203A","rscr":"\uD835\uDCC7","Rscr":"\u211B","rsh":"\u21B1","Rsh":"\u21B1","rsqb":"]","rsquo":"\u2019","rsquor":"\u2019","rthree":"\u22CC","rtimes":"\u22CA","rtri":"\u25B9","rtrie":"\u22B5","rtrif":"\u25B8","rtriltri":"\u29CE","RuleDelayed":"\u29F4","ruluhar":"\u2968","rx":"\u211E","Sacute":"\u015A","sacute":"\u015B","sbquo":"\u201A","scap":"\u2AB8","Scaron":"\u0160","scaron":"\u0161","Sc":"\u2ABC","sc":"\u227B","sccue":"\u227D","sce":"\u2AB0","scE":"\u2AB4","Scedil":"\u015E","scedil":"\u015F","Scirc":"\u015C","scirc":"\u015D","scnap":"\u2ABA","scnE":"\u2AB6","scnsim":"\u22E9","scpolint":"\u2A13","scsim":"\u227F","Scy":"\u0421","scy":"\u0441","sdotb":"\u22A1","sdot":"\u22C5","sdote":"\u2A66","searhk":"\u2925","searr":"\u2198","seArr":"\u21D8","searrow":"\u2198","sect":"\u00A7","semi":";","seswar":"\u2929","setminus":"\u2216","setmn":"\u2216","sext":"\u2736","Sfr":"\uD835\uDD16","sfr":"\uD835\uDD30","sfrown":"\u2322","sharp":"\u266F","SHCHcy":"\u0429","shchcy":"\u0449","SHcy":"\u0428","shcy":"\u0448","ShortDownArrow":"\u2193","ShortLeftArrow":"\u2190","shortmid":"\u2223","shortparallel":"\u2225","ShortRightArrow":"\u2192","ShortUpArrow":"\u2191","shy":"\u00AD","Sigma":"\u03A3","sigma":"\u03C3","sigmaf":"\u03C2","sigmav":"\u03C2","sim":"\u223C","simdot":"\u2A6A","sime":"\u2243","simeq":"\u2243","simg":"\u2A9E","simgE":"\u2AA0","siml":"\u2A9D","simlE":"\u2A9F","simne":"\u2246","simplus":"\u2A24","simrarr":"\u2972","slarr":"\u2190","SmallCircle":"\u2218","smallsetminus":"\u2216","smashp":"\u2A33","smeparsl":"\u29E4","smid":"\u2223","smile":"\u2323","smt":"\u2AAA","smte":"\u2AAC","smtes":"\u2AAC\uFE00","SOFTcy":"\u042C","softcy":"\u044C","solbar":"\u233F","solb":"\u29C4","sol":"/","Sopf":"\uD835\uDD4A","sopf":"\uD835\uDD64","spades":"\u2660","spadesuit":"\u2660","spar":"\u2225","sqcap":"\u2293","sqcaps":"\u2293\uFE00","sqcup":"\u2294","sqcups":"\u2294\uFE00","Sqrt":"\u221A","sqsub":"\u228F","sqsube":"\u2291","sqsubset":"\u228F","sqsubseteq":"\u2291","sqsup":"\u2290","sqsupe":"\u2292","sqsupset":"\u2290","sqsupseteq":"\u2292","square":"\u25A1","Square":"\u25A1","SquareIntersection":"\u2293","SquareSubset":"\u228F","SquareSubsetEqual":"\u2291","SquareSuperset":"\u2290","SquareSupersetEqual":"\u2292","SquareUnion":"\u2294","squarf":"\u25AA","squ":"\u25A1","squf":"\u25AA","srarr":"\u2192","Sscr":"\uD835\uDCAE","sscr":"\uD835\uDCC8","ssetmn":"\u2216","ssmile":"\u2323","sstarf":"\u22C6","Star":"\u22C6","star":"\u2606","starf":"\u2605","straightepsilon":"\u03F5","straightphi":"\u03D5","strns":"\u00AF","sub":"\u2282","Sub":"\u22D0","subdot":"\u2ABD","subE":"\u2AC5","sube":"\u2286","subedot":"\u2AC3","submult":"\u2AC1","subnE":"\u2ACB","subne":"\u228A","subplus":"\u2ABF","subrarr":"\u2979","subset":"\u2282","Subset":"\u22D0","subseteq":"\u2286","subseteqq":"\u2AC5","SubsetEqual":"\u2286","subsetneq":"\u228A","subsetneqq":"\u2ACB","subsim":"\u2AC7","subsub":"\u2AD5","subsup":"\u2AD3","succapprox":"\u2AB8","succ":"\u227B","succcurlyeq":"\u227D","Succeeds":"\u227B","SucceedsEqual":"\u2AB0","SucceedsSlantEqual":"\u227D","SucceedsTilde":"\u227F","succeq":"\u2AB0","succnapprox":"\u2ABA","succneqq":"\u2AB6","succnsim":"\u22E9","succsim":"\u227F","SuchThat":"\u220B","sum":"\u2211","Sum":"\u2211","sung":"\u266A","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","sup":"\u2283","Sup":"\u22D1","supdot":"\u2ABE","supdsub":"\u2AD8","supE":"\u2AC6","supe":"\u2287","supedot":"\u2AC4","Superset":"\u2283","SupersetEqual":"\u2287","suphsol":"\u27C9","suphsub":"\u2AD7","suplarr":"\u297B","supmult":"\u2AC2","supnE":"\u2ACC","supne":"\u228B","supplus":"\u2AC0","supset":"\u2283","Supset":"\u22D1","supseteq":"\u2287","supseteqq":"\u2AC6","supsetneq":"\u228B","supsetneqq":"\u2ACC","supsim":"\u2AC8","supsub":"\u2AD4","supsup":"\u2AD6","swarhk":"\u2926","swarr":"\u2199","swArr":"\u21D9","swarrow":"\u2199","swnwar":"\u292A","szlig":"\u00DF","Tab":"\t","target":"\u2316","Tau":"\u03A4","tau":"\u03C4","tbrk":"\u23B4","Tcaron":"\u0164","tcaron":"\u0165","Tcedil":"\u0162","tcedil":"\u0163","Tcy":"\u0422","tcy":"\u0442","tdot":"\u20DB","telrec":"\u2315","Tfr":"\uD835\uDD17","tfr":"\uD835\uDD31","there4":"\u2234","therefore":"\u2234","Therefore":"\u2234","Theta":"\u0398","theta":"\u03B8","thetasym":"\u03D1","thetav":"\u03D1","thickapprox":"\u2248","thicksim":"\u223C","ThickSpace":"\u205F\u200A","ThinSpace":"\u2009","thinsp":"\u2009","thkap":"\u2248","thksim":"\u223C","THORN":"\u00DE","thorn":"\u00FE","tilde":"\u02DC","Tilde":"\u223C","TildeEqual":"\u2243","TildeFullEqual":"\u2245","TildeTilde":"\u2248","timesbar":"\u2A31","timesb":"\u22A0","times":"\u00D7","timesd":"\u2A30","tint":"\u222D","toea":"\u2928","topbot":"\u2336","topcir":"\u2AF1","top":"\u22A4","Topf":"\uD835\uDD4B","topf":"\uD835\uDD65","topfork":"\u2ADA","tosa":"\u2929","tprime":"\u2034","trade":"\u2122","TRADE":"\u2122","triangle":"\u25B5","triangledown":"\u25BF","triangleleft":"\u25C3","trianglelefteq":"\u22B4","triangleq":"\u225C","triangleright":"\u25B9","trianglerighteq":"\u22B5","tridot":"\u25EC","trie":"\u225C","triminus":"\u2A3A","TripleDot":"\u20DB","triplus":"\u2A39","trisb":"\u29CD","tritime":"\u2A3B","trpezium":"\u23E2","Tscr":"\uD835\uDCAF","tscr":"\uD835\uDCC9","TScy":"\u0426","tscy":"\u0446","TSHcy":"\u040B","tshcy":"\u045B","Tstrok":"\u0166","tstrok":"\u0167","twixt":"\u226C","twoheadleftarrow":"\u219E","twoheadrightarrow":"\u21A0","Uacute":"\u00DA","uacute":"\u00FA","uarr":"\u2191","Uarr":"\u219F","uArr":"\u21D1","Uarrocir":"\u2949","Ubrcy":"\u040E","ubrcy":"\u045E","Ubreve":"\u016C","ubreve":"\u016D","Ucirc":"\u00DB","ucirc":"\u00FB","Ucy":"\u0423","ucy":"\u0443","udarr":"\u21C5","Udblac":"\u0170","udblac":"\u0171","udhar":"\u296E","ufisht":"\u297E","Ufr":"\uD835\uDD18","ufr":"\uD835\uDD32","Ugrave":"\u00D9","ugrave":"\u00F9","uHar":"\u2963","uharl":"\u21BF","uharr":"\u21BE","uhblk":"\u2580","ulcorn":"\u231C","ulcorner":"\u231C","ulcrop":"\u230F","ultri":"\u25F8","Umacr":"\u016A","umacr":"\u016B","uml":"\u00A8","UnderBar":"_","UnderBrace":"\u23DF","UnderBracket":"\u23B5","UnderParenthesis":"\u23DD","Union":"\u22C3","UnionPlus":"\u228E","Uogon":"\u0172","uogon":"\u0173","Uopf":"\uD835\uDD4C","uopf":"\uD835\uDD66","UpArrowBar":"\u2912","uparrow":"\u2191","UpArrow":"\u2191","Uparrow":"\u21D1","UpArrowDownArrow":"\u21C5","updownarrow":"\u2195","UpDownArrow":"\u2195","Updownarrow":"\u21D5","UpEquilibrium":"\u296E","upharpoonleft":"\u21BF","upharpoonright":"\u21BE","uplus":"\u228E","UpperLeftArrow":"\u2196","UpperRightArrow":"\u2197","upsi":"\u03C5","Upsi":"\u03D2","upsih":"\u03D2","Upsilon":"\u03A5","upsilon":"\u03C5","UpTeeArrow":"\u21A5","UpTee":"\u22A5","upuparrows":"\u21C8","urcorn":"\u231D","urcorner":"\u231D","urcrop":"\u230E","Uring":"\u016E","uring":"\u016F","urtri":"\u25F9","Uscr":"\uD835\uDCB0","uscr":"\uD835\uDCCA","utdot":"\u22F0","Utilde":"\u0168","utilde":"\u0169","utri":"\u25B5","utrif":"\u25B4","uuarr":"\u21C8","Uuml":"\u00DC","uuml":"\u00FC","uwangle":"\u29A7","vangrt":"\u299C","varepsilon":"\u03F5","varkappa":"\u03F0","varnothing":"\u2205","varphi":"\u03D5","varpi":"\u03D6","varpropto":"\u221D","varr":"\u2195","vArr":"\u21D5","varrho":"\u03F1","varsigma":"\u03C2","varsubsetneq":"\u228A\uFE00","varsubsetneqq":"\u2ACB\uFE00","varsupsetneq":"\u228B\uFE00","varsupsetneqq":"\u2ACC\uFE00","vartheta":"\u03D1","vartriangleleft":"\u22B2","vartriangleright":"\u22B3","vBar":"\u2AE8","Vbar":"\u2AEB","vBarv":"\u2AE9","Vcy":"\u0412","vcy":"\u0432","vdash":"\u22A2","vDash":"\u22A8","Vdash":"\u22A9","VDash":"\u22AB","Vdashl":"\u2AE6","veebar":"\u22BB","vee":"\u2228","Vee":"\u22C1","veeeq":"\u225A","vellip":"\u22EE","verbar":"|","Verbar":"\u2016","vert":"|","Vert":"\u2016","VerticalBar":"\u2223","VerticalLine":"|","VerticalSeparator":"\u2758","VerticalTilde":"\u2240","VeryThinSpace":"\u200A","Vfr":"\uD835\uDD19","vfr":"\uD835\uDD33","vltri":"\u22B2","vnsub":"\u2282\u20D2","vnsup":"\u2283\u20D2","Vopf":"\uD835\uDD4D","vopf":"\uD835\uDD67","vprop":"\u221D","vrtri":"\u22B3","Vscr":"\uD835\uDCB1","vscr":"\uD835\uDCCB","vsubnE":"\u2ACB\uFE00","vsubne":"\u228A\uFE00","vsupnE":"\u2ACC\uFE00","vsupne":"\u228B\uFE00","Vvdash":"\u22AA","vzigzag":"\u299A","Wcirc":"\u0174","wcirc":"\u0175","wedbar":"\u2A5F","wedge":"\u2227","Wedge":"\u22C0","wedgeq":"\u2259","weierp":"\u2118","Wfr":"\uD835\uDD1A","wfr":"\uD835\uDD34","Wopf":"\uD835\uDD4E","wopf":"\uD835\uDD68","wp":"\u2118","wr":"\u2240","wreath":"\u2240","Wscr":"\uD835\uDCB2","wscr":"\uD835\uDCCC","xcap":"\u22C2","xcirc":"\u25EF","xcup":"\u22C3","xdtri":"\u25BD","Xfr":"\uD835\uDD1B","xfr":"\uD835\uDD35","xharr":"\u27F7","xhArr":"\u27FA","Xi":"\u039E","xi":"\u03BE","xlarr":"\u27F5","xlArr":"\u27F8","xmap":"\u27FC","xnis":"\u22FB","xodot":"\u2A00","Xopf":"\uD835\uDD4F","xopf":"\uD835\uDD69","xoplus":"\u2A01","xotime":"\u2A02","xrarr":"\u27F6","xrArr":"\u27F9","Xscr":"\uD835\uDCB3","xscr":"\uD835\uDCCD","xsqcup":"\u2A06","xuplus":"\u2A04","xutri":"\u25B3","xvee":"\u22C1","xwedge":"\u22C0","Yacute":"\u00DD","yacute":"\u00FD","YAcy":"\u042F","yacy":"\u044F","Ycirc":"\u0176","ycirc":"\u0177","Ycy":"\u042B","ycy":"\u044B","yen":"\u00A5","Yfr":"\uD835\uDD1C","yfr":"\uD835\uDD36","YIcy":"\u0407","yicy":"\u0457","Yopf":"\uD835\uDD50","yopf":"\uD835\uDD6A","Yscr":"\uD835\uDCB4","yscr":"\uD835\uDCCE","YUcy":"\u042E","yucy":"\u044E","yuml":"\u00FF","Yuml":"\u0178","Zacute":"\u0179","zacute":"\u017A","Zcaron":"\u017D","zcaron":"\u017E","Zcy":"\u0417","zcy":"\u0437","Zdot":"\u017B","zdot":"\u017C","zeetrf":"\u2128","ZeroWidthSpace":"\u200B","Zeta":"\u0396","zeta":"\u03B6","zfr":"\uD835\uDD37","Zfr":"\u2128","ZHcy":"\u0416","zhcy":"\u0436","zigrarr":"\u21DD","zopf":"\uD835\uDD6B","Zopf":"\u2124","Zscr":"\uD835\uDCB5","zscr":"\uD835\uDCCF","zwj":"\u200D","zwnj":"\u200C"}
 },{}],71:[function(require,module,exports){
-module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","AElig":"\u00C6","aelig":"\u00E6","Agrave":"\u00C0","agrave":"\u00E0","amp":"&","AMP":"&","Aring":"\u00C5","aring":"\u00E5","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","brvbar":"\u00A6","Ccedil":"\u00C7","ccedil":"\u00E7","cedil":"\u00B8","cent":"\u00A2","copy":"\u00A9","COPY":"\u00A9","curren":"\u00A4","deg":"\u00B0","divide":"\u00F7","Eacute":"\u00C9","eacute":"\u00E9","Ecirc":"\u00CA","ecirc":"\u00EA","Egrave":"\u00C8","egrave":"\u00E8","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","frac12":"\u00BD","frac14":"\u00BC","frac34":"\u00BE","gt":">","GT":">","Iacute":"\u00CD","iacute":"\u00ED","Icirc":"\u00CE","icirc":"\u00EE","iexcl":"\u00A1","Igrave":"\u00CC","igrave":"\u00EC","iquest":"\u00BF","Iuml":"\u00CF","iuml":"\u00EF","laquo":"\u00AB","lt":"<","LT":"<","macr":"\u00AF","micro":"\u00B5","middot":"\u00B7","nbsp":"\u00A0","not":"\u00AC","Ntilde":"\u00D1","ntilde":"\u00F1","Oacute":"\u00D3","oacute":"\u00F3","Ocirc":"\u00D4","ocirc":"\u00F4","Ograve":"\u00D2","ograve":"\u00F2","ordf":"\u00AA","ordm":"\u00BA","Oslash":"\u00D8","oslash":"\u00F8","Otilde":"\u00D5","otilde":"\u00F5","Ouml":"\u00D6","ouml":"\u00F6","para":"\u00B6","plusmn":"\u00B1","pound":"\u00A3","quot":"\"","QUOT":"\"","raquo":"\u00BB","reg":"\u00AE","REG":"\u00AE","sect":"\u00A7","shy":"\u00AD","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","szlig":"\u00DF","THORN":"\u00DE","thorn":"\u00FE","times":"\u00D7","Uacute":"\u00DA","uacute":"\u00FA","Ucirc":"\u00DB","ucirc":"\u00FB","Ugrave":"\u00D9","ugrave":"\u00F9","uml":"\u00A8","Uuml":"\u00DC","uuml":"\u00FC","Yacute":"\u00DD","yacute":"\u00FD","yen":"\u00A5","yuml":"\u00FF"}
+module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Abreve":"\u0102","abreve":"\u0103","ac":"\u223E","acd":"\u223F","acE":"\u223E\u0333","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","Acy":"\u0410","acy":"\u0430","AElig":"\u00C6","aelig":"\u00E6","af":"\u2061","Afr":"\uD835\uDD04","afr":"\uD835\uDD1E","Agrave":"\u00C0","agrave":"\u00E0","alefsym":"\u2135","aleph":"\u2135","Alpha":"\u0391","alpha":"\u03B1","Amacr":"\u0100","amacr":"\u0101","amalg":"\u2A3F","amp":"&","AMP":"&","andand":"\u2A55","And":"\u2A53","and":"\u2227","andd":"\u2A5C","andslope":"\u2A58","andv":"\u2A5A","ang":"\u2220","ange":"\u29A4","angle":"\u2220","angmsdaa":"\u29A8","angmsdab":"\u29A9","angmsdac":"\u29AA","angmsdad":"\u29AB","angmsdae":"\u29AC","angmsdaf":"\u29AD","angmsdag":"\u29AE","angmsdah":"\u29AF","angmsd":"\u2221","angrt":"\u221F","angrtvb":"\u22BE","angrtvbd":"\u299D","angsph":"\u2222","angst":"\u00C5","angzarr":"\u237C","Aogon":"\u0104","aogon":"\u0105","Aopf":"\uD835\uDD38","aopf":"\uD835\uDD52","apacir":"\u2A6F","ap":"\u2248","apE":"\u2A70","ape":"\u224A","apid":"\u224B","apos":"'","ApplyFunction":"\u2061","approx":"\u2248","approxeq":"\u224A","Aring":"\u00C5","aring":"\u00E5","Ascr":"\uD835\uDC9C","ascr":"\uD835\uDCB6","Assign":"\u2254","ast":"*","asymp":"\u2248","asympeq":"\u224D","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","awconint":"\u2233","awint":"\u2A11","backcong":"\u224C","backepsilon":"\u03F6","backprime":"\u2035","backsim":"\u223D","backsimeq":"\u22CD","Backslash":"\u2216","Barv":"\u2AE7","barvee":"\u22BD","barwed":"\u2305","Barwed":"\u2306","barwedge":"\u2305","bbrk":"\u23B5","bbrktbrk":"\u23B6","bcong":"\u224C","Bcy":"\u0411","bcy":"\u0431","bdquo":"\u201E","becaus":"\u2235","because":"\u2235","Because":"\u2235","bemptyv":"\u29B0","bepsi":"\u03F6","bernou":"\u212C","Bernoullis":"\u212C","Beta":"\u0392","beta":"\u03B2","beth":"\u2136","between":"\u226C","Bfr":"\uD835\uDD05","bfr":"\uD835\uDD1F","bigcap":"\u22C2","bigcirc":"\u25EF","bigcup":"\u22C3","bigodot":"\u2A00","bigoplus":"\u2A01","bigotimes":"\u2A02","bigsqcup":"\u2A06","bigstar":"\u2605","bigtriangledown":"\u25BD","bigtriangleup":"\u25B3","biguplus":"\u2A04","bigvee":"\u22C1","bigwedge":"\u22C0","bkarow":"\u290D","blacklozenge":"\u29EB","blacksquare":"\u25AA","blacktriangle":"\u25B4","blacktriangledown":"\u25BE","blacktriangleleft":"\u25C2","blacktriangleright":"\u25B8","blank":"\u2423","blk12":"\u2592","blk14":"\u2591","blk34":"\u2593","block":"\u2588","bne":"=\u20E5","bnequiv":"\u2261\u20E5","bNot":"\u2AED","bnot":"\u2310","Bopf":"\uD835\uDD39","bopf":"\uD835\uDD53","bot":"\u22A5","bottom":"\u22A5","bowtie":"\u22C8","boxbox":"\u29C9","boxdl":"\u2510","boxdL":"\u2555","boxDl":"\u2556","boxDL":"\u2557","boxdr":"\u250C","boxdR":"\u2552","boxDr":"\u2553","boxDR":"\u2554","boxh":"\u2500","boxH":"\u2550","boxhd":"\u252C","boxHd":"\u2564","boxhD":"\u2565","boxHD":"\u2566","boxhu":"\u2534","boxHu":"\u2567","boxhU":"\u2568","boxHU":"\u2569","boxminus":"\u229F","boxplus":"\u229E","boxtimes":"\u22A0","boxul":"\u2518","boxuL":"\u255B","boxUl":"\u255C","boxUL":"\u255D","boxur":"\u2514","boxuR":"\u2558","boxUr":"\u2559","boxUR":"\u255A","boxv":"\u2502","boxV":"\u2551","boxvh":"\u253C","boxvH":"\u256A","boxVh":"\u256B","boxVH":"\u256C","boxvl":"\u2524","boxvL":"\u2561","boxVl":"\u2562","boxVL":"\u2563","boxvr":"\u251C","boxvR":"\u255E","boxVr":"\u255F","boxVR":"\u2560","bprime":"\u2035","breve":"\u02D8","Breve":"\u02D8","brvbar":"\u00A6","bscr":"\uD835\uDCB7","Bscr":"\u212C","bsemi":"\u204F","bsim":"\u223D","bsime":"\u22CD","bsolb":"\u29C5","bsol":"\\","bsolhsub":"\u27C8","bull":"\u2022","bullet":"\u2022","bump":"\u224E","bumpE":"\u2AAE","bumpe":"\u224F","Bumpeq":"\u224E","bumpeq":"\u224F","Cacute":"\u0106","cacute":"\u0107","capand":"\u2A44","capbrcup":"\u2A49","capcap":"\u2A4B","cap":"\u2229","Cap":"\u22D2","capcup":"\u2A47","capdot":"\u2A40","CapitalDifferentialD":"\u2145","caps":"\u2229\uFE00","caret":"\u2041","caron":"\u02C7","Cayleys":"\u212D","ccaps":"\u2A4D","Ccaron":"\u010C","ccaron":"\u010D","Ccedil":"\u00C7","ccedil":"\u00E7","Ccirc":"\u0108","ccirc":"\u0109","Cconint":"\u2230","ccups":"\u2A4C","ccupssm":"\u2A50","Cdot":"\u010A","cdot":"\u010B","cedil":"\u00B8","Cedilla":"\u00B8","cemptyv":"\u29B2","cent":"\u00A2","centerdot":"\u00B7","CenterDot":"\u00B7","cfr":"\uD835\uDD20","Cfr":"\u212D","CHcy":"\u0427","chcy":"\u0447","check":"\u2713","checkmark":"\u2713","Chi":"\u03A7","chi":"\u03C7","circ":"\u02C6","circeq":"\u2257","circlearrowleft":"\u21BA","circlearrowright":"\u21BB","circledast":"\u229B","circledcirc":"\u229A","circleddash":"\u229D","CircleDot":"\u2299","circledR":"\u00AE","circledS":"\u24C8","CircleMinus":"\u2296","CirclePlus":"\u2295","CircleTimes":"\u2297","cir":"\u25CB","cirE":"\u29C3","cire":"\u2257","cirfnint":"\u2A10","cirmid":"\u2AEF","cirscir":"\u29C2","ClockwiseContourIntegral":"\u2232","CloseCurlyDoubleQuote":"\u201D","CloseCurlyQuote":"\u2019","clubs":"\u2663","clubsuit":"\u2663","colon":":","Colon":"\u2237","Colone":"\u2A74","colone":"\u2254","coloneq":"\u2254","comma":",","commat":"@","comp":"\u2201","compfn":"\u2218","complement":"\u2201","complexes":"\u2102","cong":"\u2245","congdot":"\u2A6D","Congruent":"\u2261","conint":"\u222E","Conint":"\u222F","ContourIntegral":"\u222E","copf":"\uD835\uDD54","Copf":"\u2102","coprod":"\u2210","Coproduct":"\u2210","copy":"\u00A9","COPY":"\u00A9","copysr":"\u2117","CounterClockwiseContourIntegral":"\u2233","crarr":"\u21B5","cross":"\u2717","Cross":"\u2A2F","Cscr":"\uD835\uDC9E","cscr":"\uD835\uDCB8","csub":"\u2ACF","csube":"\u2AD1","csup":"\u2AD0","csupe":"\u2AD2","ctdot":"\u22EF","cudarrl":"\u2938","cudarrr":"\u2935","cuepr":"\u22DE","cuesc":"\u22DF","cularr":"\u21B6","cularrp":"\u293D","cupbrcap":"\u2A48","cupcap":"\u2A46","CupCap":"\u224D","cup":"\u222A","Cup":"\u22D3","cupcup":"\u2A4A","cupdot":"\u228D","cupor":"\u2A45","cups":"\u222A\uFE00","curarr":"\u21B7","curarrm":"\u293C","curlyeqprec":"\u22DE","curlyeqsucc":"\u22DF","curlyvee":"\u22CE","curlywedge":"\u22CF","curren":"\u00A4","curvearrowleft":"\u21B6","curvearrowright":"\u21B7","cuvee":"\u22CE","cuwed":"\u22CF","cwconint":"\u2232","cwint":"\u2231","cylcty":"\u232D","dagger":"\u2020","Dagger":"\u2021","daleth":"\u2138","darr":"\u2193","Darr":"\u21A1","dArr":"\u21D3","dash":"\u2010","Dashv":"\u2AE4","dashv":"\u22A3","dbkarow":"\u290F","dblac":"\u02DD","Dcaron":"\u010E","dcaron":"\u010F","Dcy":"\u0414","dcy":"\u0434","ddagger":"\u2021","ddarr":"\u21CA","DD":"\u2145","dd":"\u2146","DDotrahd":"\u2911","ddotseq":"\u2A77","deg":"\u00B0","Del":"\u2207","Delta":"\u0394","delta":"\u03B4","demptyv":"\u29B1","dfisht":"\u297F","Dfr":"\uD835\uDD07","dfr":"\uD835\uDD21","dHar":"\u2965","dharl":"\u21C3","dharr":"\u21C2","DiacriticalAcute":"\u00B4","DiacriticalDot":"\u02D9","DiacriticalDoubleAcute":"\u02DD","DiacriticalGrave":"`","DiacriticalTilde":"\u02DC","diam":"\u22C4","diamond":"\u22C4","Diamond":"\u22C4","diamondsuit":"\u2666","diams":"\u2666","die":"\u00A8","DifferentialD":"\u2146","digamma":"\u03DD","disin":"\u22F2","div":"\u00F7","divide":"\u00F7","divideontimes":"\u22C7","divonx":"\u22C7","DJcy":"\u0402","djcy":"\u0452","dlcorn":"\u231E","dlcrop":"\u230D","dollar":"$","Dopf":"\uD835\uDD3B","dopf":"\uD835\uDD55","Dot":"\u00A8","dot":"\u02D9","DotDot":"\u20DC","doteq":"\u2250","doteqdot":"\u2251","DotEqual":"\u2250","dotminus":"\u2238","dotplus":"\u2214","dotsquare":"\u22A1","doublebarwedge":"\u2306","DoubleContourIntegral":"\u222F","DoubleDot":"\u00A8","DoubleDownArrow":"\u21D3","DoubleLeftArrow":"\u21D0","DoubleLeftRightArrow":"\u21D4","DoubleLeftTee":"\u2AE4","DoubleLongLeftArrow":"\u27F8","DoubleLongLeftRightArrow":"\u27FA","DoubleLongRightArrow":"\u27F9","DoubleRightArrow":"\u21D2","DoubleRightTee":"\u22A8","DoubleUpArrow":"\u21D1","DoubleUpDownArrow":"\u21D5","DoubleVerticalBar":"\u2225","DownArrowBar":"\u2913","downarrow":"\u2193","DownArrow":"\u2193","Downarrow":"\u21D3","DownArrowUpArrow":"\u21F5","DownBreve":"\u0311","downdownarrows":"\u21CA","downharpoonleft":"\u21C3","downharpoonright":"\u21C2","DownLeftRightVector":"\u2950","DownLeftTeeVector":"\u295E","DownLeftVectorBar":"\u2956","DownLeftVector":"\u21BD","DownRightTeeVector":"\u295F","DownRightVectorBar":"\u2957","DownRightVector":"\u21C1","DownTeeArrow":"\u21A7","DownTee":"\u22A4","drbkarow":"\u2910","drcorn":"\u231F","drcrop":"\u230C","Dscr":"\uD835\uDC9F","dscr":"\uD835\uDCB9","DScy":"\u0405","dscy":"\u0455","dsol":"\u29F6","Dstrok":"\u0110","dstrok":"\u0111","dtdot":"\u22F1","dtri":"\u25BF","dtrif":"\u25BE","duarr":"\u21F5","duhar":"\u296F","dwangle":"\u29A6","DZcy":"\u040F","dzcy":"\u045F","dzigrarr":"\u27FF","Eacute":"\u00C9","eacute":"\u00E9","easter":"\u2A6E","Ecaron":"\u011A","ecaron":"\u011B","Ecirc":"\u00CA","ecirc":"\u00EA","ecir":"\u2256","ecolon":"\u2255","Ecy":"\u042D","ecy":"\u044D","eDDot":"\u2A77","Edot":"\u0116","edot":"\u0117","eDot":"\u2251","ee":"\u2147","efDot":"\u2252","Efr":"\uD835\uDD08","efr":"\uD835\uDD22","eg":"\u2A9A","Egrave":"\u00C8","egrave":"\u00E8","egs":"\u2A96","egsdot":"\u2A98","el":"\u2A99","Element":"\u2208","elinters":"\u23E7","ell":"\u2113","els":"\u2A95","elsdot":"\u2A97","Emacr":"\u0112","emacr":"\u0113","empty":"\u2205","emptyset":"\u2205","EmptySmallSquare":"\u25FB","emptyv":"\u2205","EmptyVerySmallSquare":"\u25AB","emsp13":"\u2004","emsp14":"\u2005","emsp":"\u2003","ENG":"\u014A","eng":"\u014B","ensp":"\u2002","Eogon":"\u0118","eogon":"\u0119","Eopf":"\uD835\uDD3C","eopf":"\uD835\uDD56","epar":"\u22D5","eparsl":"\u29E3","eplus":"\u2A71","epsi":"\u03B5","Epsilon":"\u0395","epsilon":"\u03B5","epsiv":"\u03F5","eqcirc":"\u2256","eqcolon":"\u2255","eqsim":"\u2242","eqslantgtr":"\u2A96","eqslantless":"\u2A95","Equal":"\u2A75","equals":"=","EqualTilde":"\u2242","equest":"\u225F","Equilibrium":"\u21CC","equiv":"\u2261","equivDD":"\u2A78","eqvparsl":"\u29E5","erarr":"\u2971","erDot":"\u2253","escr":"\u212F","Escr":"\u2130","esdot":"\u2250","Esim":"\u2A73","esim":"\u2242","Eta":"\u0397","eta":"\u03B7","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","euro":"\u20AC","excl":"!","exist":"\u2203","Exists":"\u2203","expectation":"\u2130","exponentiale":"\u2147","ExponentialE":"\u2147","fallingdotseq":"\u2252","Fcy":"\u0424","fcy":"\u0444","female":"\u2640","ffilig":"\uFB03","fflig":"\uFB00","ffllig":"\uFB04","Ffr":"\uD835\uDD09","ffr":"\uD835\uDD23","filig":"\uFB01","FilledSmallSquare":"\u25FC","FilledVerySmallSquare":"\u25AA","fjlig":"fj","flat":"\u266D","fllig":"\uFB02","fltns":"\u25B1","fnof":"\u0192","Fopf":"\uD835\uDD3D","fopf":"\uD835\uDD57","forall":"\u2200","ForAll":"\u2200","fork":"\u22D4","forkv":"\u2AD9","Fouriertrf":"\u2131","fpartint":"\u2A0D","frac12":"\u00BD","frac13":"\u2153","frac14":"\u00BC","frac15":"\u2155","frac16":"\u2159","frac18":"\u215B","frac23":"\u2154","frac25":"\u2156","frac34":"\u00BE","frac35":"\u2157","frac38":"\u215C","frac45":"\u2158","frac56":"\u215A","frac58":"\u215D","frac78":"\u215E","frasl":"\u2044","frown":"\u2322","fscr":"\uD835\uDCBB","Fscr":"\u2131","gacute":"\u01F5","Gamma":"\u0393","gamma":"\u03B3","Gammad":"\u03DC","gammad":"\u03DD","gap":"\u2A86","Gbreve":"\u011E","gbreve":"\u011F","Gcedil":"\u0122","Gcirc":"\u011C","gcirc":"\u011D","Gcy":"\u0413","gcy":"\u0433","Gdot":"\u0120","gdot":"\u0121","ge":"\u2265","gE":"\u2267","gEl":"\u2A8C","gel":"\u22DB","geq":"\u2265","geqq":"\u2267","geqslant":"\u2A7E","gescc":"\u2AA9","ges":"\u2A7E","gesdot":"\u2A80","gesdoto":"\u2A82","gesdotol":"\u2A84","gesl":"\u22DB\uFE00","gesles":"\u2A94","Gfr":"\uD835\uDD0A","gfr":"\uD835\uDD24","gg":"\u226B","Gg":"\u22D9","ggg":"\u22D9","gimel":"\u2137","GJcy":"\u0403","gjcy":"\u0453","gla":"\u2AA5","gl":"\u2277","glE":"\u2A92","glj":"\u2AA4","gnap":"\u2A8A","gnapprox":"\u2A8A","gne":"\u2A88","gnE":"\u2269","gneq":"\u2A88","gneqq":"\u2269","gnsim":"\u22E7","Gopf":"\uD835\uDD3E","gopf":"\uD835\uDD58","grave":"`","GreaterEqual":"\u2265","GreaterEqualLess":"\u22DB","GreaterFullEqual":"\u2267","GreaterGreater":"\u2AA2","GreaterLess":"\u2277","GreaterSlantEqual":"\u2A7E","GreaterTilde":"\u2273","Gscr":"\uD835\uDCA2","gscr":"\u210A","gsim":"\u2273","gsime":"\u2A8E","gsiml":"\u2A90","gtcc":"\u2AA7","gtcir":"\u2A7A","gt":">","GT":">","Gt":"\u226B","gtdot":"\u22D7","gtlPar":"\u2995","gtquest":"\u2A7C","gtrapprox":"\u2A86","gtrarr":"\u2978","gtrdot":"\u22D7","gtreqless":"\u22DB","gtreqqless":"\u2A8C","gtrless":"\u2277","gtrsim":"\u2273","gvertneqq":"\u2269\uFE00","gvnE":"\u2269\uFE00","Hacek":"\u02C7","hairsp":"\u200A","half":"\u00BD","hamilt":"\u210B","HARDcy":"\u042A","hardcy":"\u044A","harrcir":"\u2948","harr":"\u2194","hArr":"\u21D4","harrw":"\u21AD","Hat":"^","hbar":"\u210F","Hcirc":"\u0124","hcirc":"\u0125","hearts":"\u2665","heartsuit":"\u2665","hellip":"\u2026","hercon":"\u22B9","hfr":"\uD835\uDD25","Hfr":"\u210C","HilbertSpace":"\u210B","hksearow":"\u2925","hkswarow":"\u2926","hoarr":"\u21FF","homtht":"\u223B","hookleftarrow":"\u21A9","hookrightarrow":"\u21AA","hopf":"\uD835\uDD59","Hopf":"\u210D","horbar":"\u2015","HorizontalLine":"\u2500","hscr":"\uD835\uDCBD","Hscr":"\u210B","hslash":"\u210F","Hstrok":"\u0126","hstrok":"\u0127","HumpDownHump":"\u224E","HumpEqual":"\u224F","hybull":"\u2043","hyphen":"\u2010","Iacute":"\u00CD","iacute":"\u00ED","ic":"\u2063","Icirc":"\u00CE","icirc":"\u00EE","Icy":"\u0418","icy":"\u0438","Idot":"\u0130","IEcy":"\u0415","iecy":"\u0435","iexcl":"\u00A1","iff":"\u21D4","ifr":"\uD835\uDD26","Ifr":"\u2111","Igrave":"\u00CC","igrave":"\u00EC","ii":"\u2148","iiiint":"\u2A0C","iiint":"\u222D","iinfin":"\u29DC","iiota":"\u2129","IJlig":"\u0132","ijlig":"\u0133","Imacr":"\u012A","imacr":"\u012B","image":"\u2111","ImaginaryI":"\u2148","imagline":"\u2110","imagpart":"\u2111","imath":"\u0131","Im":"\u2111","imof":"\u22B7","imped":"\u01B5","Implies":"\u21D2","incare":"\u2105","in":"\u2208","infin":"\u221E","infintie":"\u29DD","inodot":"\u0131","intcal":"\u22BA","int":"\u222B","Int":"\u222C","integers":"\u2124","Integral":"\u222B","intercal":"\u22BA","Intersection":"\u22C2","intlarhk":"\u2A17","intprod":"\u2A3C","InvisibleComma":"\u2063","InvisibleTimes":"\u2062","IOcy":"\u0401","iocy":"\u0451","Iogon":"\u012E","iogon":"\u012F","Iopf":"\uD835\uDD40","iopf":"\uD835\uDD5A","Iota":"\u0399","iota":"\u03B9","iprod":"\u2A3C","iquest":"\u00BF","iscr":"\uD835\uDCBE","Iscr":"\u2110","isin":"\u2208","isindot":"\u22F5","isinE":"\u22F9","isins":"\u22F4","isinsv":"\u22F3","isinv":"\u2208","it":"\u2062","Itilde":"\u0128","itilde":"\u0129","Iukcy":"\u0406","iukcy":"\u0456","Iuml":"\u00CF","iuml":"\u00EF","Jcirc":"\u0134","jcirc":"\u0135","Jcy":"\u0419","jcy":"\u0439","Jfr":"\uD835\uDD0D","jfr":"\uD835\uDD27","jmath":"\u0237","Jopf":"\uD835\uDD41","jopf":"\uD835\uDD5B","Jscr":"\uD835\uDCA5","jscr":"\uD835\uDCBF","Jsercy":"\u0408","jsercy":"\u0458","Jukcy":"\u0404","jukcy":"\u0454","Kappa":"\u039A","kappa":"\u03BA","kappav":"\u03F0","Kcedil":"\u0136","kcedil":"\u0137","Kcy":"\u041A","kcy":"\u043A","Kfr":"\uD835\uDD0E","kfr":"\uD835\uDD28","kgreen":"\u0138","KHcy":"\u0425","khcy":"\u0445","KJcy":"\u040C","kjcy":"\u045C","Kopf":"\uD835\uDD42","kopf":"\uD835\uDD5C","Kscr":"\uD835\uDCA6","kscr":"\uD835\uDCC0","lAarr":"\u21DA","Lacute":"\u0139","lacute":"\u013A","laemptyv":"\u29B4","lagran":"\u2112","Lambda":"\u039B","lambda":"\u03BB","lang":"\u27E8","Lang":"\u27EA","langd":"\u2991","langle":"\u27E8","lap":"\u2A85","Laplacetrf":"\u2112","laquo":"\u00AB","larrb":"\u21E4","larrbfs":"\u291F","larr":"\u2190","Larr":"\u219E","lArr":"\u21D0","larrfs":"\u291D","larrhk":"\u21A9","larrlp":"\u21AB","larrpl":"\u2939","larrsim":"\u2973","larrtl":"\u21A2","latail":"\u2919","lAtail":"\u291B","lat":"\u2AAB","late":"\u2AAD","lates":"\u2AAD\uFE00","lbarr":"\u290C","lBarr":"\u290E","lbbrk":"\u2772","lbrace":"{","lbrack":"[","lbrke":"\u298B","lbrksld":"\u298F","lbrkslu":"\u298D","Lcaron":"\u013D","lcaron":"\u013E","Lcedil":"\u013B","lcedil":"\u013C","lceil":"\u2308","lcub":"{","Lcy":"\u041B","lcy":"\u043B","ldca":"\u2936","ldquo":"\u201C","ldquor":"\u201E","ldrdhar":"\u2967","ldrushar":"\u294B","ldsh":"\u21B2","le":"\u2264","lE":"\u2266","LeftAngleBracket":"\u27E8","LeftArrowBar":"\u21E4","leftarrow":"\u2190","LeftArrow":"\u2190","Leftarrow":"\u21D0","LeftArrowRightArrow":"\u21C6","leftarrowtail":"\u21A2","LeftCeiling":"\u2308","LeftDoubleBracket":"\u27E6","LeftDownTeeVector":"\u2961","LeftDownVectorBar":"\u2959","LeftDownVector":"\u21C3","LeftFloor":"\u230A","leftharpoondown":"\u21BD","leftharpoonup":"\u21BC","leftleftarrows":"\u21C7","leftrightarrow":"\u2194","LeftRightArrow":"\u2194","Leftrightarrow":"\u21D4","leftrightarrows":"\u21C6","leftrightharpoons":"\u21CB","leftrightsquigarrow":"\u21AD","LeftRightVector":"\u294E","LeftTeeArrow":"\u21A4","LeftTee":"\u22A3","LeftTeeVector":"\u295A","leftthreetimes":"\u22CB","LeftTriangleBar":"\u29CF","LeftTriangle":"\u22B2","LeftTriangleEqual":"\u22B4","LeftUpDownVector":"\u2951","LeftUpTeeVector":"\u2960","LeftUpVectorBar":"\u2958","LeftUpVector":"\u21BF","LeftVectorBar":"\u2952","LeftVector":"\u21BC","lEg":"\u2A8B","leg":"\u22DA","leq":"\u2264","leqq":"\u2266","leqslant":"\u2A7D","lescc":"\u2AA8","les":"\u2A7D","lesdot":"\u2A7F","lesdoto":"\u2A81","lesdotor":"\u2A83","lesg":"\u22DA\uFE00","lesges":"\u2A93","lessapprox":"\u2A85","lessdot":"\u22D6","lesseqgtr":"\u22DA","lesseqqgtr":"\u2A8B","LessEqualGreater":"\u22DA","LessFullEqual":"\u2266","LessGreater":"\u2276","lessgtr":"\u2276","LessLess":"\u2AA1","lesssim":"\u2272","LessSlantEqual":"\u2A7D","LessTilde":"\u2272","lfisht":"\u297C","lfloor":"\u230A","Lfr":"\uD835\uDD0F","lfr":"\uD835\uDD29","lg":"\u2276","lgE":"\u2A91","lHar":"\u2962","lhard":"\u21BD","lharu":"\u21BC","lharul":"\u296A","lhblk":"\u2584","LJcy":"\u0409","ljcy":"\u0459","llarr":"\u21C7","ll":"\u226A","Ll":"\u22D8","llcorner":"\u231E","Lleftarrow":"\u21DA","llhard":"\u296B","lltri":"\u25FA","Lmidot":"\u013F","lmidot":"\u0140","lmoustache":"\u23B0","lmoust":"\u23B0","lnap":"\u2A89","lnapprox":"\u2A89","lne":"\u2A87","lnE":"\u2268","lneq":"\u2A87","lneqq":"\u2268","lnsim":"\u22E6","loang":"\u27EC","loarr":"\u21FD","lobrk":"\u27E6","longleftarrow":"\u27F5","LongLeftArrow":"\u27F5","Longleftarrow":"\u27F8","longleftrightarrow":"\u27F7","LongLeftRightArrow":"\u27F7","Longleftrightarrow":"\u27FA","longmapsto":"\u27FC","longrightarrow":"\u27F6","LongRightArrow":"\u27F6","Longrightarrow":"\u27F9","looparrowleft":"\u21AB","looparrowright":"\u21AC","lopar":"\u2985","Lopf":"\uD835\uDD43","lopf":"\uD835\uDD5D","loplus":"\u2A2D","lotimes":"\u2A34","lowast":"\u2217","lowbar":"_","LowerLeftArrow":"\u2199","LowerRightArrow":"\u2198","loz":"\u25CA","lozenge":"\u25CA","lozf":"\u29EB","lpar":"(","lparlt":"\u2993","lrarr":"\u21C6","lrcorner":"\u231F","lrhar":"\u21CB","lrhard":"\u296D","lrm":"\u200E","lrtri":"\u22BF","lsaquo":"\u2039","lscr":"\uD835\uDCC1","Lscr":"\u2112","lsh":"\u21B0","Lsh":"\u21B0","lsim":"\u2272","lsime":"\u2A8D","lsimg":"\u2A8F","lsqb":"[","lsquo":"\u2018","lsquor":"\u201A","Lstrok":"\u0141","lstrok":"\u0142","ltcc":"\u2AA6","ltcir":"\u2A79","lt":"<","LT":"<","Lt":"\u226A","ltdot":"\u22D6","lthree":"\u22CB","ltimes":"\u22C9","ltlarr":"\u2976","ltquest":"\u2A7B","ltri":"\u25C3","ltrie":"\u22B4","ltrif":"\u25C2","ltrPar":"\u2996","lurdshar":"\u294A","luruhar":"\u2966","lvertneqq":"\u2268\uFE00","lvnE":"\u2268\uFE00","macr":"\u00AF","male":"\u2642","malt":"\u2720","maltese":"\u2720","Map":"\u2905","map":"\u21A6","mapsto":"\u21A6","mapstodown":"\u21A7","mapstoleft":"\u21A4","mapstoup":"\u21A5","marker":"\u25AE","mcomma":"\u2A29","Mcy":"\u041C","mcy":"\u043C","mdash":"\u2014","mDDot":"\u223A","measuredangle":"\u2221","MediumSpace":"\u205F","Mellintrf":"\u2133","Mfr":"\uD835\uDD10","mfr":"\uD835\uDD2A","mho":"\u2127","micro":"\u00B5","midast":"*","midcir":"\u2AF0","mid":"\u2223","middot":"\u00B7","minusb":"\u229F","minus":"\u2212","minusd":"\u2238","minusdu":"\u2A2A","MinusPlus":"\u2213","mlcp":"\u2ADB","mldr":"\u2026","mnplus":"\u2213","models":"\u22A7","Mopf":"\uD835\uDD44","mopf":"\uD835\uDD5E","mp":"\u2213","mscr":"\uD835\uDCC2","Mscr":"\u2133","mstpos":"\u223E","Mu":"\u039C","mu":"\u03BC","multimap":"\u22B8","mumap":"\u22B8","nabla":"\u2207","Nacute":"\u0143","nacute":"\u0144","nang":"\u2220\u20D2","nap":"\u2249","napE":"\u2A70\u0338","napid":"\u224B\u0338","napos":"\u0149","napprox":"\u2249","natural":"\u266E","naturals":"\u2115","natur":"\u266E","nbsp":"\u00A0","nbump":"\u224E\u0338","nbumpe":"\u224F\u0338","ncap":"\u2A43","Ncaron":"\u0147","ncaron":"\u0148","Ncedil":"\u0145","ncedil":"\u0146","ncong":"\u2247","ncongdot":"\u2A6D\u0338","ncup":"\u2A42","Ncy":"\u041D","ncy":"\u043D","ndash":"\u2013","nearhk":"\u2924","nearr":"\u2197","neArr":"\u21D7","nearrow":"\u2197","ne":"\u2260","nedot":"\u2250\u0338","NegativeMediumSpace":"\u200B","NegativeThickSpace":"\u200B","NegativeThinSpace":"\u200B","NegativeVeryThinSpace":"\u200B","nequiv":"\u2262","nesear":"\u2928","nesim":"\u2242\u0338","NestedGreaterGreater":"\u226B","NestedLessLess":"\u226A","NewLine":"\n","nexist":"\u2204","nexists":"\u2204","Nfr":"\uD835\uDD11","nfr":"\uD835\uDD2B","ngE":"\u2267\u0338","nge":"\u2271","ngeq":"\u2271","ngeqq":"\u2267\u0338","ngeqslant":"\u2A7E\u0338","nges":"\u2A7E\u0338","nGg":"\u22D9\u0338","ngsim":"\u2275","nGt":"\u226B\u20D2","ngt":"\u226F","ngtr":"\u226F","nGtv":"\u226B\u0338","nharr":"\u21AE","nhArr":"\u21CE","nhpar":"\u2AF2","ni":"\u220B","nis":"\u22FC","nisd":"\u22FA","niv":"\u220B","NJcy":"\u040A","njcy":"\u045A","nlarr":"\u219A","nlArr":"\u21CD","nldr":"\u2025","nlE":"\u2266\u0338","nle":"\u2270","nleftarrow":"\u219A","nLeftarrow":"\u21CD","nleftrightarrow":"\u21AE","nLeftrightarrow":"\u21CE","nleq":"\u2270","nleqq":"\u2266\u0338","nleqslant":"\u2A7D\u0338","nles":"\u2A7D\u0338","nless":"\u226E","nLl":"\u22D8\u0338","nlsim":"\u2274","nLt":"\u226A\u20D2","nlt":"\u226E","nltri":"\u22EA","nltrie":"\u22EC","nLtv":"\u226A\u0338","nmid":"\u2224","NoBreak":"\u2060","NonBreakingSpace":"\u00A0","nopf":"\uD835\uDD5F","Nopf":"\u2115","Not":"\u2AEC","not":"\u00AC","NotCongruent":"\u2262","NotCupCap":"\u226D","NotDoubleVerticalBar":"\u2226","NotElement":"\u2209","NotEqual":"\u2260","NotEqualTilde":"\u2242\u0338","NotExists":"\u2204","NotGreater":"\u226F","NotGreaterEqual":"\u2271","NotGreaterFullEqual":"\u2267\u0338","NotGreaterGreater":"\u226B\u0338","NotGreaterLess":"\u2279","NotGreaterSlantEqual":"\u2A7E\u0338","NotGreaterTilde":"\u2275","NotHumpDownHump":"\u224E\u0338","NotHumpEqual":"\u224F\u0338","notin":"\u2209","notindot":"\u22F5\u0338","notinE":"\u22F9\u0338","notinva":"\u2209","notinvb":"\u22F7","notinvc":"\u22F6","NotLeftTriangleBar":"\u29CF\u0338","NotLeftTriangle":"\u22EA","NotLeftTriangleEqual":"\u22EC","NotLess":"\u226E","NotLessEqual":"\u2270","NotLessGreater":"\u2278","NotLessLess":"\u226A\u0338","NotLessSlantEqual":"\u2A7D\u0338","NotLessTilde":"\u2274","NotNestedGreaterGreater":"\u2AA2\u0338","NotNestedLessLess":"\u2AA1\u0338","notni":"\u220C","notniva":"\u220C","notnivb":"\u22FE","notnivc":"\u22FD","NotPrecedes":"\u2280","NotPrecedesEqual":"\u2AAF\u0338","NotPrecedesSlantEqual":"\u22E0","NotReverseElement":"\u220C","NotRightTriangleBar":"\u29D0\u0338","NotRightTriangle":"\u22EB","NotRightTriangleEqual":"\u22ED","NotSquareSubset":"\u228F\u0338","NotSquareSubsetEqual":"\u22E2","NotSquareSuperset":"\u2290\u0338","NotSquareSupersetEqual":"\u22E3","NotSubset":"\u2282\u20D2","NotSubsetEqual":"\u2288","NotSucceeds":"\u2281","NotSucceedsEqual":"\u2AB0\u0338","NotSucceedsSlantEqual":"\u22E1","NotSucceedsTilde":"\u227F\u0338","NotSuperset":"\u2283\u20D2","NotSupersetEqual":"\u2289","NotTilde":"\u2241","NotTildeEqual":"\u2244","NotTildeFullEqual":"\u2247","NotTildeTilde":"\u2249","NotVerticalBar":"\u2224","nparallel":"\u2226","npar":"\u2226","nparsl":"\u2AFD\u20E5","npart":"\u2202\u0338","npolint":"\u2A14","npr":"\u2280","nprcue":"\u22E0","nprec":"\u2280","npreceq":"\u2AAF\u0338","npre":"\u2AAF\u0338","nrarrc":"\u2933\u0338","nrarr":"\u219B","nrArr":"\u21CF","nrarrw":"\u219D\u0338","nrightarrow":"\u219B","nRightarrow":"\u21CF","nrtri":"\u22EB","nrtrie":"\u22ED","nsc":"\u2281","nsccue":"\u22E1","nsce":"\u2AB0\u0338","Nscr":"\uD835\uDCA9","nscr":"\uD835\uDCC3","nshortmid":"\u2224","nshortparallel":"\u2226","nsim":"\u2241","nsime":"\u2244","nsimeq":"\u2244","nsmid":"\u2224","nspar":"\u2226","nsqsube":"\u22E2","nsqsupe":"\u22E3","nsub":"\u2284","nsubE":"\u2AC5\u0338","nsube":"\u2288","nsubset":"\u2282\u20D2","nsubseteq":"\u2288","nsubseteqq":"\u2AC5\u0338","nsucc":"\u2281","nsucceq":"\u2AB0\u0338","nsup":"\u2285","nsupE":"\u2AC6\u0338","nsupe":"\u2289","nsupset":"\u2283\u20D2","nsupseteq":"\u2289","nsupseteqq":"\u2AC6\u0338","ntgl":"\u2279","Ntilde":"\u00D1","ntilde":"\u00F1","ntlg":"\u2278","ntriangleleft":"\u22EA","ntrianglelefteq":"\u22EC","ntriangleright":"\u22EB","ntrianglerighteq":"\u22ED","Nu":"\u039D","nu":"\u03BD","num":"#","numero":"\u2116","numsp":"\u2007","nvap":"\u224D\u20D2","nvdash":"\u22AC","nvDash":"\u22AD","nVdash":"\u22AE","nVDash":"\u22AF","nvge":"\u2265\u20D2","nvgt":">\u20D2","nvHarr":"\u2904","nvinfin":"\u29DE","nvlArr":"\u2902","nvle":"\u2264\u20D2","nvlt":"<\u20D2","nvltrie":"\u22B4\u20D2","nvrArr":"\u2903","nvrtrie":"\u22B5\u20D2","nvsim":"\u223C\u20D2","nwarhk":"\u2923","nwarr":"\u2196","nwArr":"\u21D6","nwarrow":"\u2196","nwnear":"\u2927","Oacute":"\u00D3","oacute":"\u00F3","oast":"\u229B","Ocirc":"\u00D4","ocirc":"\u00F4","ocir":"\u229A","Ocy":"\u041E","ocy":"\u043E","odash":"\u229D","Odblac":"\u0150","odblac":"\u0151","odiv":"\u2A38","odot":"\u2299","odsold":"\u29BC","OElig":"\u0152","oelig":"\u0153","ofcir":"\u29BF","Ofr":"\uD835\uDD12","ofr":"\uD835\uDD2C","ogon":"\u02DB","Ograve":"\u00D2","ograve":"\u00F2","ogt":"\u29C1","ohbar":"\u29B5","ohm":"\u03A9","oint":"\u222E","olarr":"\u21BA","olcir":"\u29BE","olcross":"\u29BB","oline":"\u203E","olt":"\u29C0","Omacr":"\u014C","omacr":"\u014D","Omega":"\u03A9","omega":"\u03C9","Omicron":"\u039F","omicron":"\u03BF","omid":"\u29B6","ominus":"\u2296","Oopf":"\uD835\uDD46","oopf":"\uD835\uDD60","opar":"\u29B7","OpenCurlyDoubleQuote":"\u201C","OpenCurlyQuote":"\u2018","operp":"\u29B9","oplus":"\u2295","orarr":"\u21BB","Or":"\u2A54","or":"\u2228","ord":"\u2A5D","order":"\u2134","orderof":"\u2134","ordf":"\u00AA","ordm":"\u00BA","origof":"\u22B6","oror":"\u2A56","orslope":"\u2A57","orv":"\u2A5B","oS":"\u24C8","Oscr":"\uD835\uDCAA","oscr":"\u2134","Oslash":"\u00D8","oslash":"\u00F8","osol":"\u2298","Otilde":"\u00D5","otilde":"\u00F5","otimesas":"\u2A36","Otimes":"\u2A37","otimes":"\u2297","Ouml":"\u00D6","ouml":"\u00F6","ovbar":"\u233D","OverBar":"\u203E","OverBrace":"\u23DE","OverBracket":"\u23B4","OverParenthesis":"\u23DC","para":"\u00B6","parallel":"\u2225","par":"\u2225","parsim":"\u2AF3","parsl":"\u2AFD","part":"\u2202","PartialD":"\u2202","Pcy":"\u041F","pcy":"\u043F","percnt":"%","period":".","permil":"\u2030","perp":"\u22A5","pertenk":"\u2031","Pfr":"\uD835\uDD13","pfr":"\uD835\uDD2D","Phi":"\u03A6","phi":"\u03C6","phiv":"\u03D5","phmmat":"\u2133","phone":"\u260E","Pi":"\u03A0","pi":"\u03C0","pitchfork":"\u22D4","piv":"\u03D6","planck":"\u210F","planckh":"\u210E","plankv":"\u210F","plusacir":"\u2A23","plusb":"\u229E","pluscir":"\u2A22","plus":"+","plusdo":"\u2214","plusdu":"\u2A25","pluse":"\u2A72","PlusMinus":"\u00B1","plusmn":"\u00B1","plussim":"\u2A26","plustwo":"\u2A27","pm":"\u00B1","Poincareplane":"\u210C","pointint":"\u2A15","popf":"\uD835\uDD61","Popf":"\u2119","pound":"\u00A3","prap":"\u2AB7","Pr":"\u2ABB","pr":"\u227A","prcue":"\u227C","precapprox":"\u2AB7","prec":"\u227A","preccurlyeq":"\u227C","Precedes":"\u227A","PrecedesEqual":"\u2AAF","PrecedesSlantEqual":"\u227C","PrecedesTilde":"\u227E","preceq":"\u2AAF","precnapprox":"\u2AB9","precneqq":"\u2AB5","precnsim":"\u22E8","pre":"\u2AAF","prE":"\u2AB3","precsim":"\u227E","prime":"\u2032","Prime":"\u2033","primes":"\u2119","prnap":"\u2AB9","prnE":"\u2AB5","prnsim":"\u22E8","prod":"\u220F","Product":"\u220F","profalar":"\u232E","profline":"\u2312","profsurf":"\u2313","prop":"\u221D","Proportional":"\u221D","Proportion":"\u2237","propto":"\u221D","prsim":"\u227E","prurel":"\u22B0","Pscr":"\uD835\uDCAB","pscr":"\uD835\uDCC5","Psi":"\u03A8","psi":"\u03C8","puncsp":"\u2008","Qfr":"\uD835\uDD14","qfr":"\uD835\uDD2E","qint":"\u2A0C","qopf":"\uD835\uDD62","Qopf":"\u211A","qprime":"\u2057","Qscr":"\uD835\uDCAC","qscr":"\uD835\uDCC6","quaternions":"\u210D","quatint":"\u2A16","quest":"?","questeq":"\u225F","quot":"\"","QUOT":"\"","rAarr":"\u21DB","race":"\u223D\u0331","Racute":"\u0154","racute":"\u0155","radic":"\u221A","raemptyv":"\u29B3","rang":"\u27E9","Rang":"\u27EB","rangd":"\u2992","range":"\u29A5","rangle":"\u27E9","raquo":"\u00BB","rarrap":"\u2975","rarrb":"\u21E5","rarrbfs":"\u2920","rarrc":"\u2933","rarr":"\u2192","Rarr":"\u21A0","rArr":"\u21D2","rarrfs":"\u291E","rarrhk":"\u21AA","rarrlp":"\u21AC","rarrpl":"\u2945","rarrsim":"\u2974","Rarrtl":"\u2916","rarrtl":"\u21A3","rarrw":"\u219D","ratail":"\u291A","rAtail":"\u291C","ratio":"\u2236","rationals":"\u211A","rbarr":"\u290D","rBarr":"\u290F","RBarr":"\u2910","rbbrk":"\u2773","rbrace":"}","rbrack":"]","rbrke":"\u298C","rbrksld":"\u298E","rbrkslu":"\u2990","Rcaron":"\u0158","rcaron":"\u0159","Rcedil":"\u0156","rcedil":"\u0157","rceil":"\u2309","rcub":"}","Rcy":"\u0420","rcy":"\u0440","rdca":"\u2937","rdldhar":"\u2969","rdquo":"\u201D","rdquor":"\u201D","rdsh":"\u21B3","real":"\u211C","realine":"\u211B","realpart":"\u211C","reals":"\u211D","Re":"\u211C","rect":"\u25AD","reg":"\u00AE","REG":"\u00AE","ReverseElement":"\u220B","ReverseEquilibrium":"\u21CB","ReverseUpEquilibrium":"\u296F","rfisht":"\u297D","rfloor":"\u230B","rfr":"\uD835\uDD2F","Rfr":"\u211C","rHar":"\u2964","rhard":"\u21C1","rharu":"\u21C0","rharul":"\u296C","Rho":"\u03A1","rho":"\u03C1","rhov":"\u03F1","RightAngleBracket":"\u27E9","RightArrowBar":"\u21E5","rightarrow":"\u2192","RightArrow":"\u2192","Rightarrow":"\u21D2","RightArrowLeftArrow":"\u21C4","rightarrowtail":"\u21A3","RightCeiling":"\u2309","RightDoubleBracket":"\u27E7","RightDownTeeVector":"\u295D","RightDownVectorBar":"\u2955","RightDownVector":"\u21C2","RightFloor":"\u230B","rightharpoondown":"\u21C1","rightharpoonup":"\u21C0","rightleftarrows":"\u21C4","rightleftharpoons":"\u21CC","rightrightarrows":"\u21C9","rightsquigarrow":"\u219D","RightTeeArrow":"\u21A6","RightTee":"\u22A2","RightTeeVector":"\u295B","rightthreetimes":"\u22CC","RightTriangleBar":"\u29D0","RightTriangle":"\u22B3","RightTriangleEqual":"\u22B5","RightUpDownVector":"\u294F","RightUpTeeVector":"\u295C","RightUpVectorBar":"\u2954","RightUpVector":"\u21BE","RightVectorBar":"\u2953","RightVector":"\u21C0","ring":"\u02DA","risingdotseq":"\u2253","rlarr":"\u21C4","rlhar":"\u21CC","rlm":"\u200F","rmoustache":"\u23B1","rmoust":"\u23B1","rnmid":"\u2AEE","roang":"\u27ED","roarr":"\u21FE","robrk":"\u27E7","ropar":"\u2986","ropf":"\uD835\uDD63","Ropf":"\u211D","roplus":"\u2A2E","rotimes":"\u2A35","RoundImplies":"\u2970","rpar":")","rpargt":"\u2994","rppolint":"\u2A12","rrarr":"\u21C9","Rrightarrow":"\u21DB","rsaquo":"\u203A","rscr":"\uD835\uDCC7","Rscr":"\u211B","rsh":"\u21B1","Rsh":"\u21B1","rsqb":"]","rsquo":"\u2019","rsquor":"\u2019","rthree":"\u22CC","rtimes":"\u22CA","rtri":"\u25B9","rtrie":"\u22B5","rtrif":"\u25B8","rtriltri":"\u29CE","RuleDelayed":"\u29F4","ruluhar":"\u2968","rx":"\u211E","Sacute":"\u015A","sacute":"\u015B","sbquo":"\u201A","scap":"\u2AB8","Scaron":"\u0160","scaron":"\u0161","Sc":"\u2ABC","sc":"\u227B","sccue":"\u227D","sce":"\u2AB0","scE":"\u2AB4","Scedil":"\u015E","scedil":"\u015F","Scirc":"\u015C","scirc":"\u015D","scnap":"\u2ABA","scnE":"\u2AB6","scnsim":"\u22E9","scpolint":"\u2A13","scsim":"\u227F","Scy":"\u0421","scy":"\u0441","sdotb":"\u22A1","sdot":"\u22C5","sdote":"\u2A66","searhk":"\u2925","searr":"\u2198","seArr":"\u21D8","searrow":"\u2198","sect":"\u00A7","semi":";","seswar":"\u2929","setminus":"\u2216","setmn":"\u2216","sext":"\u2736","Sfr":"\uD835\uDD16","sfr":"\uD835\uDD30","sfrown":"\u2322","sharp":"\u266F","SHCHcy":"\u0429","shchcy":"\u0449","SHcy":"\u0428","shcy":"\u0448","ShortDownArrow":"\u2193","ShortLeftArrow":"\u2190","shortmid":"\u2223","shortparallel":"\u2225","ShortRightArrow":"\u2192","ShortUpArrow":"\u2191","shy":"\u00AD","Sigma":"\u03A3","sigma":"\u03C3","sigmaf":"\u03C2","sigmav":"\u03C2","sim":"\u223C","simdot":"\u2A6A","sime":"\u2243","simeq":"\u2243","simg":"\u2A9E","simgE":"\u2AA0","siml":"\u2A9D","simlE":"\u2A9F","simne":"\u2246","simplus":"\u2A24","simrarr":"\u2972","slarr":"\u2190","SmallCircle":"\u2218","smallsetminus":"\u2216","smashp":"\u2A33","smeparsl":"\u29E4","smid":"\u2223","smile":"\u2323","smt":"\u2AAA","smte":"\u2AAC","smtes":"\u2AAC\uFE00","SOFTcy":"\u042C","softcy":"\u044C","solbar":"\u233F","solb":"\u29C4","sol":"/","Sopf":"\uD835\uDD4A","sopf":"\uD835\uDD64","spades":"\u2660","spadesuit":"\u2660","spar":"\u2225","sqcap":"\u2293","sqcaps":"\u2293\uFE00","sqcup":"\u2294","sqcups":"\u2294\uFE00","Sqrt":"\u221A","sqsub":"\u228F","sqsube":"\u2291","sqsubset":"\u228F","sqsubseteq":"\u2291","sqsup":"\u2290","sqsupe":"\u2292","sqsupset":"\u2290","sqsupseteq":"\u2292","square":"\u25A1","Square":"\u25A1","SquareIntersection":"\u2293","SquareSubset":"\u228F","SquareSubsetEqual":"\u2291","SquareSuperset":"\u2290","SquareSupersetEqual":"\u2292","SquareUnion":"\u2294","squarf":"\u25AA","squ":"\u25A1","squf":"\u25AA","srarr":"\u2192","Sscr":"\uD835\uDCAE","sscr":"\uD835\uDCC8","ssetmn":"\u2216","ssmile":"\u2323","sstarf":"\u22C6","Star":"\u22C6","star":"\u2606","starf":"\u2605","straightepsilon":"\u03F5","straightphi":"\u03D5","strns":"\u00AF","sub":"\u2282","Sub":"\u22D0","subdot":"\u2ABD","subE":"\u2AC5","sube":"\u2286","subedot":"\u2AC3","submult":"\u2AC1","subnE":"\u2ACB","subne":"\u228A","subplus":"\u2ABF","subrarr":"\u2979","subset":"\u2282","Subset":"\u22D0","subseteq":"\u2286","subseteqq":"\u2AC5","SubsetEqual":"\u2286","subsetneq":"\u228A","subsetneqq":"\u2ACB","subsim":"\u2AC7","subsub":"\u2AD5","subsup":"\u2AD3","succapprox":"\u2AB8","succ":"\u227B","succcurlyeq":"\u227D","Succeeds":"\u227B","SucceedsEqual":"\u2AB0","SucceedsSlantEqual":"\u227D","SucceedsTilde":"\u227F","succeq":"\u2AB0","succnapprox":"\u2ABA","succneqq":"\u2AB6","succnsim":"\u22E9","succsim":"\u227F","SuchThat":"\u220B","sum":"\u2211","Sum":"\u2211","sung":"\u266A","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","sup":"\u2283","Sup":"\u22D1","supdot":"\u2ABE","supdsub":"\u2AD8","supE":"\u2AC6","supe":"\u2287","supedot":"\u2AC4","Superset":"\u2283","SupersetEqual":"\u2287","suphsol":"\u27C9","suphsub":"\u2AD7","suplarr":"\u297B","supmult":"\u2AC2","supnE":"\u2ACC","supne":"\u228B","supplus":"\u2AC0","supset":"\u2283","Supset":"\u22D1","supseteq":"\u2287","supseteqq":"\u2AC6","supsetneq":"\u228B","supsetneqq":"\u2ACC","supsim":"\u2AC8","supsub":"\u2AD4","supsup":"\u2AD6","swarhk":"\u2926","swarr":"\u2199","swArr":"\u21D9","swarrow":"\u2199","swnwar":"\u292A","szlig":"\u00DF","Tab":"\t","target":"\u2316","Tau":"\u03A4","tau":"\u03C4","tbrk":"\u23B4","Tcaron":"\u0164","tcaron":"\u0165","Tcedil":"\u0162","tcedil":"\u0163","Tcy":"\u0422","tcy":"\u0442","tdot":"\u20DB","telrec":"\u2315","Tfr":"\uD835\uDD17","tfr":"\uD835\uDD31","there4":"\u2234","therefore":"\u2234","Therefore":"\u2234","Theta":"\u0398","theta":"\u03B8","thetasym":"\u03D1","thetav":"\u03D1","thickapprox":"\u2248","thicksim":"\u223C","ThickSpace":"\u205F\u200A","ThinSpace":"\u2009","thinsp":"\u2009","thkap":"\u2248","thksim":"\u223C","THORN":"\u00DE","thorn":"\u00FE","tilde":"\u02DC","Tilde":"\u223C","TildeEqual":"\u2243","TildeFullEqual":"\u2245","TildeTilde":"\u2248","timesbar":"\u2A31","timesb":"\u22A0","times":"\u00D7","timesd":"\u2A30","tint":"\u222D","toea":"\u2928","topbot":"\u2336","topcir":"\u2AF1","top":"\u22A4","Topf":"\uD835\uDD4B","topf":"\uD835\uDD65","topfork":"\u2ADA","tosa":"\u2929","tprime":"\u2034","trade":"\u2122","TRADE":"\u2122","triangle":"\u25B5","triangledown":"\u25BF","triangleleft":"\u25C3","trianglelefteq":"\u22B4","triangleq":"\u225C","triangleright":"\u25B9","trianglerighteq":"\u22B5","tridot":"\u25EC","trie":"\u225C","triminus":"\u2A3A","TripleDot":"\u20DB","triplus":"\u2A39","trisb":"\u29CD","tritime":"\u2A3B","trpezium":"\u23E2","Tscr":"\uD835\uDCAF","tscr":"\uD835\uDCC9","TScy":"\u0426","tscy":"\u0446","TSHcy":"\u040B","tshcy":"\u045B","Tstrok":"\u0166","tstrok":"\u0167","twixt":"\u226C","twoheadleftarrow":"\u219E","twoheadrightarrow":"\u21A0","Uacute":"\u00DA","uacute":"\u00FA","uarr":"\u2191","Uarr":"\u219F","uArr":"\u21D1","Uarrocir":"\u2949","Ubrcy":"\u040E","ubrcy":"\u045E","Ubreve":"\u016C","ubreve":"\u016D","Ucirc":"\u00DB","ucirc":"\u00FB","Ucy":"\u0423","ucy":"\u0443","udarr":"\u21C5","Udblac":"\u0170","udblac":"\u0171","udhar":"\u296E","ufisht":"\u297E","Ufr":"\uD835\uDD18","ufr":"\uD835\uDD32","Ugrave":"\u00D9","ugrave":"\u00F9","uHar":"\u2963","uharl":"\u21BF","uharr":"\u21BE","uhblk":"\u2580","ulcorn":"\u231C","ulcorner":"\u231C","ulcrop":"\u230F","ultri":"\u25F8","Umacr":"\u016A","umacr":"\u016B","uml":"\u00A8","UnderBar":"_","UnderBrace":"\u23DF","UnderBracket":"\u23B5","UnderParenthesis":"\u23DD","Union":"\u22C3","UnionPlus":"\u228E","Uogon":"\u0172","uogon":"\u0173","Uopf":"\uD835\uDD4C","uopf":"\uD835\uDD66","UpArrowBar":"\u2912","uparrow":"\u2191","UpArrow":"\u2191","Uparrow":"\u21D1","UpArrowDownArrow":"\u21C5","updownarrow":"\u2195","UpDownArrow":"\u2195","Updownarrow":"\u21D5","UpEquilibrium":"\u296E","upharpoonleft":"\u21BF","upharpoonright":"\u21BE","uplus":"\u228E","UpperLeftArrow":"\u2196","UpperRightArrow":"\u2197","upsi":"\u03C5","Upsi":"\u03D2","upsih":"\u03D2","Upsilon":"\u03A5","upsilon":"\u03C5","UpTeeArrow":"\u21A5","UpTee":"\u22A5","upuparrows":"\u21C8","urcorn":"\u231D","urcorner":"\u231D","urcrop":"\u230E","Uring":"\u016E","uring":"\u016F","urtri":"\u25F9","Uscr":"\uD835\uDCB0","uscr":"\uD835\uDCCA","utdot":"\u22F0","Utilde":"\u0168","utilde":"\u0169","utri":"\u25B5","utrif":"\u25B4","uuarr":"\u21C8","Uuml":"\u00DC","uuml":"\u00FC","uwangle":"\u29A7","vangrt":"\u299C","varepsilon":"\u03F5","varkappa":"\u03F0","varnothing":"\u2205","varphi":"\u03D5","varpi":"\u03D6","varpropto":"\u221D","varr":"\u2195","vArr":"\u21D5","varrho":"\u03F1","varsigma":"\u03C2","varsubsetneq":"\u228A\uFE00","varsubsetneqq":"\u2ACB\uFE00","varsupsetneq":"\u228B\uFE00","varsupsetneqq":"\u2ACC\uFE00","vartheta":"\u03D1","vartriangleleft":"\u22B2","vartriangleright":"\u22B3","vBar":"\u2AE8","Vbar":"\u2AEB","vBarv":"\u2AE9","Vcy":"\u0412","vcy":"\u0432","vdash":"\u22A2","vDash":"\u22A8","Vdash":"\u22A9","VDash":"\u22AB","Vdashl":"\u2AE6","veebar":"\u22BB","vee":"\u2228","Vee":"\u22C1","veeeq":"\u225A","vellip":"\u22EE","verbar":"|","Verbar":"\u2016","vert":"|","Vert":"\u2016","VerticalBar":"\u2223","VerticalLine":"|","VerticalSeparator":"\u2758","VerticalTilde":"\u2240","VeryThinSpace":"\u200A","Vfr":"\uD835\uDD19","vfr":"\uD835\uDD33","vltri":"\u22B2","vnsub":"\u2282\u20D2","vnsup":"\u2283\u20D2","Vopf":"\uD835\uDD4D","vopf":"\uD835\uDD67","vprop":"\u221D","vrtri":"\u22B3","Vscr":"\uD835\uDCB1","vscr":"\uD835\uDCCB","vsubnE":"\u2ACB\uFE00","vsubne":"\u228A\uFE00","vsupnE":"\u2ACC\uFE00","vsupne":"\u228B\uFE00","Vvdash":"\u22AA","vzigzag":"\u299A","Wcirc":"\u0174","wcirc":"\u0175","wedbar":"\u2A5F","wedge":"\u2227","Wedge":"\u22C0","wedgeq":"\u2259","weierp":"\u2118","Wfr":"\uD835\uDD1A","wfr":"\uD835\uDD34","Wopf":"\uD835\uDD4E","wopf":"\uD835\uDD68","wp":"\u2118","wr":"\u2240","wreath":"\u2240","Wscr":"\uD835\uDCB2","wscr":"\uD835\uDCCC","xcap":"\u22C2","xcirc":"\u25EF","xcup":"\u22C3","xdtri":"\u25BD","Xfr":"\uD835\uDD1B","xfr":"\uD835\uDD35","xharr":"\u27F7","xhArr":"\u27FA","Xi":"\u039E","xi":"\u03BE","xlarr":"\u27F5","xlArr":"\u27F8","xmap":"\u27FC","xnis":"\u22FB","xodot":"\u2A00","Xopf":"\uD835\uDD4F","xopf":"\uD835\uDD69","xoplus":"\u2A01","xotime":"\u2A02","xrarr":"\u27F6","xrArr":"\u27F9","Xscr":"\uD835\uDCB3","xscr":"\uD835\uDCCD","xsqcup":"\u2A06","xuplus":"\u2A04","xutri":"\u25B3","xvee":"\u22C1","xwedge":"\u22C0","Yacute":"\u00DD","yacute":"\u00FD","YAcy":"\u042F","yacy":"\u044F","Ycirc":"\u0176","ycirc":"\u0177","Ycy":"\u042B","ycy":"\u044B","yen":"\u00A5","Yfr":"\uD835\uDD1C","yfr":"\uD835\uDD36","YIcy":"\u0407","yicy":"\u0457","Yopf":"\uD835\uDD50","yopf":"\uD835\uDD6A","Yscr":"\uD835\uDCB4","yscr":"\uD835\uDCCE","YUcy":"\u042E","yucy":"\u044E","yuml":"\u00FF","Yuml":"\u0178","Zacute":"\u0179","zacute":"\u017A","Zcaron":"\u017D","zcaron":"\u017E","Zcy":"\u0417","zcy":"\u0437","Zdot":"\u017B","zdot":"\u017C","zeetrf":"\u2128","ZeroWidthSpace":"\u200B","Zeta":"\u0396","zeta":"\u03B6","zfr":"\uD835\uDD37","Zfr":"\u2128","ZHcy":"\u0416","zhcy":"\u0436","zigrarr":"\u21DD","zopf":"\uD835\uDD6B","Zopf":"\u2124","Zscr":"\uD835\uDCB5","zscr":"\uD835\uDCCF","zwj":"\u200D","zwnj":"\u200C"}
 },{}],72:[function(require,module,exports){
+module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","AElig":"\u00C6","aelig":"\u00E6","Agrave":"\u00C0","agrave":"\u00E0","amp":"&","AMP":"&","Aring":"\u00C5","aring":"\u00E5","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","brvbar":"\u00A6","Ccedil":"\u00C7","ccedil":"\u00E7","cedil":"\u00B8","cent":"\u00A2","copy":"\u00A9","COPY":"\u00A9","curren":"\u00A4","deg":"\u00B0","divide":"\u00F7","Eacute":"\u00C9","eacute":"\u00E9","Ecirc":"\u00CA","ecirc":"\u00EA","Egrave":"\u00C8","egrave":"\u00E8","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","frac12":"\u00BD","frac14":"\u00BC","frac34":"\u00BE","gt":">","GT":">","Iacute":"\u00CD","iacute":"\u00ED","Icirc":"\u00CE","icirc":"\u00EE","iexcl":"\u00A1","Igrave":"\u00CC","igrave":"\u00EC","iquest":"\u00BF","Iuml":"\u00CF","iuml":"\u00EF","laquo":"\u00AB","lt":"<","LT":"<","macr":"\u00AF","micro":"\u00B5","middot":"\u00B7","nbsp":"\u00A0","not":"\u00AC","Ntilde":"\u00D1","ntilde":"\u00F1","Oacute":"\u00D3","oacute":"\u00F3","Ocirc":"\u00D4","ocirc":"\u00F4","Ograve":"\u00D2","ograve":"\u00F2","ordf":"\u00AA","ordm":"\u00BA","Oslash":"\u00D8","oslash":"\u00F8","Otilde":"\u00D5","otilde":"\u00F5","Ouml":"\u00D6","ouml":"\u00F6","para":"\u00B6","plusmn":"\u00B1","pound":"\u00A3","quot":"\"","QUOT":"\"","raquo":"\u00BB","reg":"\u00AE","REG":"\u00AE","sect":"\u00A7","shy":"\u00AD","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","szlig":"\u00DF","THORN":"\u00DE","thorn":"\u00FE","times":"\u00D7","Uacute":"\u00DA","uacute":"\u00FA","Ucirc":"\u00DB","ucirc":"\u00FB","Ugrave":"\u00D9","ugrave":"\u00F9","uml":"\u00A8","Uuml":"\u00DC","uuml":"\u00FC","Yacute":"\u00DD","yacute":"\u00FD","yen":"\u00A5","yuml":"\u00FF"}
+},{}],73:[function(require,module,exports){
 module.exports={"amp":"&","apos":"'","gt":">","lt":"<","quot":"\""}
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 //Types of elements found in the DOM
 module.exports = {
 	Text: "text", //Text
@@ -9436,7 +9639,7 @@ module.exports = {
 	}
 };
 
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var ElementType = require("domelementtype");
 
 var re_whitespace = /\s+/g;
@@ -9620,7 +9823,7 @@ DomHandler.prototype.onprocessinginstruction = function(name, data){
 
 module.exports = DomHandler;
 
-},{"./lib/element":75,"./lib/node":76,"domelementtype":73}],75:[function(require,module,exports){
+},{"./lib/element":76,"./lib/node":77,"domelementtype":74}],76:[function(require,module,exports){
 // DOM-Level-1-compliant structure
 var NodePrototype = require('./node');
 var ElementPrototype = module.exports = Object.create(NodePrototype);
@@ -9642,7 +9845,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{"./node":76}],76:[function(require,module,exports){
+},{"./node":77}],77:[function(require,module,exports){
 // This object will be used as the prototype for Nodes when creating a
 // DOM-Level-1-compliant structure.
 var NodePrototype = module.exports = {
@@ -9688,7 +9891,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var DomUtils = module.exports;
 
 [
@@ -9704,7 +9907,7 @@ var DomUtils = module.exports;
 	});
 });
 
-},{"./lib/helpers":78,"./lib/legacy":79,"./lib/manipulation":80,"./lib/querying":81,"./lib/stringify":82,"./lib/traversal":83}],78:[function(require,module,exports){
+},{"./lib/helpers":79,"./lib/legacy":80,"./lib/manipulation":81,"./lib/querying":82,"./lib/stringify":83,"./lib/traversal":84}],79:[function(require,module,exports){
 // removeSubsets
 // Given an array of nodes, remove any member that is contained by another.
 exports.removeSubsets = function(nodes) {
@@ -9847,7 +10050,7 @@ exports.uniqueSort = function(nodes) {
 	return nodes;
 };
 
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 var ElementType = require("domelementtype");
 var isTag = exports.isTag = ElementType.isTag;
 
@@ -9936,7 +10139,7 @@ exports.getElementsByTagType = function(type, element, recurse, limit){
 	return this.filter(Checks.tag_type(type), element, recurse, limit);
 };
 
-},{"domelementtype":73}],80:[function(require,module,exports){
+},{"domelementtype":74}],81:[function(require,module,exports){
 exports.removeElement = function(elem){
 	if(elem.prev) elem.prev.next = elem.next;
 	if(elem.next) elem.next.prev = elem.prev;
@@ -10015,7 +10218,7 @@ exports.prepend = function(elem, prev){
 
 
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var isTag = require("domelementtype").isTag;
 
 module.exports = {
@@ -10111,7 +10314,7 @@ function findAll(test, elems){
 	return result;
 }
 
-},{"domelementtype":73}],82:[function(require,module,exports){
+},{"domelementtype":74}],83:[function(require,module,exports){
 var ElementType = require("domelementtype"),
     getOuterHTML = require("dom-serializer"),
     isTag = ElementType.isTag;
@@ -10135,7 +10338,7 @@ function getText(elem){
 	return "";
 }
 
-},{"dom-serializer":64,"domelementtype":73}],83:[function(require,module,exports){
+},{"dom-serializer":65,"domelementtype":74}],84:[function(require,module,exports){
 var getChildren = exports.getChildren = function(elem){
 	return elem.children;
 };
@@ -10161,7 +10364,7 @@ exports.getName = function(elem){
 	return elem.name;
 };
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var decodeMap = require("../maps/decode.json");
 
 module.exports = decodeCodePoint;
@@ -10189,15 +10392,15 @@ function decodeCodePoint(codePoint){
 	return output;
 }
 
-},{"../maps/decode.json":85}],85:[function(require,module,exports){
-arguments[4][69][0].apply(exports,arguments)
-},{"dup":69}],86:[function(require,module,exports){
+},{"../maps/decode.json":86}],86:[function(require,module,exports){
 arguments[4][70][0].apply(exports,arguments)
 },{"dup":70}],87:[function(require,module,exports){
 arguments[4][71][0].apply(exports,arguments)
 },{"dup":71}],88:[function(require,module,exports){
 arguments[4][72][0].apply(exports,arguments)
 },{"dup":72}],89:[function(require,module,exports){
+arguments[4][73][0].apply(exports,arguments)
+},{"dup":73}],90:[function(require,module,exports){
 'use strict';
 
 var isArray = Array.isArray;
@@ -10254,7 +10457,7 @@ module.exports = function equal(a, b) {
   return a!==a && b!==b;
 };
 
-},{}],90:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 'use strict';
 
 module.exports = function (data, opts) {
@@ -10315,7 +10518,7 @@ module.exports = function (data, opts) {
     })(data);
 };
 
-},{}],91:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 module.exports = CollectingHandler;
 
 function CollectingHandler(cbs){
@@ -10372,7 +10575,7 @@ CollectingHandler.prototype.restart = function(){
 	}
 };
 
-},{"./":98}],92:[function(require,module,exports){
+},{"./":99}],93:[function(require,module,exports){
 var index = require("./index.js"),
     DomHandler = index.DomHandler,
 	DomUtils = index.DomUtils;
@@ -10469,7 +10672,7 @@ FeedHandler.prototype.onend = function(){
 
 module.exports = FeedHandler;
 
-},{"./index.js":98,"util":243}],93:[function(require,module,exports){
+},{"./index.js":99,"util":275}],94:[function(require,module,exports){
 var Tokenizer = require("./Tokenizer.js");
 
 /*
@@ -10821,7 +11024,7 @@ Parser.prototype.done = Parser.prototype.end;
 
 module.exports = Parser;
 
-},{"./Tokenizer.js":96,"events":209,"util":243}],94:[function(require,module,exports){
+},{"./Tokenizer.js":97,"events":241,"util":275}],95:[function(require,module,exports){
 module.exports = ProxyHandler;
 
 function ProxyHandler(cbs){
@@ -10849,7 +11052,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments");
 	}
 });
-},{"./":98}],95:[function(require,module,exports){
+},{"./":99}],96:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./WritableStream.js");
@@ -10885,7 +11088,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments!");
 	}
 });
-},{"../":98,"./WritableStream.js":97,"util":243}],96:[function(require,module,exports){
+},{"../":99,"./WritableStream.js":98,"util":275}],97:[function(require,module,exports){
 module.exports = Tokenizer;
 
 var decodeCodePoint = require("entities/lib/decode_codepoint.js"),
@@ -11793,7 +11996,7 @@ Tokenizer.prototype._emitPartial = function(value){
 	}
 };
 
-},{"entities/lib/decode_codepoint.js":84,"entities/maps/entities.json":86,"entities/maps/legacy.json":87,"entities/maps/xml.json":88}],97:[function(require,module,exports){
+},{"entities/lib/decode_codepoint.js":85,"entities/maps/entities.json":87,"entities/maps/legacy.json":88,"entities/maps/xml.json":89}],98:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./Parser.js"),
@@ -11815,7 +12018,7 @@ WritableStream.prototype._write = function(chunk, encoding, cb){
 	this._parser.write(chunk);
 	cb();
 };
-},{"./Parser.js":93,"readable-stream":206,"stream":237,"util":243}],98:[function(require,module,exports){
+},{"./Parser.js":94,"readable-stream":238,"stream":269,"util":275}],99:[function(require,module,exports){
 var Parser = require("./Parser.js"),
     DomHandler = require("domhandler");
 
@@ -11885,7 +12088,7 @@ module.exports = {
 	}
 };
 
-},{"./CollectingHandler.js":91,"./FeedHandler.js":92,"./Parser.js":93,"./ProxyHandler.js":94,"./Stream.js":95,"./Tokenizer.js":96,"./WritableStream.js":97,"domelementtype":73,"domhandler":74,"domutils":77}],99:[function(require,module,exports){
+},{"./CollectingHandler.js":92,"./FeedHandler.js":93,"./Parser.js":94,"./ProxyHandler.js":95,"./Stream.js":96,"./Tokenizer.js":97,"./WritableStream.js":98,"domelementtype":74,"domhandler":75,"domutils":78}],100:[function(require,module,exports){
 'use strict';
 /* eslint-disable yoda */
 module.exports = x => {
@@ -11933,7 +12136,7 @@ module.exports = x => {
 	return false;
 };
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 'use strict';
 
 var traverse = module.exports = function (schema, opts, cb) {
@@ -12024,7 +12227,81 @@ function escapeJsonPtr(str) {
   return str.replace(/~/g, '~0').replace(/\//g, '~1');
 }
 
-},{}],101:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
+/**
+ * A specialized version of `_.forEach` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns `array`.
+ */
+function arrayEach(array, iteratee) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  while (++index < length) {
+    if (iteratee(array[index], index, array) === false) {
+      break;
+    }
+  }
+  return array;
+}
+
+module.exports = arrayEach;
+
+},{}],103:[function(require,module,exports){
+/**
+ * A specialized version of `_.filter` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ */
+function arrayFilter(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      resIndex = 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+    if (predicate(value, index, array)) {
+      result[resIndex++] = value;
+    }
+  }
+  return result;
+}
+
+module.exports = arrayFilter;
+
+},{}],104:[function(require,module,exports){
+/**
+ * A specialized version of `_.map` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function arrayMap(array, iteratee) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      result = Array(length);
+
+  while (++index < length) {
+    result[index] = iteratee(array[index], index, array);
+  }
+  return result;
+}
+
+module.exports = arrayMap;
+
+},{}],105:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -12115,7 +12392,7 @@ module.exports.htmlToDom = htmlToDom;
 module.exports.domUtils = htmlparser.DomUtils;
 module.exports.invokeExtensions = invokeExtensions;
 
-},{"htmlparser2":98}],102:[function(require,module,exports){
+},{"htmlparser2":99}],106:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -13146,7 +13423,7 @@ Block.prototype = {
 
 module.exports.generate = generate;
 
-},{"./common":101,"marked":138}],103:[function(require,module,exports){
+},{"./common":105,"marked":142}],107:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -13371,7 +13648,7 @@ module.exports.generate = generate;
 module.exports.tocJSONadapter = tocJSONadapter;
 module.exports.tocXMLadapter = tocXMLadapter;
 
-},{"./htmlGenerator":102,"./tocJSONadapter":104,"./tocJSONgenerator":105,"./tocXMLadapter":106,"./tocXMLgenerator":107,"js-yaml":108}],104:[function(require,module,exports){
+},{"./htmlGenerator":106,"./tocJSONadapter":108,"./tocJSONgenerator":109,"./tocXMLadapter":110,"./tocXMLgenerator":111,"js-yaml":112}],108:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -13505,7 +13782,7 @@ tocJSONadapter.prototype = {
 
 module.exports = tocJSONadapter;
 
-},{"./common":101,"path":215}],105:[function(require,module,exports){
+},{"./common":105,"path":247}],109:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -13607,7 +13884,7 @@ module.exports = function(callbacks, urlPrefix, tocDepth) {
 
 })();
 
-},{"./common":101}],106:[function(require,module,exports){
+},{"./common":105}],110:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -13723,7 +14000,7 @@ tocXMLadapter.prototype = {
 
 module.exports = tocXMLadapter;
 
-},{"./common":101,"path":215,"pretty-data":140}],107:[function(require,module,exports){
+},{"./common":105,"path":247,"pretty-data":172}],111:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -13822,7 +14099,7 @@ module.exports = function(callbacks, urlPrefix, tocDepth, xmlMode) {
 
 })();
 
-},{"./common":101}],108:[function(require,module,exports){
+},{"./common":105}],112:[function(require,module,exports){
 'use strict';
 
 
@@ -13831,7 +14108,7 @@ var yaml = require('./lib/js-yaml.js');
 
 module.exports = yaml;
 
-},{"./lib/js-yaml.js":109}],109:[function(require,module,exports){
+},{"./lib/js-yaml.js":113}],113:[function(require,module,exports){
 'use strict';
 
 
@@ -13872,7 +14149,7 @@ module.exports.parse          = deprecated('parse');
 module.exports.compose        = deprecated('compose');
 module.exports.addConstructor = deprecated('addConstructor');
 
-},{"./js-yaml/dumper":111,"./js-yaml/exception":112,"./js-yaml/loader":113,"./js-yaml/schema":115,"./js-yaml/schema/core":116,"./js-yaml/schema/default_full":117,"./js-yaml/schema/default_safe":118,"./js-yaml/schema/failsafe":119,"./js-yaml/schema/json":120,"./js-yaml/type":121}],110:[function(require,module,exports){
+},{"./js-yaml/dumper":115,"./js-yaml/exception":116,"./js-yaml/loader":117,"./js-yaml/schema":119,"./js-yaml/schema/core":120,"./js-yaml/schema/default_full":121,"./js-yaml/schema/default_safe":122,"./js-yaml/schema/failsafe":123,"./js-yaml/schema/json":124,"./js-yaml/type":125}],114:[function(require,module,exports){
 'use strict';
 
 
@@ -13933,7 +14210,7 @@ module.exports.repeat         = repeat;
 module.exports.isNegativeZero = isNegativeZero;
 module.exports.extend         = extend;
 
-},{}],111:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable no-use-before-define*/
@@ -14745,7 +15022,7 @@ function safeDump(input, options) {
 module.exports.dump     = dump;
 module.exports.safeDump = safeDump;
 
-},{"./common":110,"./exception":112,"./schema/default_full":117,"./schema/default_safe":118}],112:[function(require,module,exports){
+},{"./common":114,"./exception":116,"./schema/default_full":121,"./schema/default_safe":122}],116:[function(require,module,exports){
 // YAML error class. http://stackoverflow.com/questions/8458984
 //
 'use strict';
@@ -14790,7 +15067,7 @@ YAMLException.prototype.toString = function toString(compact) {
 
 module.exports = YAMLException;
 
-},{}],113:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable max-len,no-use-before-define*/
@@ -16378,7 +16655,7 @@ module.exports.load        = load;
 module.exports.safeLoadAll = safeLoadAll;
 module.exports.safeLoad    = safeLoad;
 
-},{"./common":110,"./exception":112,"./mark":114,"./schema/default_full":117,"./schema/default_safe":118}],114:[function(require,module,exports){
+},{"./common":114,"./exception":116,"./mark":118,"./schema/default_full":121,"./schema/default_safe":122}],118:[function(require,module,exports){
 'use strict';
 
 
@@ -16456,7 +16733,7 @@ Mark.prototype.toString = function toString(compact) {
 
 module.exports = Mark;
 
-},{"./common":110}],115:[function(require,module,exports){
+},{"./common":114}],119:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable max-len*/
@@ -16562,7 +16839,7 @@ Schema.create = function createSchema() {
 
 module.exports = Schema;
 
-},{"./common":110,"./exception":112,"./type":121}],116:[function(require,module,exports){
+},{"./common":114,"./exception":116,"./type":125}],120:[function(require,module,exports){
 // Standard YAML's Core schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2804923
 //
@@ -16582,7 +16859,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":115,"./json":120}],117:[function(require,module,exports){
+},{"../schema":119,"./json":124}],121:[function(require,module,exports){
 // JS-YAML's default schema for `load` function.
 // It is not described in the YAML specification.
 //
@@ -16609,7 +16886,7 @@ module.exports = Schema.DEFAULT = new Schema({
   ]
 });
 
-},{"../schema":115,"../type/js/function":126,"../type/js/regexp":127,"../type/js/undefined":128,"./default_safe":118}],118:[function(require,module,exports){
+},{"../schema":119,"../type/js/function":130,"../type/js/regexp":131,"../type/js/undefined":132,"./default_safe":122}],122:[function(require,module,exports){
 // JS-YAML's default schema for `safeLoad` function.
 // It is not described in the YAML specification.
 //
@@ -16639,7 +16916,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":115,"../type/binary":122,"../type/merge":130,"../type/omap":132,"../type/pairs":133,"../type/set":135,"../type/timestamp":137,"./core":116}],119:[function(require,module,exports){
+},{"../schema":119,"../type/binary":126,"../type/merge":134,"../type/omap":136,"../type/pairs":137,"../type/set":139,"../type/timestamp":141,"./core":120}],123:[function(require,module,exports){
 // Standard YAML's Failsafe schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2802346
 
@@ -16658,7 +16935,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":115,"../type/map":129,"../type/seq":134,"../type/str":136}],120:[function(require,module,exports){
+},{"../schema":119,"../type/map":133,"../type/seq":138,"../type/str":140}],124:[function(require,module,exports){
 // Standard YAML's JSON schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2803231
 //
@@ -16685,7 +16962,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":115,"../type/bool":123,"../type/float":124,"../type/int":125,"../type/null":131,"./failsafe":119}],121:[function(require,module,exports){
+},{"../schema":119,"../type/bool":127,"../type/float":128,"../type/int":129,"../type/null":135,"./failsafe":123}],125:[function(require,module,exports){
 'use strict';
 
 var YAMLException = require('./exception');
@@ -16748,7 +17025,7 @@ function Type(tag, options) {
 
 module.exports = Type;
 
-},{"./exception":112}],122:[function(require,module,exports){
+},{"./exception":116}],126:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable no-bitwise*/
@@ -16880,7 +17157,7 @@ module.exports = new Type('tag:yaml.org,2002:binary', {
   represent: representYamlBinary
 });
 
-},{"../type":121,"buffer":206}],123:[function(require,module,exports){
+},{"../type":125,"buffer":238}],127:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -16917,7 +17194,7 @@ module.exports = new Type('tag:yaml.org,2002:bool', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":121}],124:[function(require,module,exports){
+},{"../type":125}],128:[function(require,module,exports){
 'use strict';
 
 var common = require('../common');
@@ -17024,7 +17301,7 @@ module.exports = new Type('tag:yaml.org,2002:float', {
   defaultStyle: 'lowercase'
 });
 
-},{"../common":110,"../type":121}],125:[function(require,module,exports){
+},{"../common":114,"../type":125}],129:[function(require,module,exports){
 'use strict';
 
 var common = require('../common');
@@ -17194,7 +17471,7 @@ module.exports = new Type('tag:yaml.org,2002:int', {
   }
 });
 
-},{"../common":110,"../type":121}],126:[function(require,module,exports){
+},{"../common":114,"../type":125}],130:[function(require,module,exports){
 'use strict';
 
 var esprima;
@@ -17280,7 +17557,7 @@ module.exports = new Type('tag:yaml.org,2002:js/function', {
   represent: representJavascriptFunction
 });
 
-},{"../../type":121}],127:[function(require,module,exports){
+},{"../../type":125}],131:[function(require,module,exports){
 'use strict';
 
 var Type = require('../../type');
@@ -17342,7 +17619,7 @@ module.exports = new Type('tag:yaml.org,2002:js/regexp', {
   represent: representJavascriptRegExp
 });
 
-},{"../../type":121}],128:[function(require,module,exports){
+},{"../../type":125}],132:[function(require,module,exports){
 'use strict';
 
 var Type = require('../../type');
@@ -17372,7 +17649,7 @@ module.exports = new Type('tag:yaml.org,2002:js/undefined', {
   represent: representJavascriptUndefined
 });
 
-},{"../../type":121}],129:[function(require,module,exports){
+},{"../../type":125}],133:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17382,7 +17659,7 @@ module.exports = new Type('tag:yaml.org,2002:map', {
   construct: function (data) { return data !== null ? data : {}; }
 });
 
-},{"../type":121}],130:[function(require,module,exports){
+},{"../type":125}],134:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17396,7 +17673,7 @@ module.exports = new Type('tag:yaml.org,2002:merge', {
   resolve: resolveYamlMerge
 });
 
-},{"../type":121}],131:[function(require,module,exports){
+},{"../type":125}],135:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17432,7 +17709,7 @@ module.exports = new Type('tag:yaml.org,2002:null', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":121}],132:[function(require,module,exports){
+},{"../type":125}],136:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17478,7 +17755,7 @@ module.exports = new Type('tag:yaml.org,2002:omap', {
   construct: constructYamlOmap
 });
 
-},{"../type":121}],133:[function(require,module,exports){
+},{"../type":125}],137:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17533,7 +17810,7 @@ module.exports = new Type('tag:yaml.org,2002:pairs', {
   construct: constructYamlPairs
 });
 
-},{"../type":121}],134:[function(require,module,exports){
+},{"../type":125}],138:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17543,7 +17820,7 @@ module.exports = new Type('tag:yaml.org,2002:seq', {
   construct: function (data) { return data !== null ? data : []; }
 });
 
-},{"../type":121}],135:[function(require,module,exports){
+},{"../type":125}],139:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17574,7 +17851,7 @@ module.exports = new Type('tag:yaml.org,2002:set', {
   construct: constructYamlSet
 });
 
-},{"../type":121}],136:[function(require,module,exports){
+},{"../type":125}],140:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17584,7 +17861,7 @@ module.exports = new Type('tag:yaml.org,2002:str', {
   construct: function (data) { return data !== null ? data : ''; }
 });
 
-},{"../type":121}],137:[function(require,module,exports){
+},{"../type":125}],141:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17667,7 +17944,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
   represent: representYamlTimestamp
 });
 
-},{"../type":121}],138:[function(require,module,exports){
+},{"../type":125}],142:[function(require,module,exports){
 (function (global){
 /**
  * marked - a markdown parser
@@ -18986,7 +19263,7 @@ if (typeof module !== 'undefined' && typeof exports === 'object') {
 }());
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],139:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -19078,7 +19355,1942 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],140:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
+"use strict";
+
+module.exports = btoa;
+
+},{}],145:[function(require,module,exports){
+'use strict';
+
+if (typeof window.fetch === 'function') {
+  module.exports = window.fetch.bind(window);
+} else {
+  module.exports = function () {
+    throw new Error('Octokat Error: window.fetch function not found. Either use the https://npmjs.com/package/whatwg-fetch polyfill or set Octokat.Fetch variable to be the fetch function');
+  };
+}
+
+},{}],146:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var fetch = require('./adapters/fetch-node');
+var plus = require('./plus');
+var deprecate = require('./deprecate');
+var TREE_OPTIONS = require('./grammar/tree-options');
+var Chainer = require('./chainer');
+
+var _require = require('./verb-methods'),
+    VerbMethods = _require.VerbMethods,
+    toPromise = _require.toPromise;
+
+// Use the following plugins by default (they should be neglegible additional code)
+
+
+var SimpleVerbsPlugin = require('./plugins/simple-verbs');
+
+var Requester = require('./requester');
+var applyHypermedia = require('./helpers/hypermedia');
+
+// Checks if a response is a Buffer or not
+var isBuffer = function isBuffer(data) {
+  if (typeof global['Buffer'] !== 'undefined') {
+    return global['Buffer'].isBuffer(data);
+  } else {
+    // If `global` is not defined then we are not running inside Node so
+    // the object could never be a Buffer.
+    return false;
+  }
+};
+
+var uncamelizeObj = function uncamelizeObj(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(function (i) {
+      return uncamelizeObj(i);
+    });
+  } else if (obj === Object(obj)) {
+    var o = {};
+    var iterable = Object.keys(obj);
+    for (var j = 0; j < iterable.length; j++) {
+      var key = iterable[j];
+      var value = obj[key];
+      o[plus.uncamelize(key)] = uncamelizeObj(value);
+    }
+    return o;
+  } else {
+    return obj;
+  }
+};
+
+var OctokatBase = function OctokatBase() {
+  var clientOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  var plugins = clientOptions.plugins || [SimpleVerbsPlugin];
+
+  // TODO remove disableHypermedia
+  var disableHypermedia = clientOptions.disableHypermedia;
+  // set defaults
+
+  if (typeof disableHypermedia === 'undefined' || disableHypermedia === null) {
+    disableHypermedia = false;
+  }
+
+  // the octokat instance
+  var instance = {};
+
+  var fetchImpl = OctokatBase.Fetch || fetch;
+
+  var request = function request(method, path, data) {
+    var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : { raw: false, isBase64: false, isBoolean: false };
+    var cb = arguments[4];
+
+    // replacer = new Replacer(request)
+
+    // Use a slightly convoluted syntax so browserify does not include the
+    // NodeJS Buffer in the browser version.
+    // data is a Buffer when uploading a release asset file
+    if (data && !isBuffer(data)) {
+      data = uncamelizeObj(data);
+    }
+
+    // For each request, convert the JSON into Objects
+    var requester = new Requester(instance, clientOptions, plugins, fetchImpl);
+
+    return requester.request(method, path, data, options).then(function (val) {
+      if ((options || {}).raw) {
+        return val;
+      }
+
+      if (!disableHypermedia) {
+        var context = {
+          data: val,
+          plugins: plugins,
+          requester: requester,
+          instance: instance,
+          clientOptions: clientOptions
+        };
+        return instance._parseWithContextPromise(path, context);
+      } else {
+        return val;
+      }
+    });
+  };
+
+  var verbMethods = new VerbMethods(plugins, { request: request });
+  new Chainer(verbMethods).chain('', null, TREE_OPTIONS, instance);
+
+  // Special case for `me`
+  instance.me = instance.user;
+
+  instance.parse = function (data) {
+    // The signature of toPromise has cb as the 1st arg
+    var context = {
+      requester: { request: request },
+      plugins: plugins,
+      data: data,
+      instance: instance,
+      clientOptions: clientOptions
+    };
+    return instance._parseWithContextPromise('', context);
+  };
+
+  // If not callback is provided then return a promise
+  instance.parse = toPromise(instance.parse);
+
+  instance._parseWithContextPromise = function (path, context) {
+    var data = context.data;
+
+    if (data) {
+      context.url = data.url || path;
+    }
+
+    var responseMiddlewareAsyncs = plus.map(plus.filter(plugins, function (_ref) {
+      var responseMiddlewareAsync = _ref.responseMiddlewareAsync;
+      return responseMiddlewareAsync;
+    }), function (plugin) {
+      return plugin.responseMiddlewareAsync.bind(plugin);
+    });
+
+    var prev = Promise.resolve(context);
+    responseMiddlewareAsyncs.forEach(function (p) {
+      prev = prev.then(p);
+    });
+    return prev.then(function (val) {
+      return val.data;
+    });
+  };
+
+  // TODO remove this deprectaion too
+  instance._fromUrlWithDefault = function (path, defaultFn) {
+    for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      args[_key - 2] = arguments[_key];
+    }
+
+    path = applyHypermedia.apply(undefined, [path].concat(args));
+    verbMethods.injectVerbMethods(path, defaultFn);
+    return defaultFn;
+  };
+
+  instance.fromUrl = function (path) {
+    for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      args[_key2 - 1] = arguments[_key2];
+    }
+
+    var defaultFn = function defaultFn() {
+      deprecate('call ....fetch() explicitly instead of ...()');
+      return defaultFn.fetch.apply(defaultFn, arguments);
+    };
+
+    return instance._fromUrlWithDefault.apply(instance, [path, defaultFn].concat(args));
+  };
+
+  instance._fromUrlCurried = function (path, defaultFn) {
+    var fn = function fn() {
+      for (var _len3 = arguments.length, templateArgs = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        templateArgs[_key3] = arguments[_key3];
+      }
+
+      // This conditional logic is for the deprecated .nextPage() call
+      if (defaultFn && templateArgs.length === 0) {
+        return defaultFn.apply(fn);
+      } else {
+        return instance.fromUrl.apply(instance, [path].concat(templateArgs));
+      }
+    };
+
+    if (!/\{/.test(path)) {
+      verbMethods.injectVerbMethods(path, fn);
+    }
+    return fn;
+  };
+
+  // Add the GitHub Status API https://status.github.com/api
+  instance.status = instance.fromUrl('https://status.github.com/api/status.json');
+  instance.status.api = instance.fromUrl('https://status.github.com/api.json');
+  instance.status.lastMessage = instance.fromUrl('https://status.github.com/api/last-message.json');
+  instance.status.messages = instance.fromUrl('https://status.github.com/api/messages.json');
+
+  return instance;
+};
+
+module.exports = OctokatBase;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./adapters/fetch-node":145,"./chainer":147,"./deprecate":148,"./grammar/tree-options":151,"./helpers/hypermedia":153,"./plugins/simple-verbs":166,"./plus":168,"./requester":169,"./verb-methods":170}],147:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var plus = require('./plus');
+
+// Daisy-Chainer
+// ===============================
+//
+// Generates the functions so `octo.repos(...).issues.comments.fetch()` works.
+// Constructs a URL for the verb methods (like `.fetch` and `.create`).
+
+module.exports = function () {
+  function Chainer(_verbMethods) {
+    _classCallCheck(this, Chainer);
+
+    this._verbMethods = _verbMethods;
+  }
+
+  _createClass(Chainer, [{
+    key: 'chain',
+    value: function chain(path, name, contextTree, fn) {
+      var _this = this;
+
+      if (typeof fn === 'undefined' || fn === null) {
+        fn = function fn() {
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          if (!args.length) {
+            throw new Error('BUG! must be called with at least one argument');
+          }
+          var separator = '/';
+          // Special-case compare because its args turn into '...' instead of the usual '/'
+          if (name === 'compare') {
+            separator = '...';
+          }
+          return _this.chain(path + '/' + args.join(separator), name, contextTree);
+        };
+      }
+
+      this._verbMethods.injectVerbMethods(path, fn);
+
+      if (typeof fn === 'function' || (typeof fn === 'undefined' ? 'undefined' : _typeof(fn)) === 'object') {
+        for (name in contextTree || {}) {
+          (function (name) {
+            // Delete the key if it already exists
+            delete fn[plus.camelize(name)];
+
+            return Object.defineProperty(fn, plus.camelize(name), {
+              configurable: true,
+              enumerable: true,
+              get: function get() {
+                return _this.chain(path + '/' + name, name, contextTree[name]);
+              }
+            });
+          })(name);
+        }
+      }
+
+      return fn;
+    }
+  }]);
+
+  return Chainer;
+}();
+
+},{"./plus":168}],148:[function(require,module,exports){
+"use strict";
+
+module.exports = function (message) {
+  if (console && console.warn) {
+    console.warn("Octokat Deprecation: " + message);
+  }
+};
+
+},{}],149:[function(require,module,exports){
+'use strict';
+
+// Generated by CoffeeScript 1.12.7
+(function () {
+  module.exports = {
+    'repos': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/(repos(\/[^\/]+){2}|repositories\/([0-9]+))$/,
+    'gists': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/gists\/[^\/]+$/,
+    'issues': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/(repos(\/[^\/]+){2}|repositories\/([0-9]+))\/(issues|pulls)\/[^\/]+$/,
+    'users': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/users\/[^\/]+$/,
+    'orgs': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/orgs\/[^\/]+$/,
+    'teams': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/teams\/[^\/]+$/,
+    'repos.comments': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/repos\/[^\/]+\/[^\/]+\/comments\/[^\/]+$/
+  };
+}).call(undefined);
+
+
+
+},{}],150:[function(require,module,exports){
+'use strict';
+
+// Generated by CoffeeScript 1.12.7
+(function () {
+  module.exports = {
+    'application/vnd.github.drax-preview+json': /^(https?:\/\/[^\/]+)?(\/api\/v3)?(\/licenses|\/licenses\/([^\/]+)|\/repos\/([^\/]+)\/([^\/]+))$/,
+    'application/vnd.github.v3.star+json': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/users\/([^\/]+)\/starred$/,
+    'application/vnd.github.cloak-preview+json': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/search\/commits$/,
+    'application/vnd.github.black-cat-preview+json': /^(https?:\/\/[^\/]+)?(\/api\/v3)?\/repos(\/[^\/]+){2}\/pulls\/[0-9]+\/(|requested_reviewers|reviews(\/[0-9]+)?|reviews(\/[0-9]+)\/(comments|events|dismissals))$/,
+    'application/vnd.github.inertia-preview+json': /^(https?:\/\/[^\/]+)?(\/api\/v3)?(\/repos(\/[^\/]+){2}\/projects|\/orgs\/([^\/]+)\/projects|\/projects\/([0-9]+|[0-9]+\/columns|columns|columns\/[0-9]+|columns\/[0-9]+\/moves|columns\/[0-9]+\/cards|columns\/cards\/[0-9]+|columns\/cards\/[0-9]+\/moves))$/
+  };
+}).call(undefined);
+
+
+
+},{}],151:[function(require,module,exports){
+'use strict';
+
+var _module$exports;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Reuse these fields because there are 2 URL structures for accessing repositores:
+// - `/repos/philschatz/octokat.js/...`
+// - `/repositories/20044005/...`
+var REPO_FIELDS = {
+  'readme': false,
+  'tarball': false,
+  'zipball': false,
+  'compare': false,
+  'deployments': {
+    'statuses': false
+  },
+  'hooks': {
+    'tests': false
+  },
+  'assignees': false,
+  'languages': false,
+  'teams': false,
+  'tags': false,
+  'branches': false,
+  'contributors': false,
+  'subscribers': false,
+  'subscription': false,
+  'stargazers': false,
+  'comments': false,
+  'downloads': false,
+  'forks': false,
+  'milestones': {
+    'labels': false
+  },
+  'labels': false,
+  'releases': {
+    'assets': false,
+    'latest': false,
+    'tags': false
+  },
+  'events': false,
+  'notifications': false,
+  'merges': false,
+  'statuses': false,
+  'pulls': {
+    'merge': false,
+    'comments': false,
+    'commits': false,
+    'files': false,
+    'events': false,
+    'labels': false,
+    'requested_reviewers': false,
+    'reviews': {
+      'comments': false,
+      'events': false,
+      'dismissals': false
+    }
+  },
+  'pages': {
+    'builds': {
+      'latest': false
+    }
+  },
+  'commits': {
+    'comments': false,
+    'status': false,
+    'statuses': false
+  },
+  'contents': false,
+  'collaborators': {
+    'permission': false
+  },
+  'projects': false,
+  'issues': {
+    'events': false,
+    'comments': false,
+    'labels': false
+  },
+  'git': {
+    'refs': {
+      'heads': false,
+      'tags': false
+    },
+    'trees': false,
+    'blobs': false,
+    'commits': false
+  },
+  'stats': {
+    'contributors': false,
+    'commit_activity': false,
+    'code_frequency': false,
+    'participation': false,
+    'punch_card': false
+  },
+  'traffic': {
+    'popular': {
+      'referrers': false,
+      'paths': false
+    },
+    'views': false,
+    'clones': false
+  }
+};
+
+module.exports = (_module$exports = {
+  'zen': false,
+  'octocat': false,
+  'organizations': false,
+  'issues': false,
+  'emojis': false,
+  'markdown': false,
+  'meta': false,
+  'rate_limit': false,
+  'feeds': false,
+  'events': false,
+  'repositories': false,
+  'notifications': {
+    'threads': {
+      'subscription': false
+    }
+  },
+  'gitignore': {
+    'templates': false
+  },
+  'user': {
+    'repos': false,
+    'orgs': false,
+    'followers': false,
+    'following': false,
+    'emails': false,
+    'issues': false,
+    'public_emails': false,
+    'starred': false,
+    'teams': false
+  },
+  'orgs': {
+    'repos': false,
+    'issues': false,
+    'members': false,
+    'events': false,
+    'projects': false,
+    'teams': false
+  },
+  'projects': {
+    'columns': {
+      'moves': false,
+      'cards': {
+        'moves': false
+      }
+    }
+  },
+  'teams': {
+    'members': false,
+    'memberships': false,
+    'repos': false
+  },
+  'users': {
+    'repos': false,
+    'orgs': false,
+    'gists': false,
+    'followers': false,
+    'following': false,
+    'keys': false,
+    'starred': false,
+    'received_events': {
+      'public': false
+    },
+    'events': {
+      'public': false,
+      'orgs': false
+    },
+    // Enterprise-only:
+    'site_admin': false,
+    'suspended': false
+  },
+
+  'search': {
+    'repositories': false,
+    'commits': false,
+    'issues': false,
+    'users': false,
+    'code': false
+  },
+  'gists': {
+    'public': false,
+    'starred': false,
+    'star': false,
+    'comments': false,
+    'forks': false
+  },
+  'repos': REPO_FIELDS
+}, _defineProperty(_module$exports, 'repositories', REPO_FIELDS), _defineProperty(_module$exports, 'licenses', false), _defineProperty(_module$exports, 'authorizations', {
+  'clients': false
+}), _defineProperty(_module$exports, 'applications', {
+  'tokens': false
+}), _defineProperty(_module$exports, 'enterprise', {
+  'settings': {
+    'license': false
+  },
+  'stats': {
+    'issues': false,
+    'hooks': false,
+    'milestones': false,
+    'orgs': false,
+    'comments': false,
+    'pages': false,
+    'users': false,
+    'gists': false,
+    'pulls': false,
+    'repos': false,
+    'all': false
+  }
+}), _defineProperty(_module$exports, 'staff', {
+  'indexing_jobs': false
+}), _defineProperty(_module$exports, 'setup', {
+  'api': {
+    'start': false, // POST
+    'upgrade': false, // POST
+    'configcheck': false, // GET
+    'configure': false, // POST
+    'settings': { // GET/PUT
+      'authorized-keys': false // GET/POST/DELETE
+    },
+    'maintenance': false // GET/POST
+  }
+}), _module$exports);
+
+},{}],152:[function(require,module,exports){
+"use strict";
+
+// Generated by CoffeeScript 1.12.7
+(function () {
+  module.exports = /^(https:\/\/status.github.com\/api\/(status.json|last-message.json|messages.json)$)|(https?:\/\/[^\/]+)?(\/api\/v3)?\/(zen|octocat|users|issues|gists|emojis|markdown|meta|rate_limit|feeds|events|repositories(\/\d+)?|notifications|notifications\/threads(\/[^\/]+)|notifications\/threads(\/[^\/]+)\/subscription|gitignore\/templates(\/[^\/]+)?|user(\/\d+)?|user(\/\d+)?\/(|repos|orgs|followers|following(\/[^\/]+)?|emails(\/[^\/]+)?|issues|public_emails|starred|starred(\/[^\/]+){2}|teams)|(orgs\/[^\/]+)|((organizations)(\/\d+)?)|(orgs\/[^\/]+)|(organizations\/\d+)\/(repos|issues|members|events|teams|projects)|projects\/[0-9]+|projects\/[0-9]+\/columns|projects\/columns\/[0-9]+|projects\/columns\/[0-9]+\/moves|projects\/columns\/[0-9]+\/cards|projects\/columns\/cards\/[0-9]+|projects\/columns\/cards\/[0-9]+\/moves|teams\/[^\/]+|teams\/[^\/]+\/(members(\/[^\/]+)?|memberships\/[^\/]+|repos|repos(\/[^\/]+){2})|users\/[^\/]+|users\/[^\/]+\/(repos|orgs|gists|followers|following(\/[^\/]+){0,2}|keys|starred|received_events(\/public)?|events(\/public)?|events\/orgs\/[^\/]+)|search\/(repositories|commits|issues|users|code)|gists\/(public|starred|([a-f0-9]{20,32}|[0-9]+)|([a-f0-9]{20,32}|[0-9]+)\/forks|([a-f0-9]{20,32}|[0-9]+)\/comments(\/[0-9]+)?|([a-f0-9]{20,32}|[0-9]+)\/star)|repos(\/[^\/]+){2}|(repos(\/[^\/]+){2}|repositories\/([0-9]+))\/(readme|tarball(\/[^\/]+)?|zipball(\/[^\/]+)?|compare\/([^\.{3}]+)\.{3}([^\.{3}]+)|deployments(\/[0-9]+)?|deployments\/[0-9]+\/statuses(\/[0-9]+)?|hooks|hooks\/[^\/]+|hooks\/[^\/]+\/tests|assignees|languages|teams|tags|branches(\/[^\/]+){0,2}|contributors|subscribers|subscription|stargazers|comments(\/[0-9]+)?|downloads(\/[0-9]+)?|forks|milestones|milestones\/[0-9]+|milestones\/[0-9]+\/labels|labels(\/[^\/]+)?|releases|releases\/([0-9]+)|releases\/([0-9]+)\/assets|releases\/latest|releases\/tags\/([^\/]+)|releases\/assets\/([0-9]+)|events|notifications|merges|statuses\/[a-f0-9]{40}|pages|pages\/builds|pages\/builds\/latest|commits|commits\/[a-f0-9]{40}|commits\/[a-f0-9]{40}\/(comments|status|statuses)?|contents\/|contents(\/[^\/]+)*|collaborators(\/[^\/]+)?|collaborators\/([^\/]+)\/permission|projects|(issues|pulls)|(issues|pulls)\/(events|events\/[0-9]+|comments(\/[0-9]+)?|[0-9]+|[0-9]+\/events|[0-9]+\/comments|[0-9]+\/labels(\/[^\/]+)?)|pulls\/[0-9]+\/(files|commits|merge|requested_reviewers|reviews(\/[0-9]+)?|reviews(\/[0-9]+)\/(comments|events|dismissals))|git\/(refs|refs\/(.+|heads(\/[^\/]+)?|tags(\/[^\/]+)?)|trees(\/[^\/]+)?|blobs(\/[a-f0-9]{40}$)?|commits(\/[a-f0-9]{40}$)?)|stats\/(contributors|commit_activity|code_frequency|participation|punch_card)|traffic\/(popular\/(referrers|paths)|views|clones))|licenses|licenses\/([^\/]+)|authorizations|authorizations\/((\d+)|clients\/([^\/]{20})|clients\/([^\/]{20})\/([^\/]+))|applications\/([^\/]{20})\/tokens|applications\/([^\/]{20})\/tokens\/([^\/]+)|enterprise\/(settings\/license|stats\/(issues|hooks|milestones|orgs|comments|pages|users|gists|pulls|repos|all))|staff\/indexing_jobs|users\/[^\/]+\/(site_admin|suspended)|setup\/api\/(start|upgrade|configcheck|configure|settings(authorized-keys)?|maintenance))(\?.*)?$/;
+}).call(undefined);
+
+
+
+},{}],153:[function(require,module,exports){
+'use strict';
+
+var toQueryString = require('./querystring');
+var deprecate = require('../deprecate');
+
+module.exports = function (url) {
+  // Deprecated interface. Use an Object to specify the args in the template.
+  // the order of fields in the template should not matter.
+  var m = void 0;
+  if ((arguments.length <= 1 ? 0 : arguments.length - 1) === 0) {
+    var templateParams = {};
+  } else {
+    if ((arguments.length <= 1 ? 0 : arguments.length - 1) > 1) {
+      deprecate('When filling in a template URL pass all the field to fill in 1 object instead of comma-separated args');
+    }
+
+    var templateParams = arguments.length <= 1 ? undefined : arguments[1];
+  }
+
+  // url can contain {name} or {/name} in the URL.
+  // for every arg passed in, replace {...} with that arg
+  // and remove the rest (they may or may not be optional)
+  var i = 0;
+  while (m = /(\{[^\}]+\})/.exec(url)) {
+    // `match` is something like `{/foo}` or `{?foo,bar}` or `{foo}` (last one means it is required)
+    var match = m[1];
+    var param = '';
+    // replace it
+    switch (match[1]) {
+      case '/':
+        var fieldName = match.slice(2, match.length - 1); // omit the braces and the slash
+        var fieldValue = templateParams[fieldName];
+        if (fieldValue) {
+          if (/\//.test(fieldValue)) {
+            throw new Error('Octokat Error: this field must not contain slashes: ' + fieldName);
+          }
+          param = '/' + fieldValue;
+        }
+        break;
+      case '+':
+        fieldName = match.slice(2, match.length - 1); // omit the braces and the `+`
+        fieldValue = templateParams[fieldName];
+        if (fieldValue) {
+          param = fieldValue;
+        }
+        break;
+      case '?':
+        // Strip off the "{?" and the trailing "}"
+        // For example, the URL is `/assets{?name,label}`
+        //   which turns into `/assets?name=foo.zip`
+        // Used to upload releases via the repo releases API.
+        //
+        // When match contains `,` or
+        // `args.length is 1` and args[0] is object match the args to those in the template
+        var optionalNames = match.slice(2, -2 + 1).split(','); // omit the braces and the `?` before splitting
+        var optionalParams = {};
+        for (var j = 0; j < optionalNames.length; j++) {
+          fieldName = optionalNames[j];
+          optionalParams[fieldName] = templateParams[fieldName];
+        }
+        param = toQueryString(optionalParams);
+        break;
+      case '&':
+        optionalNames = match.slice(2, -2 + 1).split(','); // omit the braces and the `?` before splitting
+        optionalParams = {};
+        for (var k = 0; k < optionalNames.length; k++) {
+          fieldName = optionalNames[k];
+          optionalParams[fieldName] = templateParams[fieldName];
+        }
+        param = toQueryString(optionalParams, true); // true means omitQuestionMark
+        break;
+
+      default:
+        // This is a required field. ie `{repoName}`
+        fieldName = match.slice(1, match.length - 1); // omit the braces
+        if (templateParams[fieldName]) {
+          param = templateParams[fieldName];
+        } else {
+          throw new Error('Octokat Error: Required parameter is missing: ' + fieldName);
+        }
+    }
+
+    url = url.replace(match, param);
+    i++;
+  }
+
+  return url;
+};
+
+},{"../deprecate":148,"./querystring":154}],154:[function(require,module,exports){
+'use strict';
+
+// Converts a dictionary to a query string.
+// Internal helper method
+var toQueryString = function toQueryString(options, omitQuestionMark) {
+  // Returns '' if `options` is empty so this string can always be appended to a URL
+  if (!options || options === {}) {
+    return '';
+  }
+
+  var params = [];
+  var object = options || {};
+  for (var key in object) {
+    var value = object[key];
+    if (value) {
+      params.push(key + '=' + encodeURIComponent(value));
+    }
+  }
+  if (params.length) {
+    if (omitQuestionMark) {
+      return '&' + params.join('&');
+    } else {
+      return '?' + params.join('&');
+    }
+  } else {
+    return '';
+  }
+};
+
+module.exports = toQueryString;
+
+},{}],155:[function(require,module,exports){
+'use strict';
+
+var deprecate = require('./deprecate');
+var OctokatBase = require('./base');
+
+var HypermediaPlugin = require('./plugins/hypermedia');
+
+var ALL_PLUGINS = [require('./plugins/object-chainer'), // re-chain methods when we detect an object (issue, comment, user, etc)
+require('./plugins/path-validator'), require('./plugins/authorization'), require('./plugins/preview-apis'), require('./plugins/use-post-instead-of-patch'), require('./plugins/simple-verbs'), require('./plugins/fetch-all'), require('./plugins/pagination'),
+// Run cacheHandler after PagedResults so the link headers are remembered
+// but before hypermedia so the object is still serializable
+require('./plugins/cache-handler'), require('./plugins/read-binary'), HypermediaPlugin, require('./plugins/camel-case')];
+
+var Octokat = function Octokat() {
+  var clientOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  if (clientOptions.plugins == null) {
+    clientOptions.plugins = ALL_PLUGINS;
+  }
+
+  if (clientOptions.disableHypermedia) {
+    deprecate('Please use the clientOptions.plugins array and just do not include the hypermedia plugin');
+    clientOptions.plugins = clientOptions.plugins.filter(function (plugin) {
+      return plugin !== HypermediaPlugin;
+    });
+  }
+
+  // HACK to propagate the Fetch implementation
+  if (Octokat.Fetch) {
+    OctokatBase.Fetch = Octokat.Fetch;
+  }
+  // the octokat instance
+  var instance = new OctokatBase(clientOptions);
+  return instance;
+};
+
+// module.exports = Octokat;
+module.exports = Octokat;
+
+},{"./base":146,"./deprecate":148,"./plugins/authorization":156,"./plugins/cache-handler":157,"./plugins/camel-case":158,"./plugins/fetch-all":159,"./plugins/hypermedia":160,"./plugins/object-chainer":161,"./plugins/pagination":162,"./plugins/path-validator":163,"./plugins/preview-apis":164,"./plugins/read-binary":165,"./plugins/simple-verbs":166,"./plugins/use-post-instead-of-patch":167}],156:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var base64encode = require('../adapters/base64-node');
+
+module.exports = new (function () {
+  function Authorization() {
+    _classCallCheck(this, Authorization);
+  }
+
+  _createClass(Authorization, [{
+    key: 'requestMiddlewareAsync',
+    value: function requestMiddlewareAsync(input) {
+      if (input.headers == null) {
+        input.headers = {};
+      }
+      var headers = input.headers,
+          _input$clientOptions = input.clientOptions,
+          token = _input$clientOptions.token,
+          username = _input$clientOptions.username,
+          password = _input$clientOptions.password;
+
+      if (token || username && password) {
+        if (token) {
+          var auth = 'token ' + token;
+        } else {
+          var auth = 'Basic ' + base64encode(username + ':' + password);
+        }
+        input.headers['Authorization'] = auth;
+      }
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return Authorization;
+}())();
+
+},{"../adapters/base64-node":144}],157:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = new (function () {
+  function CacheHandler() {
+    _classCallCheck(this, CacheHandler);
+
+    this._cachedETags = {};
+  }
+
+  // Default cacheHandler methods
+
+
+  _createClass(CacheHandler, [{
+    key: 'get',
+    value: function get(method, path) {
+      return this._cachedETags[method + ' ' + path];
+    }
+  }, {
+    key: 'add',
+    value: function add(method, path, eTag, data, status) {
+      return this._cachedETags[method + ' ' + path] = { eTag: eTag, data: data, status: status };
+    }
+  }, {
+    key: 'requestMiddlewareAsync',
+    value: function requestMiddlewareAsync(input) {
+      var clientOptions = input.clientOptions,
+          method = input.method,
+          path = input.path;
+
+      if (input.headers == null) {
+        input.headers = {};
+      }
+      var cacheHandler = clientOptions.cacheHandler || this;
+      // Send the ETag if re-requesting a URL
+      if (cacheHandler.get(method, path)) {
+        input.headers['If-None-Match'] = cacheHandler.get(method, path).eTag;
+      } else {
+        // The browser will sneak in a 'If-Modified-Since' header if the GET has been requested before
+        // but for some reason the cached response does not seem to be available
+        // in the jqXHR object.
+        // So, the first time a URL is requested set this date to 0 so we always get a response the 1st time
+        // a URL is requested.
+        input.headers['If-Modified-Since'] = 'Thu, 01 Jan 1970 00:00:00 GMT';
+      }
+
+      return Promise.resolve(input);
+    }
+  }, {
+    key: 'responseMiddlewareAsync',
+    value: function responseMiddlewareAsync(input, cb) {
+      var clientOptions = input.clientOptions,
+          request = input.request,
+          status = input.status,
+          jqXHR = input.jqXHR,
+          data = input.data;
+
+      if (!jqXHR) {
+        return Promise.resolve(input);
+      } // The plugins are all used in `octo.parse()` which does not have a jqXHR
+
+      // Since this can be called via `octo.parse`, skip caching when there is no jqXHR
+      if (jqXHR) {
+        var method = request.method,
+            path = request.path; // This is also not defined when octo.parse is called
+
+        var cacheHandler = clientOptions.cacheHandler || this;
+        if (status === 304 || status === 0) {
+          var ref = cacheHandler.get(method, path);
+          if (ref) {
+            var eTag;
+
+            // Set a flag on the object so users know this is a cached response
+            // if (typeof data !== 'string') {
+            //   data.__IS_CACHED = eTag || true
+            // }
+            data = ref.data;
+            status = ref.status;
+            eTag = ref.eTag;
+          } else {
+            throw new Error('ERROR: Bug in Octokat cacheHandler for path \'' + method + ' ' + path + '\'. It had an eTag but not the cached response.');
+          }
+        } else {
+          // Cache the response to reuse later
+          if (method === 'GET' && jqXHR.headers.get('ETag')) {
+            var eTag = jqXHR.headers.get('ETag');
+            cacheHandler.add(method, path, eTag, data, jqXHR.status);
+          }
+        }
+
+        input.data = data;
+        input.status = status;
+        return Promise.resolve(input);
+      }
+    }
+  }]);
+
+  return CacheHandler;
+}())();
+
+},{}],158:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var plus = require('../plus');
+
+module.exports = new (function () {
+  function CamelCase() {
+    _classCallCheck(this, CamelCase);
+  }
+
+  _createClass(CamelCase, [{
+    key: 'responseMiddlewareAsync',
+    value: function responseMiddlewareAsync(input) {
+      var data = input.data;
+
+      data = this.replace(data);
+      input.data = data; // or throw new Error('BUG! Expected JSON data to exist')
+      return Promise.resolve(input);
+    }
+  }, {
+    key: 'replace',
+    value: function replace(data) {
+      if (Array.isArray(data)) {
+        return this._replaceArray(data);
+      } else if (typeof data === 'function') {
+        return data;
+      } else if (data instanceof Date) {
+        return data;
+      } else if (data === Object(data)) {
+        return this._replaceObject(data);
+      } else {
+        return data;
+      }
+    }
+  }, {
+    key: '_replaceObject',
+    value: function _replaceObject(orig) {
+      var acc = {};
+      var iterable = Object.keys(orig);
+      for (var i = 0; i < iterable.length; i++) {
+        var key = iterable[i];
+        var value = orig[key];
+        this._replaceKeyValue(acc, key, value);
+      }
+
+      return acc;
+    }
+  }, {
+    key: '_replaceArray',
+    value: function _replaceArray(orig) {
+      var _this = this;
+
+      var arr = orig.map(function (item) {
+        return _this.replace(item);
+      });
+      // Convert the nextPage methods for paged results
+      var iterable = Object.keys(orig);
+      for (var i = 0; i < iterable.length; i++) {
+        var key = iterable[i];
+        var value = orig[key];
+        this._replaceKeyValue(arr, key, value);
+      }
+      return arr;
+    }
+
+    // Convert things that end in `_url` to methods which return a Promise
+
+  }, {
+    key: '_replaceKeyValue',
+    value: function _replaceKeyValue(acc, key, value) {
+      return acc[plus.camelize(key)] = this.replace(value);
+    }
+  }]);
+
+  return CamelCase;
+}())();
+
+},{"../plus":168}],159:[function(require,module,exports){
+'use strict';
+
+var toQueryString = require('../helpers/querystring');
+
+var pushAll = function pushAll(target, source) {
+  if (!Array.isArray(source)) {
+    throw new Error('Octokat Error: Calling fetchAll on a request that does not yield an array');
+  }
+  return target.push.apply(target, source);
+};
+
+var getMore = function getMore(fetchable, requester, acc) {
+  var nextPagePromise = fetchNextPage(fetchable, requester);
+  if (nextPagePromise) {
+    return nextPagePromise.then(function (results) {
+      pushAll(acc, results.items);
+      // TODO: handle `items.next_page = string/function`, `items.nextPage = string/function`
+      return getMore(results, requester, acc);
+    });
+  } else {
+    return acc;
+  }
+};
+
+// TODO: HACK to handle camelCase and hypermedia plugins
+var fetchNextPage = function fetchNextPage(obj, requester) {
+  if (typeof obj.next_page_url === 'string') {
+    return requester.request('GET', obj.next_page_url, null, null);
+  } else if (obj.next_page) {
+    return obj.next_page.fetch();
+  } else if (typeof obj.nextPageUrl === 'string') {
+    return requester.request('GET', obj.nextPageUrl, null, null);
+  } else if (obj.nextPage) {
+    return obj.nextPage.fetch();
+  } else {
+    return false;
+  }
+};
+
+// new class FetchAll
+module.exports = {
+  asyncVerbs: {
+    fetchAll: function fetchAll(requester, path) {
+      return function (query) {
+        // TODO: Pass in the instance so we can just call fromUrl maybe? and we don't rely on hypermedia to create nextPage
+        return requester.request('GET', '' + path + toQueryString(query), null, null).then(function (results) {
+          var acc = [];
+          pushAll(acc, results.items);
+          // TODO: handle `items.next_page = string/function`, `items.nextPage = string/function`
+          return getMore(results, requester, acc);
+        });
+      };
+    }
+  }
+};
+
+},{"../helpers/querystring":154}],160:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var deprecate = require('../deprecate');
+
+module.exports = new (function () {
+  function HyperMedia() {
+    _classCallCheck(this, HyperMedia);
+  }
+
+  _createClass(HyperMedia, [{
+    key: 'replace',
+    value: function replace(instance, data) {
+      if (Array.isArray(data)) {
+        return this._replaceArray(instance, data);
+      } else if (typeof data === 'function') {
+        return data;
+      } else if (data instanceof Date) {
+        return data;
+      } else if (data === Object(data)) {
+        return this._replaceObject(instance, data);
+      } else {
+        return data;
+      }
+    }
+  }, {
+    key: '_replaceObject',
+    value: function _replaceObject(instance, orig) {
+      var acc = {};
+      var iterable = Object.keys(orig);
+      for (var i = 0; i < iterable.length; i++) {
+        var key = iterable[i];
+        var value = orig[key];
+        this._replaceKeyValue(instance, acc, key, value);
+      }
+
+      return acc;
+    }
+  }, {
+    key: '_replaceArray',
+    value: function _replaceArray(instance, orig) {
+      var _this = this;
+
+      var arr = orig.map(function (item) {
+        return _this.replace(instance, item);
+      });
+      // Convert the nextPage methods for paged results
+      var iterable = Object.keys(orig);
+      for (var i = 0; i < iterable.length; i++) {
+        var key = iterable[i];
+        var value = orig[key];
+        this._replaceKeyValue(instance, arr, key, value);
+      }
+      return arr;
+    }
+
+    // Convert things that end in `_url` to methods which return a Promise
+
+  }, {
+    key: '_replaceKeyValue',
+    value: function _replaceKeyValue(instance, acc, key, value) {
+      if (/_url$/.test(key)) {
+        if (/^upload_url$/.test(key)) {
+          // POST https://<upload_url>/repos/:owner/:repo/releases/:id/assets?name=foo.zip
+          var defaultFn = function defaultFn() {
+            // TODO: Maybe always set isRaw=true when contentType is provided
+            deprecate('call .upload({name, label}).create(data, contentType)' + ' instead of .upload(name, data, contentType)');
+            return defaultFn.create.apply(defaultFn, arguments);
+          };
+
+          var fn = function fn() {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+              args[_key] = arguments[_key];
+            }
+
+            return instance._fromUrlWithDefault.apply(instance, [value, defaultFn].concat(args))();
+          };
+        } else {
+          var defaultFn = function defaultFn() {
+            deprecate('instead of directly calling methods like .nextPage(), use .nextPage.fetch()');
+            return this.fetch();
+          };
+          var fn = instance._fromUrlCurried(value, defaultFn);
+        }
+
+        var newKey = key.substring(0, key.length - '_url'.length);
+        acc[newKey] = fn;
+        // add a camelCase URL field for retrieving non-templated URLs
+        // like `avatarUrl` and `htmlUrl`
+        if (!/\{/.test(value)) {
+          return acc[key] = value;
+        }
+      } else if (/_at$/.test(key)) {
+        // Ignore null dates so we do not get `Wed Dec 31 1969`
+        return acc[key] = value ? new Date(value) : null;
+      } else {
+        return acc[key] = this.replace(instance, value);
+      }
+    }
+  }, {
+    key: 'responseMiddlewareAsync',
+    value: function responseMiddlewareAsync(input) {
+      var instance = input.instance,
+          data = input.data;
+
+      data = this.replace(instance, data);
+      input.data = data; // or throw new Error('BUG! Expected JSON data to exist')
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return HyperMedia;
+}())();
+
+},{"../deprecate":148}],161:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var OBJECT_MATCHER = require('../grammar/object-matcher');
+var TREE_OPTIONS = require('../grammar/tree-options');
+
+var _require = require('../verb-methods'),
+    VerbMethods = _require.VerbMethods;
+
+var Chainer = require('../chainer');
+
+module.exports = new (function () {
+  function ObjectChainer() {
+    _classCallCheck(this, ObjectChainer);
+  }
+
+  _createClass(ObjectChainer, [{
+    key: 'chainChildren',
+    value: function chainChildren(chainer, url, obj) {
+      return function () {
+        var result = [];
+        for (var key in OBJECT_MATCHER) {
+          var re = OBJECT_MATCHER[key];
+          var item = void 0;
+          if (re.test(obj.url)) {
+            var context = TREE_OPTIONS;
+            var iterable = key.split('.');
+            for (var i = 0; i < iterable.length; i++) {
+              var k = iterable[i];
+              context = context[k];
+            }
+            item = chainer.chain(url, k, context, obj);
+          }
+          result.push(item);
+        }
+        return result;
+      }();
+    }
+  }, {
+    key: 'responseMiddlewareAsync',
+    value: function responseMiddlewareAsync(input) {
+      var plugins = input.plugins,
+          requester = input.requester,
+          data = input.data,
+          url = input.url;
+      // unless data
+      //    throw new Error('BUG! Expected JSON data to exist')
+
+      var verbMethods = new VerbMethods(plugins, requester);
+      var chainer = new Chainer(verbMethods);
+      if (url) {
+        chainer.chain(url, true, {}, data);
+        this.chainChildren(chainer, url, data);
+      } else {
+        chainer.chain('', null, {}, data);
+        // For the paged results, rechain all children in the array
+        if (Array.isArray(data)) {
+          for (var i = 0; i < data.length; i++) {
+            var datum = data[i];
+            this.chainChildren(chainer, datum.url, datum);
+          }
+        }
+      }
+
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return ObjectChainer;
+}())();
+
+},{"../chainer":147,"../grammar/object-matcher":149,"../grammar/tree-options":151,"../verb-methods":170}],162:[function(require,module,exports){
+'use strict';
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = new (function () {
+  function Pagination() {
+    _classCallCheck(this, Pagination);
+  }
+
+  _createClass(Pagination, [{
+    key: 'responseMiddlewareAsync',
+    value: function responseMiddlewareAsync(input) {
+      var jqXHR = input.jqXHR,
+          data = input.data;
+
+      if (!jqXHR) {
+        return Promise.resolve(input);
+      } // The plugins are all used in `octo.parse()` which does not have a jqXHR
+
+      // Only JSON responses have next/prev/first/last link headers
+      // Add them to data so the resolved value is iterable
+
+      if (Array.isArray(data)) {
+        data = { items: data.slice() // Convert to object so we can add the next/prev/first/last link headers
+
+          // Parse the Link headers
+          // of the form `<http://a.com>; rel="next", <https://b.com?a=b&c=d>; rel="previous"`
+        };var linksHeader = jqXHR.headers.get('Link');
+        if (linksHeader) {
+          linksHeader.split(',').forEach(function (part) {
+            var _part$match = part.match(/<([^>]+)>; rel="([^"]+)"/),
+                _part$match2 = _slicedToArray(_part$match, 3),
+                unusedField = _part$match2[0],
+                href = _part$match2[1],
+                rel = _part$match2[2];
+            // Add the pagination functions on the JSON since Promises resolve one value
+            // Name the functions `nextPage`, `previousPage`, `firstPage`, `lastPage`
+
+
+            data[rel + '_page_url'] = href;
+          });
+        }
+        input.data = data; // or throw new Error('BUG! Expected JSON data to exist')
+      }
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return Pagination;
+}())();
+
+},{}],163:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var URL_VALIDATOR = require('../grammar/url-validator');
+
+module.exports = new (function () {
+  function PathValidator() {
+    _classCallCheck(this, PathValidator);
+  }
+
+  _createClass(PathValidator, [{
+    key: 'requestMiddlewareAsync',
+    value: function requestMiddlewareAsync(input) {
+      var path = input.path;
+
+      if (!URL_VALIDATOR.test(path)) {
+        var err = 'Octokat BUG: Invalid Path. If this is actually a valid path then please update the URL_VALIDATOR. path=' + path;
+        console.warn(err);
+      }
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return PathValidator;
+}())();
+
+},{"../grammar/url-validator":152}],164:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PREVIEW_HEADERS = require('../grammar/preview-headers');
+
+var DEFAULT_HEADER = function DEFAULT_HEADER(url) {
+  for (var key in PREVIEW_HEADERS) {
+    var val = PREVIEW_HEADERS[key];
+    if (val.test(url)) {
+      return key;
+    }
+  }
+};
+
+// Use the preview API header if one of the routes match the preview APIs
+module.exports = new (function () {
+  function PreviewApis() {
+    _classCallCheck(this, PreviewApis);
+  }
+
+  _createClass(PreviewApis, [{
+    key: 'requestMiddlewareAsync',
+    value: function requestMiddlewareAsync(input) {
+      var path = input.path;
+
+      var acceptHeader = DEFAULT_HEADER(path);
+      if (acceptHeader) {
+        input.headers['Accept'] = acceptHeader;
+      }
+
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return PreviewApis;
+}())();
+
+},{"../grammar/preview-headers":150}],165:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var toQueryString = require('../helpers/querystring');
+
+module.exports = new (function () {
+  function ReadBinary() {
+    _classCallCheck(this, ReadBinary);
+
+    this.verbs = {
+      readBinary: function readBinary(path, query) {
+        return { method: 'GET', path: '' + path + toQueryString(query), options: { isRaw: true, isBase64: true } };
+      }
+    };
+  }
+
+  _createClass(ReadBinary, [{
+    key: 'requestMiddlewareAsync',
+    value: function requestMiddlewareAsync(input) {
+      var options = input.options;
+
+      if (options) {
+        var isBase64 = options.isBase64;
+
+        if (isBase64) {
+          input.headers['Accept'] = 'application/vnd.github.raw';
+          input.mimeType = 'text/plain; charset=x-user-defined';
+        }
+      }
+      return Promise.resolve(input);
+    }
+  }, {
+    key: 'responseMiddlewareAsync',
+    value: function responseMiddlewareAsync(input) {
+      var options = input.options,
+          data = input.data;
+
+      if (options) {
+        var isBase64 = options.isBase64;
+        // Convert the response to a Base64 encoded string
+
+        if (isBase64) {
+          // Convert raw data to binary chopping off the higher-order bytes in each char.
+          // Useful for Base64 encoding.
+          var converted = '';
+          var iterable = __range__(0, data.length, false);
+          for (var j = 0; j < iterable.length; j++) {
+            var i = iterable[j];
+            converted += String.fromCharCode(data.charCodeAt(i) & 0xff);
+          }
+
+          input.data = converted; // or throw new Error('BUG! Expected JSON data to exist')
+        }
+      }
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return ReadBinary;
+}())();
+
+function __range__(left, right, inclusive) {
+  var range = [];
+  var ascending = left < right;
+  var end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (var i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}
+
+},{"../helpers/querystring":154}],166:[function(require,module,exports){
+'use strict';
+
+var toQueryString = require('../helpers/querystring');
+
+// new class SimpleVerbs
+module.exports = {
+  verbs: {
+    fetch: function fetch(path, query) {
+      return { method: 'GET', path: '' + path + toQueryString(query) };
+    },
+    read: function read(path, query) {
+      return { method: 'GET', path: '' + path + toQueryString(query), options: { isRaw: true } };
+    },
+    remove: function remove(path, data) {
+      return { method: 'DELETE', path: path, data: data, options: { isBoolean: true } };
+    },
+    create: function create(path, data, contentType) {
+      if (contentType) {
+        return { method: 'POST', path: path, data: data, options: { isRaw: true, contentType: contentType } };
+      } else {
+        return { method: 'POST', path: path, data: data };
+      }
+    },
+    update: function update(path, data) {
+      return { method: 'PATCH', path: path, data: data };
+    },
+    add: function add(path, data) {
+      return { method: 'PUT', path: path, data: data, options: { isBoolean: true } };
+    },
+    contains: function contains(path) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      return { method: 'GET', path: path + '/' + args.join('/'), options: { isBoolean: true } };
+    }
+  }
+};
+
+},{"../helpers/querystring":154}],167:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = new (function () {
+  function UsePostInsteadOfPatch() {
+    _classCallCheck(this, UsePostInsteadOfPatch);
+  }
+
+  _createClass(UsePostInsteadOfPatch, [{
+    key: 'requestMiddlewareAsync',
+    value: function requestMiddlewareAsync(input, cb) {
+      var usePostInsteadOfPatch = input.clientOptions.usePostInsteadOfPatch,
+          method = input.method;
+
+      if (usePostInsteadOfPatch && method === 'PATCH') {
+        input.method = 'POST';
+      }
+      return Promise.resolve(input);
+    }
+  }]);
+
+  return UsePostInsteadOfPatch;
+}())();
+
+},{}],168:[function(require,module,exports){
+'use strict';
+
+// Both of these internal methods are really small/simple and we are only
+// working with arrays anyway
+var filter = require('lodash/_arrayFilter');
+var forEach = require('lodash/_arrayEach');
+var map = require('lodash/_arrayMap');
+
+// require('underscore-plus')
+var plus = {
+  camelize: function camelize(string) {
+    if (string) {
+      return string.replace(/[_-]+(\w)/g, function (m) {
+        return m[1].toUpperCase();
+      });
+    } else {
+      return '';
+    }
+  },
+  uncamelize: function uncamelize(string) {
+    if (!string) {
+      return '';
+    }
+    return string.replace(/([A-Z])+/g, function (match) {
+      var letter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+      return '_' + letter.toLowerCase();
+    });
+  },
+  dasherize: function dasherize(string) {
+    if (!string) {
+      return '';
+    }
+
+    string = string[0].toLowerCase() + string.slice(1);
+    return string.replace(/([A-Z])|(_)/g, function (m, letter) {
+      if (letter) {
+        return '-' + letter.toLowerCase();
+      } else {
+        return '-';
+      }
+    });
+  },
+
+
+  // Just _.extend(target, source)
+  extend: function extend(target, source) {
+    if (source) {
+      return Object.keys(source).map(function (key) {
+        target[key] = source[key];
+      });
+    }
+  },
+
+
+  // Just _.forOwn(obj, iterator)
+  forOwn: function forOwn(obj, iterator) {
+    return Object.keys(obj).map(function (key) {
+      return iterator(obj[key], key);
+    });
+  },
+
+
+  filter: filter,
+  forEach: forEach,
+  map: map
+};
+
+module.exports = plus;
+
+},{"lodash/_arrayEach":102,"lodash/_arrayFilter":103,"lodash/_arrayMap":104}],169:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _require = require('./plus'),
+    filter = _require.filter,
+    map = _require.map;
+
+// Request Function
+// ===============================
+//
+// Generates the actual HTTP requests to GitHub.
+// Handles ETag caching, authentication headers, boolean requests, and paged results
+
+// # Construct the request function.
+// It contains all the auth credentials passed in to the client constructor
+
+var EVENT_ID = 0; // counter for the emitter so it is easier to match up requests
+
+module.exports = function () {
+  function Requester(_instance) {
+    var _clientOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var plugins = arguments[2];
+    var fetchImpl = arguments[3];
+
+    _classCallCheck(this, Requester);
+
+    // Provide an option to override the default URL
+    this._instance = _instance;
+    this._clientOptions = _clientOptions;
+    if (this._clientOptions.rootURL == null) {
+      this._clientOptions.rootURL = 'https://api.github.com';
+    }
+    if (this._clientOptions.useETags == null) {
+      this._clientOptions.useETags = true;
+    }
+    if (this._clientOptions.usePostInsteadOfPatch == null) {
+      this._clientOptions.usePostInsteadOfPatch = false;
+    }
+    if (this._clientOptions.userAgent == null) {
+      if (typeof window === 'undefined' || window === null) {
+        // Set the `User-Agent` because it is required and NodeJS
+        // does not send one by default.
+        // See http://developer.github.com/v3/#user-agent-required
+        this._clientOptions.userAgent = 'octokat.js';
+      }
+    }
+
+    // These are updated whenever a request is made (optional)
+    if (typeof this._clientOptions.emitter === 'function') {
+      this._emit = this._clientOptions.emitter;
+    }
+
+    this._pluginMiddlewareAsync = map(filter(plugins, function (_ref) {
+      var requestMiddlewareAsync = _ref.requestMiddlewareAsync;
+      return requestMiddlewareAsync;
+    }), function (plugin) {
+      return plugin.requestMiddlewareAsync.bind(plugin);
+    });
+    this._plugins = plugins;
+    this._fetchImpl = fetchImpl;
+  }
+
+  // HTTP Request Abstraction
+  // =======
+  //
+
+
+  _createClass(Requester, [{
+    key: 'request',
+    value: function request(method, path, data) {
+      var _this = this;
+
+      var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : { isRaw: false, isBase64: false, isBoolean: false, contentType: 'application/json' };
+      var cb = arguments[4];
+
+      if (typeof options === 'undefined' || options === null) {
+        options = {};
+      }
+      if (options.isRaw == null) {
+        options.isRaw = false;
+      }
+      if (options.isBase64 == null) {
+        options.isBase64 = false;
+      }
+      if (options.isBoolean == null) {
+        options.isBoolean = false;
+      }
+      if (options.contentType == null) {
+        options.contentType = 'application/json';
+      }
+
+      // console.log method, path, data, options, typeof cb
+
+      // Only prefix the path when it does not begin with http.
+      // This is so pagination works (which provides absolute URLs).
+      if (!/^http/.test(path)) {
+        path = '' + this._clientOptions.rootURL + path;
+      }
+
+      var headers = {
+        'Accept': this._clientOptions.acceptHeader || 'application/json'
+
+        // Safari/Firefox do not like setting the user-agent header
+      };if (this._clientOptions.userAgent) {
+        headers['User-Agent'] = this._clientOptions.userAgent;
+      }
+
+      var acc = { method: method, path: path, headers: headers, options: options, clientOptions: this._clientOptions
+
+        // To use async.waterfall we need to pass in the initial data (`acc`)
+        // so we create an initial function that just takes a callback
+      };var initial = Promise.resolve(acc);
+
+      var prev = initial;
+      this._pluginMiddlewareAsync.forEach(function (p) {
+        prev = prev.then(p);
+      });
+      return prev.then(function (acc) {
+        var _acc = acc;
+        method = _acc.method;
+        headers = _acc.headers;
+
+
+        if (options.isRaw) {
+          headers['Accept'] = 'application/vnd.github.raw';
+        }
+
+        var fetchArgs = {
+          // Be sure to **not** blow the cache with a random number
+          // (GitHub will respond with 5xx or CORS errors)
+          method: method,
+          headers: headers,
+          body: !options.isRaw && data && JSON.stringify(data) || data
+        };
+
+        var eventId = ++EVENT_ID;
+        __guardFunc__(_this._emit, function (f) {
+          return f('start', eventId, { method: method, path: path, data: data, options: options });
+        });
+
+        return _this._fetchImpl(path, fetchArgs).then(function (response) {
+          var jqXHR = response;
+
+          // Fire listeners when the request completes or fails
+          if (_this._emit) {
+            if (response.headers.get('X-RateLimit-Limit')) {
+              var rateLimit = parseFloat(response.headers.get('X-RateLimit-Limit'));
+              var rateLimitRemaining = parseFloat(response.headers.get('X-RateLimit-Remaining'));
+              var rateLimitReset = parseFloat(response.headers.get('X-RateLimit-Reset'));
+              // Reset time is in seconds, not milliseconds
+              // if rateLimitReset
+              //   rateLimitReset = new Date(rateLimitReset * 1000)
+
+              var emitterRate = {
+                remaining: rateLimitRemaining,
+                limit: rateLimit,
+                reset: rateLimitReset
+              };
+
+              if (response.headers.get('X-OAuth-Scopes')) {
+                emitterRate.scopes = response.headers.get('X-OAuth-Scopes').split(', ');
+              }
+            }
+            _this._emit('end', eventId, { method: method, path: path, data: data, options: options }, response.status, emitterRate);
+          }
+
+          // Return the result and Base64 encode it if `options.isBase64` flag is set.
+
+          // Respond with the redirect URL (for archive links)
+          // TODO: implement a `followRedirects` plugin
+          if (response.status === 302) {
+            return response.headers.get('Location');
+          } else if (options.isBoolean && response.status === 204) {
+            // If the request is a boolean yes/no question GitHub will indicate
+            // via the HTTP Status of 204 (No Content) or 404 instead of a 200.
+            return true;
+          } else if (options.isBoolean && response.status === 404) {
+            return false;
+            // } else if (options.isBoolean) {
+            //   throw new Error(`Octokat Bug? got a response to a boolean question that was not 204 or 404.  ${fetchArgs.method} ${path} Status: ${response.status}`)
+          } else if (response.status >= 200 && response.status < 300 || response.status === 304 || response.status === 302 || response.status === 0) {
+            // If it was a boolean question and the server responded with 204 ignore.
+            var dataPromise = void 0;
+
+            // If the status was 304 then let the cache handler pick it up. leave data blank
+            if (response.status === 304) {
+              dataPromise = Promise.resolve(null);
+            } else {
+              // TODO: use a blob if we are expecting a binary
+
+              var contentType = response.headers.get('content-type') || '';
+
+              // Use .indexOf instead of .startsWith because PhantomJS does not support .startsWith
+              if (contentType.indexOf('application/json') === 0) {
+                dataPromise = response.json();
+              } else {
+                // Other contentTypes:
+                // - 'text/plain'
+                // - 'application/octocat-stream'
+                // - 'application/vnd.github.raw'
+                dataPromise = response.text();
+              }
+            }
+
+            return dataPromise.then(function (data) {
+              acc = {
+                clientOptions: _this._clientOptions,
+                plugins: _this._plugins,
+                data: data,
+                options: options,
+                jqXHR: jqXHR, // for cacheHandler
+                status: response.status, // cacheHandler changes this
+                request: acc, // Include the request data for plugins like cacheHandler
+                requester: _this, // for Hypermedia to generate verb methods
+                instance: _this._instance // for Hypermedia to be able to call `.fromUrl`
+              };
+              return _this._instance._parseWithContextPromise('', acc);
+            });
+          } else {
+            return response.text().then(function (text) {
+              return Promise.reject(new Error(text + ' ' + fetchArgs.method + ' ' + path + ' Status: ' + response.status));
+            });
+          }
+        });
+      });
+    }
+  }]);
+
+  return Requester;
+}();
+
+function __guardFunc__(func, transform) {
+  return typeof func === 'function' ? transform(func) : undefined;
+}
+
+},{"./plus":168}],170:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _require = require('./plus'),
+    filter = _require.filter,
+    forOwn = _require.forOwn,
+    extend = _require.extend;
+
+// When `origFn` is not passed a callback as the last argument then return a
+// Promise, or error if no Promise can be found (see `plugins/promise/*` for
+// some strategies for loading a Promise implementation)
+
+
+var toPromise = function toPromise(orig) {
+  return function () {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var last = args[args.length - 1];
+    if (typeof last === 'function') {
+      // The last arg is a callback function
+      args.pop();
+      return orig.apply(undefined, args).then(function (v) {
+        last(null, v);
+      }).catch(function (err) {
+        last(err);
+      });
+    } else if (typeof Promise !== 'undefined') {
+      return orig.apply(undefined, args);
+    } else {
+      throw new Error('You must specify a callback or have a promise library loaded');
+    }
+  };
+};
+
+var VerbMethods = function () {
+  function VerbMethods(plugins, _requester) {
+    _classCallCheck(this, VerbMethods);
+
+    this._requester = _requester;
+    if (!this._requester) {
+      throw new Error('Octokat BUG: request is required');
+    }
+
+    var promisePlugins = filter(plugins, function (_ref) {
+      var promiseCreator = _ref.promiseCreator;
+      return promiseCreator;
+    });
+    if (promisePlugins) {
+      this._promisePlugin = promisePlugins[0];
+    }
+
+    this._syncVerbs = {};
+    var iterable = filter(plugins, function (_ref2) {
+      var verbs = _ref2.verbs;
+      return verbs;
+    });
+    for (var i = 0; i < iterable.length; i++) {
+      var plugin = iterable[i];
+      extend(this._syncVerbs, plugin.verbs);
+    }
+    this._asyncVerbs = {};
+    var iterable1 = filter(plugins, function (_ref3) {
+      var asyncVerbs = _ref3.asyncVerbs;
+      return asyncVerbs;
+    });
+    for (var j = 0; j < iterable1.length; j++) {
+      var _plugin = iterable1[j];
+      extend(this._asyncVerbs, _plugin.asyncVerbs);
+    }
+  }
+
+  // Injects verb methods onto `obj`
+
+
+  _createClass(VerbMethods, [{
+    key: 'injectVerbMethods',
+    value: function injectVerbMethods(path, obj) {
+      var _this = this;
+
+      if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object' || typeof obj === 'function') {
+        obj.url = path; // Mostly for testing
+        forOwn(this._syncVerbs, function (verbFunc, verbName) {
+          obj[verbName] = function () {
+            var makeRequest = function makeRequest() {
+              for (var _len2 = arguments.length, originalArgs = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                originalArgs[_key2] = arguments[_key2];
+              }
+
+              var data = void 0,
+                  method = void 0,
+                  options = void 0;
+
+              var _verbFunc = verbFunc.apply(undefined, [path].concat(originalArgs));
+
+              method = _verbFunc.method;
+              path = _verbFunc.path;
+              data = _verbFunc.data;
+              options = _verbFunc.options;
+
+              return _this._requester.request(method, path, data, options);
+            };
+            return toPromise(makeRequest).apply(undefined, arguments);
+          };
+        });
+
+        forOwn(this._asyncVerbs, function (verbFunc, verbName) {
+          obj[verbName] = function () {
+            var makeRequest = verbFunc(_this._requester, path); // Curried function
+            return toPromise(makeRequest).apply(undefined, arguments);
+          };
+        });
+      } else {
+        // console.warn('BUG: Attempted to injectVerbMethods on a ' + (typeof obj));
+      }
+
+      return obj;
+    }
+  }]);
+
+  return VerbMethods;
+}();
+
+exports.VerbMethods = VerbMethods;
+exports.toPromise = toPromise;
+
+},{"./plus":168}],171:[function(require,module,exports){
+module.exports = require('./dist/node/octokat')
+
+},{"./dist/node/octokat":155}],172:[function(require,module,exports){
 /**
 * pretty-data - nodejs plugin to pretty-print or minify data in XML, JSON and CSS formats.
 *  
@@ -19424,7 +21636,7 @@ exports.pd= new pp;
 
 
 
-},{}],141:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -19475,7 +21687,7 @@ module.exports = {
     return result;
   }
 };
-},{"../transform":179,"./transforms":146}],142:[function(require,module,exports){
+},{"../transform":211,"./transforms":178}],174:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -19599,7 +21811,7 @@ var RegExpTree = function () {
 module.exports = {
   RegExpTree: RegExpTree
 };
-},{}],143:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -19669,7 +21881,7 @@ module.exports = {
     });
   }
 };
-},{}],144:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -19728,7 +21940,7 @@ module.exports = {
     node.reference = node.number;
   }
 };
-},{}],145:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -19752,7 +21964,7 @@ module.exports = {
     }
   }
 };
-},{}],146:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -19770,7 +21982,7 @@ module.exports = {
   // `x` flag
   xFlag: require('./compat-x-flag-transform')
 };
-},{"./compat-dotall-s-transform":143,"./compat-named-capturing-groups-transform":144,"./compat-x-flag-transform":145}],147:[function(require,module,exports){
+},{"./compat-dotall-s-transform":175,"./compat-named-capturing-groups-transform":176,"./compat-x-flag-transform":177}],179:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -19937,7 +22149,7 @@ module.exports = {
    */
   generate: gen
 };
-},{}],148:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -20350,7 +22562,7 @@ function goToSameSet(s1, s2, table, symbol) {
 module.exports = {
   minimize: minimize
 };
-},{}],149:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -20781,7 +22993,7 @@ var DFA = function () {
 }();
 
 module.exports = DFA;
-},{"../special-symbols":155,"../table-printer":157,"./dfa-minimizer":148,"colors":189}],150:[function(require,module,exports){
+},{"../special-symbols":187,"../table-printer":189,"./dfa-minimizer":180,"colors":221}],182:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -20841,7 +23053,7 @@ module.exports = {
     return this.toDFA(regexp).matches(string);
   }
 };
-},{"./dfa/dfa":149,"./nfa/builders":151,"./nfa/nfa":154,"./nfa/nfa-from-regexp":152}],151:[function(require,module,exports){
+},{"./dfa/dfa":181,"./nfa/builders":183,"./nfa/nfa":186,"./nfa/nfa-from-regexp":184}],183:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -21069,7 +23281,7 @@ module.exports = {
   plusRep: plusRep,
   questionRep: questionRep
 };
-},{"../special-symbols":155,"./nfa":154,"./nfa-state":153}],152:[function(require,module,exports){
+},{"../special-symbols":187,"./nfa":186,"./nfa-state":185}],184:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -21164,7 +23376,7 @@ module.exports = {
     return gen(ast);
   }
 };
-},{"../../../parser":177,"./builders":151}],153:[function(require,module,exports){
+},{"../../../parser":209,"./builders":183}],185:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -21385,7 +23597,7 @@ var NFAState = function (_State) {
 }(State);
 
 module.exports = NFAState;
-},{"../special-symbols":155,"../state":156}],154:[function(require,module,exports){
+},{"../special-symbols":187,"../state":188}],186:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -21675,7 +23887,7 @@ var NFA = function () {
 }();
 
 module.exports = NFA;
-},{"../special-symbols":155,"../table-printer":157,"colors":189}],155:[function(require,module,exports){
+},{"../special-symbols":187,"../table-printer":189,"colors":221}],187:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -21698,7 +23910,7 @@ module.exports = {
   EPSILON: EPSILON,
   EPSILON_CLOSURE: EPSILON_CLOSURE
 };
-},{}],156:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -21780,7 +23992,7 @@ var State = function () {
 }();
 
 module.exports = State;
-},{}],157:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21808,7 +24020,7 @@ var TablePrinter = function TablePrinter(options) {
 };
 
 module.exports = TablePrinter;
-},{"cli-table3":48}],158:[function(require,module,exports){
+},{"cli-table3":49}],190:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -21892,7 +24104,7 @@ module.exports = {
     return result;
   }
 };
-},{"../parser":177,"../transform":179,"../utils/clone":183,"./transforms":171}],159:[function(require,module,exports){
+},{"../parser":209,"../transform":211,"../utils/clone":215,"./transforms":203}],191:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22003,7 +24215,7 @@ function getSurrogatePairFromCodePoint(codePoint) {
     trail: trail.toString(16)
   };
 }
-},{}],160:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22343,7 +24555,7 @@ function charCombinesWithPrecedingChars(expression, index, expressions) {
 function isMetaWCharOrCode(expression) {
   return expression && expression.type === 'Char' && !isNaN(expression.codePoint) && (fitsInMetaW(expression, false) || expression.kind === 'unicode' || expression.kind === 'hex' || expression.kind === 'oct' || expression.kind === 'decimal');
 }
-},{}],161:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22374,7 +24586,7 @@ module.exports = {
     }
   }
 };
-},{}],162:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22408,7 +24620,7 @@ module.exports = {
     }
   }
 };
-},{}],163:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22620,7 +24832,7 @@ function isU017fPath(node) {
 function isU212aPath(node) {
   return node.type === 'Char' && node.kind === 'unicode' && node.codePoint === 0x212a;
 }
-},{}],164:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22692,7 +24904,7 @@ function shouldEscape(value) {
   return (/[*[()+?$./{}|]/.test(value)
   );
 }
-},{}],165:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22777,7 +24989,7 @@ function needsEscape(symbol, parentType) {
   return (/[*[()+?^$./\\|{}]/.test(symbol)
   );
 }
-},{}],166:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22921,7 +25133,7 @@ function preservesClosingCurlyBraceEscape(index, parent) {
   }
   return false;
 }
-},{}],167:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -22949,7 +25161,7 @@ module.exports = {
     delete node.isSurrogatePair;
   }
 };
-},{}],168:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23145,7 +25357,7 @@ function combineRepetitionWithPrevious(alternative, child, index) {
   }
   return index;
 }
-},{"../../transform/utils":180,"../../traverse/node-path":182}],169:[function(require,module,exports){
+},{"../../transform/utils":212,"../../traverse/node-path":214}],201:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23190,7 +25402,7 @@ module.exports = {
     path.replace(listToDisjunction(parts));
   }
 };
-},{"../../transform/utils":180,"../../traverse/node-path":182}],170:[function(require,module,exports){
+},{"../../transform/utils":212,"../../traverse/node-path":214}],202:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23283,7 +25495,7 @@ function shouldProcess(expression, charset) {
 
   return false;
 }
-},{}],171:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23340,7 +25552,7 @@ module.exports = {
   // abcabcabc -> (?:abc){3}
   'combineRepeatingPatterns': require('./combine-repeating-patterns-transform')
 };
-},{"./char-case-insensitive-lowercase-transform":159,"./char-class-classranges-merge-transform":160,"./char-class-classranges-to-chars-transform":161,"./char-class-remove-duplicates-transform":162,"./char-class-to-meta-transform":163,"./char-class-to-single-char-transform":164,"./char-code-to-simple-char-transform":165,"./char-escape-unescape-transform":166,"./char-surrogate-pair-to-single-unicode-transform":167,"./combine-repeating-patterns-transform":168,"./disjunction-remove-duplicates-transform":169,"./group-single-chars-to-char-class":170,"./quantifier-range-to-symbol-transform":172,"./quantifiers-merge-transform":173,"./remove-empty-group-transform":174,"./ungroup-transform":175}],172:[function(require,module,exports){
+},{"./char-case-insensitive-lowercase-transform":191,"./char-class-classranges-merge-transform":192,"./char-class-classranges-to-chars-transform":193,"./char-class-remove-duplicates-transform":194,"./char-class-to-meta-transform":195,"./char-class-to-single-char-transform":196,"./char-code-to-simple-char-transform":197,"./char-escape-unescape-transform":198,"./char-surrogate-pair-to-single-unicode-transform":199,"./combine-repeating-patterns-transform":200,"./disjunction-remove-duplicates-transform":201,"./group-single-chars-to-char-class":202,"./quantifier-range-to-symbol-transform":204,"./quantifiers-merge-transform":205,"./remove-empty-group-transform":206,"./ungroup-transform":207}],204:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23415,7 +25627,7 @@ function rewriteExactOne(path) {
 
   path.parentPath.replace(path.parentPath.node.expression);
 }
-},{}],173:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23529,7 +25741,7 @@ function extractFromTo(quantifier) {
   }
   return { from: from, to: to };
 }
-},{"../../transform/utils":180}],174:[function(require,module,exports){
+},{"../../transform/utils":212}],206:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23564,7 +25776,7 @@ module.exports = {
     }
   }
 };
-},{}],175:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -23620,7 +25832,7 @@ module.exports = {
     }
   }
 };
-},{}],176:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 /**
  * LR parser generated by the Syntax tool.
  *
@@ -24887,7 +27099,7 @@ function parseError(message) {
 }
 
 module.exports = yyparse;
-},{}],177:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -24916,7 +27128,7 @@ regexpTreeParser.parse = function (regexp, options) {
 regexpTreeParser.setOptions({ captureLocations: false });
 
 module.exports = regexpTreeParser;
-},{"./generated/regexp-tree":176}],178:[function(require,module,exports){
+},{"./generated/regexp-tree":208}],210:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -25095,7 +27307,7 @@ var regexpTree = {
 };
 
 module.exports = regexpTree;
-},{"./compat-transpiler":141,"./compat-transpiler/runtime":142,"./generator":147,"./interpreter/finite-automaton":150,"./optimizer":158,"./parser":177,"./transform":179,"./traverse":181}],179:[function(require,module,exports){
+},{"./compat-transpiler":173,"./compat-transpiler/runtime":174,"./generator":179,"./interpreter/finite-automaton":182,"./optimizer":190,"./parser":209,"./transform":211,"./traverse":213}],211:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -25234,7 +27446,7 @@ module.exports = {
     return new TransformResult(ast);
   }
 };
-},{"../generator":147,"../parser":177,"../traverse":181}],180:[function(require,module,exports){
+},{"../generator":179,"../parser":209,"../traverse":213}],212:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -25323,7 +27535,7 @@ module.exports = {
   listToDisjunction: listToDisjunction,
   increaseQuantifierByOne: increaseQuantifierByOne
 };
-},{}],181:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -25637,7 +27849,7 @@ module.exports = {
     });
   }
 };
-},{"./node-path":182}],182:[function(require,module,exports){
+},{"./node-path":214}],214:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26064,7 +28276,7 @@ function jsonSkipLoc(prop, value) {
 }
 
 module.exports = NodePath;
-},{}],183:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26094,7 +28306,7 @@ module.exports = function clone(obj) {
   }
   return res;
 };
-},{}],184:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
@@ -26103,13 +28315,13 @@ module.exports = function clone(obj) {
 'use strict';
 
 module.exports = require('./dist/regexp-tree');
-},{"./dist/regexp-tree":178}],185:[function(require,module,exports){
-arguments[4][49][0].apply(exports,arguments)
-},{"./custom/trap":186,"./custom/zalgo":187,"./maps/america":190,"./maps/rainbow":191,"./maps/random":192,"./maps/zebra":193,"./styles":194,"./system/supports-colors":196,"dup":49,"util":243}],186:[function(require,module,exports){
+},{"./dist/regexp-tree":210}],217:[function(require,module,exports){
 arguments[4][50][0].apply(exports,arguments)
-},{"dup":50}],187:[function(require,module,exports){
+},{"./custom/trap":218,"./custom/zalgo":219,"./maps/america":222,"./maps/rainbow":223,"./maps/random":224,"./maps/zebra":225,"./styles":226,"./system/supports-colors":228,"dup":50,"util":275}],218:[function(require,module,exports){
 arguments[4][51][0].apply(exports,arguments)
-},{"dup":51}],188:[function(require,module,exports){
+},{"dup":51}],219:[function(require,module,exports){
+arguments[4][52][0].apply(exports,arguments)
+},{"dup":52}],220:[function(require,module,exports){
 var colors = require('./colors');
 
 module['exports'] = function() {
@@ -26221,7 +28433,7 @@ module['exports'] = function() {
   };
 };
 
-},{"./colors":185}],189:[function(require,module,exports){
+},{"./colors":217}],221:[function(require,module,exports){
 var colors = require('./colors');
 module['exports'] = colors;
 
@@ -26236,21 +28448,21 @@ module['exports'] = colors;
 //
 require('./extendStringPrototype')();
 
-},{"./colors":185,"./extendStringPrototype":188}],190:[function(require,module,exports){
-arguments[4][52][0].apply(exports,arguments)
-},{"dup":52}],191:[function(require,module,exports){
+},{"./colors":217,"./extendStringPrototype":220}],222:[function(require,module,exports){
 arguments[4][53][0].apply(exports,arguments)
-},{"dup":53}],192:[function(require,module,exports){
+},{"dup":53}],223:[function(require,module,exports){
 arguments[4][54][0].apply(exports,arguments)
-},{"dup":54}],193:[function(require,module,exports){
+},{"dup":54}],224:[function(require,module,exports){
 arguments[4][55][0].apply(exports,arguments)
-},{"dup":55}],194:[function(require,module,exports){
+},{"dup":55}],225:[function(require,module,exports){
 arguments[4][56][0].apply(exports,arguments)
-},{"dup":56}],195:[function(require,module,exports){
+},{"dup":56}],226:[function(require,module,exports){
 arguments[4][57][0].apply(exports,arguments)
-},{"_process":217,"dup":57}],196:[function(require,module,exports){
+},{"dup":57}],227:[function(require,module,exports){
 arguments[4][58][0].apply(exports,arguments)
-},{"./has-flag.js":195,"_process":217,"dup":58,"os":214}],197:[function(require,module,exports){
+},{"_process":249,"dup":58}],228:[function(require,module,exports){
+arguments[4][59][0].apply(exports,arguments)
+},{"./has-flag.js":227,"_process":249,"dup":59,"os":246}],229:[function(require,module,exports){
 const regexpTree = require('regexp-tree');
 
 module.exports = function (re, opts) {
@@ -26302,7 +28514,7 @@ module.exports = function (re, opts) {
   return (maxObservedStarHeight <= 1) && (repetitionCount <= replimit);
 };
 
-},{"regexp-tree":184}],198:[function(require,module,exports){
+},{"regexp-tree":216}],230:[function(require,module,exports){
 'use strict';
 const stripAnsi = require('strip-ansi');
 const isFullwidthCodePoint = require('is-fullwidth-code-point');
@@ -26340,13 +28552,13 @@ module.exports = str => {
 	return width;
 };
 
-},{"is-fullwidth-code-point":99,"strip-ansi":199}],199:[function(require,module,exports){
+},{"is-fullwidth-code-point":100,"strip-ansi":231}],231:[function(require,module,exports){
 'use strict';
 const ansiRegex = require('ansi-regex');
 
 module.exports = input => typeof input === 'string' ? input.replace(ansiRegex(), '') : input;
 
-},{"ansi-regex":200}],200:[function(require,module,exports){
+},{"ansi-regex":232}],232:[function(require,module,exports){
 'use strict';
 
 module.exports = () => {
@@ -26358,7 +28570,7 @@ module.exports = () => {
 	return new RegExp(pattern, 'g');
 };
 
-},{}],201:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 (function (global){
 //     Underscore.js 1.9.1
 //     http://underscorejs.org
@@ -28054,7 +30266,7 @@ module.exports = () => {
 }());
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],202:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 /** @license URI.js v4.2.1 (c) 2011 Gary Court. License: http://github.com/garycourt/uri-js */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -29445,7 +31657,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 })));
 
 
-},{}],203:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 (function(module) {
     'use strict';
 
@@ -29600,7 +31812,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 })(module);
 
-},{}],204:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 module.exports={
     "title": "Schema for scribejs nickname files",
     "description": "Nicknames for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
@@ -29632,7 +31844,7 @@ module.exports={
     }
 }
 
-},{}],205:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -29785,9 +31997,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],206:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 
-},{}],207:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -31566,7 +33778,7 @@ function numberIsNaN (obj) {
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":205,"ieee754":210}],208:[function(require,module,exports){
+},{"base64-js":237,"ieee754":242}],240:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -31677,7 +33889,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":212}],209:[function(require,module,exports){
+},{"../../is-buffer/index.js":244}],241:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -31981,7 +34193,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],210:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -32067,7 +34279,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],211:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -32092,7 +34304,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],212:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -32115,14 +34327,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],213:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],214:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 exports.endianness = function () { return 'LE' };
 
 exports.hostname = function () {
@@ -32173,7 +34385,7 @@ exports.homedir = function () {
 	return '/'
 };
 
-},{}],215:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 (function (process){
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
@@ -32479,7 +34691,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":217}],216:[function(require,module,exports){
+},{"_process":249}],248:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -32527,7 +34739,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":217}],217:[function(require,module,exports){
+},{"_process":249}],249:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -32713,7 +34925,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],218:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -33250,7 +35462,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],219:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -33336,7 +35548,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],220:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -33423,16 +35635,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],221:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":219,"./encode":220}],222:[function(require,module,exports){
+},{"./decode":251,"./encode":252}],254:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":223}],223:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":255}],255:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -33564,7 +35776,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":225,"./_stream_writable":227,"core-util-is":208,"inherits":211,"process-nextick-args":216}],224:[function(require,module,exports){
+},{"./_stream_readable":257,"./_stream_writable":259,"core-util-is":240,"inherits":243,"process-nextick-args":248}],256:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -33612,7 +35824,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":226,"core-util-is":208,"inherits":211}],225:[function(require,module,exports){
+},{"./_stream_transform":258,"core-util-is":240,"inherits":243}],257:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -34634,7 +36846,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":223,"./internal/streams/BufferList":228,"./internal/streams/destroy":229,"./internal/streams/stream":230,"_process":217,"core-util-is":208,"events":209,"inherits":211,"isarray":213,"process-nextick-args":216,"safe-buffer":236,"string_decoder/":231,"util":206}],226:[function(require,module,exports){
+},{"./_stream_duplex":255,"./internal/streams/BufferList":260,"./internal/streams/destroy":261,"./internal/streams/stream":262,"_process":249,"core-util-is":240,"events":241,"inherits":243,"isarray":245,"process-nextick-args":248,"safe-buffer":268,"string_decoder/":263,"util":238}],258:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -34849,7 +37061,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":223,"core-util-is":208,"inherits":211}],227:[function(require,module,exports){
+},{"./_stream_duplex":255,"core-util-is":240,"inherits":243}],259:[function(require,module,exports){
 (function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -35539,7 +37751,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":223,"./internal/streams/destroy":229,"./internal/streams/stream":230,"_process":217,"core-util-is":208,"inherits":211,"process-nextick-args":216,"safe-buffer":236,"timers":238,"util-deprecate":241}],228:[function(require,module,exports){
+},{"./_stream_duplex":255,"./internal/streams/destroy":261,"./internal/streams/stream":262,"_process":249,"core-util-is":240,"inherits":243,"process-nextick-args":248,"safe-buffer":268,"timers":270,"util-deprecate":273}],260:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -35619,7 +37831,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":236,"util":206}],229:[function(require,module,exports){
+},{"safe-buffer":268,"util":238}],261:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -35694,10 +37906,10 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":216}],230:[function(require,module,exports){
+},{"process-nextick-args":248}],262:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":209}],231:[function(require,module,exports){
+},{"events":241}],263:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -35994,10 +38206,10 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":236}],232:[function(require,module,exports){
+},{"safe-buffer":268}],264:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":233}],233:[function(require,module,exports){
+},{"./readable":265}],265:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -36006,13 +38218,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":223,"./lib/_stream_passthrough.js":224,"./lib/_stream_readable.js":225,"./lib/_stream_transform.js":226,"./lib/_stream_writable.js":227}],234:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":255,"./lib/_stream_passthrough.js":256,"./lib/_stream_readable.js":257,"./lib/_stream_transform.js":258,"./lib/_stream_writable.js":259}],266:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":233}],235:[function(require,module,exports){
+},{"./readable":265}],267:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":227}],236:[function(require,module,exports){
+},{"./lib/_stream_writable.js":259}],268:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -36076,7 +38288,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":207}],237:[function(require,module,exports){
+},{"buffer":239}],269:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -36205,7 +38417,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":209,"inherits":211,"readable-stream/duplex.js":222,"readable-stream/passthrough.js":232,"readable-stream/readable.js":233,"readable-stream/transform.js":234,"readable-stream/writable.js":235}],238:[function(require,module,exports){
+},{"events":241,"inherits":243,"readable-stream/duplex.js":254,"readable-stream/passthrough.js":264,"readable-stream/readable.js":265,"readable-stream/transform.js":266,"readable-stream/writable.js":267}],270:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -36284,7 +38496,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":217,"timers":238}],239:[function(require,module,exports){
+},{"process/browser.js":249,"timers":270}],271:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -37018,7 +39230,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":240,"punycode":218,"querystring":221}],240:[function(require,module,exports){
+},{"./util":272,"punycode":250,"querystring":253}],272:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -37036,7 +39248,7 @@ module.exports = {
   }
 };
 
-},{}],241:[function(require,module,exports){
+},{}],273:[function(require,module,exports){
 (function (global){
 
 /**
@@ -37107,14 +39319,14 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],242:[function(require,module,exports){
+},{}],274:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],243:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -37704,4 +39916,4 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":242,"_process":217,"inherits":211}]},{},[3,1]);
+},{"./support/isBuffer":274,"_process":249,"inherits":243}]},{},[3,1]);

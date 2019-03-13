@@ -9,10 +9,16 @@
 
 const marked = require('marked-it-core');
 
-// Experimenting for now...
 const nicknames = require('./nicknames');
 const convert = require('../../lib/convert');
 const schema = require('./schema');
+const { Actions } = require('../../lib/actions');
+
+// This is used to export the calculated actions to the separate module
+// that saves the minutes, as well as 'stores' the actions as issues.
+let theActions = {};
+const getActions = () => theActions;
+
 
 /**
  * The main entry point, invoked when the user pushes the submit. Collect the
@@ -40,7 +46,7 @@ async function bridge(form) {
         ghbranch      : '',
         ghtoken       : form.elements.ghtoken.value,
         acrepo        : form.elements.acrepo.value,
-        acurlpattern  : form.elements.acrepo.acurlpattern
+        acurlpattern  : form.elements.acurlpattern.value
     };
     config.nicks = await nicknames.get_nick_mapping(config);
 
@@ -54,9 +60,12 @@ async function bridge(form) {
         config.nicks = [];
     }
 
+    // Set up the action handling
+    theActions = new Actions(config);
+
     const irc_log  = form.elements.text.value;
     // undefined for testing...
-    return convert.to_markdown(irc_log, config, undefined);
+    return convert.to_markdown(irc_log, config, theActions);
 }
 
 function emptyNode(n) {
@@ -104,3 +113,5 @@ window.addEventListener('load', () => {
     const submit_button = document.getElementById('submit_button');
     submit_button.addEventListener('click', () => submit(minutes));
 });
+
+module.exports = { getActions };

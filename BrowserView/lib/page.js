@@ -2,6 +2,13 @@
 
 'use strict';
 
+/*
+  TODO notes:
+  - the value of acurlpattern can be retrieved from the form; if present, it should be used for the file name
+  in the save action.
+
+*/
+
 /**
  * Various functions handling user interactions on the scribejs page:
  *
@@ -23,6 +30,9 @@
 /* eslint-env browser */
 
 const _ = require('underscore');
+
+// Experimenting for now...
+const { getActions } = require('./bridge');
 
 const JEKYLL_NONE     = 'none';
 const JEKYLL_MARKDOWN = 'md';
@@ -341,6 +351,9 @@ function load_log(file) {
  * Note: the 'download' link element is in the HTML form, but it is not displayed...
  */
 function save_minutes() {
+    console.log('zxczczvzvzxvzf');
+    console.log(JSON.stringify(getActions(), null, 4));
+
     const minutes = document.getElementById('minutes').value;
     if (minutes && minutes !== '') {
         // Get hold of the content
