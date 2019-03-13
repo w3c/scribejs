@@ -58,7 +58,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `ghrepo`       : repository name, eg, `w3c/scribejs`
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
-* `acrepo`       : repository name where action issues should be generated. If not set, the value of `ghrepo` is used (if set).
+* `acrepo`       : repository name where action issues should be generated. If not set, the value of `ghrepo` is used if set.
 * `acurlpattern` : url pattern used to refer the minutes. The strings `%YEAR%`, `%MONTH%`, `%DAY%`, and `%DATE%` are replaced by the respective values. Used to put references into the minutes when generating issues for actions.
 * `ghname`       : github login name
 * `ghemail`      : github email

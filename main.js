@@ -57,13 +57,8 @@ async function main() {
         // The main step: convert the IRC log into a markdown text
         const minutes = convert.to_markdown(irc_log, config, actions);
 
-        // TODO: the two steps below could be done somehow in parallel with a Promise.all; to be explored later
-
-        // Either upload the minutes to Github or dump into a local file
-        const message = await io.output_minutes(minutes, config);
-
-        // Store the actions as github issues (if properly set up)
-        await actions.raise_action_issues();
+        // eslint-disable-next-line no-unused-vars
+        const [message, dummy] = await Promise.all([io.output_minutes(minutes, config), actions.raise_action_issues()]);
 
         // That is it, folks!
         console.log(message);
