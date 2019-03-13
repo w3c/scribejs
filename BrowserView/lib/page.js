@@ -89,7 +89,8 @@ function set_presets(val) {
         const all_presets = retrieve_presets();
         if (!_.isEmpty(all_presets)) {
             if (all_presets[val] !== undefined) {
-                const preset       = all_presets[val];
+                reset_preset_menu();
+                const preset = all_presets[val];
 
                 /* Go through the keys of the preset and set the relevant element accordingly */
                 // eslint-disable-next-line no-restricted-syntax
@@ -124,7 +125,7 @@ function set_presets(val) {
  */
 // eslint-disable-next-line no-unused-vars
 function reset_preset_menu() {
-    ['group', 'nicknames', 'fullname'].forEach((id) => {
+    ['group', 'nicknames', 'fullname', 'ghname', 'ghtoken', 'acrepo', 'acurlpattern'].forEach((id) => {
         document.getElementById(id).value = '';
     });
     document.getElementById('jekyll').selectedIndex = 0;
@@ -220,9 +221,8 @@ function store_preset() {
     /* Get group name; this is used to as a key to the local storage */
     const group = document.getElementById('group').value;
     if (group !== '') {
-        // In fact, the form currently does not handle the 'gh' attributes, but keep it here just in case...
-        const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch',
-            'ghname', 'ghemail', 'ghtoken', 'fullname'];
+        // In fact, the form currently does not handle all the 'gh' attributes, but keep it here just in case...
+        const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch', 'ghname', 'ghemail', 'ghtoken', 'fullname', 'acrepo', 'acurlpattern'];
         _.forEach(targets, (key) => {
             const el = document.getElementById(key);
             if (el) {

@@ -33,9 +33,14 @@ async function bridge(form) {
         nick_mappings : [],
         nicknames     : form.elements.nicknames.value,
         irc_format    : undefined,
-        ghname        : '',
+        ghname        : form.elements.ghname.value,
         ghemail       : '',
-        ghtoken       : ''
+        ghrepo        : '',
+        ghpath        : '',
+        ghbranch      : '',
+        ghtoken       : form.elements.ghtoken.value,
+        acrepo        : form.elements.acrepo.value,
+        acurlpattern  : form.elements.acrepo.acurlpattern
     };
     config.nicks = await nicknames.get_nick_mapping(config);
 
@@ -50,7 +55,8 @@ async function bridge(form) {
     }
 
     const irc_log  = form.elements.text.value;
-    return convert.to_markdown(irc_log, config);
+    // undefined for testing...
+    return convert.to_markdown(irc_log, config, undefined);
 }
 
 function emptyNode(n) {
