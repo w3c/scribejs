@@ -15,10 +15,11 @@ const convert = require('../../lib/convert');
 const schema = require('./schema');
 const { Actions } = require('../../lib/actions');
 
-// Experimenting for now...
-
+// This is used to export the calculated actions to the separate module
+// that saves the minutes, as well as 'stores' the actions as issues.
 let theActions = {};
 const getActions = () => theActions;
+
 
 /**
  * The main entry point, invoked when the user pushes the submit. Collect the
@@ -59,6 +60,7 @@ async function bridge(form) {
 (nicknames ignored)`);
         config.nicks = [];
     }
+
     // Set up the action handling
     theActions = new Actions(config);
 
@@ -247,13 +249,6 @@ exports.get_nick_mapping = (conf) => {
 
 'use strict';
 
-/*
-  TODO notes:
-  - the value of acurlpattern can be retrieved from the form; if present, it should be used for the file name
-  in the save action.
-
-*/
-
 /**
  * Various functions handling user interactions on the scribejs page:
  *
@@ -336,7 +331,7 @@ const store_presets      = (all_presets) => {
 /**
  * Use a preset to set the various options in the form elements.
  *
- * @param {String} val The key to find the right preset (the value of the 'irc' field in the HTML page is usually)
+ * @param {String} val - The key to find the right preset (the value of the 'irc' field in the HTML page is used)
  */
 // eslint-disable-next-line no-unused-vars
 function set_presets(val) {
@@ -344,7 +339,7 @@ function set_presets(val) {
         const all_presets = retrieve_presets();
         if (!_.isEmpty(all_presets)) {
             if (all_presets[val] !== undefined) {
-                reset_preset_menu();
+                reset_preset_items(false);
                 const preset = all_presets[val];
 
                 /* Go through the keys of the preset and set the relevant element accordingly */
@@ -371,31 +366,34 @@ function set_presets(val) {
             }
         }
     } else {
-        reset_preset_menu();
+        reset_preset_items();
     }
 }
 
-/*
- * Reset the preset menu...
+/**
+ * Reset all preset items
+ *
+ * @param {Boolean} set_index - whether the preset menu should also set to the 'None' item or not
  */
-// eslint-disable-next-line no-unused-vars
-function reset_preset_menu() {
+function reset_preset_items(set_index = true) {
     ['group', 'nicknames', 'fullname', 'ghname', 'ghtoken', 'acrepo', 'acurlpattern'].forEach((id) => {
         document.getElementById(id).value = '';
     });
     document.getElementById('jekyll').selectedIndex = 0;
     document.getElementById('final').selectedIndex = 0;
-    const presets = document.getElementById('presets');
-    presets.selectedIndex = 0;
+    if (set_index) {
+        const presets = document.getElementById('presets');
+        presets.selectedIndex = 0;
+    }
 }
 
 /**
- * Reset most of things...
- * I do not use the 'reset' type for the button, because the date field should be set to
- * today's date and not to empty...
+ * Reset most of things on the page...
+ * The 'reset' button type is not appropriate, because the date field should be set to the current date and not to empty.
+ * Hence this explicit callback.
  */
 function reset() {
-    reset_preset_menu();
+    reset_preset_items();
     ['text', 'minutes'].forEach((id) => {
         document.getElementById(id).value = '';
     });
@@ -408,7 +406,7 @@ function reset() {
  * Generates a number of `<option>` elements for the pull down menu, one for each preset.
  * The key is stored as the 'value' in the (HTML) element
  *
- * @param {Object} all_presets The full value of the respective local storage entry.
+ * @param {Object} all_presets - The full value of the respective local storage entry.
  */
 function generate_preset_menu(all_presets) {
     const select_element = document.getElementById('presets');
@@ -435,24 +433,8 @@ function generate_preset_menu(all_presets) {
 }
 
 /**
- * List presets (for debug only!)
- */
-// eslint-disable-next-line no-unused-vars
-function list_presets() {
-    console.log('--- Presets');
-    // eslint-disable-next-line no-unused-vars
-    const all_presets = retrieve_presets();
-    // eslint-disable-next-line no-undef
-    _.forEach(get_presets(), (value) => {
-        console.log(value);
-    });
-    console.log('---');
-}
-
-/**
  * Delete a preset
  */
-// eslint-disable-next-line no-unused-vars
 function remove_preset() {
     const all_presets = retrieve_presets();
     const group = document.getElementById('group').value;
@@ -462,7 +444,6 @@ function remove_preset() {
 /**
  * Clear all presets
  */
-// eslint-disable-next-line no-unused-vars
 function clear_presets() {
     store_presets({});
 }
@@ -470,14 +451,25 @@ function clear_presets() {
 /**
  * Create a new preset entry and add it to the full list.
  */
-// eslint-disable-next-line no-unused-vars
 function store_preset() {
     const to_be_stored = {};
     /* Get group name; this is used to as a key to the local storage */
     const group = document.getElementById('group').value;
     if (group !== '') {
         // In fact, the form currently does not handle all the 'gh' attributes, but keep it here just in case...
-        const targets = ['group', 'nicknames', 'ghrepo', 'ghpath', 'ghbranch', 'ghname', 'ghemail', 'ghtoken', 'fullname', 'acrepo', 'acurlpattern'];
+        const targets = [
+            'group',
+            'nicknames',
+            'ghrepo',
+            'ghpath',
+            'ghbranch',
+            'ghname',
+            'ghemail',
+            'ghtoken',
+            'fullname',
+            'acrepo',
+            'acurlpattern'
+        ];
         _.forEach(targets, (key) => {
             const el = document.getElementById(key);
             if (el) {
@@ -511,7 +503,7 @@ function store_preset() {
         all_presets[group] = to_be_stored;
         store_presets(all_presets);
     } else {
-        console.error('no group name (IRC channel) has been provided');
+        console.error('No group name (IRC channel) has been provided');
     }
 }
 
@@ -520,7 +512,7 @@ function store_preset() {
  * Part 2: taking care of populating the text area with the IRC Log.
  */
 
-/*
+/**
  * Event handler to load the IRC log into the text area from the W3C Web site.
  * The URL is retrieved using the IRC name and the date.
  *
@@ -530,7 +522,6 @@ function store_preset() {
  * get `fetch` work properly with the relevant header (why???). For now I use the
  * `https://cors-anywhere.herokuapp.com` trick, and I may have to come back to this later.
  */
-// eslint-disable-next-line no-unused-vars
 function fetch_log() {
     const set_input_url = (date, group) => {
         const [year, month, day] = date.split('-');
@@ -572,7 +563,6 @@ function fetch_log() {
  *
  * @param {File} file
  */
-// eslint-disable-next-line no-unused-vars
 function load_log(file) {
     const reader = new FileReader();
     reader.addEventListener('loadend', () => {
@@ -592,30 +582,53 @@ function load_log(file) {
  * Save the minutes.
  *
  * Take the content out of the 'minutes' text area, turn it into a Blob, set the right attributes
- * of an `<a>` element with `@download`, and activate it.
+ * of an `<a>` element with `@download`, and activate it. While doing so, also generate the action issues,
+ * calling out to the `Actions` instance used when the minutes were generated.
+ *
  * Note: the 'download' link element is in the HTML form, but it is not displayed...
+ *
+ * @async
  */
-function save_minutes() {
-    console.log('zxczczvzvzxvzf');
-    console.log(JSON.stringify(getActions(), null, 4));
-
+async function save_minutes() {
+    /**
+     * Reuse the value of the `acurlpattern` input field, if it exists, to generate the file name.
+     * If the field is not set use a default pattern.
+     */
+    const generate_file_name = () => {
+        const date = document.getElementById('date').value;
+        const [year, month, day] = date.split('-');
+        const url_pattern = document.getElementById('acurlpattern').value;
+        if (url_pattern === '') {
+            const group = document.getElementById('group').value;
+            return (group && group !== '') ? `${year}-${month}-${day}-${group}.md` : `${year}-${month}-${day}.md`;
+        } else {
+            const file_name = url_pattern.split('/').pop();
+            return file_name.replace(/%DAY%/g, day).replace(/%MONTH%/g, month).replace(/%YEAR%/g, year).replace(/%DATE%/g, date);
+        }
+    };
     const minutes = document.getElementById('minutes').value;
     if (minutes && minutes !== '') {
         // Get hold of the content
         const mBlob = new Blob([minutes], { type: 'text/markdown' });
         const mURI = URL.createObjectURL(mBlob);
 
-        const [year, month, day] = document.getElementById('date').value.split('-');
-        const group = document.getElementById('group').value;
-        const file_name = (group && group !== '')
-            ? `${year}-${month}-${day}-${group}.md`
-            : `${year}-${month}-${day}.md`;
+        // const [year, month, day] = document.getElementById('date').value.split('-');
+        // const group = document.getElementById('group').value;
+        // const file_name = (group && group !== '')
+        //     ? `${year}-${month}-${day}-${group}.md`
+        //     : `${year}-${month}-${day}.md`;
+
+        // This may not be the final place, though!
+        // await getActions().raise_action_issues();
+        const actionPromise = getActions().raise_action_issues();
 
         // Pull it all together
         const download = document.getElementById('download');
         download.href = mURI;
-        download.download = file_name;
+        download.download = generate_file_name();
         download.click();
+
+        await actionPromise;
     }
 }
 
@@ -626,7 +639,7 @@ function save_minutes() {
 
 /**
  * Bind the functions to their respective HTML equivalents...
- * Necessary to do it this way with the usage of browserify.
+ * Necessary to do it this way due to the usage of browserify.
  * Some extra initialization is also done: get the initial value for all presets from the local store
  * and set the date input to today's date.
  */
@@ -720,7 +733,20 @@ exports.validation_errors = (validator) => ajv.errorsText(validator.errors, { se
 /* eslint-disable no-underscore-dangle */
 const Octokat = require('octokat');
 
+/**
+ * Class to encapsulate all methods to handle actions. The public methods are:
+ *
+ * * set_date
+ * * add_action
+ * * async raise_action_issues
+ */
 class Actions {
+    /**
+     * Constructor, retrieving from the configuration the necessary values for actions. The only one that
+     * needs explicit call from the generation is the current date (which is to be extracted from the IRC log).
+     *
+     * @param {Object} conf - scribejs configuration.
+     */
     constructor(conf) {
         this._valid = false;
         this._actions = [];
@@ -740,8 +766,8 @@ class Actions {
 
     /**
      *
-     * Get the list of action titles from github; this should be done once to filter
-     * out the actions that have already been added.
+     * Get the list of existing action titles from github; this should be done to filter
+     * out the actions that have already been added in a previous run.
      *
      * @async
      * @return {Array} - list of action issue titles on the repo.
@@ -775,7 +801,7 @@ class Actions {
 
     /**
      *
-     * Get the list of possible assignees from github; this is used whether an
+     * Get the list of possible assignees from github; this is used to decide whether an
      * explicit assignee can be set for an issue or not.
      *
      * @async
@@ -795,14 +821,10 @@ class Actions {
     }
 
     /**
-     * Retrieve repo data that might be relevant for raising issues.
+     * Retrieve repo data that might be relevant for raising issues. This is a call to the
+     * `_get_issue_titles` and `_get_assignees` methods (in parallel). Also the method:
      *
-     * Note that this function belongs, structurally, to the constructor but has to be invoked explicitly. The
-     * reason is that this method accesses the github API, and it is better to do that only if there are actions
-     * to deal with, ie, at the end of the minute generation process.
-     *
-     * The method
-     * * filters the accumulated actions in `this._actions` to retain only the new one; the results
+     * * filters the accumulated actions in `this._actions` to retain only the new ones
      * * fills the `this._assignees` array with the github id's of persons who can be assigned an action on an issue
      *
      * @async
@@ -822,7 +844,7 @@ class Actions {
     }
 
     /**
-     * Store actions, i.e., raise github issues using the octocat library.
+     * Store all the actions, i.e., raise github issues using the `Octocat` library.
      *
      * @async
      */
@@ -846,7 +868,8 @@ class Actions {
 
     /**
      * Set the date of all actions. This method is called by the minute generator once the
-     * date has been established (e.g., from a 'date' line in the IRC log)
+     * date has been established (e.g., from a 'date' line in the IRC log). Based on the date, this method
+     * also sets the value of `this._url`, replacing the patterns in `acurlpattern`, if necessary.
      *
      * @param {String} date - date of the minutes
      */
@@ -855,10 +878,10 @@ class Actions {
         if (this._url_pattern) {
             const [year, month, day] = date.split('-');
             this._url = this._url_pattern
-                .replace('%YEAR%', year)
-                .replace('%MONTH%', month)
-                .replace('%DAY%', day)
-                .replace('%DATE%', date);
+                .replace(/%YEAR%/g, year)
+                .replace(/%MONTH%/g, month)
+                .replace(/%DAY%/g, day)
+                .replace(/%DATE%/g, date);
         }
     }
 
@@ -894,7 +917,7 @@ class Actions {
     }
 }
 
-
+/* -------------------------------------------------------------------------------- */
 module.exports = { Actions };
 
 },{"octokat":171}],6:[function(require,module,exports){
