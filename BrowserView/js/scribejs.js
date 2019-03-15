@@ -316,16 +316,16 @@ const storage_key        = 'scribejs_webstorage_presets';
  *
  * @returns the complete sets of presets
  */
-const retrieve_presets   = () => JSON.parse(localStorage.getItem(storage_key));
+const retrieve_presets = () => JSON.parse(localStorage.getItem(storage_key));
 
 /**
  * Store all presets in the browser's local store
  *
  * @param {Object} all_presets the object with the presets.
  */
-const store_presets      = (all_presets) => {
+const store_presets = (all_presets, key = null) => {
     localStorage.setItem(storage_key, JSON.stringify(all_presets));
-    generate_preset_menu(all_presets);
+    generate_preset_menu(all_presets, key);
 };
 
 /**
@@ -408,7 +408,7 @@ function reset() {
  *
  * @param {Object} all_presets - The full value of the respective local storage entry.
  */
-function generate_preset_menu(all_presets) {
+function generate_preset_menu(all_presets, menu_key = null) {
     const select_element = document.getElementById('presets');
     // Clean the element
     select_element.innerHTML = '';
@@ -416,7 +416,7 @@ function generate_preset_menu(all_presets) {
     const none_element = document.createElement('option');
     none_element.textContent = 'None';
     none_element.setAttribute('value', 'None');
-    none_element.setAttribute('selected', 'True');
+    if (menu_key === null) none_element.setAttribute('selected', 'True');
     select_element.appendChild(none_element);
 
     if (_.isEmpty(all_presets)) {
@@ -427,6 +427,7 @@ function generate_preset_menu(all_presets) {
             const option_element = document.createElement('option');
             option_element.textContent = descr;
             option_element.setAttribute('value', key);
+            if (menu_key === key) option_element.setAttribute('selected', 'True');
             select_element.appendChild(option_element);
         });
     }
@@ -439,6 +440,7 @@ function remove_preset() {
     const all_presets = retrieve_presets();
     const group = document.getElementById('group').value;
     store_presets(_.omit(all_presets, group));
+    reset_preset_items(true);
 }
 
 /**
@@ -446,6 +448,7 @@ function remove_preset() {
  */
 function clear_presets() {
     store_presets({});
+    reset_preset_items(true);
 }
 
 /**
@@ -456,7 +459,7 @@ function store_preset() {
     /* Get group name; this is used to as a key to the local storage */
     const group = document.getElementById('group').value;
     if (group !== '') {
-        // In fact, the form currently does not handle all the 'gh' attributes, but keep it here just in case...
+        // In fact, the form currently does not include all the 'gh' attributes, but keep it here just in case...
         const targets = [
             'group',
             'nicknames',
@@ -501,7 +504,7 @@ function store_preset() {
          * in the local store, and append the new one */
         const all_presets = retrieve_presets();
         all_presets[group] = to_be_stored;
-        store_presets(all_presets);
+        store_presets(all_presets, group);
     } else {
         console.error('No group name (IRC channel) has been provided');
     }
