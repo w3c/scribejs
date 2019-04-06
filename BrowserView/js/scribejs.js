@@ -931,7 +931,7 @@ module.exports = { Actions };
 const _    = require('underscore');
 const url  = require('url');
 const safe = require('safe-regex');
-const { json_ld_header } = require('./schema');
+const { schema_data } = require('./jsonld_header');
 
 const JEKYLL_NONE     = 'none';
 // TODO: define and use JEKYLL_MARKDOWN
@@ -1658,13 +1658,13 @@ exports.to_markdown = (body, config, action_list) => {
     function generate_header_md(headers) {
         let header_start = '';
         if (config.jekyll !== JEKYLL_NONE) {
-            const json_ld = json_ld_header(headers, config);
-            // console.log(json_ld);
+            const json_ld = schema_data(headers, config);
             header_start = `---
 layout: minutes
 date: ${headers.date}
 title: ${headers.meeting} — ${headers.date}
-json-ld | ${json_ld}
+json-ld: |
+${json_ld}
 ---
 `;
         } else if (config.pandoc) {
@@ -2006,7 +2006,7 @@ ${no_toc}
     return (generate_header_md(headers) + generate_content_md(lines));
 };
 
-},{"./schema":7,"safe-regex":230,"underscore":234,"url":272}],7:[function(require,module,exports){
+},{"./jsonld_header":7,"safe-regex":230,"underscore":234,"url":272}],7:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2016,7 +2016,7 @@ ${no_toc}
  * @param {Object} config - the general configuration file for the scribejs run
  * @returns {String} - the JSON-LD encoded schema.org metadata of the minutes
  */
-function json_ld_header(header, config) {
+function schema_data(header, config) {
     /** turn a comma separated list into an array of strings. */
     const people_list = (comma_list) => comma_list.split(',').map((name) => name.trim()).filter((name) => name !== '');
 
@@ -2084,7 +2084,7 @@ function json_ld_header(header, config) {
 }
 
 /* -------------------------------------------------------------------------------- */
-module.exports = { json_ld_header };
+module.exports = { schema_data };
 
 },{}],8:[function(require,module,exports){
 'use strict';
