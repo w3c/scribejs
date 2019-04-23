@@ -1,3 +1,6 @@
 node_modules/
 test/*.json
 .vscode/*.json
+LocalScript/
+nami.md
+

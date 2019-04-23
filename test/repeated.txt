@@ -1,0 +1,228 @@
+15:21:29 <RRSAgent> RRSAgent has joined #json-ld
+15:21:29 <RRSAgent> logging to https://www.w3.org/2019/04/19-json-ld-irc
+15:21:30 <ivan> rrsagent, set log public
+15:21:30 <ivan> Meeting: JSON-LD Working Group Telco
+15:21:30 <ivan> Chair: azaroth
+15:21:30 <ivan> Date: 2019-04-19
+15:21:30 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-json-ld-wg/2019Apr/0028.html
+15:21:30 <ivan> ivan has changed the topic to: Meeting Agenda 2019-04-19: https://lists.w3.org/Archives/Public/public-json-ld-wg/2019Apr/0028.html
+15:21:31 <ivan> Regrets+ bigbluehat, simon, ajs6f
+15:22:00 <ivan> regrets+ tcole
+15:37:38 <azaroth> regrets+ jeff_mixter
+15:37:52 <azaroth> regrets+ workergnome
+15:42:50 <rubensworks> rubensworks has joined #json-ld
+15:58:23 <azaroth> present+
+15:59:39 <gkellogg> present+
+16:00:34 <rubensworks> present+
+16:00:40 <dlongley> present+ Dave_Longley
+16:02:03 <ivan> present+
+16:03:49 <azaroth> regrets+ pchampin
+16:04:09 <dlongley> scribenick: dlongley
+16:04:35 <azaroth> TOPIC: Approve minutes of previous call
+16:04:49 <azaroth> PROPOSAL: Approve minutes of previous call  https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-04-12-json-ld
+16:04:50 <gkellogg> +1
+16:04:51 <azaroth> +1
+16:04:51 <dlongley> +1
+16:04:51 <rubensworks> +1
+16:04:59 <ivan> +1
+16:05:00 <azaroth> RESOLVED: Approve minutes of previous call  https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/2019/2019-04-12-json-ld
+16:05:07 <azaroth> TOPIC: Announcements?
+16:05:39 <ivan> q+
+16:05:56 <dlehn> present+
+16:05:56 <azaroth> ack ivan
+16:06:20 <azaroth> link: https://developers.google.com/web/tools/lighthouse/
+16:07:41 <dlongley> dlongley: Google Lighthouse merged jsonld.js into its master branch. Not sure when it will be released.
+16:09:10 <azaroth> TOPIC: Logistics
+16:09:13 <dlongley> ivan: Does Google do a blog post for releases?
+16:09:15 <dlongley> dlongley: Yes.
+16:09:21 <dlongley> ivan: We should watch for that and quote on our own blog.
+16:09:23 <dlongley> dlongley: Yes.
+16:09:32 <azaroth> SUBTOPIC: Horizontal Review
+16:10:18 <dlongley> azaroth: For folks on AC list -- internationalization horizontal review -- requesting for people to give the i18n group time for change, we should be good w3c citizens and help review.
+16:10:33 <dlongley> azaroth: We should start putting into motion some of the horizontal review requests.
+16:10:42 <dlongley> azaroth: Ivan, could you briefly describe what that entails?
+16:11:11 <dlongley> ivan: It's still a little bit messy I must say. The basic thing is, there is are some general topics i18n, security, privacy, and the TAG. These aspects should be checked in our document whenever relevant.
+16:11:49 <dlongley> ivan: Review is done by the respective experts of these things, we already had a TAG review which is good. For each we have to have it clearly documented. We should have the right tags/labels/etc. so we can prove to the Director that we have these things.
+16:12:43 <dlongley> ivan: It so happens that each of these areas have some sort of auto-check process. A formula that is there to get these reviews done. So we can check whether there are issues that are relevant for us or not. Either we say the issues aren't relevant or we can help the reviewers to say these are the things that seem to be relevant for us. We have to contact the necessary IG that's behind that, that's the mechanics.
+16:13:40 <dlongley> ivan: Content-wise, what I can see is that ... let me come back to i18n. We have, I think, I don't know, if we have ever really discussed security and privacy issues, i.e. whether we have those issues. I don't remember, maybe it was discussed. I also don't remember if these issues were discussed for 1.0, because if 1.0 was OK, then we don't have (I don't think) anything new in a security/privacy sense.
+16:13:56 <dlongley> ivan: That's up for us to find out. On the privacy side, actually, there were some noises on one of the Web of Things meetings.
+16:14:30 <dlongley> ivan: It was forwarded a question there, whether the fact ... what kind of context files I retrieve from a site in general whether that can be used for some sort of privacy fingerprinting kind of process and whether we can do anything or think of doing anything with that.
+16:14:53 <dlongley> ivan: Or if we have anything for the context files we receive, it may be a question we have to answer. We did have a TAG review so I think we're fine.
+16:15:27 <dlongley> ivan: There is also Accessibility. It's a different animal in the sense in that there are two aspects. One is if our spec raises an issue, which I think is no, because our tech doesn't directly interact with the end user.
+16:15:48 <dlongley> ivan: We may get a review to see whether our spec as a document is proper in terms of Accessibility. That may get some comments for the editors.
+16:16:05 <dlongley> ivan: This is the general thing. I can go into the details for i18n. Any questions/issues?
+16:16:26 <dlongley> gkellogg: We addressed the accessibility of the images some time ago, so we're ok in that regard.
+16:16:29 <azaroth> Issues tagged with hr:*  https://github.com/w3c/json-ld-syntax/issues/108 (defer) ; https://github.com/w3c/json-ld-syntax/issues/147 ; https://github.com/w3c/json-ld-syntax/issues/148 ; https://github.com/w3c/json-ld-syntax/issues/155
+16:16:32 <dlongley> ivan: I hope that's the case but we have to sign it off.
+16:17:01 <dlongley> q?
+16:17:27 <dlongley> azaroth: 108 is the issue about meta data about contexts such that you could give it an SRI tag which is flagged as privacy and security for HR.
+16:17:35 <dlongley> azaroth: We put that into the defer bucket so we should be careful of that one.
+16:18:17 <dlongley> azaroth: There are two editorial ones 147, 148, has to do with IRI concatenation. 147 you can avoid some of the checks with relative URIs, and the URI schemes ones is that you can construct things that look like schemes and don't do that.
+16:18:46 <dlongley> azaroth: 86 I didn't put in because it's a subset. There is one in the open set, 155, IRI terms can be misdefined and it's flagged as security for HR.
+16:18:51 <dlongley> gkellogg: Also the case for compact IRIs.
+16:19:04 <ivan> q+
+16:19:06 <dlongley> azaroth: We don't have anything for a11y or i18n.
+16:19:25 <dlongley> azaroth: We could call it out and say it's not in our scope to solve, but whether we want to open that door is a question.
+16:19:31 <dlongley> gkellogg: I think a blog post would be good for that.
+16:19:43 <azaroth> ack ivan
+16:19:45 <dlongley> gkellogg: It could be pointed to by a future WG.
+16:20:39 <dlongley> ivan: So let me give some background here. The question that does come up is that .. .when JSON-LD is used by other WGs for some sort of vocabulary like in the Web Publication now, if I use JSON-LD to express meta data where the value of the meta data is actual language text, that may be in the VCWG as well, but I may be wrong.
+16:21:32 <dlongley> ivan: From an i18n why, you can set the language of the text BUT you cannot give the base direction of the text. When you have text that mixes up the direction like Hebrew and Latin or Arabic, so on, there are cases that go horribly wrong. Unicode does solve it for many things but not all the things. HTML has the `dir` attribute and when you have something of a manifest or meta data expressed in JSON-LD you can't use this attribute.
+16:21:37 <dlongley> ivan: I raised this issue at the beginning of the WG.
+16:21:50 <dlongley> ivan: The i18n guys have been working on a document for how to express i18n issues when using JSON.
+16:22:27 <dlongley> ivan: And I got myself into a pretty long discussion with them, essentially what I tried to convince them ... and Rob I have been successful in convincing them as of three days ago ... you cannot solve something in JSON-LD you can't hack a direction into JSON-LD that's the effect today.
+16:23:31 <dlongley> ivan: That's when we get to what Rob raised, essentially this not something that RDF can express. And JSON-LD cannot hack something on top of RDF properly. That's where the ball is, it's not in our yard. The i18n people have understood that I think and have accepted that. The question is if we move on or we have some informative text in the document that it is not possible to express, fully the direction of a text in JSON-LD.
+16:23:44 <dlongley> ivan: And it should be done in a future version of RDF and in JSON-LD if RDF solves it.
+16:23:59 <azaroth> q?
+16:24:05 <dlongley> ivan: This issue will come up again and again and if we document it that it cannot be done I think is a good idea, but informative obviously.
+16:24:34 <dlongley> gkellogg: Is there some a11y section where we'd put something like that?
+16:24:48 <dlongley> ivan: I think there's only a security/privacy section requirement. For i18n it would be the same level of appendix section.
+16:24:56 <dlongley> ivan: I don't think there's a requirement for an a11y section.
+16:25:14 <dlongley> azaroth: An i18n section at the same level of security/privacy seems like a good thing to do rather than putting it somewhere in the text.
+16:25:17 <dlongley> ivan: Yes.
+16:25:31 <dlongley> gkellogg: So are you suggesting we add two new appendices?
+16:25:55 <dlongley> gkellogg: Can we create an action for exactly what we want to do?
+16:26:09 <dlongley> gkellogg: The privacy considerations would say there aren't any or are there any?
+16:26:25 <dlongley> gkellogg: For example, this data format allows unencrypted information to be stored.
+16:26:38 <dlongley> azaroth: For privacy we could put in a recommendation for HTTPS to address unencrypted information transfer.
+16:27:02 <dlongley> ivan: But the question whether repeated retrieve of the same `@context` is something that can be used for fingerprinting.
+16:27:04 <dlongley> q+
+16:27:21 <dlongley> gkellogg: When we complete the deferred issue on the integrity checking then that might show up in that section.
+16:27:24 <dlongley> azaroth: Yes.
+16:28:06 <dlongley> azaroth: I think we should add a privacy section recommending HTTPS for all protocol transfers which gets us out of one thing. When we have had a chance to discuss then that would be the place to reference.
+16:28:06 <azaroth> ack dlongley
+16:28:15 <azaroth> +1
+16:29:01 <ivan> q+
+16:29:06 <azaroth> ack ivan
+16:29:09 <rubensworks> dlongley: 2 things: we should recommend https or other secure protocol
+16:29:13 <rubensworks> ... other thing for privacy if fingerprinting is and issue for you, then contexts can be stored offline or cached.
+16:29:17 <rubensworks> ... same issue for anything that has a URI in it
+16:29:38 <rubensworks> ivan: security and integrity issues, refer to future work on signatures on json-ld?
+16:30:11 <rubensworks> dlongley: yes, cover that informally and say there is upcoming work
+16:30:22 <rubensworks> ivan: say that it is a missing bit right now
+16:30:54 <azaroth_> azaroth_ has joined #json-ld
+16:30:59 <dlongley> q?
+16:31:58 <azaroth__> azaroth__ has joined #json-ld
+16:32:30 <azaroth__> q?
+16:33:16 <ivan> -> security questionnaire: https://w3ctag.github.io/security-questionnaire/
+16:33:36 <ivan> -> i18n questionnaire: https://www.w3.org/International/techniques/developing-specs?collapse
+16:33:51 <ivan> -> a11y questionnaire: https://w3c.github.io/apa/fast/checklist.html
+16:34:10 <dlongley> gkellogg: Did we determine we needed an a11y section?
+16:34:23 <dlongley> ivan: We have to cross section, we did it once with a checklist and maybe we're fine but we should do that.
+16:35:21 <ivan> regrets+ pchampin
+16:35:31 <dlongley> azaroth: We could divide up responsibilities... Pierre-Antoine for security...
+16:35:40 <dlongley> gkellogg: We point to IANA and we could already be comprehensive.
+16:36:08 <dlongley> azaroth: I'm happy to the a11y one and given Benjamin's position and being part of the publications work, I think having him look at the i18n one would be appropriate.
+16:36:32 <dlongley> ivan: We will have some section/paragraph on the `dir` issue. That's something that we might take over when the time comes.
+16:37:11 <dlongley> gkellogg: I think describing, maybe not here, but in Best Practices using HTML content in order to get that, which is certainly unsatisfying, it's the best we have now. It provides a one-stop shop for what people are trying to go for.
+16:37:41 <dlongley> ivan: The i18n guys just published a note on expressing these things in JSON and they are not really in favor of using that. For all kinds of reasons. For most of the cases, actually, the extra unicode that you can put in a string is also a possibility.
+16:38:06 <dlongley> gkellogg: Certainly, that's what you'd want to do as a first choice. As I recall from observing that conversation there are many cases where that fails.
+16:38:09 <dlongley> ivan: Yes, but the right solution is to get `dir` into RDF.
+16:38:42 <dlongley> gkellogg: During the period where that is not available, then either avoid ... through editorial massaging of the text including those markers to avoid those problems or do you think we should not describe the use of embedded HTML at all?
+16:38:45 <dlongley> ivan: I'm not sure.
+16:38:53 <dlongley> gkellogg: What's happening in the Publication WG?
+16:39:17 <dlongley> ivan: There is an acknowledgment that there certain situations that cannot be covered and that's the way it is. There was a universal pushback of using the HTML thing.
+16:39:19 <azaroth_> azaroth_ has joined #json-ld
+16:39:31 <dlongley> ivan: Bringing in an HTML parser or partial parser to handle things for something like that.
+16:39:37 <dlongley> ivan: This are details.
+16:39:42 <dlongley> s/This/These/
+16:39:49 <dlongley> ivan: Let's not go there for now.
+16:40:08 <azaroth_> SUBTOPIC: reviews requested
+16:40:30 <dlongley> azaroth: We have had some reviews requested of us, from WoT and OGC (?).
+16:40:51 <dlongley> azaroth: The WoT has sent the chairs a link. We need to clarify exactly what they want a review of.
+16:42:10 <dlongley> gkellogg: I pointed to that OGC, Pierre-Antoine spent some time to look through it. They said our descriptions of JSON-LD are too confusing and they created their own summary, but this resulted in some conflation with object and data types.
+16:42:25 <azaroth_> +1 to primer as solution to this
+16:42:28 <dlongley> gkellogg: This highlights the need for a primer in order to provide a simpler introduction to things for groups like this.
+16:42:38 <ivan> q+
+16:42:41 <azaroth_> ack ivan
+16:42:46 <dlongley> gkellogg: And to clarify the use of data types and not confusing literals, etc.
+16:42:57 <dlongley> gkellogg: They also referred to a lack of support for lists of lists which we do of course support in 1.1.
+16:43:16 <dlongley> azaroth: I think it's Adam and Benjamin on the Primer.
+16:43:26 <dlongley> ivan: I think this is a document that we should begin to have in some shape ASAP.
+16:44:05 <dlongley> azaroth: For the OGC, are you sending a written response ... or? We will write a primer and refer them to it?
+16:44:26 <dlongley> gkellogg: They asked if we'd share the link with the CG. I shared it with the WG, any feedback is welcome.
+16:44:41 <dlongley> azaroth: At the very least we can say your points are well taken and we're working on this in the primer document.
+16:44:45 <dlongley> q+ to channel Manu
+16:44:53 <azaroth_> ack dlongley
+16:44:53 <Zakim> dlongley, you wanted to channel Manu
+16:45:44 <azaroth> +1 to dave/manu
+16:45:44 <azaroth> scribenick: rubensworks
+16:45:56 <rubensworks> dlongley: Manu would say that we have to cleanup spec and clearer for people to understand
+16:45:58 <ivan> q+
+16:46:00 <rubensworks> ... too much technical jargon too early, like blank nodes
+16:46:04 <rubensworks> ... a lot of readers have no idea what these things are
+16:46:07 <rubensworks> ... spec itself should be cleaned up and grade-level for reading.
+16:46:26 <rubensworks> gkellogg: blank nodes are needed
+16:46:39 <rubensworks> dlongley: yes, but should be pushed further away
+16:47:31 <azaroth_> azaroth_ has joined #json-ld
+16:47:31 <rubensworks> dlongley: we have an issue if we expect that non-tech people should just look at primer.
+16:47:36 <azaroth_> ack ivan
+16:48:01 <azaroth_> q?
+16:48:06 <dlongley> +1 i also have sympathy for gregg on that
+16:45:44 <azaroth> scribenick: dlongley
+16:48:26 <dlongley> ivan: Hard for Gregg here because he's so well steeped in all the technology.
+16:48:40 <dlongley> ivan: It would be nice for someone like Manu to come in with concrete text.
+16:48:53 <rubensworks> azaroth_: suggestions: blank nodes further down would be valuable
+16:49:00 <rubensworks> dlongley: +1
+16:49:02 <azaroth_> q?
+16:49:06 <rubensworks> dlongley: primer is good fallback
+16:49:08 <gkellogg> summary: Manu could provide us with a text...
+16:49:08 <gkellogg> q+
+16:49:27 <azaroth_> ack gkellogg
+16:50:05 <dlongley> gkellogg: Pierre-Antoine has been great here and perhaps we can lean more on him.
+16:50:32 <dlongley> gkellogg: The standard for 1.0 was to keep the text simple enough so that a Primer was not necessary. I think that ship has sailed. We've added enough advanced features here that the spec is becoming hard to keep from being overwhelming.
+16:51:28 <dlongley> gkellogg: Being able to read a spec with fresh eyes is a skill I have yet to master. We can all help out with that. Section 1 should be general enough for people with general knowledge to go through. But once you get beyond that it's inevitable that you're going to need more knowledge. Sections 1-3 should let readers come away with a reason able understanding of what JSON-LD intends to do and how.
+16:51:56 <dlongley> gkellogg: And if you have more details thoughts you can reasonable navigate your way in the rest of the spec from there for the things you're interested in and Ivan has helped with that organization so people can find what they're interested in.
+16:52:05 <azaroth_> TOPIC: Issues
+16:52:19 <azaroth_> SUBTOPIC: language aliasing
+16:52:26 <azaroth_> link: https://github.com/w3c/json-ld-syntax/issues/158
+16:52:44 <dlongley> azaroth: Unless there are other people that are interested in this particular topic, I'm happy to close it.
+16:53:11 <dlongley> azaroth: We can alias `@none` to just `none` to get rid of `@` [presumably that's what Rob said].
+16:53:25 <dlongley> gkellogg: Aliasing lets us alias IRIs and keywords, but that's it.
+16:53:27 <azaroth> azaroth has joined #json-ld
+16:53:48 <dlongley> gkellogg: Because `@none` is a keyword, we can alias it but we can't alias arbitrary string values.
+16:54:26 <dlongley> azaroth: Yes, the thought was if we wanted to let some way of aliasing more things then `en-us` could be aliased to `en_us` for example. But as Gregg said that means introducing a new feature to do this. Unless there's interest, I'm ready to close.
+16:55:00 <azaroth> PROPOSAL: Close syntax #158 won't fix, too complicated for the value gained
+16:55:01 <azaroth> +1
+16:55:02 <gkellogg> +1
+16:55:03 <rubensworks> +1
+16:55:03 <ivan> +1
+16:55:05 <dlongley> +1
+16:55:11 <azaroth> RESOLVED: Close syntax #158 won't fix, too complicated for the value gained
+16:55:20 <dlehn> +1
+16:55:32 <azaroth> SUBTOPIC: Class-scoped framing
+16:55:43 <azaroth> link: https://github.com/w3c/json-ld-framing/issues/29
+16:56:25 <dlongley> azaroth: The idea here ... instead of having framing on only predicates to also have it on classes, whenever you find a resource of type X you use this subframe. But we'd deferred #38 and this seems to be a subtopic of that.
+16:56:36 <dlongley> gkellogg: Deferred just means we're not working on this now. Or do you mean defer into another WG?
+16:56:43 <dlongley> azaroth: Well, defer and we'll see what happens.
+16:57:07 <dlongley> ivan: Wait, we're getting to feature freeze. Whatever is deferred at feature freeze means it goes to another version.
+16:57:26 <dlongley> gkellogg: I think it meant we weren't accepting new proposals. It's still on the docket to work on, but the WG might decide to defer to a later version.
+16:57:36 <dlongley> ivan: Deferring means that this will not be part of the upcoming version of JSON-LD.
+16:57:47 <dlongley> gkellogg: Ok, I'm not prepared to say that for this or other things we've said "deferred" to.
+16:58:06 <dlongley> azaroth: I've also thought that way, not necessarily closing. If not we're going to do it we should close.
+16:58:24 <dlongley> azaroth: SRI and references to meta data we should continue to discuss it even though they are deferred.
+16:58:57 <dlongley> ivan: As soon as we are CR we freeze it. For our own time tables we have to have a point where we freeze it for ourselves as well. At that point, if we say "defer" ... "if after publishing a new REC, this group or any other group should look at this feature"
+16:59:23 <dlongley> azaroth: I'm fine with subtly changing the semantics of "defer" when we're in feature freeze. We should take those things that we've marked as defer as "in or out"
+17:00:05 <dlongley> gkellogg: I think we should decide on the next call specific features we're going to work on for this version. Otherwise it's going to be nebulous. It's premature to say those things that don't get into this WD are deferred. We need to prioritize issues and set a time by which we will have finalized them.
+17:00:10 <dlongley> ivan: We are dangerously close to that.
+17:00:10 <azaroth> +1
+17:00:15 <dlongley> gkellogg: So that's the topic for the next call.
+17:00:49 <dlongley> azaroth: How about for now we defer based on #38?
+17:00:56 <dlongley> ivan: Let's close the topic for now and then look at all these in general.
+17:01:14 <azaroth> PROPOSAL: defer framing #29 to be discussed for inclusion in a future call
+17:01:17 <gkellogg> +1
+17:01:18 <rubensworks> +1
+17:01:18 <azaroth> +1
+17:01:19 <ivan> +1
+17:01:21 <dlongley> +1
+17:01:24 <dlehn> +1
+17:01:25 <azaroth> RESOLVED: defer framing #29 to be discussed for inclusion in a future call
+17:01:42 <dlongley> azaroth: Thanks everyone!
+17:02:11 <dlongley> azaroth: We will talk about the issues currently tagged as defer and what makes the cut next week.
+17:02:27 <azaroth> TOPIC: Adjourn
+17:02:37 <ivan> rrsagent, draft minutes
+17:02:37 <RRSAgent> I have made the request to generate https://www.w3.org/2019/04/19-json-ld-minutes.html ivan
+17:02:37 <ivan> zakim, bye
+17:02:37 <ivan> rrsagent, bye
+17:02:37 <Zakim> leaving.  As of this point the attendees have been azaroth, gkellogg, rubensworks, Dave_Longley, ivan, dlehn
+17:02:37 <Zakim> Zakim has left #json-ld
