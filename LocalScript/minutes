@@ -1,0 +1,96 @@
+#! /usr/local/bin/node
+
+const {
+    exec
+} = require('child_process');
+const program = require('commander');
+const moment = require('moment');
+
+/*
+ * Get the command line arguments
+ */
+program
+    .usage('[options] [file]')
+    .option('-d, --date [date]', 'date of the meeting in ISO (i.e., YYYY-MM-DD) format')
+    .option('-g, --group [option]', 'groups; values can be "wg", "bg", "sc", or "js"')
+    .parse(process.argv);
+
+/*
+    Get the date; that will be used to find the log
+*/
+const date = program.date ? moment(program.date) : moment();
+const year = date.year();
+const month = date.format('MM');
+const day = date.format('DD');
+const iso_date = `${year}-${month}-${day}`;
+
+/*
+    Get the command details
+*/
+const commands = {
+    wg: {
+        command : "scribejs -j 'kd' -g pwg -n ~/W3C/github/publ-wg/assets/nicknames.json",
+        irc     : 'pwg'
+    },
+    action_wg: {
+        command : "scribejs -j 'kd' -g pwg -c /Users/ivan/W3C/github/publ-wg/assets/scribejs_config_local.json",
+        irc     : 'pwg'
+    },
+    bg: {
+        command : "scribejs -j 'kd' -f -g pbg -n ~/W3C/github/publ-bg/assets/nicknames.json",
+        irc     : 'pbg'
+    },
+    sc: {
+        command : "scribejs -j 'kd' -f -g pbgsc -n ~/W3C/github/publ-bg/assets/nicknames.json",
+        irc     : 'pbgsc'
+    },
+    tf: {
+        command : "scribejs -j 'kd' -f -g pubtf -n ~/W3C/github/publ-bg/assets/nicknames.json",
+        irc     : 'pubtf'
+    },
+    au: {
+        command : "scribejs -j 'kd' -f -g pwg-audio -n ~/W3C/github/publ-wg/assets/nicknames.json",
+        irc     : 'pwg-audio'
+    },
+    js: {
+        command : "scribejs -j 'kd' -g json-ld -c /Users/ivan/W3C/github/json-ld-wg/assets/scribejs_config_local.json",
+        irc     : 'json-ld'
+    },
+    test: {
+        command : "scribejs -j 'kd' -g json-ld -c /Users/ivan/W3C/github/scribejs/test/test_config.json",
+        irc     : 'json-ld'
+    }
+};
+
+const group = program.group ? program.group : 'wg';
+
+if (!Object.keys(commands).includes(group)) {
+    console.log(`Group name probably not valid: ${program.group}`);
+    process.exit(1);
+}
+
+const { command, irc } = commands[group];
+
+const input = `~ivan/W3C/WWW/${year}/${month}/${day}-${irc}-irc.txt`;
+const output = `${iso_date}-${irc}.md`;
+
+const final_command = `${command} -d ${iso_date} -o ${output} ${input}`;
+
+console.log('\n');
+console.log(final_command);
+
+
+try {
+    exec(final_command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+        }
+        if (stderr) {
+            console.error(`exec error: ${stderr}`);
+        }
+        console.log(stdout);
+    });
+} catch (error) {
+    console.log(error);
+}

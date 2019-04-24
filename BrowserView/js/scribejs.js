@@ -2080,7 +2080,8 @@ function schema_data(header, config) {
             }))
         ]
     };
-    return JSON.stringify(schema_metadata, null, 4);
+    // Care should be taken to properly indent the data, otherwise jekyll ignores this
+    return JSON.stringify(schema_metadata, null, 4).replace(/\n/g, '\n    ').replace(/^{/, '    {');
 }
 
 /* -------------------------------------------------------------------------------- */
