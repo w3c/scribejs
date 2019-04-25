@@ -4,11 +4,7 @@
   * If we implement `scribe+` only, then `set_header` may be modified easily; then the runtime may use the `header[scribe]` array later. That may be enough for the use case, I am not sure `scribe-` make so much sense...
 * In `add_link`: if the link is of a `link` form, maybe it should not be converted...
 * Minor beautifying thingies:
-  * in `get_nick_mapping` formatting of `clean_nick`. Actually, this function is used from within `get_name` only, meaning the that `clean_nick` step might be redundant... Let alone the fact that the same name is used/redefined elsewhere, which is source of confusion! (possibly: hide this method within `get_name`)
-  * In `cleanup` definitely remove the filter for 'joining lines'
-  * Format in `set_header` at the end, join the lines (and instruct lint to accept longer lines)
-  * Format in `perform_insert` on `get_insert_request`. Same for `perform_changes`.
-  * Format in `add_link` allow for longer line.
+  * in `get_nick_mapping`. Actually, this function is used from within `get_name` only, meaning the that `clean_nick` step might be redundant... Let alone the fact that the same name is used/redefined elsewhere, which is source of confusion! (possibly: hide this method within `get_name`)
 
 
 # Long term
