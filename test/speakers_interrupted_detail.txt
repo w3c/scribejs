@@ -1,0 +1,39 @@
+15:25:27 <RRSAgent> RRSAgent has joined #pbg
+15:25:27 <RRSAgent> logging to https://www.w3.org/2019/04/23-pbg-irc
+15:25:28 <ivan> rrsagent, set log public
+15:25:28 <ivan> Meeting: Publishing Business Group Telco
+15:25:28 <ivan> Chair: luc
+15:25:28 <ivan> Date: 2019-04-23
+15:25:28 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-publishingbg/2019Apr/0022.html
+15:25:28 <ivan> ivan has changed the topic to: Meeting Agenda 2019-04-23: https://lists.w3.org/Archives/Public/public-publishingbg/2019Apr/0022.html
+15:25:29 <ivan> Regrets+ tzviya, daihei, karen, liisa
+15:57:25 <wolfgang> wolfgang has joined #pbg
+15:58:09 <laudrain> laudrain has joined #pbg
+15:59:28 <laudrain> present+
+15:59:39 <wolfgang> present+ wolfgang
+16:00:28 <Jonathan_Greenberg> present+
+16:01:19 <ivan> present+
+16:01:37 <Avneesh> Avneesh has joined #pbg
+16:01:52 <wendyreid> present+
+16:02:58 <Avneesh> present+
+16:03:40 <Rachel> Rachel has joined #pbg
+16:04:07 <Rachel> present+
+16:05:11 <jeff> jeff has joined #pbg
+16:05:15 <jeff> present+
+16:05:19 <ivan> present+ George
+16:05:48 <Rachel> scribenick: Rachel
+16:07:25 <ivan> regrets+ dauwhe
+16:07:31 <garth> garth has joined #pbg
+16:07:37 <garth> present+ Garth
+16:25:12 <Rachel> Topic: communication
+16:25:17 <ivan> q-
+16:28:23 <Rachel> Ivan: send your testimonials to me with the name of the person from your company signing off on it along with their title
+16:28:33 <Rachel> ... testimonials can come in any language
+16:30:04 <Rachel> Rachel: what is a testimonial? Is it bigger than a bread box?
+16:30:14 <Rachel> laudrain: are there samples?
+16:30:21 <laudrain> ack laudrain
+16:31:05 <ivan> example testimonials in the PR for W3C and FIDO alliance: https://www.w3.org/2019/03/pressrelease-webauthn-rec.html.en
+16:32:52 <Rachel> Topic: Fundraising
+16:33:10 <Rachel> laudrain: we recently got the t-shirt money - $630
+16:33:22 <Rachel> ...we can pay for the next milestone
+16:33:56 <Rachel> ...the next phases still need to be funded

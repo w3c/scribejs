@@ -1,0 +1,133 @@
+15:25:27 <RRSAgent> RRSAgent has joined #pbg
+15:25:27 <RRSAgent> logging to https://www.w3.org/2019/04/23-pbg-irc
+15:25:28 <ivan> rrsagent, set log public
+15:25:28 <ivan> Meeting: Publishing Business Group Telco
+15:25:28 <ivan> Chair: luc
+15:25:28 <ivan> Date: 2019-04-23
+15:25:28 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-publishingbg/2019Apr/0022.html
+15:25:28 <ivan> ivan has changed the topic to: Meeting Agenda 2019-04-23: https://lists.w3.org/Archives/Public/public-publishingbg/2019Apr/0022.html
+15:25:29 <ivan> Regrets+ tzviya, daihei, karen, liisa
+15:57:25 <wolfgang> wolfgang has joined #pbg
+15:58:09 <laudrain> laudrain has joined #pbg
+15:59:28 <laudrain> present+
+15:59:39 <wolfgang> present+ wolfgang
+16:00:28 <Jonathan_Greenberg> present+
+16:01:19 <ivan> present+
+16:01:37 <Avneesh> Avneesh has joined #pbg
+16:01:52 <wendyreid> present+
+16:02:58 <Avneesh> present+
+16:03:40 <Rachel> Rachel has joined #pbg
+16:04:07 <Rachel> present+
+16:05:11 <jeff> jeff has joined #pbg
+16:05:15 <jeff> present+
+16:05:19 <ivan> present+ George
+16:05:48 <Rachel> scribenick: Rachel
+16:07:25 <ivan> regrets+ dauwhe
+16:07:31 <garth> garth has joined #pbg
+16:07:37 <garth> present+ Garth
+16:07:49 <ivan> topic: event calendar
+16:08:12 <laudrain> q?
+16:08:15 <Rachel> laudrain: we are ready to add events of interest to the event calendar
+16:08:41 <ivan> topic: EPUB 3.2 status update
+16:08:50 <Rachel> laudrain: epub 3.2 has been finalized by the community group
+16:09:30 <Rachel> rachel: we have received nothing but +1's in votes
+16:10:26 <Rachel> laudrain: the official count is 36 +1 and no -1 or abstain
+16:10:40 <George> George has joined #pbg
+16:10:44 <Rachel> ...voting ends tomorrow
+16:10:55 <George> present+
+16:10:57 <Rachel> ...the CG is confident this will be adopted
+16:11:42 <Rachel> ...after this call we will launch a call for consensus in the PBG
+16:11:58 <Rachel> ...there is still an issue in patent commitments
+16:12:05 <garth> q+
+16:12:24 <garth> q?
+16:12:29 <Rachel> ...it can be done on the fly next week without disturbing the vote of the PBG
+16:13:31 <laudrain> q+
+16:13:33 <ivan> -> Final specification agreement: https://www.w3.org/community/about/agreements/final/
+16:13:35 <Rachel> Jeff: the nature of the rec track is that you are committed to the patent commitment, as a part of the CG you are only committed to individual level (not organizational level)
+16:14:22 <laudrain> ack ga
+16:14:37 <Rachel> ...in the SC meeting we agreed that we would attempt to get organizational level commitment but that this would not impede the movement forward
+16:14:19 <garth> CLA: https://www.w3.org/community/about/agreements/cla/
+16:14:20 <garth> FSA: https://www.w3.org/community/about/agreements/final/
+16:14:20 <jeff> FSA summary: https://www.w3.org/community/about/agreements/summary/
+16:15:57 <Rachel> garth: my understanding is that you can acknowledge agreement with the FSA after
+16:15:57 <garth> q?
+16:17:02 <Rachel> ...(garth provides more caveats than the scribe can keep track of including references to elicit substances and suggestions that he should be ignored entirely)
+16:18:34 <garth> ack laudrain
+16:20:03 <Rachel> laudrain: many thanks to CG for the work on 3.2
+16:20:51 <JulieBlair> present+
+16:21:33 <Rachel> resolution: epub3.2 to be sent for vote to PBG
+16:21:44 <Rachel> Topic: epubcheck 4.2
+16:22:04 <david_stroup> present+
+16:22:37 <Rachel> laudrain: epubcheck 4.2.0 is ready. The release candidate was released a month ago.
+16:22:51 <Rachel> ... a small addition from the spec was implemented and tested
+16:22:59 <Rachel> ...the translations are ready
+16:23:10 <Rachel> ...we are ready to announce
+16:23:28 <Rachel> ...thank you to the daisy consortium for this work
+16:24:12 <ivan> clap clap to Avneesh, George, Romain, and all the Daisy Consortium people...
+16:24:40 <laudrain> q?
+16:24:41 <dauwhe> Romain!
+16:24:42 <Rachel> Avneesh Singh and George Kerscher: many thanks to all the contributors!
+16:25:06 <ivan> q+
+16:25:12 <Rachel> Topic: communication
+16:25:17 <ivan> q-
+16:25:48 <Rachel> laudrain: we need to be aggressive in communication about epub 3.2 and epubcheck 4.2.0
+16:26:01 <Rachel> ... one part of this is testimonials
+16:26:20 <Rachel> ... we needs this from companies big and small from around the world
+16:26:21 <laudrain> q?
+16:26:41 <ivan> -> communication plan: https://docs.google.com/spreadsheets/d/1Uh4FE6fkHHrtCzrlxleH7NxYEuWlixZkG2zSjsaVms0/edit#gid=0
+16:26:41 <ivan> q+
+16:26:44 <wolfgang> s/needs/need/
+16:27:01 <Karen> Karen has joined #pbg
+16:28:23 <Rachel> Ivan: send your testimonials to me with the name of the person from your company signing off on it along with their title
+16:28:33 <Rachel> ... testimonials can come in any language
+16:28:39 <Rachel> q+
+16:28:44 <Rachel> ack ivan
+16:28:45 <laudrain> ack ivan
+16:28:46 <ivan> ack ivan
+16:28:52 <laudrain> ack Rachel
+16:28:54 <Rachel> ack Rachel
+16:29:22 <laudrain> q+
+16:30:04 <Rachel> Rachel: what is a testimonial? Is it bigger than a bread box?
+16:30:14 <Rachel> laudrain: are there samples?
+16:30:21 <laudrain> ack laudrain
+16:31:05 <ivan> example testimonials in the PR for W3C and FIDO alliance: https://www.w3.org/2019/03/pressrelease-webauthn-rec.html.en
+16:32:52 <Rachel> Topic: Fundraising
+16:33:10 <Rachel> laudrain: we recently got the t-shirt money - $630
+16:33:22 <Rachel> ...we can pay for the next milestone
+16:33:56 <Rachel> ...the next phases still need to be funded
+16:34:13 <George> q+
+16:34:22 <laudrain> ack George
+16:35:41 <Rachel> George: we should divide and concur the remaining companies that should be contributing
+16:35:56 <Rachel> laudrain: I've been approaching apple
+16:36:25 <wolfgang> s/apple/Apple/
+16:37:05 <laudrain> q+
+16:37:08 <ivan> q+
+16:37:20 <Rachel> George: can we approach the AC reps via the ac-forum mailing list?
+16:37:56 <ivan> ack laudrain
+16:38:37 <laudrain> ack ivan
+16:39:23 <jeff> q+
+16:39:24 <Avneesh> q+
+16:39:36 <laudrain> ack jeff
+16:39:49 <laudrain> q+
+16:39:52 <Rachel> ivan: coralie or karen could comment on whether contacting the AC would be appropriate
+16:40:24 <Avneesh> q+
+16:40:29 <Rachel> jeff: I think it would be okay to contact the AC
+16:40:43 <laudrain> ack Avneesh
+16:41:31 <George> q+
+16:41:39 <ivan> ack laudrain
+16:41:41 <laudrain> ack laudrain
+16:41:53 <laudrain> ack George
+16:42:05 <laudrain> thanks Rachel
+16:42:10 <ivan> present+ david_stroup
+16:42:56 <laudrain> q?
+16:42:57 <Rachel> George: so we send an email to the AC list, announce our success and have a lightweight fundraising appeal
+16:45:01 <jeff> q+
+16:45:17 <laudrain> ack jeff
+16:45:27 <Rachel> laudrain: reminder of boston face to face meeting and that we should continue communication to our groups
+16:46:30 <Rachel> action item: laudrain launches vote for epub3.2
+16:46:54 <Rachel> action item: daihei relays vote for 3.2 to Asian publishing community
+16:47:19 <Rachel> action item: laudrain sends email call for testimonials
+16:49:12 <Rachel> action item: dauwhe (?) and garth pursuing patent commitments (follow up needed)
+16:49:16 <laudrain> q?
+16:49:49 <ivan> rrsagent, draft minutes
+16:49:49 <RRSAgent> I have made the request to generate https://www.w3.org/2019/04/23-pbg-minutes.html ivan
