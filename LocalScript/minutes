@@ -28,11 +28,11 @@ const iso_date = `${year}-${month}-${day}`;
     Get the command details
 */
 const commands = {
-    wg: {
+    wg_old: {
         command : "scribejs -j 'kd' -g pwg -n ~/W3C/github/publ-wg/assets/nicknames.json",
         irc     : 'pwg'
     },
-    action_wg: {
+    wg: {
         command : "scribejs -j 'kd' -g pwg -c /Users/ivan/W3C/github/publ-wg/assets/scribejs_config_local.json",
         irc     : 'pwg'
     },
