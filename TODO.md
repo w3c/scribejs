@@ -1,7 +1,12 @@
 # Known bugs, missing features
 
 * Implement scribe+, scribe- so that scribes should have to be added one and all of the remain until the end of the call...
-  * If we implement `scribe+` only, then `set_header` may be modified easily; then the runtime may use the `header[scribe]` array later. That may be enough for the use case, I am not sure `scribe-` make so much sense...
+  * During final generation, there is an array of active scribes. This array
+    * starts with empty list
+    * is expanded with scribe(+) statements. `scribe+ name` is more or less equivalent with `scribe: name`, but `scribe:` (without argument) does not contribute anything, `scribe+` does
+    * `scribe-` removes from the active scribes
+    * When converting, the equality on nick vs. scribe should be exchanged against checking on the list.
+    * What is stored run-time are nicknames...
 
 
 # Long term
