@@ -63,7 +63,7 @@ async function main() {
         // That is it, folks!
         console.log(message);
     } catch (err) {
-        console.error(`Scribejs ${err}`);
+        console.error(`Scribejs: "${err}\n${err.stack}"`);
         process.exit(255);
     }
 }
