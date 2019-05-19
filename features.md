@@ -18,9 +18,9 @@ The various 'roles' are as follows.
     * the value is used as the overall title of the minutes
 * `agenda:`
     * the agenda as provided prior to the meeting; the value is a URL
-* `present:`
+* `present=`
     * comma separated list of meeting participants. *Beware:* this command overrides all previously set participant lists!
-* `present+`
+* `present+` or `present:`
     * the value is:
         * comma separated list of meeting participants, which are *added* to the list of participants; or
         * empty, in which case the nickname of that IRC line is added to the list
@@ -28,12 +28,12 @@ The various 'roles' are as follows.
     * the value is:
         * comma separated list of meeting participants, which are *removed* (if applicable) from the list of participants; or
         * empty, in which case the nickname of that IRC line is removed from the list
-* `guests:`, `guests+`, and `guests-`
-    * the syntax is identical to `present:`, `present+`, and `present-`, respectively; it can be used if guest participants are to be clearly separated from the regular group participants.
-* `regrets:`, `regrets+`, and `regrets-`
-    * the syntax is similar to `present:`, `present+`, and `present-`, respectively; it is used to list group members who have sent, or want to report on IRC, their regrets.
-* `chair:`, `chair+`
-    * the syntax is similar to `present:` and `present+`, respectively; it is used to list chair(s) of the meeting.
+* `guests:`, `guests=`, `guests+`, and `guests-`
+    * the syntax is identical to `present:`, `present=`, `present+`, and `present-`, respectively; it can be used if guest participants are to be clearly separated from the regular group participants.
+* `regrets:`, `regrets=`, `regrets+`, and `regrets-`
+    * the syntax is similar to  `present:`, `present=`, `present+`, and `present-`, respectively; it is used to list group members who have sent, or want to report on IRC, their regrets.
+* `chair:`, `chair=`, `chair+`, `chair-`
+    * the syntax is similar to  `present:`, `present=`,  `present:` and `present+`, respectively; it is used to list chair(s) of the meeting.
 * `date:`
     * date of the meeting in ISO (i.e., YYYY-MM-DD). If not set, the day when the minutes are generated is used.
 
@@ -41,8 +41,8 @@ The various 'roles' are as follows.
 
 An active _scribes’ list_ is maintained using the `scribe` or the `scribenick` IRC commands:
 
-* `scribe:`, `scribe+`, and `scribe-` (alias: `scribenick`)
-    * the syntax is identical to `present:`, `present+`, and `present-`, respectively; it can be used to add or remove a name from the active scribes’ list. In contrast to the other terms, `scribe-` does _not_ mean that the person’s name would be removed from the script header (any person who has scribed, even for a little while, deserves being mentioned). The values _MUST_ be the IRC nicknames.
+* `scribe:`, `scribe=`, `scribe+`, and `scribe-` (alias: `scribenick`)
+    * the syntax is identical to `present:`, `present=`, `present+`, and `present-`, respectively; it can be used to add or remove a name from the active scribes’ list. In contrast to the other terms, `scribe-` does _not_ mean that the person’s name would be removed from the script header (any person who has scribed, even for a little while, deserves being mentioned). The values _MUST_ be the IRC nicknames.
 
 Scribing means that lines, whose IRC nickname appears on the active scribe’s list at the point of scribing, are considered special:
 

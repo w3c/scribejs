@@ -22,8 +22,8 @@
 16:06:02 <ivan> regrets- timCole
 16:06:02 <ivan> present- mattg
 16:06:14 <NickRuffilo> jyasskin: I am here...
-16:06:14 <ivan> guests+ Jeffrey_Yasskin
-16:06:14 <ivan> guests- Wendy_Seltzer
+16:06:14 <ivan> guests+ jyasskin
+16:06:14 <ivan> guests= Wendy_Seltzer
 16:06:14 <ivan> scribejs, set jyasskin Prof. Dr. Jeffrey_Yasskin, Jr.
 16:09:30 <NickRuffilo> github-bot, end topic
 16:09:32 <jyasskin> https://github.com/WICG/webpackage

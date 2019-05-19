@@ -38,7 +38,7 @@
 17:04:29 <Karen> …and Nick Brown from Ingram
 17:04:35 <Karen> Nick: yes, I am here
 17:04:44 <Karen> Garth: want to give us a brief introduction
-17:04:35 <ivan> scribe+
+17:04:35 <ivan> scribenick: ivan
 17:04:56 <ivan> Nick: I work with Ingram, specifically Vital Source
 17:05:02 <ivan> …work on our ereader applications
 17:05:11 <ivan> …we are huge proponents of EPUB
