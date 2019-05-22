@@ -35,9 +35,12 @@ scribejs [options] [filename]
                      Value can be "none", "md", or "kd" (see [below](#jekyll) for further details.)
                      Default: "md".
 [--irc|-i] client:   Whether the input is of the log format of a particular IRC client.
-                     Value can be "textual", for the Textual IRC client; other values are (currently) ignored.
+                     Value can be "textual" or "irccloud", for the Textual or IRCCloud IRC clients, respectively;
+                     other values are (currently) ignored.
                      Default: undefined, meaning that the log provided by W3C's RRSAgent is used.
 ```
+
+(A note to the `--irc` option: in the absence of the flag the script tries to make a guess whether Textual or IRCCloud was used instead of the default. I.e., this flag may be unnecessary in practice. In case the guess goes wrong, however, it may be used… Other IRC clients may be added in future.)
 
 ### Configuration files
 
@@ -54,7 +57,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `torepo`       : `true`|`false`
 * `pandoc`       : `true`|`false`
 * `jekyll`       : `"none"`|`"md"`|`"kd"`
-* `irc_format`   : `"textual"`|`undefined`
+* `irc_format`   : `"textual"`|`irccloud`|`undefined`
 * `ghrepo`       : repository name, eg, `w3c/scribejs`
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
