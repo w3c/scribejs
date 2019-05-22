@@ -1,0 +1,105 @@
+16:23:07 <RRSAgent> RRSAgent has joined #dpub
+16:23:07 <RRSAgent> logging to http://www.w3.org/2017/02/27-dpub-irc
+16:23:09 <trackbot> RRSAgent, make logs public
+16:23:09 <Zakim> Zakim has joined #dpub
+16:23:11 <trackbot> Zakim, this will be dpub
+16:23:11 <Zakim> ok, trackbot
+16:23:12 <trackbot> Meeting: Digital Publishing Interest Group Teleconference
+16:23:12 <trackbot> Date: 27 February 2017
+16:23:15 <ivan> Chair: Garth
+16:23:32 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Feb/0044.html
+16:23:48 <ivan> ivan has changed the topic to: agenda for 2017-02-27: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Feb/0044.html
+16:23:56 <ivan> Regrets: Nick
+16:56:40 <Rick_Johnson> present+ RIck_Johnson
+16:57:27 <leonardr> present+ Leonard
+16:58:05 <Avneesh> present+ Avneesh
+16:58:28 <ivan_> Present+
+17:00:01 <dauwhe> present+ dauwhe
+17:00:08 <Karen> present+ Karen
+17:00:47 <laudrain> present+
+17:01:14 <rdeltour> present+
+17:01:58 <Bill_Kasdorf> present+ Bill_Kasdorf
+17:02:03 <cmaden2> present+ Chris_Maden
+17:02:37 <pkra>   present+ Peter Krautzberger
+17:02:55 <Karen> scribenick+
+17:03:01 <Vlad> present+
+17:03:17 <Karen> Garth: we look to have a critical mass
+17:03:23 <astearns> present+
+17:03:27 <Karen> …Last Monday was a holiday in the states, so maybe that helped
+17:03:31 <Karen> …Minutes are in the agenda
+17:03:35 <Karen> …they looked ok to me
+17:03:40 <Karen> …any objections to minute approval?
+17:03:51 <Karen> …Silence being consent, let's note that they minutes are approved
+17:03:52 <Karen> Topic: New participants
+17:04:03 <Karen> Garth: Looking at irc, I'll call out some of the new-comers we are expecting
+17:04:16 <Karen> …Jonathan Hevenstone from Atypon/Wiley membership
+17:04:25 <Karen> …hope he is here and will be contributing shortly
+17:04:28 <dkaplan3> present+ Deborah_Kaplan
+17:04:29 <Karen> …and Nick Brown from Ingram
+17:04:35 <Karen> Nick: yes, I am here
+17:04:44 <Karen> Garth: want to give us a brief introduction
+17:04:35 <ivan> scribenick: ivan
+17:04:56 <ivan> Nick: I work with Ingram, specifically Vital Source
+17:05:02 <ivan> …work on our ereader applications
+17:05:11 <ivan> …we are huge proponents of EPUB
+17:05:18 <ivan> …work closely with Rick Johnson whom you know
+17:05:23 <ivan> Garth: welcome aboard
+17:05:29 <ivan> …And @ with Pearson
+17:05:34 <ivan> …she joined and sent regrets
+17:05:50 <ivan> q?
+17:05:59 <ivan> …his company Atypon was acquired by Wiley
+17:06:04 <ivan> Jonathan: I just joined
+17:06:11 <ivan> …is there a question about the involvement we will have?
+17:06:24 <ivan> Garth: you don't have to divulge secrets; just give us an introduction about you
+17:06:35 <ivan> Jonathan: I was involved in IDPF when we were developing the first EPUB spec
+17:06:44 <ivan> …working with Publishing Dementions, later acquired by Jouve
+17:06:53 <ivan> …Atypon is a tech company acquired by Wiley in October
+17:06:55 <ivan> …we host about
+17:07:01 <ivan> …30 percent of world's journal articles
+17:07:09 <ivan> …in terms of current front list
+17:07:14 <ivan> …and will grow to 40 percent with Wiley
+17:07:23 <ivan> …online hosting, content development and monetization
+17:07:29 <ivan> …Some publishers have EPUB to download
+17:07:35 <ivan> …we don't provide solutions for viewing them
+17:07:52 <ivan> …we are launching a new in-browser, Readium based reader, to deliver journal articles in that format
+17:08:01 <ivan> …address light-way copyright and annotation
+17:08:05 <ivan> Garth: Welcome back into the fold
+17:08:27 <ivan> Present+ Nick_Brown
+17:08:39 <Karen> Garth: I'll give Carley from Pearson a chance to say high; but she sent regrets
+17:08:47 <ivan> Topic: Publishing Business Group update
+17:08:48 <ivan> Present+ BillMcCoy, Garth
+17:08:51 <Karen> …I believe Bill McCoy is on the call to give us an update on the PBG
+17:09:03 <Karen> BillMcCoy: The Publishing Business Group is formed
+17:09:14 <dauwhe> https://www.w3.org/community/publishingbg/
+17:09:19 <Karen> …if you are not sure if your org is eligible, just clicked the join link and we'll address it manually
+17:09:34 <Karen> …First Publishing BG meeting is 10:30am-2:30pm London time
+17:09:44 <Karen> …there is a list, but people are still arriving
+17:09:53 <Karen> …we have a special TPI program for eligible IDPF members
+17:10:07 <Karen> …we should start having email exchanges on the Publishing BG shortly
+17:10:19 <Karen> …the steering committee is active, which is the former IDPF board members
+17:10:31 <Karen> …ultimately the PBG will elect the steering committee
+17:10:34 <Karen> …Agenda is there
+17:10:43 <Karen> …Expect discussions about charter will take place on GitHub
+17:10:55 <Karen> …there will be people in Publishing BG who are not part of this group, mainly for historical reasons
+17:11:00 <Garth> q?
+17:11:12 <Karen> …to be as inclusive as possible, would be good if the charter discussions happened in GitHub
+17:11:18 <Karen> …Do you want more details?
+17:11:26 <Karen> Garth: any input as to how the Business Group
+17:11:38 <Karen> …which is expected to provide input to the charter of the WG
+17:11:44 <Karen> …how that process will go, and timing thereof?
+17:12:00 <ivan> BillMcCoy: Chartering of a WG at W3C has many steps, unlike the CG and BGs
+17:12:11 <ivan> …a WG has a number of more steps, including consent of all the W3C members
+17:12:33 <ivan> …we want to get that done as soon as possible, but we want to be inclusive to the whole publishing community
+17:12:36 <ivan> …a balancing act
+17:12:44 <ivan> …this group is ready to move on with the strawman draft charter
+17:12:51 <ivan> …there seems to be significant consensus
+17:13:05 <ivan> …but key factor is to get broader feedback from the community that has not been here for the past two years
+17:13:12 <ivan> …have the charter be attractive to the broader industry
+17:13:17 <ivan> …I don't think it will be that long
+17:13:22 <ivan> …this group has done an excellent job
+17:13:33 <ivan> …I hope the BG can get to a 'looks good to us'
+17:13:33 <ivan> scribe-
+17:13:36 <Garth> q?
+17:13:37 <Karen> …I'm an optimist
+17:13:42 <Leonard> Q+
+17:13:55 <ivan> …hope we can get to this step quickly and get a new WG in place this spring, which is what I think everyone wants to happen

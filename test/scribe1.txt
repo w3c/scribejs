@@ -1,0 +1,29 @@
+15:49:40 <RRSAgent> RRSAgent has joined #pwg
+15:49:40 <RRSAgent> logging to http://www.w3.org/2017/09/11-pwg-irc
+15:49:41 <ivan> rrsagent, set log public
+15:49:41 <ivan> Meeting: Publishing Working Group Telco
+15:49:41 <ivan> Chair: Garth
+15:49:41 <ivan> Date: 2017-09-11
+15:49:41 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-publ-wg/2017Sep/0017.html
+15:49:42 <ivan> ivan has changed the topic to: Meeting Agenda 2017-09-11: https://lists.w3.org/Archives/Public/public-publ-wg/2017Sep/0017.html
+15:56:00 <ivan> present+
+15:56:32 <tzviya> present+
+15:58:57 <NickRuffilo> scribenick+
+15:58:57 <NickRuffilo> scribe+ ivan
+15:58:57 <NickRuffilo> scribe-
+15:59:19 <ivan> present+ NickRuffilo
+16:00:22 <mattg> present+
+16:02:36 <ivan> guests+ Ralph_Swick
+16:05:25 <ivan> present+ garth
+16:06:00 <ivan> guest+ Wendy_Seltzer
+16:06:02 <garth> present+ Garth
+16:06:02 <ivan> regrets+ timCole
+16:06:02 <ivan> regret+ garth
+16:06:02 <ivan> regrets- timCole
+16:06:02 <ivan> present- mattg
+16:06:14 <NickRuffilo> jyasskin: I am here...
+16:06:14 <ivan> guests+ jyasskin
+16:06:14 <ivan> guests= Wendy_Seltzer
+16:06:14 <ivan> scribejs, set jyasskin Prof. Dr. Jeffrey_Yasskin, Jr.
+16:09:30 <NickRuffilo> github-bot, end topic
+16:09:32 <jyasskin> https://github.com/WICG/webpackage
