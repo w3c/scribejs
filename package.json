@@ -38,7 +38,8 @@
   "dependencies": {
     "ajv": "^6.1.1",
     "commander": "^2.9.0",
-    "marked-it-core": "^0.11.1",
+    "fs": "0.0.1-security",
+    "marked-it-core": "^0.13.1",
     "moment": "^2.21.0",
     "node-fetch": "^2.1.2",
     "octokat": "^0.10.0",
@@ -49,7 +50,7 @@
   },
   "devDependencies": {
     "browserify": "^16.2.3",
-    "eslint": "^5.13.0",
+    "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.13.0",
     "http-server": "^0.11.1",
