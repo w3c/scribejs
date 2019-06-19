@@ -40,6 +40,10 @@ const commands = {
         command : "scribejs -j 'kd' -f -g pbg -n ~/W3C/github/publ-bg/assets/nicknames.json",
         irc     : 'pbg'
     },
+    fuk: {
+        command : "scribejs -j 'kd' -f -g bg-fukuoka -n ~/W3C/github/publ-bg/assets/nicknames.json",
+        irc     : 'bg-fukuoka'
+    },
     sc: {
         command : "scribejs -j 'kd' -f -g pbgsc -n ~/W3C/github/publ-bg/assets/nicknames.json",
         irc     : 'pbgsc'
