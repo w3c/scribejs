@@ -10,7 +10,25 @@ There are also some (currently only one) `scribejs` “tools” that influence t
 
 When referring to names (e.g., `scribe`, `present`, scribe’s reference to speaker, etc.) the preferred way is to use that person’s IRC nickname. If done that way (and if a suitable configuration file is provided) the script would automatically convert those into the persons’ real name, which make the minutes more readable.
 
-The various 'roles' are as follows.
+The various 'roles' are described below.
+
+## Prerequisites: `zakim` and `rrsagent`
+
+Although, strictly speaking, not `scribejs` features for the sake of completeness, these IRC instructions MUST be issued at the beginning of the call:
+
+* `/invite rrsagent`
+* `rrsagent, set log public`
+* `/invite zakim`
+
+These will invite the `rrsagent` and `zakim` bots. The former is essential: it will ensure the logging of the irc log, in a specific format, on the W3C servers. `scribejs` relies on those logs. (Strictly speaking, `zakim` is not necessary; it provides [queue control](https://www.w3.org/2001/12/zakim-irc-bot.html); although it has some more features that are not absolutely relevant.)
+
+At the end of the call, the following IRC commands should be issued:
+
+* `rrsagent, draft minutes`
+* `rrsagent, bye`
+* `zakim, bye`
+
+These will ensure to store the logs, and to end the bots.
 
 ## Minute headers
 
