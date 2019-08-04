@@ -98,6 +98,12 @@ Subsequent IRC entries with that nickname are considered to be the “main” mi
 * `i/at/add/` or `i|at|add|`
     * look for the _closest preceding_ line matching `at` and insert a *new line* with the value of `add` as a content *before* that line. A typical usage is to add a (sub)topic line that was forgotten or because the discussion took an unexpected turn.
 
+## Miscellaneous
+
+* Handling links:
+    * When making a comment, a line of the form `-> address some text`, where `address` is a URI of some sort, is converted into `See [some text](URL)`
+    * Otherwise, any word that is a URI is transformed into a valid link, i.e., [word](word)
+
 ## `Scribejs` Tools
 
 The line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is the tool identifier, and the arguments depend on the tool identifier itself. `XXX` may be
