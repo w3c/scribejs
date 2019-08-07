@@ -1,5 +1,8 @@
 # Known bugs, missing features
 
+* additional ways of handling links: `-> link text URL`, with the added feature that this can be in any part of any text...
+    * allow this to occur within 'official' comments as well!
+
 
 
 # Long term
