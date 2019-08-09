@@ -101,8 +101,10 @@ Subsequent IRC entries with that nickname are considered to be the “main” mi
 ## Miscellaneous
 
 * Handling links:
-    * When making a comment, a line of the form `-> address some text`, where `address` is a URI of some sort, is converted into `See [some text](URL)`
-    * Otherwise, any word that is a URI is transformed into a valid link, i.e., [word](word)
+    * If the text contains a markup-style link `[some text](address)`, that is maintained verbatim
+    * If the text contains a pattern of the form `-> some text address`, where `address` is a dereferencable URL, the pattern is turned into `[some text](address)`
+    * Any dereferencable URL (that is not part of a pattern) is transformed into a valid link, i.e., `[word](word)`
+    * For historical reasons, a special 'inverse' pattern is also accepted: a _full line_ of the form `-> address some text`, where `address` is a dereferencable URL, is converted into `See [some text](address)`. (Better not to use that, it can be confusing with the main pattern.)
 
 ## `Scribejs` Tools
 

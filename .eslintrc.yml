@@ -13,6 +13,7 @@ rules: # see https://eslint.org/docs/rules/
     no-console: off
     camelcase: off
     strict: off
+    no-else-return: off
     max-len:
         - error
         - code: 150

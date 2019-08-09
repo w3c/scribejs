@@ -3,4 +3,4 @@ test/*.json
 .vscode/*.json
 LocalScript/
 nami.md
-
+test.js
