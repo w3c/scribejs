@@ -1,0 +1,7 @@
+16:32:12 <ivan> scribe+ dauwhe
+16:32:12 <ivan> Topic: a title with -> a nice link in it http://www.w3.org
+17:05:04 <dauwhe> summary: minutes approved -> see here http://minutes.com
+17:05:32 <dauwhe> garth: do we have Harriet Greene on the call? We have a  -> new member from University of Illinois http://www.illinois.edu
+17:05:50 <dauwhe> ... welcome in absentia :)
+17:05:58 <dauwhe> ... update on merger: it's complete!
+
