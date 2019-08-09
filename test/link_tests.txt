@@ -27,7 +27,7 @@
 17:00:25 <hadrien> present+ hadrien
 17:00:43 <Karen> present+ Karen
 17:00:43 <Karen> Topic: http://this.is.a.link
-17:00:43 <Karen> Topic: -> something is a nice title http://this.is.a.link.too
+17:00:43 <Karen> Topic: This is a title with -> a nice link http://this.is.a.link.too
 17:01:19 <dauwhe> garth: -> The 2nd. W3C home page reference http://www.w3.org/
 17:01:22 <garth> Bill M on the call?  Muted?
 17:01:36 <Bill_Kasdorf> Bill_Kasdorf has joined #dpub
@@ -37,9 +37,13 @@
 17:02:56 <clapierre1> present+
 17:03:05 <ivan> present+ george
 17:03:33 <BillMcCoy> it is a snow day in Seattle too!
+17:03:45 <Vlad> Summary: Nice -> summary here [http://example.com/]
 17:03:45 <Vlad> Vlad has joined #dpub
 17:03:54 <dauwhe> garth: let's get started
+17:03:54 <dauwhe> Action: ivan to look at -> overview [http://www.w3.org/]
+17:03:54 <dauwhe> Proposed: consider the -> solution [http://www.w3.org/here]
 17:04:20 <Vlad> present+
+17:03:54 <dauwhe> resolved: consider the -> solution [http://www.w3.org/here]
 17:04:24 <dauwhe> ... I sent out malformed minutes, but didn't send the better ones
 17:04:31 <DanielWeck> DanielWeck has joined #dpub
 17:04:37 <dauwhe> ... let me know if I missed anything
@@ -49,3 +53,5 @@
 17:05:32 <dauwhe> ... do we have Harriet Greene on the call? We have a new member from University of Illinois
 17:05:50 <dauwhe> ... welcome in absentia :)
 17:05:58 <dauwhe> ... update on merger: it's complete!
+17:05:58 <dauwhe> garth: you do not want to transform `a b http://www.w3.org` though!
+
