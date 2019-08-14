@@ -3,4 +3,6 @@ test/*.json
 .vscode/*.json
 LocalScript/
 nami.md
+notes.md
+test.json
 
