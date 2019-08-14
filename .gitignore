@@ -4,5 +4,4 @@ test/*.json
 LocalScript/
 nami.md
 notes.md
-test.json
-
+test.js
