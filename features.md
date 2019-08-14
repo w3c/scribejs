@@ -101,12 +101,16 @@ Subsequent IRC entries with that nickname are considered to be the “main” mi
 ## Miscellaneous
 
 * Handling links:
-    * When making a comment, a line of the form `-> address some text`, where `address` is a URI of some sort, is converted into `See [some text](URL)`
-    * Otherwise, any word that is a URI is transformed into a valid link, i.e., [word](word)
+    * If the text contains a markup-style link `[some text](address)`, that is maintained verbatim
+    * If the text contains a pattern of the form `-> some text address`, where `address` is a dereferencable URL, the pattern is turned into `[some text](address)`
+    * Any dereferencable URL (that is not part of a pattern) is transformed into a valid link, i.e., `[word](word)`
+    * For historical reasons, a special 'inverse' pattern is also accepted: a _full line_ of the form `-> address some text`, where `address` is a dereferencable URL, is converted into `See [some text](address)`. (Better not to use that, it can be confusing with the main pattern.)
+
+    Note, however, that these link patterns should not be used in section titles and subtitles. The generated TOC (e.g., by Jekyll) uses the full section heading as a link text, i.e., it should not contain a link itself... (The script removes those links in case they are used.)
 
 ## `Scribejs` Tools
 
-The line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is the tool identifier, and the arguments depend on the tool identifier itself. `XXX` may be
+A line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is the tool identifier, and the arguments depend on the tool identifier itself. `XXX` may be
 
 * `scribejs, set [nickname] [full name]`
     * Set the (IRC) `nickname` to refer to the full name in the generated minutes. `full name` is space or underscore separated list of words (underscores are converted to spaces). Its use is to provide a one-time extension to the nickname mappings, see [README.md](#nick).

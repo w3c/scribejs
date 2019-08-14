@@ -1,0 +1,57 @@
+16:32:12 <RRSAgent> RRSAgent has joined #dpub
+16:32:12 <RRSAgent> logging to http://www.w3.org/2017/02/06-dpub-irc
+16:32:14 <trackbot> RRSAgent, make logs public
+16:32:14 <Zakim> Zakim has joined #dpub
+16:32:16 <trackbot> Zakim, this will be dpub
+16:32:16 <Zakim> ok, trackbot
+16:32:17 <trackbot> Meeting: Digital Publishing Interest Group Teleconference
+16:32:17 <trackbot> Date: 06 February 2017
+16:33:21 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Feb/0009.html
+16:33:35 <ivan> Agenda call 2017-02-06: https://lists.w3.org/Archives/Public/public-digipub-ig/2017Feb/0009.html
+16:33:41 <ivan> Chair: Garth
+16:34:17 <ivan> Regrets: Luc, Romain, Laurent, Heather, Peter, Alan, Rick
+16:49:03 <garth> garth has joined #dpub
+16:49:21 <garth> q?
+16:52:14 <BillMcCoy> BillMcCoy has joined #DPUB
+16:55:21 <dkaplan3> dkaplan3 has joined #dpub
+16:56:10 <Avneesh> Avneesh has joined #dpub
+16:56:39 <Avneesh>  present+ Avneesh
+16:57:35 <dkaplan3> present+ Deborah_Kaplan
+16:57:42 <dauwhe> present+ dauwhe
+16:57:44 <garth> -> http://www.w3.org/ The W3C home page reference
+16:59:18 <ivan> present+
+16:59:57 <hadrien> hadrien has joined #dpub
+17:00:02 <ivan> regrets+ bert, nick
+17:00:06 <dauwhe> scribenick: dauwhe
+17:00:14 <Sel> Sel has joined #dpub
+17:00:25 <hadrien> present+ hadrien
+17:00:43 <Karen> present+ Karen
+17:00:43 <Karen> Topic: http://this.is.a.link
+17:00:43 <Karen> Topic: This is a title with -> a nice link http://this.is.a.link.too
+17:01:19 <dauwhe> garth: -> The 2nd. W3C home page reference http://www.w3.org/
+17:01:22 <garth> Bill M on the call?  Muted?
+17:01:36 <Bill_Kasdorf> Bill_Kasdorf has joined #dpub
+17:01:45 <Bill_Kasdorf> present+ Bill_Kasdorf
+17:02:16 <Karen> +1 Dave Cramer
+17:02:48 <clapierre1> clapierre1 has joined #DPUB
+17:02:56 <clapierre1> present+
+17:03:05 <ivan> present+ george
+17:03:33 <BillMcCoy> it is a snow day in Seattle too!
+17:03:45 <Vlad> Summary: Nice -> summary here http://example.com/
+17:03:45 <Vlad> Vlad has joined #dpub
+17:03:54 <dauwhe> garth: let's get started
+17:03:54 <dauwhe> Action: ivan to look at -> overview http://www.w3.org/
+17:03:54 <dauwhe> Proposed: consider the -> solution http://www.w3.org/here
+17:04:20 <Vlad> present+
+17:03:54 <dauwhe> resolved: consider the -> solution http://www.w3.org/here
+17:04:24 <dauwhe> ... I sent out malformed minutes, but didn't send the better ones
+17:04:31 <DanielWeck> DanielWeck has joined #dpub
+17:04:37 <dauwhe> ... let me know if I missed anything
+17:04:50 <dauwhe> ... are there any objections?
+17:04:58 <dauwhe> [silence]
+17:05:04 <dauwhe> garth: minutes approved -> see here http://minutes.com
+17:05:32 <dauwhe> ... do we have Harriet Greene on the call? We have a  -> new member from University of Illinois http://www.illinois.edu
+17:05:50 <dauwhe> ... welcome in absentia :)
+17:05:58 <dauwhe> ... update on merger: it's complete!
+17:05:58 <dauwhe> garth: you do not want to transform `a b http://www.w3.org` though!
+
