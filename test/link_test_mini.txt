@@ -4,4 +4,7 @@
 17:05:32 <dauwhe> garth: do we have Harriet Greene on the call? We have a  -> new member from University of Illinois http://www.illinois.edu
 17:05:50 <dauwhe> ... welcome in absentia :)
 17:05:58 <dauwhe> ... update on merger: it's complete!
+17:05:58 <dauwhe> garth: you do not want to transform `a b http://www.w3.org` though!
+16:30:14 <dauwhe> … Can `<details>` be used instead.  ARIA details can  point to such also.
+
 
