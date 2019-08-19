@@ -1969,8 +1969,14 @@ ${no_toc}
                     // now we can split to get words; each code portion appears a word with REPL_HACK
                     let code_index = 0;
                     const fake = trimmed.replace(regex, REPL_HACK);
-                    // eslint-disable-next-line no-plusplus
-                    return fake.split(' ').filter((word) => word !== '').map((word) => (word === REPL_HACK ? codes[code_index++] : word));
+                    return fake.split(' ').filter((word) => word !== '').map((word) => {
+                        if (word.indexOf(REPL_HACK) !== -1) {
+                            // eslint-disable-next-line no-plusplus
+                            return word.replace(REPL_HACK, codes[code_index++]);
+                        } else {
+                            return word;
+                        }
+                    });
                 } else {
                     // no codes to play with
                     // empty words are also filtered out

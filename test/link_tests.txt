@@ -54,4 +54,5 @@
 17:05:50 <dauwhe> ... welcome in absentia :)
 17:05:58 <dauwhe> ... update on merger: it's complete!
 17:05:58 <dauwhe> garth: you do not want to transform `a b http://www.w3.org` though!
+17:05:58 <dauwhe> garth: you do not want to transform `@context : @set` though!
 

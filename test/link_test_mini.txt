@@ -6,5 +6,7 @@
 17:05:58 <dauwhe> ... update on merger: it's complete!
 17:05:58 <dauwhe> garth: you do not want to transform `a b http://www.w3.org` though!
 16:30:14 <dauwhe> … Can `<details>` be used instead.  ARIA details can  point to such also.
+17:05:58 <dauwhe> garth: In framing context, I had a `@container:@set`.
+17:05:58 <dauwhe> garth: In -> framing context http://www.example.org/ I had a `@container: http://it.should.not.be.touched`.
 
 
