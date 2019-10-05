@@ -213,4 +213,4 @@ It will be run using the configuration settings found in `.eslintrc.yml`.
 
 ---
 
-Maintainers: [Ivan Herman](https://github.com/iherman) and [BigBlueHat](http://bigbluehat.com/)
+Maintainers: [Ivan Herman](https://ivan-herman.net/professional/) and [BigBlueHat](http://bigbluehat.com/)
