@@ -38,23 +38,23 @@
   "dependencies": {
     "ajv": "^6.10.2",
     "commander": "^2.20.0",
-    "marked-it-core": "^0.13.1",
+    "js-yaml": ">=3.13.1",
+    "marked": ">=0.3.18",
+    "marked-it-core": "^0.14.1",
     "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "octokat": "^0.10.0",
     "safe-regex": "^2.0.2",
     "terser": "^3.17.0",
     "underscore": "^1.8.3",
-    "valid-url": "^1.0.9",
-    "marked": ">=0.3.18",
-    "js-yaml": ">=3.13.1"
+    "valid-url": "^1.0.9"
   },
   "devDependencies": {
     "browserify": "^16.3.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-plugin-import": "^2.18.2",
-    "http-server": "^0.11.1",
+    "http-server": "^0.12.1",
     "mocha": "^5.2.0"
   },
   "scripts": {
