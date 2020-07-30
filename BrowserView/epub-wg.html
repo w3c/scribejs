@@ -38,7 +38,11 @@
         </p>
 
         <p>
-            Note that all the boxes (except the Markdown preview) are <em>editable</em>, so it is possible to modify them before downloading the final minutes. One possible workflow is to fetch the IRC log and then edit it before converting it to handle minor issues that have a major consequence on the minutes, e.g., manually add a `scribenick: XYZ` statement if it was forgotten during the call, or add a `scribejs, set A B C` (see <a href="https://github.com/w3c/scribejs/blob/master/features.md#scribejs-tools">the for details</a>) if the minute taker did not use the IRC nicknames of a person.
+            The resulting minutes should be stored as <code>YYYY-MM-DD-epub.md</code> in the <code>_minutes</code> folder of the group repository.
+        </p>
+
+        <p>
+            Note that all the boxes (except the Markdown preview) are <em>editable</em>, so it is possible to modify them before downloading the final minutes. One possible workflow is to fetch the IRC log and then edit it before converting it to handle minor issues that have a major consequence on the minutes, e.g., manually add a <code>scribenick: XYZ</code> statement if it was forgotten during the call, or add a `scribejs, set A B C` (see <a href="https://github.com/w3c/scribejs/blob/master/features.md#scribejs-tools">the for details</a>) if the minute taker did not use the IRC nicknames of a person.
         </p>
 
     </details>
@@ -190,7 +194,7 @@
         </div>
         <div class="field">
             <button title='save' id='save' type='button' class="ui positive button">
-                <i class="download icon"></i> Save Markdown
+                <i class="download icon"></i> Save Markdown (as <code>YYYY-MM-DD-epub.did</code> in the <code>_minutes</code> directory of the repo)
             </button>
             <a style='display:none' id='download'>test</a>
         </div>
