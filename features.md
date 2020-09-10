@@ -14,21 +14,22 @@ The various 'roles' are described below.
 
 ## Prerequisites: `zakim` and `rrsagent`
 
-Although, strictly speaking, not `scribejs` features for the sake of completeness, these IRC instructions MUST be issued at the beginning of the call:
+Although, strictly speaking, not `scribejs` features, these IRC instructions MUST be issued at the beginning of the call:
 
-* `/invite rrsagent`
-* `rrsagent, set log public`
 * `/invite zakim`
+* `zakim, start meeting`
 
-These will invite the `rrsagent` and `zakim` bots. The former is essential: it will ensure the logging of the irc log, in a specific format, on the W3C servers. `scribejs` relies on those logs. (Strictly speaking, `zakim` is not necessary; it provides [queue control](https://www.w3.org/2001/12/zakim-irc-bot.html); although it has some more features that are not absolutely relevant.)
+These invites the `zakim` bot, which will also invite the `rrsagent` bot and make the minutes' IRC logs public. The is essential: it will ensure the logging of the irc log, in a specific format, on the W3C servers. `scribejs` relies on those logs. (The `zakim` bot also provides [queue control](https://www.w3.org/2001/12/zakim-irc-bot.html) and has some more features that are not absolutely relevant.)
 
 At the end of the call, the following IRC commands should be issued:
 
-* `rrsagent, draft minutes`
-* `rrsagent, bye`
-* `zakim, bye`
+* `zakim, end meeting`
 
-These will ensure to store the logs, and to end the bots.
+These will generate and store the logs, end the zakim bot. The `rssagent` bot remains on the channel, and should be ended explicitly via
+
+* `rrsagent, bye`
+
+once the minute log has been stored.
 
 ## Minute headers
 
