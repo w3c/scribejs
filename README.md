@@ -41,7 +41,10 @@ scribejs [options] [filename]
                      Default: undefined, meaning that the log provided by W3C's RRSAgent is used.
 ```
 
-(A note to the `--irc` option: in the absence of the flag the script tries to make a guess whether Textual or IRCCloud was used instead of the default. I.e., this flag may be unnecessary in practice. In case the guess goes wrong, however, it may be used… Other IRC clients may be added in future.)
+Some notes:
+
+- On the `--irc` option: in the absence of the flag the script tries to make a guess whether Textual or IRCCloud was used instead of the default. I.e., this flag may be unnecessary in practice. In case the guess goes wrong, however, it may be used… Other IRC clients may be added in future.)
+- On the usage of the `--final` and `--auto` flags: by default, the script considers the minutes as drafts, and adds a "DRAFT" notice right after the title. This is in line with the practice that minutes are to be reviewed before the subsequent call before being considered as final. If the `--final` flag is used, this notice is not added to the final minutes; this is useful for minutes taken at a task force meeting, for example. The `--auto` flag provides an alternative to the explicit notice: instead of an explicit notice that title element (in the final HTML) a `class` value of `draft_notice_needed` is added to the title elements. Client side scripts may be used to control the appearance of a "Draft" notice, depending on, e.g., the date of the minutes.
 
 ### Configuration files
 
@@ -138,6 +141,11 @@ If the generated minutes are in kramdown format then a number of sections/paragr
 | summary                                | `summary` |
 | action                                 | `action` |
 | Draft notice at the top of the minutes | `draft_notice` |
+| H1 element at the top of the minutes (if the `--auto` flag is used)  | `draft_notice_needed` |
+
+### Schema.org data in JSON-LD
+
+The generated minutes contain schema.org metadata, encoded in JSON-LD as part of the page header. Various client-side scripts can make use of that...
 
 ## Installation
 

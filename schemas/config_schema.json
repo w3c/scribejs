@@ -33,6 +33,10 @@
             "title": "Whether he minutes are final, i.e., they won't be labeled as 'DRAFT'",
             "type": "boolean"
         },
+        "auto": {
+            "title": "hether the draft label is to be generated automatically into the minutes via a separate script.",
+            "type": "boolean"
+        },
         "torepo": {
             "title": "Whether the output should be stored in a github repository",
             "type": "boolean"
