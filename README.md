@@ -27,6 +27,7 @@ scribejs [options] [filename]
 [--nick|-n] nfile:   JSON nickname mapping URL or filename (see [below](#nick)).
 [--output|-o] ofile: Output file name. See [below](#output) on how the final output is chosen.
 [--final|-f]:        The minutes are final, i.e., they won't be labeled as "DRAFT".
+[--auto|-a]:         Whether the draft label is to be generated automatically into the minutes via a separate script.
 [--repo|-r]:         Whether the output should be stored in a github repository.
                      Default: false.
 [--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
@@ -54,6 +55,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `output`       : Output file name; irrelevant if `torepo` is `true`
 * `nicknames`    : Nickname file reference in the form of a URL or a filename
 * `final`        : `true`|`false`
+* `auto`         : `true`|`false`
 * `torepo`       : `true`|`false`
 * `pandoc`       : `true`|`false`
 * `jekyll`       : `"none"`|`"md"`|`"kd"`
