@@ -2277,18 +2277,27 @@ function schema_data(header, config) {
     schema_metadata.name = `${header.meeting} — Minutes`;
     schema_metadata.about = header.meeting;
     schema_metadata.dateCreated = header.date;
+    schema_metadata.datePublished = (new Date()).toISOString().split('T')[0];
     schema_metadata.genre = 'Meeting Minutes';
+    schema_metadata.accessMode = 'textual';
+    schema_metadata.accessModeSufficient = 'textual';
+    schema_metadata.encodingFormat = 'text/html';
     schema_metadata.publisher = {
         '@type' : 'Organization',
         name    : 'World Wide Web Consortium',
         url     : 'https://www.w3.org/'
     };
+    schema_metadata.inLanguage = 'en-US';
     schema_metadata.recordedAt = {
         '@type'   : 'Event',
         name      : header.meeting,
         startDate : header.date,
         endDate   : header.date,
-        attendee  : [
+        location  : {
+            '@type' : 'VirtualLocation',
+            description : 'Teleconference'
+        },
+        attendee : [
             {
                 '@type'  : 'OrganizationRole',
                 roleName : 'chair',
@@ -2298,7 +2307,7 @@ function schema_data(header, config) {
                 }))
             },
             {
-                '@type'  : 'Role',
+                '@type'  : 'OrganizationRole',
                 roleName : 'scribe',
                 attendee : scribes.map((scribe) => ({
                     '@type' : 'Person',
@@ -39330,6 +39339,10 @@ module.exports={
             },
             "github": {
                 "title": "Github ID of the person. Currently not really used, could be used later to add links to the minutes.",
+                "type": "string"
+            },
+            "role" : {
+                "title": "Particular role of the person: chair, staff contact, editor",
                 "type": "string"
             }
         },
