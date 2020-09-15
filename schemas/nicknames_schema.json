@@ -21,6 +21,10 @@
             "github": {
                 "title": "Github ID of the person. Currently not really used, could be used later to add links to the minutes.",
                 "type": "string"
+            },
+            "role" : {
+                "title": "Particular role of the person: chair, staff contact, editor",
+                "type": "string"
             }
         },
         "required": [
