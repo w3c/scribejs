@@ -59,7 +59,6 @@
   },
   "scripts": {
     "build": "browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
-    "test": "mocha",
     "lint": "eslint main.js lib/ test/",
     "serve": "http-server BrowserView/"
   }
