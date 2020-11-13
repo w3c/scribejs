@@ -73,6 +73,10 @@
             "title": "Github repo name for action issues.",
             "type": "string"
         },
+        "issuerepo": {
+            "title": "(Default) github repo for the issues that are discussed on the call",
+            "type": "string"
+        },
         "acurlpattern": {
             "title": "URL pattern used to refer the minutes.",
             "type": "string"
