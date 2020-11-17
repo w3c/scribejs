@@ -90,17 +90,21 @@
                             <option value="true">Yes</option>
                         </select>
                     </div>
+                    <div class="inline field" style="display:none">
+                        <label for="issuerepo">Default repository for discussion issues:</label>
+                        <input name="issuerepo" id="issuerepo" size="80" type="text" value="w3c/epub-specs">
+                    </div>
                     <fieldset id="action_issues" class="ui horizontal segment">
                         <legend class="ui small grey sub header">Action issues (only fill in if actions are used)</legend>
                         <div class="ui stackable grid">
                             <div class="nine wide column">
                                 <div class="inline field" style="display:none">
                                     <label for="acrepo">Repository for action issues:</label>
-                                    <input name="acrepo" id="acrepo" size="77" type="text" value="https://github.com/w3c/epub-wg">
+                                    <input name="acrepo" id="acrepo" size="77" type="text" value="w3c/epub-wg">
                                 </div>
                                 <div class="inline field" style="display:none">
                                     <label for="acurlpattern">URL pattern used for minutes:</label>
-                                    <input name="acurlpattern" id="acurlpattern" size="77" type="text" value="https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%YEAR%/%DATE%-epub">
+                                    <input name="acurlpattern" id="acurlpattern" size="77" type="text" value="https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%DATE%-epub">
                                 </div>
                                 <div class="inline field">
                                     <label for="ghname">Github id:</label>
@@ -234,6 +238,11 @@
                 <dt>Are the minutes final</dt>
                 <dd>
                     By default, minutes are considered as “draft”, and labeled as such. This may be important for groups that follow the procedure to “finalize” the minutes only after a 5 days’ period when resolutions may be objected to. If the minutes are labeled as “final”, no such extra notice is added to the minutes.
+                </dd>
+
+                <dt>Default repository for discussion issues</dt>
+                <dd>
+                    This repository is used to expand, in the minutes, references to issues (or pull requests) to their full URL and add these to the minutes.
                 </dd>
 
                 <dt>Repository for actions issues</dt>

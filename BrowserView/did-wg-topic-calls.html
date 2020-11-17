@@ -90,6 +90,10 @@
                             <option value="true">Yes</option>
                         </select>
                     </div>
+                    <div class="inline field" style="display:none">
+                        <label for="issuerepo">Default repository for discussion issues:</label>
+                        <input name="issuerepo" id="issuerepo" size="80" type="text" value="w3c/did-core">
+                    </div>
                     <fieldset id="action_issues" class="ui horizontal segment">
                         <legend class="ui small grey sub header">Action issues (only fill in if actions are used)</legend>
                         <div class="ui stackable grid">
@@ -229,6 +233,11 @@
                 <dt>Adapt the output to Jekyll</dt>
                 <dd>
                     If the generated minutes are part of a Web site served on GitHub via a <a href="https://help.github.com/articles/about-github-pages-and-jekyll/">Github+Jekyll</a> combination, then this flag provides some useful additions and/or alternatives. See <a href="https://github.com/w3c/scribejs/blob/master/README.md#Jekylloption">the more detailed description</a> for further details.
+                </dd>
+
+                <dt>Default repository for discussion issues</dt>
+                <dd>
+                    This repository is used to expand, in the minutes, references to issues (or pull requests) to their full URL and add these to the minutes.
                 </dd>
 
                 <dt>Are the minutes final</dt>

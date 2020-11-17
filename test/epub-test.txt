@@ -1,0 +1,64 @@
+23:40:37 <RRSAgent> RRSAgent has joined #epub
+23:40:37 <RRSAgent> logging to https://www.w3.org/2020/11/12-epub-irc
+23:40:39 <Zakim> RRSAgent, make logs Public
+23:40:41 <Zakim> please title this meeting ("meeting: ..."), dauwhe
+23:40:51 <dauwhe> Meeting: EPUB 3 Working Group Telecon
+23:40:58 <dauwhe> Date: 2020-11-12
+23:54:08 <dauwhe> Guest+ dauwhe
+00:02:44 <Nellie> present+
+00:03:45 <dauwhe> scribe+ dauwhe
+00:03:54 <dauwhe> shiestyle: welcome everyone
+00:50:05 <dauwhe> Topic: unsupported features @issue 1390
+00:16:51 <dauwhe> scribejs, issue 1389
+00:50:20 <dauwhe> shiestyle: deprecated features: authors are strongly recommended not to use
+00:50:27 <dauwhe> ... reading systems may support
+00:50:43 <dauwhe> ... legacy features: authors may include
+00:50:48 <dauwhe> ... reading systems must not support
+00:51:11 <dauwhe> ... I have a suggestion that we need a third category
+00:51:33 <dauwhe> ... where authors are strongly recommended NOT to use
+00:51:39 <dauwhe> ... reading systems should support
+00:51:40 <florian> q?
+00:51:42 <dauwhe> q+
+00:52:44 <shiestyle> ack dauwhe
+00:53:02 <florian> q+
+00:54:24 <shiestyle> ack florian
+00:54:28 <dauwhe> dauwhe: another factor is epubcheck
+00:16:51 <dauwhe> scribejs, pr 122, other-repo#4673
+00:54:32 <dauwhe> florian: I think I agree
+00:54:46 <dauwhe> ... I propose that the third group be called "compatiblity features"
+00:54:54 <dauwhe> ... maybe for epubcheck a low priority warning
+00:55:01 <dauwhe> ... like in verbose mode
+00:55:49 <dauwhe> dauwhe: there are info alerts in EPUBCheck
+00:56:20 <dauwhe> florian: it's also probably useful to say what happens if both properties are used
+00:56:54 <toshiakikoike> +q
+00:56:59 <dauwhe> dauwhe: what about the cascade
+00:57:07 <shiestyle> ack toshiakikoike
+00:57:16 <dauwhe> florian: the model also tells what happens from script
+00:57:24 <dauwhe> toshiakikoike: (in Japanese)
+00:57:59 <dauwhe> ... with current versions of epub check, when using vendor prefixes, we don't issue any warning or info
+00:58:04 <tzviya> tzviya has joined #epub
+00:58:18 <dauwhe> ... should we issue an info only for epub prefixes?
+00:58:31 <dauwhe> florian: my opinion is that it is low priority
+00:58:46 <dauwhe> ... when we know what unprefixed property should be used
+00:58:49 <dauwhe> q+
+00:59:32 <shiestyle> ack dauwhe
+01:00:41 <duga> duga has joined #epub
+01:00:59 <duga> present+
+01:01:09 <dauwhe> dauwhe: we're not sure how much we want to enforce restrictions on CSS
+01:01:39 <dauwhe> shiestyle: in conclusion, we will continue to discuss unsupported features. I will file a GitHub issue.
+01:01:46 <dauwhe> ... and we can continue the discussion there.
+01:02:48 <dauwhe> Zakim, end meeting
+01:02:48 <Zakim> As of this point the attendees have been florian, MasakazuKitahara, MattChan, toshiakikoike, shiestyle, jyoshii_, naomi, Daihei, `1, duga
+01:02:50 <Zakim> RRSAgent, please draft minutes
+01:02:50 <RRSAgent> I have made the request to generate https://www.w3.org/2020/11/12-epub-minutes.html Zakim
+01:02:53 <Zakim> I am happy to have been of service, dauwhe; please remember to excuse RRSAgent.  Goodbye
+01:02:57 <Zakim> Zakim has left #epub
+01:03:06 <dauwhe> RRSAgent: make logs public
+01:03:12 <dauwhe> RRSAgent: make logs public
+01:03:35 <dauwhe> RRSAgent, make logs public
+01:03:55 <dauwhe> RRSAgent: bye
+01:03:55 <RRSAgent> I see no action items
+01:03:06 <dauwhe> Chair: shinya
+01:03:06 <dauwhe> Date: 2020-11-12
+01:03:06 <dauwhe> Agenda: https://lists.w3.org/Archives/Public/public-epub-wg/2020Nov/0007.html
+01:03:06 <dauwhe> Meeting: EPUB 3 Working Group Telco

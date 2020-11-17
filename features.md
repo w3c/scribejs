@@ -52,7 +52,7 @@ once the minute log has been stored.
 * `regrets:`, `regrets=`, `regrets+`, and `regrets-`
     * the syntax is similar to  `present:`, `present=`, `present+`, and `present-`, respectively; it is used to list group members who have sent, or want to report on IRC, their regrets.
 * `chair:`, `chair=`, `chair+`, `chair-`
-    * the syntax is similar to  `present:`, `present=`,  `present:` and `present+`, respectively; it is used to list chair(s) of the meeting.
+    * the syntax is similar to  `present:`, `present=`, `present:` and `present+`, respectively; it is used to list chair(s) of the meeting.
 * `date:`
     * date of the meeting in ISO (i.e., YYYY-MM-DD). If not set, the day when the minutes are generated is used.
 
@@ -76,6 +76,9 @@ Subsequent IRC entries with that nickname are considered to be the “main” mi
     * current major topic; the value is used for a section heading and as an entry in the generated table of contents.
 * `subtopic:`
     * current minor topic; he value is used for a subsection heading and as an entry in the generated table of contents.
+
+See also the subsection on issue management with `scribejs` commands below.
+
 
 ## Resolutions, actions
 
@@ -111,7 +114,33 @@ Subsequent IRC entries with that nickname are considered to be the “main” mi
 
 ## `Scribejs` Tools
 
-A line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is the tool identifier, and the arguments depend on the tool identifier itself. `XXX` may be
+A line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is the tool identifier, and the arguments depend on the tool identifier itself. The available commands are:
+
+### Adding temporary nicknames
 
 * `scribejs, set [nickname] [full name]`
-    * Set the (IRC) `nickname` to refer to the full name in the generated minutes. `full name` is space or underscore separated list of words (underscores are converted to spaces). Its use is to provide a one-time extension to the nickname mappings, see [README.md](#nick).
+    * Set the (IRC) `nickname` to refer to the full name in the generated minutes. `full name` is space or underscore separated list of words (underscores are converted to spaces). Its use is to provide a one-time extension to the nickname mappings, see [README.md](#nick). Useful when the call has guests, temporary visitors, etc.
+
+### Handling issue references
+
+* `scribejs, issue Issuenumber1,Issuenumber2, Issuenumber3`
+    * Expand the issue numbers to their full URL-s, and add a an extra line to the minutes with these references. The `Issuenumber` an be:
+        * an integer, referring to the the relevant github issue
+        * of the form `repo#number` to use a different repo (within the same github organization) rather than the default discussion issue repository (the default can be set in the configuration file)
+* `scribejs, pr PRnumber1,PRnumber2, PRnumber3`
+    * Similar to the handling of issues, except that all references are for Pull Requests
+
+`scribejs` also handles a shorthand of the form:
+
+```
+topic: topic title @issue Issuenumber1, Issuenumber2
+```
+
+is equivalent to:
+
+```
+topic: topic title
+scribejs, issue Issuenumber1, Issuenumber2
+```
+
+This abbreviates a often used pattern in minute taking. (The same shorthand is also available for sub-topics.)
