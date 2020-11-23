@@ -57,11 +57,11 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `input`        : Input
 * `output`       : Output file name; irrelevant if `torepo` is `true`
 * `nicknames`    : Nickname file reference in the form of a URL or a filename
-* `final`        : `true`|`false`
-* `auto`         : `true`|`false`
-* `torepo`       : `true`|`false`
-* `pandoc`       : `true`|`false`
-* `jekyll`       : `"none"`|`"md"`|`"kd"`
+* `final`        : `true`\|`false`
+* `auto`         : `true`\|`false`
+* `torepo`       : `true`\|`false`
+* `pandoc`       : `true`\|`false`
+* `jekyll`       : `"none"`\|`"md"`\|`"kd"`
 * `irc_format`   : `"textual"`|`irccloud`|`undefined`
 * `ghrepo`       : repository name, e.g., `w3c/epub-wg`
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
