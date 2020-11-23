@@ -223,6 +223,7 @@ function store_preset() {
             'ghemail',
             'ghtoken',
             'fullname',
+            'issuerepo',
             'acrepo',
             'acurlpattern'
         ];

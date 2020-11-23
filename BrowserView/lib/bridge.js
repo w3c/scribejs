@@ -40,6 +40,7 @@ async function bridge(form) {
         nicknames     : form.elements.nicknames.value,
         irc_format    : undefined,
         ghname        : form.elements.ghname.value,
+        issuerepo     : form.elements.issuerepo.value,
         ghemail       : '',
         ghrepo        : '',
         ghpath        : '',

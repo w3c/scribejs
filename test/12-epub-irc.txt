@@ -1,0 +1,171 @@
+23:40:37 <RRSAgent> RRSAgent has joined #epub
+23:40:37 <RRSAgent> logging to https://www.w3.org/2020/11/12-epub-irc
+23:40:39 <Zakim> RRSAgent, make logs Public
+23:40:41 <Zakim> please title this meeting ("meeting: ..."), dauwhe
+23:40:51 <dauwhe> Meeting: EPUB 3 Working Group Telecon
+23:40:58 <dauwhe> Date: 2020-11-12
+23:54:08 <dauwhe> Guest+ dauwhe
+23:56:46 <shiestyle> present+
+23:58:16 <MasakazuKitahara> MasakazuKitahara has joined #epub
+23:58:57 <MattChan> MattChan has joined #epub
+23:59:38 <florian> florian has joined #epub
+23:59:49 <florian> guest+
+23:59:58 <MasakazuKitahara> present+
+00:00:05 <MattChan> present+
+00:00:19 <toshiakikoike> toshiakikoike has joined #epub
+00:00:47 <toshiakikoike> present+
+00:00:58 <shiestyle> present+
+00:01:36 <jyoshii_> jyoshii_ has joined #epub
+00:01:56 <jyoshii_> present+
+00:02:07 <rkuroda> present+
+00:02:37 <naomi> naomi has joined #epub
+00:02:40 <naomi> present+
+00:02:44 <Nellie> present+
+00:03:45 <dauwhe> scribe+ dauwhe
+00:03:54 <dauwhe> shiestyle: welcome everyone
+00:04:06 <dauwhe> Topic: align-x-center @issue 1380
+00:04:51 <dauwhe> shiestyle: this is not supported by major reading systems
+00:05:03 <dauwhe> ... and perhaps not very many files use this?
+00:05:13 <toshiakikoike> +q
+00:06:05 <shiestyle> ack toshiakikoike
+00:06:21 <dauwhe> toshiakikoike: proposed on github
+00:06:43 <dauwhe> https://github.com/w3c/epub-specs/issues/1380#issuecomment-719108924
+00:06:59 <dauwhe> ... every reader can implement
+00:07:52 <dauwhe> toshiakikoike: this feature is supported by voyager reading system, but not many epub files use this feature
+00:08:15 <dauwhe> ... he expects epubcheck would not mark as error
+00:08:28 <dauwhe> q+
+00:08:50 <florian> q?
+00:09:00 <shiestyle> ack dauwhe
+00:10:23 <dauwhe> dauwhe: not sure how epubcheck will deal with `<meta>` properties... it actually might be easier
+00:10:49 <dauwhe> ... am I correct that people don't really see this as necessary/
+00:10:55 <dauwhe> shiestyle: yes
+00:13:18 <dauwhe> Proposal: deprecate `rendition:align-x-center`
+00:13:31 <Nellie> +1
+00:13:32 <MattChan> +1
+00:14:04 <jyoshii_> 0
+00:14:28 <rkuroda> 0
+00:14:30 <toshiakikoike> +1
+00:14:35 <MasakazuKitahara> +1
+00:14:35 <shiestyle> +1
+00:14:47 <Daihei> Daihei has joined #epub
+00:14:51 <Daihei> Present+
+00:14:56 <Daihei> +1
+00:16:04 <dauwhe> Resolved: deprecate `rendition:align-x-center` pending confirmation on NA call
+00:16:46 <dauwhe> q+
+00:16:51 <dauwhe> topic: CSS Writing Modes reference @issue 1389
+00:17:48 <shiestyle> ack dauwhe
+00:18:16 <florian> q+
+00:19:12 <shiestyle> ack florian
+00:19:17 <dauwhe> dauwhe: this was done deliberately
+00:19:32 <dauwhe> florian: there were several kinds of changes to writing modes between its reference and rec
+00:19:39 <dauwhe> ... some are easy to deal with; some less so
+00:19:50 <dauwhe> ... from a behaviour change, there hasn't been much, if we ignore the syntax
+00:20:04 <dauwhe> ... there is one part which has changed a lot, but it's the detailed, nuanced part
+00:20:15 <dauwhe> ... and I doubt that epub readers implemented the correct part
+00:20:25 <dauwhe> ... the old behaviour was badly defined
+00:20:30 <dauwhe> ... about sizing elements with mixed elements
+00:20:53 <dauwhe> ... automatic sizing inside horizontal text inside vertical text, for example
+00:21:03 <dauwhe> ... I would be surprised if that was a problem
+00:21:13 <dauwhe> ... but there have been syntax changes
+00:21:31 <dauwhe> ... we might need to maintain a list of aliases
+00:21:41 <dauwhe> ... and just document that
+00:21:55 <dauwhe> ... more tricky is that some features have been removed
+00:22:03 <dauwhe> ... hopefully they haven't been used
+00:22:13 <dauwhe> ... some features were moved to level 4
+00:22:34 <dauwhe> ... text-combine-upright: digits was moved from level 3 to level 4
+00:22:45 <dauwhe> ... and this one may still change because browsers have not yet implemented
+00:22:55 <dauwhe> ... so if you document the syntax in the EPUB spec
+00:23:05 <dauwhe> ... and then say for behaviour look to writing modes
+00:23:14 <dauwhe> ... the trickier one is the complete removal
+00:23:45 <dauwhe> https://w3c.github.io/epub-specs/epub33/core/#sec-css-prefixed-writing-modes
+00:23:54 <dauwhe> q+
+00:27:31 <dauwhe> florian: [makes same points (presumably!) in Japanese]
+00:30:10 <shiestyle> ack dauwhe
+00:32:22 <dauwhe> dauwhe: so we can just point to the current spec, and identify aliases to current syntax and behaviours
+00:34:05 <dauwhe> dauwhe: I think there's work for the editors to do to clean up this section, then we can get feedback from the wg
+00:34:27 <dauwhe> shiestyle: that sounds good
+00:35:05 <dauwhe> Topic: Patent Policy
+00:35:23 <dauwhe> shiestyle: w3c released a new patent policy right after this WG was chartered
+00:35:30 <dauwhe> ... so we are officially using the old patent policy
+00:35:38 <dauwhe> ... but we could switch to the new patent policy
+00:35:51 <dauwhe> ... so I invited Florian (from the W3C AB) to explain the new policy
+00:36:11 <dauwhe> florian: one main difference between old and new
+00:36:28 <dauwhe> ... with the old policy, when you reach CR, you get asked if you have any patents you want to exclude
+00:36:41 <dauwhe> ... if you say you won't give a license, then a special group is formed
+00:36:57 <dauwhe> ... if you don't answer, or say it's ok, you promise to license them to everyone at no cost
+00:37:10 <dauwhe> ... you don't make this promise immediately; only when the spec becomes REC
+00:37:25 <dauwhe> ... so there's no license during CR; just a promise for a license later
+00:37:39 <dauwhe> ... with the new policy, same thing--you get asked at CR
+00:37:58 <dauwhe> ... but if you're OK with the patents at CR, you license them immediately (rather than waiting until REC)
+00:38:23 <dauwhe> ... another minor difference: when the old policy was written, people imagined that one WG produces one REC, then it's over
+00:38:39 <dauwhe> ... they did not consider groups publishing multiple or updated specifications
+00:38:45 <dauwhe> ... so there was ambiguity
+00:38:57 <dauwhe> q+
+00:43:58 <shiestyle> ack dauwhe
+00:45:02 <dauwhe> Dauwhe: we have multiple specs. does it make sense to move to the new policy?
+00:45:18 <dauwhe> florian: yes. with multiple specs, there is potentially an issue... it would likely work out
+00:45:37 <dauwhe> ... the old patent policy is not clear about the same spec going to rec multiple times
+00:45:44 <dauwhe> ... especially if some people leave the group
+00:48:08 <dauwhe> Proposal: move to the 2020 patent policy
+00:48:39 <Nellie> +1
+00:48:43 <MattChan> +1
+00:48:47 <jyoshii_> +1
+00:48:50 <shiestyle> +1
+00:48:54 <toshiakikoike> +1
+00:48:57 <rkuroda> +1
+00:48:59 <MasakazuKitahara> +1
+00:49:21 <Daihei> +`1
+00:49:25 <Daihei> +1
+00:49:27 <dauwhe> Resolved: move to the 2020 patent policy
+00:50:05 <dauwhe> Topic: unsupported features
+00:50:20 <dauwhe> shiestyle: deprecated features: authors are strongly recommended not to use
+00:50:27 <dauwhe> ... reading systems may support
+00:50:43 <dauwhe> ... legacy features: authors may include
+00:50:48 <dauwhe> ... reading systems must not support
+00:51:11 <dauwhe> ... I have a suggestion that we need a third category
+00:51:33 <dauwhe> ... where authors are strongly recommended NOT to use
+00:51:39 <dauwhe> ... reading systems should support
+00:51:40 <florian> q?
+00:51:42 <dauwhe> q+
+00:52:44 <shiestyle> ack dauwhe
+00:53:02 <florian> q+
+00:54:24 <shiestyle> ack florian
+00:54:28 <dauwhe> dauwhe: another factor is epubcheck
+00:54:32 <dauwhe> florian: I think I agree
+00:54:46 <dauwhe> ... I propose that the third group be called "compatiblity features"
+00:54:54 <dauwhe> ... maybe for epubcheck a low priority warning
+00:55:01 <dauwhe> ... like in verbose mode
+00:55:49 <dauwhe> dauwhe: there are info alerts in EPUBCheck
+00:56:20 <dauwhe> florian: it's also probably useful to say what happens if both properties are used
+00:56:54 <toshiakikoike> +q
+00:56:59 <dauwhe> dauwhe: what about the cascade
+00:57:07 <shiestyle> ack toshiakikoike
+00:57:16 <dauwhe> florian: the model also tells what happens from script
+00:57:24 <dauwhe> toshiakikoike: (in Japanese)
+00:57:59 <dauwhe> ... with current versions of epub check, when using vendor prefixes, we don't issue any warning or info
+00:58:04 <tzviya> tzviya has joined #epub
+00:58:18 <dauwhe> ... should we issue an info only for epub prefixes?
+00:58:31 <dauwhe> florian: my opinion is that it is low priority
+00:58:46 <dauwhe> ... when we know what unprefixed property should be used
+00:58:49 <dauwhe> q+
+00:59:32 <shiestyle> ack dauwhe
+01:00:41 <duga> duga has joined #epub
+01:00:59 <duga> present+
+01:01:09 <dauwhe> dauwhe: we're not sure how much we want to enforce restrictions on CSS
+01:01:39 <dauwhe> shiestyle: in conclusion, we will continue to discuss unsupported features. I will file a GitHub issue.
+01:01:46 <dauwhe> ... and we can continue the discussion there.
+01:02:48 <dauwhe> Zakim, end meeting
+01:02:48 <Zakim> As of this point the attendees have been florian, MasakazuKitahara, MattChan, toshiakikoike, shiestyle, jyoshii_, naomi, Daihei, `1, duga
+01:02:50 <Zakim> RRSAgent, please draft minutes
+01:02:50 <RRSAgent> I have made the request to generate https://www.w3.org/2020/11/12-epub-minutes.html Zakim
+01:02:53 <Zakim> I am happy to have been of service, dauwhe; please remember to excuse RRSAgent.  Goodbye
+01:02:57 <Zakim> Zakim has left #epub
+01:03:06 <dauwhe> RRSAgent: make logs public
+01:03:12 <dauwhe> RRSAgent: make logs public
+01:03:35 <dauwhe> RRSAgent, make logs public
+01:03:55 <dauwhe> RRSAgent: bye
+01:03:55 <RRSAgent> I see no action items
+01:03:06 <dauwhe> Chair: shinya
+01:03:06 <dauwhe> Date: 2020-11-12
+01:03:06 <dauwhe> Agenda: https://lists.w3.org/Archives/Public/public-epub-wg/2020Nov/0007.html
+01:03:06 <dauwhe> Meeting: EPUB 3 Working Group Telco
