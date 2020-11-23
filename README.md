@@ -62,7 +62,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `torepo`       : `true`\|`false`
 * `pandoc`       : `true`\|`false`
 * `jekyll`       : `"none"`\|`"md"`\|`"kd"`
-* `irc_format`   : `"textual"`|`irccloud`|`undefined`
+* `irc_format`   : `"textual"`\|`"irccloud"`\|`undefined`
 * `ghrepo`       : repository name, e.g., `w3c/epub-wg`
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
