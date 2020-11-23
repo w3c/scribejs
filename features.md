@@ -125,7 +125,7 @@ A line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is
 
 * `scribejs, issue Issuenumber1,Issuenumber2, Issuenumber3`
     * Expand the issue numbers to their full URL-s, and add a an extra line to the minutes with these references. The `Issuenumber` an be:
-        * an integer, referring to the the relevant github issue
+        * an integer, referring to the the relevant github issue in the default repository (see the configuration file)
         * of the form `repo#number` to use a different repo (within the same github organization) rather than the default discussion issue repository (the default can be set in the configuration file)
 * `scribejs, pr PRnumber1,PRnumber2, PRnumber3`
     * Similar to the handling of issues, except that all references are for Pull Requests
@@ -143,4 +143,6 @@ topic: topic title
 scribejs, issue Issuenumber1, Issuenumber2
 ```
 
-This abbreviates a often used pattern in minute taking. (The same shorthand is also available for sub-topics.)
+This abbreviates an often used pattern in minute taking. (The same shorthand is also available for sub-topics.)
+
+Note that `scribejs` generates some “directives” (in the form of comments) into the generated minutes to these issues. This can be used by post-processing steps to, e.g., extract the discussion on a specific issue from the minutes, and add a comment to github automatically. See, e.g., the separate [scribejs postprocessing tool](https://github.com/iherman/scribejs-postprocessing).

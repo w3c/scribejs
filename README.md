@@ -63,10 +63,11 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `pandoc`       : `true`|`false`
 * `jekyll`       : `"none"`|`"md"`|`"kd"`
 * `irc_format`   : `"textual"`|`irccloud`|`undefined`
-* `ghrepo`       : repository name, eg, `w3c/scribejs`
+* `ghrepo`       : repository name, e.g., `w3c/epub-wg`
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
 * `acrepo`       : repository name where action issues should be generated. If not set, the value of `ghrepo` is used if set.
+* `issuerepo`    : repository name used for issue comments by default, e.g., `w3c/epub-specs`. If none is set, `ghrepo` is used if set.
 * `acurlpattern` : url pattern used to refer the minutes. The strings `%YEAR%`, `%MONTH%`, `%DAY%`, and `%DATE%` are replaced by the respective values. Used to put references into the minutes when generating issues for actions.
 * `ghname`       : github login name
 * `ghemail`      : github email
@@ -76,7 +77,7 @@ The final configuration is a combination of the command line arguments, the (opt
 
 A typical usage of the configuration files is:
 
-* set the group‘s repository data (e.g., `ghrepo`, `ghpath`, `ghbranch`, `acrepo`, `acurlpattern`, `group`, `nicknames`) in a shared configuration file that can be part of the repository itself;
+* set the group‘s repository data (e.g., `ghrepo`, `ghpath`, `ghbranch`, `acrepo`, `issuerepo`, `acurlpattern`, `group`, `nicknames`) in a shared configuration file that can be part of the repository itself;
 * use the user-level configuration for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
