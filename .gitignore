@@ -12,5 +12,6 @@ BrowserView/Groups/config/did_local.json
 BrowserView/Groups/config/did-topic_local.json
 BrowserView/Groups/config/pwg_local.json
 BrowserView/Groups/config/json-ld_local.json
+BrowserView/Groups/postprocessing/test_local.json
 
 
