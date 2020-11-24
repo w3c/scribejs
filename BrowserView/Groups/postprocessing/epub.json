@@ -1,0 +1,7 @@
+{
+    "owner"         : "w3c",
+    "repo"          : "epub-wg",
+    "minutes"       : "_minutes",
+    "current"       : "assets/minute_processing.json",
+    "handle_issues" : true
+}
