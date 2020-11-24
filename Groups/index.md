@@ -6,15 +6,18 @@ Current groups
 
 * [EPUB 3 Working Group](https://www.w3.org//publishing/groups/epub-wg/):
     * Working Groups Calls:
-      * [client side processing](./epub-wg/epub-wg.html)
-      * [configuration file](./epub-wg/scribejs_config.json)
-    * Accessibility Taks force:
-      * [client side processing](./epub-wg/epub-wg-a11y-calls.html)
-      * [configuration file](./epub-wg/scribejs_a11y_config.json)
+      * [client side processing](./browserview/epub.html)
+      * [configuration file](./config/epub.json)
+    * Accessibility Task force:
+      * [client side processing](./browserview/epub-a11y.html)
+      * [configuration file](./config/epub-a11y.json)
 * [DID Working Group](https://www.w3.org/2019/did-wg/)
     * Working Groups Calls:
-      * [client side processing](./did-wg/did-wg.html)
-      * [configuration file](./did-wg/scribejs_config.json)
+      * [client side processing](./browserview/did.html)
+      * [configuration file](./config/did.json)
     * Topical Calls:
-      * [client side processing](./did-wg/did-wg-topic-calls.html)
-      * [configuration file](./did-wg/scribejs_config_topic.json)
+      * [client side processing](./browserview/did-topic.html)
+      * [configuration file](./config/did-topic.json)
+
+
+New configurations can be uploaded to this folder; when doing so, the naming scheme should be kept. Files (configurations, client side processing, etc.) are named using the IRC channels they rely on.
