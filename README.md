@@ -10,7 +10,7 @@ The reason of writing this script is that the current approach of producing HTML
 
 ### Browser
 
-The `BrowserView/` directory contains an HTML file which provides a basic UI for loading and editing IRC logs and processing them into Markdown (see the [service on-line](https://w3c.github.io/scribejs/BrowserView/index.html)). That view also includes the possibility to raise action issues. See the [Installation](#installation) section below for more information.
+The `BrowserView/` directory contains an HTML file which provides a basic UI for loading and editing IRC logs and processing them into Markdown (see the [service on-line](https://w3c.github.io/scribejs/BrowserView/index.html)). See the [Installation](#installation) section below for more information.
 
 ### Command Line
 
@@ -81,6 +81,9 @@ A typical usage of the configuration files is:
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
 There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead.
+
+Note that this repository contains the current [configuration files for active WG-s](./BrowserView/Groups/); external tools, local scripts, etc., are welcome to use them. Using these pre-set configuration files may make it easier to deploy the script.
+
 
 ### Choice of the output
 
@@ -166,7 +169,7 @@ npm run build
 npm run serve
 ```
 
-You should be able to load the UX via `http://localhost:8080` (or whichever port was chosen by `http-server`).
+You should be able to load the UX via `http://localhost:8080` (or whichever port was chosen by `http-server`). Of course, if you run a server on your machine already, that can be used as well.
 
 ### Command Line
 

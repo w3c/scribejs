@@ -6,11 +6,11 @@ nami.md
 test.js
 notes.md
 test_run
-Groups/config/epub_local.json
-Groups/config/epub-a11y_local.json
-Groups/config/did_local.json
-Groups/config/did-topic_local.json
-Groups/config/pwg_local.json
-Groups/config/json-ld_local.json
+BrowserView/Groups/config/epub_local.json
+BrowserView/Groups/config/epub-a11y_local.json
+BrowserView/Groups/config/did_local.json
+BrowserView/Groups/config/did-topic_local.json
+BrowserView/Groups/config/pwg_local.json
+BrowserView/Groups/config/json-ld_local.json
 
 
