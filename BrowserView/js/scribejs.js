@@ -789,9 +789,7 @@ class Actions {
             }
             return false;
         };
-        const extract_titles = (open_issues) => {
-            return open_issues.items.filter(filter_issue).map((issue) => issue.title);
-        };
+        const extract_titles = (open_issues) => open_issues.items.filter(filter_issue).map((issue) => issue.title);
 
         // Get the titles of issues already stored.
         // The number of action issues may not be that high, better avoid pagination...
@@ -1409,11 +1407,13 @@ exports.to_markdown = (body, config, action_list) => {
         // fake function, just to make the code below cleaner for the case when removal must be ignored
         // eslint-disable-next-line no-unused-vars
         // @ts-ignore
+        // eslint-disable-next-line no-unused-vars
         const arg1 = (a, b) => a;
 
         // Another fake function that only keeps the second argument, again to make the code cleaner
         // eslint-disable-next-line no-unused-vars
         // @ts-ignore
+        // eslint-disable-next-line no-unused-vars
         const arg2 = (a, b) => b;
 
         const get_names = (index) => {
@@ -2304,7 +2304,7 @@ exports.issue_directives = (config, directive, issue_references) => {
             if (url_part.startsWith('-')) {
                 // This, in fact, is to stop the effect of the issue discussion
                 if (config.jekyll !== 'none') {
-                    return '\n\n<!-- issue - -->\n\n'
+                    return '\n\n<!-- issue - -->\n\n';
                 } else {
                     return '';
                 }
@@ -2326,21 +2326,30 @@ exports.issue_directives = (config, directive, issue_references) => {
                     }
                 });
 
+                const issue_ids = issue_numbers.map((num) => {
+                    if (num.includes('#')) {
+                        const parts = num.split('#');
+                        return `${organization}/${parts[0]}/${parts[1]}`;
+                    } else {
+                        return `${repo}/${num}`;
+                    }
+                });
+
                 // Generation of the (visible) markdown entries
                 const all_issues = _.zip(issue_numbers, urls)
                     .map((num_url) => {
                         const prefix = num_url[0].includes('#') ? '' : '#';
-                        return `[${prefix}${num_url[0]}](${num_url[1]})`
+                        return `[${prefix}${num_url[0]}](${num_url[1]})`;
                     })
                     .join(', ');
                 const md_part =  `_See github ${issue_or_pr} ${all_issues}._`;
 
                 // Add, if necessary, the comment to the return.
                 if (config.jekyll !== 'none') {
-                    const md_comment = `<!-- issue ${urls.join(' ')} -->`;
+                    const md_comment = `<!-- issue ${issue_ids.join(' ')} -->`;
                     return `\n\n${md_part}\n\n${md_comment}\n\n`;
                 } else {
-                    return `\n\n${md_part}\n\n`
+                    return `\n\n${md_part}\n\n`;
                 }
             }
         } catch (e) {
@@ -2372,7 +2381,7 @@ exports.titles = (config, content) => {
             return undefined;
         }
     };
-    return get_values('issue') || get_values('pr') || { title_text: content, issue_reference: '' };
+    return get_values('issue') || get_values('issues') || get_values('pr') || { title_text: content, issue_reference: '' };
 };
 
 },{"underscore":238}],8:[function(require,module,exports){
@@ -2432,10 +2441,10 @@ function schema_data(header, config) {
         startDate : header.date,
         endDate   : header.date,
         location  : {
-            '@type' : 'VirtualLocation',
+            '@type'     : 'VirtualLocation',
             description : 'Teleconference'
         },
-        attendee : [
+        attendee: [
             {
                 '@type'  : 'OrganizationRole',
                 roleName : 'chair',
