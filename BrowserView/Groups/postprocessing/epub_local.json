@@ -2,5 +2,6 @@
     "dir"           : "/Users/ivan/W3C/github/EPUB/epub-wg",
     "minutes"       : "_minutes",
     "current"       : "assets/minute_processing.json",
-    "handle_issues" : true
+    "handle_issues" : true,
+    "local"         : true
 }

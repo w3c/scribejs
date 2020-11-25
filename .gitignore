@@ -13,5 +13,9 @@ BrowserView/Groups/config/did-topic_local.json
 BrowserView/Groups/config/pwg_local.json
 BrowserView/Groups/config/json-ld_local.json
 BrowserView/Groups/postprocessing/test_local.json
+BrowserView/did-wg-topic-calls.html
+BrowserView/did-wg.html
+BrowserView/epub-wg-a11y-calls.html
+BrowserView/epub-wg.html
 
 

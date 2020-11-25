@@ -3,5 +3,6 @@
     "repo"          : "did-wg",
     "minutes"       : "_minutes",
     "current"       : "assets/minute_processing.json",
-    "handle_issues" : false
+    "handle_issues" : false,
+    "local"         : false
 }
