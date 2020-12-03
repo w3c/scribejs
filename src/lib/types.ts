@@ -1,14 +1,27 @@
 /* eslint-disable no-multi-spaces */
 /**
- * ## Common types
+ * ## Common types and constants
  *
  * @packageDocumentation
 */
 import moment from 'moment';
 
-export const JEKYLL_NONE        = 'none';
-export const JEKYLL_MARKDOWN    = 'md';
-export const JEKYLL_KRAMDOWN    = 'kd';
+export namespace Constants {
+    export const JEKYLL_NONE        = 'none';
+    export const JEKYLL_MARKDOWN    = 'md';
+    export const JEKYLL_KRAMDOWN    = 'kd';
+
+    export const rrsagent_preamble_size = 8 + 1;
+    // const rrsagent_regexp = /^[0-9]{2}:[0-9]{2}:[0-9]{2}/;
+
+    export const irccloud_preamble_size = 1 + 10 + 1 + 8 + 1 + 1;
+    export const irccloud_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/;
+
+    export const textual_preamble_size  = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
+    export const textual_regexp  = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
+
+    export const issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
+}
 
 
 /**
@@ -49,7 +62,7 @@ export interface Configuration {
     /**
      * Whether the input is of the log format of a particular IRC client.
      *
-     * If missing, the format is the RRSAgent output @W3C. 'Textual' is the only other client format implemented so far.
+     * If missing, the format is the RRSAgent output @W3C. 'Textual' and IRCCloud are  only other client format implemented so far.
      */
     irc_format?:    string;
 
@@ -98,9 +111,7 @@ export interface Configuration {
 
 /**
  * Global data, which includes the data in the Configuration but also variables that are set by the process run-time
- *
  */
-
 export interface Global extends Configuration {
     /**
      * Message to be used if the script uploads the minutes directly to Github. This is a fixed text
@@ -118,7 +129,7 @@ export interface Global extends Configuration {
      *
      * Note: this variable is set run-time, not via the configuration file
      */
-    nicks?:         Nickname[];
+    nicks?:         PersonWithNickname[];
 
     /**
      * Mapping from names to a Nickname structure
@@ -127,12 +138,9 @@ export interface Global extends Configuration {
 }
 
 
-export interface Nickname {
-    /** List of possible nicknames. */
-    nick:       string[];
-
-    /** Name to be used in the minutes. */
-    name:       string;
+export interface Person {
+    /** The full name */
+    name: string;
 
     /**
      * Github ID of the person.
@@ -141,17 +149,32 @@ export interface Nickname {
      */
     github?:    string;
 
-    /** Particular role of the person: chair, staff contact, editor. */
+    /** Particular role of the person: chair, staff contact, editor. (Currently not used, maybe in a future version) */
     role?:      string;
 
     /** URL of the person (currently not used, maybe in a future version) */
     url?:       string;
 }
 
-export interface NicknameMapping {
-    [index: string]:    Nickname;
+/**
+ * Structure of a nickname, as provided in the separate list by the users; it is the Person plus the
+ * possible nicknames.
+ */
+export interface PersonWithNickname extends Person {
+    /** List of possible nicknames. */
+    nick:       string[];
 }
 
+/**
+ * "Inverse" key structure: looking up a specific nickname
+ */
+export interface NicknameMapping {
+    [index: string]: Person;
+}
+
+/**
+ * Structure generated for the "header" items in the final minutes (title, agenda, participants, etc.).
+ */
 export interface Header {
     /** Title of the meeting */
     meeting:    string;
@@ -176,30 +199,32 @@ export interface Header {
 
     /** Names of scribes */
     scribe:     string[];
+
+    /** Allow to access things by indexing via a string */
+    [index: string]: any;
 }
 
-export interface DisplayHeader {
-    /** Title of the meeting */
-    meeting:    string;
+/**
+ * Essential content of an IRC log line
+ */
+export interface LineObject {
+    /** IRC nick */
+    nick: string;
 
-    /** URL of the agenda */
-    agenda:     string;
+    /** The content of the line */
+    content: string;
 
-    /** Date of the meeting */
-    date:       string;
+    /** The content of the line all in lower case (used for possible comparisons) */
+    content_lower?: string;
+}
 
-    /** Names of chairs as a comma separated list */
-    chair:      string;
+/**
+ * Used when the issue reference is combined with a (sub)topic setting.
+ */
+export interface IssueReference {
+    /** The bare title text, without the issue references */
+    title_text: string;
 
-    /** Names of all present as a comma separated list */
-    present:    string;
-
-    /** Names of persons having sent regrets as a comma separated list */
-    regrets:    string;
-
-    /** Names of guests  as a comma separated list */
-    guests:     string;
-
-    /** Names of scribes as a comma separated list */
-    scribe:     string;
+    /** The issue reference directives to be added the final minutes */
+    issue_reference: string;
 }

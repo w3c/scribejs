@@ -13,7 +13,7 @@ import * as path    from 'path';
 import { Command }  from 'commander';
 import moment       from 'moment';
 import * as schemas from './schemas';
-import { Configuration, Global, JEKYLL_NONE, JEKYLL_MARKDOWN, JEKYLL_KRAMDOWN } from './types';
+import { Configuration, Global, Constants } from './types';
 
 
 /** @internal */
@@ -26,7 +26,7 @@ const default_config: Global = {
     date          : moment(),
     final         : false,
     torepo        : false,
-    jekyll        : JEKYLL_NONE,
+    jekyll        : Constants.JEKYLL_NONE,
     pandoc        : true,
     irc_format    : undefined,
     nick_mappings : {},
@@ -121,9 +121,9 @@ export function get_config(): Global {
     if (program.auto) argument_config.auto = true;
     if (program.pandoc) argument_config.pandoc = true;
     if (program.jekyll) {
-        argument_config.jekyll = ([JEKYLL_KRAMDOWN, JEKYLL_MARKDOWN].includes(program.jekyll)
+        argument_config.jekyll = ([Constants.JEKYLL_KRAMDOWN, Constants.JEKYLL_MARKDOWN].includes(program.jekyll)
             ? program.jekyll
-            : JEKYLL_NONE);
+            : Constants.JEKYLL_NONE);
     }
     if (program.date) argument_config.date = moment(program.date);
     if (program.group) argument_config.group = program.group;

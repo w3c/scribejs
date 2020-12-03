@@ -4,6 +4,7 @@ test/*.json
 LocalScript/minutes
 nami.md
 test.js
+test.ts
 notes.md
 test_run
 Attic/*

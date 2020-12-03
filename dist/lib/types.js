@@ -1,7 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JEKYLL_KRAMDOWN = exports.JEKYLL_MARKDOWN = exports.JEKYLL_NONE = void 0;
-exports.JEKYLL_NONE = 'none';
-exports.JEKYLL_MARKDOWN = 'md';
-exports.JEKYLL_KRAMDOWN = 'kd';
+exports.Constants = void 0;
+var Constants;
+(function (Constants) {
+    Constants.JEKYLL_NONE = 'none';
+    Constants.JEKYLL_MARKDOWN = 'md';
+    Constants.JEKYLL_KRAMDOWN = 'kd';
+    Constants.rrsagent_preamble_size = 8 + 1;
+    // const rrsagent_regexp = /^[0-9]{2}:[0-9]{2}:[0-9]{2}/;
+    Constants.irccloud_preamble_size = 1 + 10 + 1 + 8 + 1 + 1;
+    Constants.irccloud_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/;
+    Constants.textual_preamble_size = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
+    Constants.textual_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
+    Constants.issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
+})(Constants = exports.Constants || (exports.Constants = {}));
 //# sourceMappingURL=types.js.map

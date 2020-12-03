@@ -9,7 +9,7 @@
  */
 
 import { zip } from './utils';
-import { Configuration } from './types';
+import { Configuration, IssueReference } from './types';
 
 /**
  * Handling the `scribejs, issue X,Y,Z` type directives. The method returns a set of strings to be added to the
@@ -112,11 +112,6 @@ export function issue_directives(config: Configuration, directive: string, issue
             return '';
         }
     }
-}
-
-interface IssueReference {
-    title_text: string;
-    issue_reference: string;
 }
 
 /**

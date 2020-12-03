@@ -24,7 +24,7 @@ const default_config = {
     date: moment_1.default(),
     final: false,
     torepo: false,
-    jekyll: types_1.JEKYLL_NONE,
+    jekyll: types_1.Constants.JEKYLL_NONE,
     pandoc: true,
     irc_format: undefined,
     nick_mappings: {},
@@ -120,9 +120,9 @@ function get_config() {
     if (program.pandoc)
         argument_config.pandoc = true;
     if (program.jekyll) {
-        argument_config.jekyll = ([types_1.JEKYLL_KRAMDOWN, types_1.JEKYLL_MARKDOWN].includes(program.jekyll)
+        argument_config.jekyll = ([types_1.Constants.JEKYLL_KRAMDOWN, types_1.Constants.JEKYLL_MARKDOWN].includes(program.jekyll)
             ? program.jekyll
-            : types_1.JEKYLL_NONE);
+            : types_1.Constants.JEKYLL_NONE);
     }
     if (program.date)
         argument_config.date = moment_1.default(program.date);

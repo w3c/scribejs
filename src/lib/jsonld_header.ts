@@ -1,6 +1,6 @@
 'use strict';
 
-import { Configuration, DisplayHeader } from './types';
+import { Configuration, Header } from './types';
 
 
 /**
@@ -8,12 +8,9 @@ import { Configuration, DisplayHeader } from './types';
  *
  * @param header - the structure used by the converter to generate the header entries into the minutes
  * @param config - the general configuration file for the scribejs run
- * @returns - the JSON-LD encoded schema.org metadata of the minutes
+ * @returns the JSON-LD encoded schema.org metadata of the minutes
  */
-export function schema_data(header: DisplayHeader, config: Configuration): string {
-    // turn a comma separated list into an array of strings. */
-    const people_list = (comma_list: string): string[] => comma_list.split(',').map((name) => name.trim()).filter((name) => name !== '');
-
+export function schema_data(header: Header, config: Configuration): string {
     // eslint-disable-next-line max-len
     const url_pattern = (pattern: string): string => pattern.replace(/%YEAR%/g, year).replace(/%MONTH%/g, month).replace(/%DAY%/g, day).replace(/%DATE%/g, header.date);
 
@@ -21,10 +18,10 @@ export function schema_data(header: DisplayHeader, config: Configuration): strin
     const [year, month, day] = header.date.split('-');
 
     // Get the different types of participants from the comma separated lists
-    const chairs   = people_list(header.chair);
-    const scribes  = people_list(header.scribe);
+    const chairs   = header.chair;
+    const scribes  = header.scribe;
     // eslint-disable-next-line arrow-body-style
-    const present  = [...people_list(header.present), ...people_list(header.guests)].filter((name) => {
+    const present  = [...header.present, ...header.guests].filter((name) => {
         return !(chairs.includes(name) || scribes.includes(name));
     });
 

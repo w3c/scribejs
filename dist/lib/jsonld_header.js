@@ -6,20 +6,18 @@ exports.schema_data = void 0;
  *
  * @param header - the structure used by the converter to generate the header entries into the minutes
  * @param config - the general configuration file for the scribejs run
- * @returns - the JSON-LD encoded schema.org metadata of the minutes
+ * @returns the JSON-LD encoded schema.org metadata of the minutes
  */
 function schema_data(header, config) {
-    // turn a comma separated list into an array of strings. */
-    const people_list = (comma_list) => comma_list.split(',').map((name) => name.trim()).filter((name) => name !== '');
     // eslint-disable-next-line max-len
     const url_pattern = (pattern) => pattern.replace(/%YEAR%/g, year).replace(/%MONTH%/g, month).replace(/%DAY%/g, day).replace(/%DATE%/g, header.date);
     // Variables needed to produce the right URL (if the URL pattern is present)
     const [year, month, day] = header.date.split('-');
     // Get the different types of participants from the comma separated lists
-    const chairs = people_list(header.chair);
-    const scribes = people_list(header.scribe);
+    const chairs = header.chair;
+    const scribes = header.scribe;
     // eslint-disable-next-line arrow-body-style
-    const present = [...people_list(header.present), ...people_list(header.guests)].filter((name) => {
+    const present = [...header.present, ...header.guests].filter((name) => {
         return !(chairs.includes(name) || scribes.includes(name));
     });
     // Build up the structures that is then returned as a JSON string

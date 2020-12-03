@@ -16,7 +16,7 @@ import * as node_fetch              from 'node-fetch';
 import * as fs                      from 'fs';
 import { GitHub }                   from './js/githubapi';
 import * as validUrl                from 'valid-url';
-import { Configuration, Nickname }  from './types';
+import { Configuration, PersonWithNickname }  from './types';
 import * as utils                   from './utils';
 /** @internal */
 const fsp = fs.promises;
@@ -136,13 +136,13 @@ function check_url(address: string): string {
  *     here is "conf.nicknames"
  * @returns - a promise containing the nicknames as an object parsed from JSON.
  */
-export async function get_nick_mapping(conf: Configuration): Promise<Nickname[]> {
+export async function get_nick_mapping(conf: Configuration): Promise<PersonWithNickname[]> {
     /**
     * Minimal cleanup on nicknames: allow irc log to be lower or upper case,
     * internal comparisons should use the lower case only
     */
-    const lower_nicks = (nicks: Nickname[]): Nickname[] => {
-        return nicks.map((nick_structure: Nickname): Nickname => {
+    const lower_nicks = (nicks: PersonWithNickname[]): PersonWithNickname[] => {
+        return nicks.map((nick_structure: PersonWithNickname): PersonWithNickname => {
             const lowered = nick_structure.nick.map((nick: string): string => nick.toLowerCase());
             nick_structure.nick = lowered;
             return nick_structure;
@@ -161,7 +161,7 @@ export async function get_nick_mapping(conf: Configuration): Promise<Nickname[]>
             }
         } else {
             const nicks = await fsp.readFile(address, 'utf-8');
-            let json_content: Nickname[] = [];
+            let json_content: PersonWithNickname[] = [];
             try {
                 json_content = JSON.parse(nicks);
             } catch (e) {
