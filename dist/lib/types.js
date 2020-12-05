@@ -1,4 +1,10 @@
 "use strict";
+/* eslint-disable no-multi-spaces */
+/**
+ * ## Common types and constants
+ *
+ * @packageDocumentation
+*/
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Constants = void 0;
 var Constants;
@@ -13,5 +19,7 @@ var Constants;
     Constants.textual_preamble_size = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
     Constants.textual_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
     Constants.issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
+    Constants.user_config_name = '.scribejs.json';
+    Constants.user_ghid_file = '.ghid.json';
 })(Constants = exports.Constants || (exports.Constants = {}));
 //# sourceMappingURL=types.js.map

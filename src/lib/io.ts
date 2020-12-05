@@ -11,13 +11,13 @@
  * @packageDocumentation
  */
 
-import * as url                     from 'url';
-import * as node_fetch              from 'node-fetch';
-import * as fs                      from 'fs';
-import { GitHub }                   from './js/githubapi';
-import * as validUrl                from 'valid-url';
-import { Configuration, PersonWithNickname }  from './types';
-import * as utils                   from './utils';
+import * as url                                 from 'url';
+import * as node_fetch                          from 'node-fetch';
+import * as fs                                  from 'fs';
+import { GitHub }                               from './js/githubapi';
+import * as validUrl                            from 'valid-url';
+import { Configuration, PersonWithNickname }    from './types';
+import * as utils                               from './utils';
 /** @internal */
 const fsp = fs.promises;
 

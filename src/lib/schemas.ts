@@ -15,8 +15,8 @@
  */
 
 
-import * as fs from 'fs';
-import Ajv from 'ajv';
+import * as fs  from 'fs';
+import Ajv      from 'ajv';
 
 function get_schema(file_name: string): any {
     try {

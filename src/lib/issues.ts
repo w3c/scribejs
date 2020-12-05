@@ -8,8 +8,8 @@
  * @packageDocumentation
  */
 
-import { zip } from './utils';
-import { Configuration, IssueReference } from './types';
+import { zip }                              from './utils';
+import { Configuration, IssueReference }    from './types';
 
 /**
  * Handling the `scribejs, issue X,Y,Z` type directives. The method returns a set of strings to be added to the

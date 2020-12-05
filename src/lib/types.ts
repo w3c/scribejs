@@ -4,7 +4,6 @@
  *
  * @packageDocumentation
 */
-import moment from 'moment';
 
 export namespace Constants {
     export const JEKYLL_NONE        = 'none';
@@ -21,6 +20,9 @@ export namespace Constants {
     export const textual_regexp  = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
 
     export const issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
+
+    export const user_config_name = '.scribejs.json';
+    export const user_ghid_file   = '.ghid.json';
 }
 
 
@@ -30,7 +32,7 @@ export namespace Constants {
  */
 export interface Configuration {
     /** Date in ISO format */
-    date?:          string | moment.Moment;
+    date?:          string;
 
     /** Group name, ie, IRC channel without the staring # or & character */
     group?:         string;

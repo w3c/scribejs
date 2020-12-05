@@ -7,23 +7,15 @@
 /**
 * Get the arguments and/or configuration file
 */
-import * as _       from 'underscore';
-import * as fs      from 'fs';
-import * as path    from 'path';
-import { Command }  from 'commander';
-import moment       from 'moment';
-import * as schemas from './schemas';
+import * as fs                              from 'fs';
+import * as path                            from 'path';
+import { Command }                          from 'commander';
+import * as schemas                         from './schemas';
+import * as utils                           from './utils';
 import { Configuration, Global, Constants } from './types';
 
-
-/** @internal */
-const program = new Command();
-
-const user_config_name = '.scribejs.json';
-const user_ghid_file   = '.ghid.json';
-
 const default_config: Global = {
-    date          : moment(),
+    date          : utils.today,
     final         : false,
     torepo        : false,
     jekyll        : Constants.JEKYLL_NONE,
@@ -60,8 +52,9 @@ function json_conf_file(file_name: string, warn: boolean): Configuration {
                      ${schemas.validation_errors(schemas.validate_config)}`);
         console.warn('(default, minimal configuration used.)');
         return default_config;
+    } else {
+        return js_conf;
     }
-    return _.mapObject(js_conf, (value, key) => (key === 'date' ? moment(value) : value));
 }
 
 /**
@@ -71,11 +64,9 @@ function json_conf_file(file_name: string, warn: boolean): Configuration {
  * @param date
  * @param wg - the name of the wg/ig used when RRSAgent generates the IRC log
  */
-function set_input_url(date: moment.Moment, wg: string) {
-    const zeropadding = (n: number): string => (n < 10 ? `0${n}` : `${n}`);
-    const month = zeropadding(date.month() + 1);
-    const day   = zeropadding(date.date());
-    return `https://www.w3.org/${date.year()}/${month}/${day}-${wg}-irc.txt`;
+function set_input_url(date: string, wg: string) {
+    const [year, month, day] = date.split('-');
+    return `https://www.w3.org/${year}/${month}/${day}-${wg}-irc.txt`;
 }
 
 /**
@@ -93,6 +84,7 @@ function set_input_url(date: moment.Moment, wg: string) {
 export function get_config(): Global {
     /** ******************************************************************** */
     // First step: get the command line arguments. There is an error handling for undefined options
+    const program = new Command();
     const argument_config: Configuration = {};
     program
         .usage('[options] [file]')
@@ -125,7 +117,7 @@ export function get_config(): Global {
             ? program.jekyll
             : Constants.JEKYLL_NONE);
     }
-    if (program.date) argument_config.date = moment(program.date);
+    if (program.date) argument_config.date = program.date;
     if (program.group) argument_config.group = program.group;
     if (program.output) argument_config.output = program.output;
     if (program.nick) argument_config.nicknames = program.nick;
@@ -139,19 +131,19 @@ export function get_config(): Global {
     /** ******************************************************************** */
     // Third step: see if there is user ghid file file
     const gh_id = (process.env.HOME)
-        ? json_conf_file(path.join(process.env.HOME, user_ghid_file), false)
+        ? json_conf_file(path.join(process.env.HOME, Constants.user_ghid_file), false)
         : {};
 
     /** ******************************************************************** */
     // Fourth step: see if there is user level config file
     const user_config = (process.env.HOME)
-        ? json_conf_file(path.join(process.env.HOME, user_config_name), false)
+        ? json_conf_file(path.join(process.env.HOME, Constants.user_config_name), false)
         : {};
 
     /** ******************************************************************** */
     // Fifth step: combine the configuration in increasing priority order, yielding the raw return value
-    const retval = _.extend(default_config, gh_id, user_config, file_config, argument_config) as Global;
-
+    // const retval = _.extend(default_config, gh_id, user_config, file_config, argument_config) as Global;
+    const retval = {...default_config, ...gh_id, ...user_config, ...file_config, ...argument_config} as Global;
     /** ******************************************************************** */
     // Sixth step: sanity check and some cleanup on the configuration object
 
@@ -162,28 +154,25 @@ export function get_config(): Global {
     // ie, that must be referred to in the header of the minutes
     if (retval.group) {
         // Set the default IRC URL
-        retval.orig_irc_log = set_input_url(retval.date as moment.Moment, retval.group);
+        retval.orig_irc_log = set_input_url(retval.date, retval.group);
         if (!retval.input) {
             retval.input = retval.orig_irc_log;
         }
     }
 
-    // 2. get read of the 'moment' object and use ISO date instead
-    retval.date = (retval.date as moment.Moment).format('YYYY-MM-DD');
-
-    // 3. if the input is not set, nothing should happen!
+    // 2. if the input is not set, nothing should happen!
     if (!retval.input) {
         // There is nothing to do!!
         throw new Error('no irc log is provided; either an explicit file name or date and group name are needed');
     }
 
-    // 4. if the github repo should be used, some values are required. If they are
+    // 3. if the github repo should be used, some values are required. If they are
     // present, the output file name for the repo can be generated, if needed
     if (retval.torepo) {
         const needed = [retval.ghname, retval.ghemail, retval.ghtoken, retval.ghrepo, retval.ghpath];
-        if (_.every(needed, (val) => !_.isUndefined(val))) {
+        if (utils.every(needed, (val) => val !== undefined)) {
             retval.ghfname = retval.output ? retval.output : `${retval.date}-minutes.md`;
-            retval.ghmessage = `Added minutes for ${retval.date} at ${moment().format('YYYY-MM-DD H:m:s Z')}`;
+            retval.ghmessage = `Added minutes for ${retval.date} at ${new Date().toISOString()}`;
         } else {
             const message = 'Repository output is required, but not all values are provided.\n';
             const message2 = 'are needed: ghname, ghemail, ghtoken, ghrepo, ghpath\n';
@@ -194,7 +183,7 @@ export function get_config(): Global {
         }
     }
 
-    // 5. the 'auto' value is set automatically in case the configuration file does not set it explicitly
+    // 4. the 'auto' value is set automatically in case the configuration file does not set it explicitly
     if (!retval.auto) {
         retval.auto = !(retval.final === true);
     }

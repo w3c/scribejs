@@ -9,13 +9,15 @@
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.perform_changes = exports.perform_insert = exports.separate_header = exports.get_name_list = exports.canonical_nick = exports.get_labelled_item = exports.get_label = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.is_browser = void 0;
+exports.perform_changes = exports.perform_insert = exports.separate_header = exports.get_name_list = exports.canonical_nick = exports.get_labelled_item = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
 const safe = require('safe-regex');
 /** ******************************************************************* */
 /*                       Conversion generic utilities                   */
 /** ******************************************************************* */
-/** constant to decide whether the code runs in a browser or via node.js */
+/** (Calculated) constant to decide whether the code runs in a browser or via node.js */
 exports.is_browser = (process === undefined || process.title === 'browser');
+/** (Calculated) constant for today's date in ISO format */
+exports.today = new Date().toISOString().split('T')[0];
 /**
  * "Zip" two arrays, i.e., create an array whose elements are pairs of the corresponding elements in the two arrays being processed.
  */
@@ -50,6 +52,7 @@ function union(a, b) {
 exports.union = union;
 /**
  * Difference of two arrays ('difference' in a set-theoretic sense, ie, `a \ b`)
+ *
  * @param a
  * @param b
  */
@@ -72,6 +75,16 @@ function flatten(accumulator, currentValue) {
     return [...accumulator, ...currentValue];
 }
 exports.flatten = flatten;
+/**
+ * Returns true if all elements in an array pass the truth test
+ * @param obj
+ */
+function every(elements, callback) {
+    // return true if no false is found...
+    const found = elements.find((element) => !callback(element));
+    return found === undefined;
+}
+exports.every = every;
 /** ******************************************************************* */
 /*                       Conversion utility functions                   */
 /** ******************************************************************* */

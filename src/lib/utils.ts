@@ -15,8 +15,11 @@ const safe = require('safe-regex');
 /*                       Conversion generic utilities                   */
 /** ******************************************************************* */
 
-/** constant to decide whether the code runs in a browser or via node.js */
+/** (Calculated) constant to decide whether the code runs in a browser or via node.js */
 export const is_browser :boolean = (process === undefined || process.title === 'browser');
+
+/** (Calculated) constant for today's date in ISO format */
+export const today: string = new Date().toISOString().split('T')[0];
 
 /**
  * "Zip" two arrays, i.e., create an array whose elements are pairs of the corresponding elements in the two arrays being processed.
@@ -52,6 +55,7 @@ export function union<T>(a: T[], b: T[]): T[] {
 
 /**
  * Difference of two arrays ('difference' in a set-theoretic sense, ie, `a \ b`)
+ *
  * @param a
  * @param b
  */
@@ -75,6 +79,15 @@ export function flatten<T>(accumulator: T[], currentValue: T[]): T[] {
     return [...accumulator, ...currentValue];
 }
 
+/**
+ * Returns true if all elements in an array pass the truth test
+ * @param obj
+ */
+export function every<T>(elements: T[], callback: ((element: T) => boolean)) {
+    // return true if no false is found...
+    const found = elements.find((element: T) => !callback(element));
+    return found === undefined;
+}
 
 /** ******************************************************************* */
 /*                       Conversion utility functions                   */

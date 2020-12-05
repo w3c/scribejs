@@ -9,19 +9,14 @@ exports.get_config = void 0;
 /**
 * Get the arguments and/or configuration file
 */
-const _ = __importStar(require("underscore"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const commander_1 = require("commander");
-const moment_1 = __importDefault(require("moment"));
 const schemas = __importStar(require("./schemas"));
+const utils = __importStar(require("./utils"));
 const types_1 = require("./types");
-/** @internal */
-const program = new commander_1.Command();
-const user_config_name = '.scribejs.json';
-const user_ghid_file = '.ghid.json';
 const default_config = {
-    date: moment_1.default(),
+    date: utils.today,
     final: false,
     torepo: false,
     jekyll: types_1.Constants.JEKYLL_NONE,
@@ -59,7 +54,9 @@ function json_conf_file(file_name, warn) {
         console.warn('(default, minimal configuration used.)');
         return default_config;
     }
-    return _.mapObject(js_conf, (value, key) => (key === 'date' ? moment_1.default(value) : value));
+    else {
+        return js_conf;
+    }
 }
 /**
  * Return the URL to the input: the RSS IRC script URL on the HTTP Date space, namely
@@ -69,10 +66,8 @@ function json_conf_file(file_name, warn) {
  * @param wg - the name of the wg/ig used when RRSAgent generates the IRC log
  */
 function set_input_url(date, wg) {
-    const zeropadding = (n) => (n < 10 ? `0${n}` : `${n}`);
-    const month = zeropadding(date.month() + 1);
-    const day = zeropadding(date.date());
-    return `https://www.w3.org/${date.year()}/${month}/${day}-${wg}-irc.txt`;
+    const [year, month, day] = date.split('-');
+    return `https://www.w3.org/${year}/${month}/${day}-${wg}-irc.txt`;
 }
 /**
  * Collect the full configuration information. This is a combination of four possible sources
@@ -89,6 +84,7 @@ function set_input_url(date, wg) {
 function get_config() {
     /** ******************************************************************** */
     // First step: get the command line arguments. There is an error handling for undefined options
+    const program = new commander_1.Command();
     const argument_config = {};
     program
         .usage('[options] [file]')
@@ -125,7 +121,7 @@ function get_config() {
             : types_1.Constants.JEKYLL_NONE);
     }
     if (program.date)
-        argument_config.date = moment_1.default(program.date);
+        argument_config.date = program.date;
     if (program.group)
         argument_config.group = program.group;
     if (program.output)
@@ -142,16 +138,17 @@ function get_config() {
     /** ******************************************************************** */
     // Third step: see if there is user ghid file file
     const gh_id = (process.env.HOME)
-        ? json_conf_file(path.join(process.env.HOME, user_ghid_file), false)
+        ? json_conf_file(path.join(process.env.HOME, types_1.Constants.user_ghid_file), false)
         : {};
     /** ******************************************************************** */
     // Fourth step: see if there is user level config file
     const user_config = (process.env.HOME)
-        ? json_conf_file(path.join(process.env.HOME, user_config_name), false)
+        ? json_conf_file(path.join(process.env.HOME, types_1.Constants.user_config_name), false)
         : {};
     /** ******************************************************************** */
     // Fifth step: combine the configuration in increasing priority order, yielding the raw return value
-    const retval = _.extend(default_config, gh_id, user_config, file_config, argument_config);
+    // const retval = _.extend(default_config, gh_id, user_config, file_config, argument_config) as Global;
+    const retval = { ...default_config, ...gh_id, ...user_config, ...file_config, ...argument_config };
     /** ******************************************************************** */
     // Sixth step: sanity check and some cleanup on the configuration object
     // 1. If the group is provided and no explicit input, we should retrieve the
@@ -166,20 +163,18 @@ function get_config() {
             retval.input = retval.orig_irc_log;
         }
     }
-    // 2. get read of the 'moment' object and use ISO date instead
-    retval.date = retval.date.format('YYYY-MM-DD');
-    // 3. if the input is not set, nothing should happen!
+    // 2. if the input is not set, nothing should happen!
     if (!retval.input) {
         // There is nothing to do!!
         throw new Error('no irc log is provided; either an explicit file name or date and group name are needed');
     }
-    // 4. if the github repo should be used, some values are required. If they are
+    // 3. if the github repo should be used, some values are required. If they are
     // present, the output file name for the repo can be generated, if needed
     if (retval.torepo) {
         const needed = [retval.ghname, retval.ghemail, retval.ghtoken, retval.ghrepo, retval.ghpath];
-        if (_.every(needed, (val) => !_.isUndefined(val))) {
+        if (utils.every(needed, (val) => val !== undefined)) {
             retval.ghfname = retval.output ? retval.output : `${retval.date}-minutes.md`;
-            retval.ghmessage = `Added minutes for ${retval.date} at ${moment_1.default().format('YYYY-MM-DD H:m:s Z')}`;
+            retval.ghmessage = `Added minutes for ${retval.date} at ${new Date().toISOString()}`;
         }
         else {
             const message = 'Repository output is required, but not all values are provided.\n';
@@ -193,7 +188,7 @@ function get_config() {
             throw new Error(message + message2 + JSON.stringify(retval, null, 2));
         }
     }
-    // 5. the 'auto' value is set automatically in case the configuration file does not set it explicitly
+    // 4. the 'auto' value is set automatically in case the configuration file does not set it explicitly
     if (!retval.auto) {
         retval.auto = !(retval.final === true);
     }

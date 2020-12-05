@@ -4,8 +4,8 @@
  * @packageDocumentation
 */
 
-import { Configuration } from './types';
-import { GitHub } from './js/githubapi';
+import { Configuration }    from './types';
+import { GitHub }           from './js/githubapi';
 
 interface Action {
     gh_action_id: string;
