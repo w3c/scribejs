@@ -8,11 +8,10 @@
  * @license: W3C Software License <https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const debug = false;
-const io = __importStar(require("./lib/io"));
-const convert = __importStar(require("./lib/convert"));
-const conf = __importStar(require("./lib/conf"));
-const schemas = __importStar(require("./lib/schemas"));
+const io = require("./lib/io");
+const convert = require("./lib/convert");
+const conf = require("./lib/conf");
+const schemas = require("./lib/schemas");
 const actions_1 = require("./lib/actions");
 /* This is just the overall driver of the script... */
 async function main() {
@@ -21,9 +20,9 @@ async function main() {
         // Note that the get_config method is synchronous
         // (uses a sync version of file system access)
         const config = conf.get_config();
-        if (debug) {
-            console.log(JSON.stringify(config, null, 2));
-        }
+        // if (debug) {
+        //     console.log(JSON.stringify(config, null, 2));
+        // }
         // Get the nickname mappings object. The result gets added to the configuration
         // config.nicks is of type Nickname[]
         config.nicks = await io.get_nick_mapping(config);

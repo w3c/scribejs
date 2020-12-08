@@ -5,6 +5,8 @@
  * @packageDocumentation
 */
 
+export const debug = false;
+
 export namespace Constants {
     export const JEKYLL_NONE        = 'none';
     export const JEKYLL_MARKDOWN    = 'md';

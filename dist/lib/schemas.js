@@ -14,8 +14,7 @@ exports.validation_errors = exports.validate_nicknames = exports.validate_config
  * The schemas themselves are part of the distribution as JSON files.
  *
  */
-const fs = __importStar(require("fs"));
-const ajv_1 = __importDefault(require("ajv"));
+const fs = require("fs");
 function get_schema(file_name) {
     try {
         const filename = `${__dirname}/../../${file_name}`;
@@ -34,7 +33,8 @@ const nicknames_schema = get_schema('schemas/nicknames_schema.json');
 * the two separate "validators" for the two schemas.
 *
 */
-const validator = new ajv_1.default({ allErrors: true });
+const Ajv = require('ajv');
+const validator = new Ajv({ allErrors: true });
 // I am not sure why this is necessary and not done automatically. Oh well...
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 validator.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
@@ -49,8 +49,10 @@ exports.validate_nicknames = validator.compile(nicknames_schema);
  * The Ajv object is initialized with the option of gathering all errors in one
  * message, so the expected output is a series of errors.
  *
- * @param {object} validator_function - an ajv validator object (result of compilation)
- * @return {string} - string version of the errors, separated by new line characters.
+ * (Note: the type information of the argument is `any`, because Typescript processing somehow got things wrong otherwise...)
+ *
+ * @param validator_function - an ajv validator object (result of compilation)
+ * @return string version of the errors, separated by new line characters.
  *
  */
 function validation_errors(validator_function) {

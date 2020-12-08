@@ -8,15 +8,15 @@ const string_to_base64 = (string) => Buffer.from(string).toString('base64');
  * Wrapper around a the Github API using the more generic octocat library.
  *
  */
-class Github {
+class GitHub {
     /**
      *
-     * @param {string} repo - Github repo identifier in a `owner/repo` format
+     * @param {string} repo_id - Github repo identifier in a `owner/repo` format
      * @param {Object} conf - program configuration
      */
-    constructor(repo, conf) {
+    constructor(repo_id, conf) {
         this.conf = conf;
-        this._repo = new Octokat({ token: conf.ghtoken }).repo(repo);
+        this._repo = new Octokat({ token: conf.ghtoken }).repos(...repo_id.split('/'));
     }
     /**
      *
@@ -47,7 +47,7 @@ class Github {
      * @return - array of issue titles
      */
     async get_issue_titles() {
-        const pages = await this.repo({ per_page: 200 });
+        const pages = await this._repo.issues.fetch({ per_page: 200 });
         const issues = await pages.all();
         return issues.map((issue) => issue.title);
     }
@@ -55,7 +55,7 @@ class Github {
      * Get the list of assignees' logins. Note that the method takes care of paging.
      */
     async get_assignees() {
-        const pages = await this.repo.page('assignees', {}, { per_page: 200 });
+        const pages = await this._repo.assignees.fetch('assignees', {}, { per_page: 200 });
         const assignees = await pages.all();
         return assignees.map((assignee) => assignee.login);
     }
@@ -69,5 +69,5 @@ class Github {
     }
 }
 /* ------------------------------------------------------------ */
-module.exports = { Github };
+module.exports = { GitHub };
 //# sourceMappingURL=githubapi.js.map

@@ -3,7 +3,7 @@
         "allowJs": true,
         "alwaysStrict": true,
         "baseUrl": ".",
-        "esModuleInterop": true,
+        "esModuleInterop": false,
         "lib": ["ES2019", "dom"],
         "module": "commonjs",
         "moduleResolution": "node",

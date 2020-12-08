@@ -6,7 +6,8 @@
  * @packageDocumentation
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Constants = void 0;
+exports.Constants = exports.debug = void 0;
+exports.debug = true;
 var Constants;
 (function (Constants) {
     Constants.JEKYLL_NONE = 'none';

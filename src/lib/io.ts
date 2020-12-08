@@ -11,6 +11,8 @@
  * @packageDocumentation
  */
 
+import { debug } from './types';
+
 import * as url                                 from 'url';
 import * as node_fetch                          from 'node-fetch';
 import * as fs                                  from 'fs';
@@ -18,6 +20,7 @@ import { GitHub }                               from './js/githubapi';
 import * as validUrl                            from 'valid-url';
 import { Configuration, PersonWithNickname }    from './types';
 import * as utils                               from './utils';
+
 /** @internal */
 const fsp = fs.promises;
 
@@ -96,7 +99,7 @@ export async function get_irc_log(conf: Configuration): Promise<string> {
 function check_url(address: string): string {
     const parsed = url.parse(address);
     if (parsed.protocol === null) {
-        // This is not a URl, should be used as a file name
+        // This is not a URL, should be used as a file name
         return null;
     }
     // Check whether we use the right protocol
@@ -154,20 +157,19 @@ export async function get_nick_mapping(conf: Configuration): Promise<PersonWithN
         if (address !== null) {
             const response = await my_fetch(address);
             if (response.ok) {
-                const nicks = await response.json();
+                const nicks = await response.json() as PersonWithNickname[];
                 return lower_nicks(nicks);
             } else {
                 throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
             }
         } else {
-            const nicks = await fsp.readFile(address, 'utf-8');
-            let json_content: PersonWithNickname[] = [];
+            const nicks = await fsp.readFile(conf.nicknames, 'utf-8');
             try {
-                json_content = JSON.parse(nicks);
+                const json_content = JSON.parse(nicks) as PersonWithNickname[];
+                return lower_nicks(json_content)
             } catch (e) {
                 throw new Error(`JSON parsing error in ${conf.nicknames}: ${e}`)
             }
-            return lower_nicks(json_content);
         }
     } else {
         return [];

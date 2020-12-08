@@ -42,6 +42,8 @@
 00:13:18 <dauwhe> Proposal: deprecate `rendition:align-x-center`
 00:13:31 <Nellie> +1
 00:13:32 <MattChan> +1
+00:13:32 <MattChan> scribejs, set nami Másik János
+00:13:32 <MattChan> present+ nami
 00:14:04 <jyoshii_> 0
 00:14:28 <rkuroda> 0
 00:14:30 <toshiakikoike> +1

@@ -9,11 +9,11 @@ exports.get_config = void 0;
 /**
 * Get the arguments and/or configuration file
 */
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
+const fs = require("fs");
+const path = require("path");
 const commander_1 = require("commander");
-const schemas = __importStar(require("./schemas"));
-const utils = __importStar(require("./utils"));
+const schemas = require("./schemas");
+const utils = require("./utils");
 const types_1 = require("./types");
 const default_config = {
     date: utils.today,

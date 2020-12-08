@@ -9,7 +9,8 @@
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.perform_changes = exports.perform_insert = exports.separate_header = exports.get_name_list = exports.canonical_nick = exports.get_labelled_item = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
+exports.perform_changes = exports.perform_insert = exports.separate_header = exports.get_name_list = exports.canonical_nick = exports.get_labelled_item = exports.get_label = exports.remove_preamble = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
+const types_1 = require("./types");
 const safe = require('safe-regex');
 /** ******************************************************************* */
 /*                       Conversion generic utilities                   */
@@ -88,6 +89,48 @@ exports.every = every;
 /** ******************************************************************* */
 /*                       Conversion utility functions                   */
 /** ******************************************************************* */
+/**
+ * Remove the 'preamble' from the line, ie, the part that is
+ * put there by the IRC client. Unfortunately, that is not standard,
+ * which means that each client does it differently.
+ *
+ * This function relies on a user option, if available; otherwise
+ * it tries some heuristics among the currently known IRC logs formats:
+ * RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.
+ *
+ * The function has a side effect of setting the irc_format value in the configuration. This means
+ * the right extra lines will be removed, if necessary (and the regexp will be matched only once)
+ *
+ * @param line - the full line of an IRC log
+ * @return truncated line
+ */
+function remove_preamble(line, config) {
+    const preamble_size = (the_line) => {
+        if (config.irc_format) {
+            switch (config.irc_format) {
+                case 'irccloud': return types_1.Constants.irccloud_preamble_size;
+                case 'textual': return types_1.Constants.textual_preamble_size;
+                case 'rrsagent':
+                default: return types_1.Constants.rrsagent_preamble_size;
+            }
+        }
+        else if (the_line.match(types_1.Constants.irccloud_regexp) !== null) {
+            config.irc_format = 'irccloud';
+            return types_1.Constants.irccloud_preamble_size;
+        }
+        else if (the_line.match(types_1.Constants.textual_regexp) !== null) {
+            config.irc_format = 'textual';
+            return types_1.Constants.textual_preamble_size;
+        }
+        else {
+            config.irc_format = 'rrsagent';
+            return types_1.Constants.rrsagent_preamble_size;
+        }
+    };
+    const preamble = preamble_size(line);
+    return line.slice(preamble);
+}
+exports.remove_preamble = remove_preamble;
 /**
  * Get a 'label', ie, find out if there is a 'XXX:' at the beginning of a line.
  *
@@ -258,7 +301,7 @@ exports.get_name_list = get_name_list;
 // Beware: although using underscore functions, ie, very functional oriented style, the
 // filters all have side effects in the sense of expanding the 'header structure'. Not
 // very functional but, oh well...
-function separate_header(lines, date, cleanup_names) {
+function separate_header(lines, date) {
     const headers = {
         present: [],
         regrets: [],
@@ -349,12 +392,6 @@ function separate_header(lines, date, cleanup_names) {
         .filter((line) => !single_item('meeting', line))
         .filter((line) => !single_item('date', line))
         .filter((line) => (line.nick !== 'trackbot'));
-    // Cleaning up the names in the header
-    for (let key in headers) {
-        if (Array.isArray(headers[key])) {
-            headers[key] = cleanup_names(headers[key]);
-        }
-    }
     return {
         headers: headers,
         lines: processed_lines

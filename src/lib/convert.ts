@@ -3,6 +3,7 @@
  *
  * @packageDocumentation
  */
+import { debug, Configuration } from './types';
 
 import * as url                                 from 'url';
 import * as issues                              from './issues';
@@ -28,45 +29,6 @@ export class Converter {
         this.kramdown = config.jekyll === Constants.JEKYLL_KRAMDOWN;
     }
 
-    /**
-     * Remove the 'preamble' from the line, ie, the part that is
-     * put there by the IRC client. Unfortunately, that is not standard,
-     * which means that each client does it differently.
-     *
-     * This function relies on a user option, if available; otherwise
-     * it tries some heuristics among the currently known IRC logs formats:
-     * RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.
-     *
-     * The function has a side effect of setting the irc_format value in the configuration. This means
-     * the right extra lines will be removed, if necessary (and the regexp will be matched only once)
-     *
-     * @param line - the full line of an IRC log
-     * @return truncated line
-     */
-    private remove_preamble(line: string): string {
-        const preamble_size = (the_line: string): number => {
-            if (this.config.irc_format) {
-                switch (this.config.irc_format) {
-                    case 'irccloud': return Constants.irccloud_preamble_size;
-                    case 'textual' : return Constants.textual_preamble_size;
-                    case 'rrsagent':
-                    default: return Constants.rrsagent_preamble_size;
-                }
-            } else if (the_line.match(Constants.irccloud_regexp) !== null) {
-                this.config.irc_format = 'irccloud';
-                return Constants.irccloud_preamble_size;
-            } else if (the_line.match(Constants.textual_regexp) !== null) {
-                this.config.irc_format = 'textual';
-                return Constants.textual_preamble_size;
-            } else {
-                this.config.irc_format = 'rrsagent';
-                return Constants.rrsagent_preamble_size;
-            }
-        };
-        const preamble = preamble_size(line);
-        return line.slice(preamble);
-    }
-
     /** ******************************************************************* */
     /*                Helper functions for nicknames                        */
     /** ******************************************************************* */
@@ -78,11 +40,11 @@ export class Converter {
      * the same full names can be used throughout the minutes.
      *
      * @param nick - name/nickname
-     * @returns `name` for the full name and `url`/`github` if available
+     * @returns The structure includes `name` for the full name and `url`/`github`/`role` if available.
      */
     private get_name(nick: string): Person {
         /**
-         * Get the nickname mapping structure, if any, for a nickname.
+         * Get the nickname mapping structure, if available, for a nickname.
          * Usage of a nickname mapping is really just a beautification step, so if there is
          * a problem in that structure, it should simply ignore it.
          *
@@ -128,7 +90,7 @@ export class Converter {
      * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
      *
      * @param nick - name/nickname
-     * @returns  cleaned up name
+     * @returns  (real) full name (extracted from the corresponding [[Person]] structure)
      */
     private full_name(nick: string): string {
         return this.get_name(nick).name;
@@ -139,201 +101,12 @@ export class Converter {
      * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
      *
      * @param nick - name/nickname
-     * @returns github id. `undefined` if the github id has not been set.
+     * @returns github id (extracted from the corresponding [[Person]] structure). `undefined` if the github id has not been set.
      */
     private github_name(nick: string): string {
         return this.get_name(nick).github;
     }
 
-    /**
-     * Cleanup nicknames. This relies on the
-     * (optional) nickname list that the user may provide, and replaces the
-     * (sometimes cryptic) nicknames with real names. Duplicate names are also removed.
-     *     *
-     * @param nicks - list of names/nicknames
-     * @returns list of cleaned up names
-     */
-    private cleanup_names(nicks: string[]): string[] {
-        const names: string[] = nicks.map(this.full_name);
-        return utils.uniq(names);
-    }
-
-    /** ******************************************************************* */
-    /*                        Other helper functions                        */
-    /** ******************************************************************* */
-
-    /**
-     * Handle the 'scribejs' directives. The directives are of the form "scribejs, COMMAND ARGS" or, equivalently, "sjs, COMMAND ARGS".
-     *
-     * At the moment there are two possible directives:
-     *
-     * 1. 'set', adding a temporary nick name (by extending the global data)
-     * 2. Handling the issue/pr directives
-     *
-     * @param line_object - a line object; the only important entry is the 'content'
-     * @returns true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise
-     */
-    private handle_scribejs(line_object: LineObject): boolean {
-        if (line_object.content_lower.startsWith('scribejs, ') || line_object.content_lower.startsWith('sjs, ')) {
-            // If there is a problem somewhere, it should simply be forgotten
-            // these are all beautifying steps, ie, an exception could be ignored
-            try {
-                const words = line_object.content.split(' ');
-                switch (words[1]) {
-                    case 'issue':
-                    case 'pr':
-                        // these are handled elsewhere; the directives should stay in content for further processing
-                        return true;
-                    // Set a per-session nickname.
-                    case 'set': {
-                        const nickname   = words[2].toLowerCase();
-                        const name_comps = words.slice(3);
-                        if (name_comps.length !== 0) {
-                            // The name is cleared from the '_' signs, which
-                            // are usually used to replace spaces...
-                            this.config.nicks.push({
-                                nick : [nickname],
-                                name : name_comps.join(' ').replace(/_/g, ' ')
-                            });
-                        }
-                        break;
-                    }
-                    default: {
-                        return true;
-                    }
-                }
-            } catch (err) {
-                return true;
-            }
-            // If we got there, the directive has its effect and should be removed
-            // returning 'false' will remove this line from the result
-            return false;
-        }
-        // This line should remain for further processing
-        return true;
-    }
-
-    /**
-     * Cleanup actions on the incoming body:
-     *  - turn the body (which is one giant string) into an array of lines
-     *  - remove empty lines
-     *  - remove the starting time stamps
-     *  - turn lines into objects, separating the nick name and the content
-     *  - remove the lines coming from zakim or rrsagent
-     *  - remove zakim queue commands
-     *  - remove zakim agenda control commands
-     *  - remove bot commands ("zakim,", "rrsagent,", etc.)
-     *  - remove the "XXX has joined #YYY" type messages
-     *  - handle the "scribejs, nick FULL NAME" type commands (or, equivalently, "sjs, nick ...")
-     *
-     *
-     * @param body - the full IRC log
-     * @returns array of {nick, content, content_lower} objects ('nick' is the IRC nick)
-     */
-    private cleanup(body: string[]): LineObject[] {
-
-        const cleaned_up_lines: string[]  = body
-            .filter((line: string): boolean => line.length !== 0)
-            // Remove the starting time stamp or equivalent. The function
-            // relies on the fact that each line starts with a specific number of characters.
-            // Alas!, this depends on the irc log format...
-            .map(this.remove_preamble)
-            .filter((line: string): boolean => {
-                // this filter is, in fact, unnecessary if rrsagent is properly used
-                // however, if the script is used against a line-oriented log
-                // of an irc client (like textual) then this come handy in taking
-                // out at least some of the problematic lines
-                if (this.config.irc_format === undefined) {
-                    // use the default RRSAgent log, no extra filter is necessary
-                    return true;
-                }
-                switch (this.config.irc_format) {
-                    case 'textual': {
-                        const stripped_line = line.trim();
-                        return !(
-                            stripped_line.length === 0
-                            || stripped_line[0] === '•'
-                            || stripped_line.startsWith('Disconnected for Sleep Mode')
-                            || stripped_line.includes('rrsagent')
-                            || stripped_line.includes('zakim')
-                            || stripped_line.includes('github-bot')
-                            || stripped_line.includes('joined the channel')
-                            || stripped_line.includes('------------- Begin Session -------------')
-                            || stripped_line.includes('------------- End Session -------------')
-                            || stripped_line.includes('changed the topic to')
-                        );
-                    } case 'irccloud': {
-                        const stripped_line = line.trim();
-                        return !(
-                            stripped_line.length === 0
-                            || stripped_line[0] === '→'
-                            || stripped_line[0] === '—'
-                            || stripped_line[0] === '⇐'
-                        );
-                    }
-                    default: {
-                        return true;
-                    }
-                }
-            });
-
-        // This is where the IRC log lines are turned into objects, separating the nicknames.
-        const line_objects: LineObject[] = cleaned_up_lines.map( (line: string): LineObject => {
-            const sp = line.indexOf(' ');
-            return {
-                // Note that I remove the '<' and the '>' characters
-                // leaving only the real nickname
-                nick    : line.slice(1, sp - 1),
-                content : line.slice(sp + 1).trim()
-            };
-        });
-
-        // From here on, the lines are cleaned up using the line object
-        return line_objects
-            // Taking care of the accidental appearance of what could be
-            // interpreted as an HTML tag...
-            // Unless... the scribe or the commenter has already put the tag into back quotes!
-            .map((line_object: LineObject): LineObject => {
-                line_object.content = line_object.content.replace(/([^`])<(\w*\/?)>([^`])/g, '$1`<$2>`$3');
-                return line_object;
-            })
-            // Add a lower case version of the content to the objects; this will be used
-            // for comparisons later
-            .map((line_object: LineObject): LineObject => {
-                line_object.content_lower = line_object.content.toLowerCase();
-                return line_object;
-            })
-            // Bunch of filters, removing the unnecessary lines
-            .filter((line_object: LineObject): boolean => (
-                line_object.nick !== 'RRSAgent'
-                && line_object.nick !== 'Zakim'
-                && line_object.nick !== 'github-bot'
-            ))
-            .filter((line_object: LineObject): boolean => !(
-                line_object.content_lower.startsWith('q+')
-                || line_object.content_lower.startsWith('+q')
-                || line_object.content_lower.startsWith('vq?')
-                || line_object.content_lower.startsWith('qq+')
-                || line_object.content_lower.startsWith('q-')
-                || line_object.content_lower.startsWith('q?')
-                || line_object.content_lower.startsWith('ack')
-                || line_object.content_lower.startsWith('agenda+')
-                || line_object.content_lower.startsWith('agenda?')
-                || line_object.content_lower.startsWith('trackbot,')
-                || line_object.content_lower.startsWith('zakim,')
-                || line_object.content_lower.startsWith('rrsagent,')
-                || line_object.content_lower.startsWith('github topic')
-                || line_object.content_lower.startsWith('github-bot,')
-            ))
-            // There are some irc messages that should be taken care of
-            .filter((line_object: LineObject): boolean => !(
-                line_object.content.match(/^\w+ has joined #\w+/)
-                || line_object.content.match(/^\w+ has left #\w+/)
-                || line_object.content.match(/^\w+ has changed the topic to:/)
-            ))
-            // Handle the scribejs directives
-            .filter(this.handle_scribejs);
-    }
 
     /**
      * Generate the Header part of the minutes: present, guests, regrets, chair, etc.
@@ -345,11 +118,14 @@ export class Converter {
      */
     private generate_header_md(headers: Header): string {
         // Clean up the names in the headers, just to be on the safe side
+        const convert_to_full_name = (nick: string): string => this.full_name(nick);
         for( const key in headers) {
             if (Array.isArray(headers[key])) {
                 headers[key] = headers[key]
-                    .map((name: string): string => name.trim())
-                    .filter((name: string): boolean => name !== '');
+                    .map((nickname: string): string => nickname.trim())
+                    .filter((nickname: string): boolean => nickname !== '')
+                    .map(convert_to_full_name);
+                headers[key] = utils.uniq(headers[key]);
             }
         }
 
@@ -539,117 +315,6 @@ ${no_toc}
             }
         };
 
-        /**
-        * URL handling: find URL-s in a line and convert it into an active markdown link.
-        *
-        * There different possibilities:
-        * * `-> URL some text` as a separate line (a.k.a. Ralph style links); "some text" becomes the link text
-        * * `-> some text URL` anywhere in the line, possibly several patterns in a line; "some text" becomes the link text
-        * * Simple URL formatted text where the link text is the URL itself
-        *
-        * Markup syntaxed link are left unchanged.
-        *
-        * @param {String} line - the line itself
-        * @returns {String} - the converted line
-        */
-        const add_links = (line: string): string => {
-            /**
-            * Rudimentary check whether the string should be considered a dereferencable URL
-            */
-            const check_url = (str: string): boolean => {
-                const a = url.parse(str);
-                return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:'].indexOf(a.protocol) !== -1;
-            };
-
-            /**
-             * Splitting the line into words. By default, one splits along a space character; however, markdown code
-             * (i.e., anything between a pair pair of "`" characters) should be considered a single word.
-             * @param {String} full_line - the content line
-             * @returns {Array} - array of strings, ie, the words
-             */
-            const split_to_words = (full_line: string): string[] => {
-                const REPL_HACK = '$MD_CODE$';
-                const regex = /`[^`]+`/g;
-                const trimmed = full_line.trim();
-                const codes = trimmed.match(regex);
-
-                if (codes) {
-                    // ugly hack: replacing the code portions with a fixed pattern
-                    // now we can split to get words; each code portion appears a word with REPL_HACK
-                    let code_index = 0;
-                    const fake = trimmed.replace(regex, REPL_HACK);
-                    return fake.split(' ').filter((word) => word !== '').map((word) => {
-                        if (word.indexOf(REPL_HACK) !== -1) {
-                            // eslint-disable-next-line no-plusplus
-                            return word.replace(REPL_HACK, codes[code_index++]);
-                        } else {
-                            return word;
-                        }
-                    });
-                } else {
-                    // no codes to play with
-                    // empty words are also filtered out
-                    return trimmed.split(' ').filter((word) => word !== '');
-                }
-            };
-
-            /**
-            * Taking care of the case where only URL-s are in the line without a pattern: such words are found
-            * and are converted into markup-style links with the URL text as a link text itself.
-            */
-            const simple_link_exchange = (word: string): string => (check_url(word) ? `[${word}](${word})` : word);
-
-            /**
-             * Taking care of the `-> some text URL` pattern. The list of words is converted into a list of words with the
-             * link portions turned into markup-style links. The '->' marker is dropped from the output.
-             *
-             * This is a recursive function to locate all pattern occurrences.
-             *
-             * @param {Array} list_of_words - the original string turned into a list of words
-             * @return {Array} - the converted list of words
-             */
-            const replace_links = (list_of_words: string[]): string[] => {
-                if (list_of_words.length === 0) return list_of_words;
-
-                const start = list_of_words.findIndex((word) => word === '->');
-                if (start === -1) {
-                    // No links to worry about
-                    return list_of_words;
-                } else {
-                    const preamble = list_of_words.slice(0, start);
-                    const rest = list_of_words.slice(start + 1);
-                    const link_index = rest.findIndex(check_url);
-                    if (link_index <= 0) {
-                        // the string '->' used for some other purposes
-                        return list_of_words;
-                    } else {
-                        const new_link_word = [`[${rest.slice(0, link_index).join(' ')}](${rest[link_index]})`];
-                        const so_far = [...preamble, ...new_link_word];
-                        if (link_index === rest.length) {
-                            return so_far;
-                        } else {
-                            const leftover = rest.slice(link_index + 1);
-                            // recursion to get possible other links in the line
-                            return [...so_far, ...replace_links(leftover)];
-                        }
-                    }
-                }
-            };
-
-            // 1. separate the line into an array of words (double spaces must be filtered out...)
-            const words = split_to_words(line);
-
-            // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
-            if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
-                const url_part = words[1];
-                const link_part = words.slice(2).join(' ');
-                return `See [${link_part}](${url_part}).`;
-            } else {
-                // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-                return replace_links(words).map(simple_link_exchange).join(' ') + '.';
-            }
-        };
-
 
         // "state" variables for the main cycle...
         let scribes: string[]      = [];
@@ -669,11 +334,11 @@ ${no_toc}
             if (new_scribe_list) {
                 scribes = new_scribe_list.map((person) => utils.canonical_nick(person));
                 // this line can be forgotten...
-                break;
+                continue;
             }
 
             // Add links, and separate the label (ie, "topic:", "proposed:", etc.) from the rest
-            const content_with_links: string = add_links(line_object.content);
+            const content_with_links: string = utils.add_links(line_object.content);
             const { label, content } = utils.get_label(content_with_links);
 
             // First handle special entries that must be handled regardless
@@ -828,8 +493,8 @@ ${no_toc}
         //    from the 'real' content. That real content is stored in an array
         //    {nick, content} structures
 
-        const irc_log: LineObject[] = this.cleanup(split_body);
-        let { headers, lines } = utils.separate_header(irc_log, this.config.date as string, this.cleanup_names);
+        const irc_log: LineObject[] = utils.cleanup(split_body, this.config);
+        let { headers, lines } = utils.separate_header(irc_log, this.config.date as string);
 
         // 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
         lines = utils.perform_insert(lines);
@@ -842,7 +507,7 @@ ${no_toc}
         }
 
         // 5. Generate the header part of the minutes (using the 'headers' object)
-        const header_md = this.generate_header_md(headers);
+        const header_md = this.generate_header_md(headers)
 
         // 6. Generate the content part, that also includes the TOC, the list of
         //    resolutions and (if any) actions (using the 'lines' array of objects)

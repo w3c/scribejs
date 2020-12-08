@@ -7,13 +7,13 @@
  * @license: W3C Software License <https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
  */
 
-const debug   = false;
 import * as io          from './lib/io';
 import * as convert     from './lib/convert';
 import * as conf        from './lib/conf';
 import * as schemas     from './lib/schemas';
 import { Actions }      from './lib/actions';
 import { Global }       from './lib/types';
+import { debug }        from './lib/types';
 
 /* This is just the overall driver of the script... */
 
@@ -23,9 +23,9 @@ async function main() {
         // Note that the get_config method is synchronous
         // (uses a sync version of file system access)
         const config: Global = conf.get_config();
-        if (debug) {
-            console.log(JSON.stringify(config, null, 2));
-        }
+        // if (debug) {
+        //     console.log(JSON.stringify(config, null, 2));
+        // }
 
         // Get the nickname mappings object. The result gets added to the configuration
         // config.nicks is of type Nickname[]
@@ -45,7 +45,6 @@ async function main() {
 
         // Get the IRC log itself
         const irc_log = await io.get_irc_log(config);
-
 
         const minutes: string = new convert.Converter(config, actions).convert_to_markdown(irc_log);
 

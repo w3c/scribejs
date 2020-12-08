@@ -13,12 +13,12 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.output_minutes = exports.get_nick_mapping = exports.get_irc_log = void 0;
-const url = __importStar(require("url"));
-const node_fetch = __importStar(require("node-fetch"));
-const fs = __importStar(require("fs"));
+const url = require("url");
+const node_fetch = require("node-fetch");
+const fs = require("fs");
 const githubapi_1 = require("./js/githubapi");
-const validUrl = __importStar(require("valid-url"));
-const utils = __importStar(require("./utils"));
+const validUrl = require("valid-url");
+const utils = require("./utils");
 /** @internal */
 const fsp = fs.promises;
 /**
@@ -96,7 +96,7 @@ exports.get_irc_log = get_irc_log;
 function check_url(address) {
     const parsed = url.parse(address);
     if (parsed.protocol === null) {
-        // This is not a URl, should be used as a file name
+        // This is not a URL, should be used as a file name
         return null;
     }
     // Check whether we use the right protocol
@@ -156,15 +156,14 @@ async function get_nick_mapping(conf) {
             }
         }
         else {
-            const nicks = await fsp.readFile(address, 'utf-8');
-            let json_content = [];
+            const nicks = await fsp.readFile(conf.nicknames, 'utf-8');
             try {
-                json_content = JSON.parse(nicks);
+                const json_content = JSON.parse(nicks);
+                return lower_nicks(json_content);
             }
             catch (e) {
                 throw new Error(`JSON parsing error in ${conf.nicknames}: ${e}`);
             }
-            return lower_nicks(json_content);
         }
     }
     else {

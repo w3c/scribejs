@@ -16,7 +16,6 @@
 
 
 import * as fs  from 'fs';
-import Ajv      from 'ajv';
 
 function get_schema(file_name: string): any {
     try {
@@ -38,6 +37,8 @@ const nicknames_schema = get_schema('schemas/nicknames_schema.json');
 * the two separate "validators" for the two schemas.
 *
 */
+const Ajv = require('ajv');
+
 const validator = new Ajv({ allErrors: true });
 // I am not sure why this is necessary and not done automatically. Oh well...
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -47,18 +48,20 @@ validator.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 * The two validator objects/functions
 *
 */
-export const validate_config: Ajv.ValidateFunction    = validator.compile(config_schema);
-export const validate_nicknames: Ajv.ValidateFunction = validator.compile(nicknames_schema);
+export const validate_config    = validator.compile(config_schema);
+export const validate_nicknames = validator.compile(nicknames_schema);
 
 /**
  * This is the ajv idiom for producing a human readable set of error messages...
  * The Ajv object is initialized with the option of gathering all errors in one
  * message, so the expected output is a series of errors.
  *
- * @param {object} validator_function - an ajv validator object (result of compilation)
- * @return {string} - string version of the errors, separated by new line characters.
+ * (Note: the type information of the argument is `any`, because Typescript processing somehow got things wrong otherwise...)
+ *
+ * @param validator_function - an ajv validator object (result of compilation)
+ * @return string version of the errors, separated by new line characters.
  *
  */
-export function validation_errors(validator_function: Ajv.ValidateFunction): string {
+export function validation_errors(validator_function: any): string {
     return validator.errorsText(validator_function.errors, { separator: '\n' });
 }

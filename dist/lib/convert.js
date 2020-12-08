@@ -1,14 +1,9 @@
 "use strict";
-/**
- * ## Retrieving the configuration files and merge them into the final configuration structure
- *
- * @packageDocumentation
- */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Converter = void 0;
-const url = __importStar(require("url"));
-const issues = __importStar(require("./issues"));
-const utils = __importStar(require("./utils"));
+const url = require("url");
+const issues = require("./issues");
+const utils = require("./utils");
 const jsonld_header_1 = require("./jsonld_header");
 const types_1 = require("./types");
 class Converter {
@@ -16,47 +11,6 @@ class Converter {
         this.config = config;
         this.action_list = action_list;
         this.kramdown = config.jekyll === types_1.Constants.JEKYLL_KRAMDOWN;
-    }
-    /**
-     * Remove the 'preamble' from the line, ie, the part that is
-     * put there by the IRC client. Unfortunately, that is not standard,
-     * which means that each client does it differently.
-     *
-     * This function relies on a user option, if available; otherwise
-     * it tries some heuristics among the currently known IRC logs formats:
-     * RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.
-     *
-     * The function has a side effect of setting the irc_format value in the configuration. This means
-     * the right extra lines will be removed, if necessary (and the regexp will be matched only once)
-     *
-     * @param line - the full line of an IRC log
-     * @return truncated line
-     */
-    remove_preamble(line) {
-        const preamble_size = (the_line) => {
-            if (this.config.irc_format) {
-                switch (this.config.irc_format) {
-                    case 'irccloud': return types_1.Constants.irccloud_preamble_size;
-                    case 'textual': return types_1.Constants.textual_preamble_size;
-                    case 'rrsagent':
-                    default: return types_1.Constants.rrsagent_preamble_size;
-                }
-            }
-            else if (the_line.match(types_1.Constants.irccloud_regexp) !== null) {
-                this.config.irc_format = 'irccloud';
-                return types_1.Constants.irccloud_preamble_size;
-            }
-            else if (the_line.match(types_1.Constants.textual_regexp) !== null) {
-                this.config.irc_format = 'textual';
-                return types_1.Constants.textual_preamble_size;
-            }
-            else {
-                this.config.irc_format = 'rrsagent';
-                return types_1.Constants.rrsagent_preamble_size;
-            }
-        };
-        const preamble = preamble_size(line);
-        return line.slice(preamble);
     }
     /** ******************************************************************* */
     /*                Helper functions for nicknames                        */
@@ -220,7 +174,7 @@ class Converter {
             // Remove the starting time stamp or equivalent. The function
             // relies on the fact that each line starts with a specific number of characters.
             // Alas!, this depends on the irc log format...
-            .map(this.remove_preamble)
+            .map((line) => utils.remove_preamble(line, this.config))
             .filter((line) => {
             // this filter is, in fact, unnecessary if rrsagent is properly used
             // however, if the script is used against a line-oriented log
@@ -311,16 +265,32 @@ class Converter {
      *
      * Returns a string with the (markdown encoded) version of the header.
      *
+     *     private cleanup_names(nicks: string[]): string[] {
+        const names: string[] = nicks.map(this.full_name);
+        return utils.uniq(names);
+    }
+
+     *         // Clean up of the names in the headers: exchange the nicknames for real names
+        for (let key in headers) {
+            if (Array.isArray(headers[key])) {
+                headers[key] = this.cleanup_names(headers[key]);
+            }
+        }
+
+
      * @param headers - the full header structure
      * @returns the header in Markdown
      */
     generate_header_md(headers) {
         // Clean up the names in the headers, just to be on the safe side
+        const convert_to_full_name = (nick) => this.full_name(nick);
         for (const key in headers) {
             if (Array.isArray(headers[key])) {
                 headers[key] = headers[key]
-                    .map((name) => name.trim())
-                    .filter((name) => name !== '');
+                    .map((nickname) => nickname.trim())
+                    .filter((nickname) => nickname !== '')
+                    .map(convert_to_full_name);
+                headers[key] = utils.uniq(headers[key]);
             }
         }
         let header_start = '';
@@ -791,7 +761,7 @@ ${no_toc}
         //    from the 'real' content. That real content is stored in an array
         //    {nick, content} structures
         const irc_log = this.cleanup(split_body);
-        let { headers, lines } = utils.separate_header(irc_log, this.config.date, this.cleanup_names);
+        let { headers, lines } = utils.separate_header(irc_log, this.config.date);
         // 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
         lines = utils.perform_insert(lines);
         lines = utils.perform_changes(lines);
