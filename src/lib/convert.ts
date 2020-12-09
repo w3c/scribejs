@@ -107,6 +107,8 @@ export class Converter {
         return this.get_name(nick).github;
     }
 
+    /** ******************************************************************* */
+
 
     /**
      * Generate the Header part of the minutes: present, guests, regrets, chair, etc.
