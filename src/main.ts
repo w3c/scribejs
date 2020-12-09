@@ -13,7 +13,6 @@ import * as conf        from './lib/conf';
 import * as schemas     from './lib/schemas';
 import { Actions }      from './lib/actions';
 import { Global }       from './lib/types';
-import { debug }        from './lib/types';
 
 /* This is just the overall driver of the script... */
 
@@ -49,6 +48,7 @@ async function main() {
         const minutes: string = new convert.Converter(config, actions).convert_to_markdown(irc_log);
 
         // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [message, dummy] = await Promise.all([io.output_minutes(minutes, config), actions.raise_action_issues()]);
 
         // That is it, folks!

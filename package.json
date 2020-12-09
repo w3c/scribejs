@@ -72,7 +72,7 @@
   },
   "scripts": {
     "build": "browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
-    "lint": "eslint main.js lib/ test/",
+    "lint": "eslint src/*",
     "serve": "http-server BrowserView/"
   }
 }

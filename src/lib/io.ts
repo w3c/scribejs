@@ -1,23 +1,20 @@
 /**
  *
- * Collection of methods to perform, essentially I/O operations. This include:
+ * Collection of methods to perform, essentially I/O operations. These include:
  *
  * * Get the IRC log itself
  * * Get the nickname file
  * * Dump the generated minutes into a file or upload it to github.
  *
- * For the moment, the default (ie, 'master') branch is used.
  *
  * @packageDocumentation
  */
 
-import { debug } from './types';
-
 import * as url                                 from 'url';
 import * as node_fetch                          from 'node-fetch';
 import * as fs                                  from 'fs';
-import { GitHub }                               from './js/githubapi';
 import * as validUrl                            from 'valid-url';
+import { GitHub }                               from './js/githubapi';
 import { Configuration, PersonWithNickname }    from './types';
 import * as utils                               from './utils';
 
@@ -84,10 +81,8 @@ export async function get_irc_log(conf: Configuration): Promise<string> {
 *
 * The checks are as follows:
 *
-* 1. Check whether the protocol is http(s). Other protocols are not accepted
-*    (actually rejected by fetch, too)
-* 2. Run the URL through a valid-url check, which looks at the validity of the
-*    URL in terms of characters used, for example
+* 1. Check whether the protocol is http(s). Other protocols are not accepted (actually rejected by fetch, too)
+* 2. Run the URL through a valid-url check, which looks at the validity of the URL in terms of characters used, for example
 * 3. Check that the port (if specified) is in the allowed range, ie, > 1024
 * 4. Don't allow localhost in a CGI answer...
 *
@@ -135,8 +130,7 @@ function check_url(address: string): string {
  * retrieved via HTTP) or not (in which case it is considered to be a local file).
  * Returns a Promise with the content of the input as an object.
  *
- * @param conf - Overall configuration; the only field that matter
- *     here is "conf.nicknames"
+ * @param conf - Overall configuration; the only field that matter here is "conf.nicknames"
  * @returns - a promise containing the nicknames as an object parsed from JSON.
  */
 export async function get_nick_mapping(conf: Configuration): Promise<PersonWithNickname[]> {

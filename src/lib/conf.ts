@@ -14,6 +14,7 @@ import * as schemas                         from './schemas';
 import * as utils                           from './utils';
 import { Configuration, Global, Constants } from './types';
 
+/** Initial value for the final configuration. The values are overwritten by other possible configuration files and command line arguments. */
 const default_config: Global = {
     date          : utils.today,
     final         : false,
@@ -106,8 +107,6 @@ export function get_config(): Global {
         })
         .parse(process.argv);
 
-    // TODO: lots of whitespace https://eslint.org/docs/rules/no-multi-spaces
-    // TODO: consider setting defaults for all configs instead
     if (program.repo) argument_config.torepo = true;
     if (program.final) argument_config.final = true;
     if (program.auto) argument_config.auto = true;

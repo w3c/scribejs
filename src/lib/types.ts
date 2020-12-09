@@ -7,6 +7,7 @@
 
 export const debug = false;
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Constants {
     export const JEKYLL_NONE        = 'none';
     export const JEKYLL_MARKDOWN    = 'md';

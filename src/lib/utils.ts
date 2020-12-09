@@ -12,9 +12,6 @@ import { LineObject, Header, Configuration, Global }    from './types';
 import { Constants }                                    from './types';
 import * as url                                         from 'url';
 
-const safe = require('safe-regex');
-
-
 /** ******************************************************************* */
 /*                       Conversion generic utilities                   */
 /** ******************************************************************* */
@@ -50,8 +47,8 @@ export function uniq<T>(inp: T[]): T[] {
  * @param b
  */
 export function union<T>(a: T[], b: T[]): T[] {
-    let sa = new Set(a);
-    for( let entry of b ) {
+    const sa = new Set(a);
+    for ( const entry of b ) {
         sa.add(entry)
     }
     return [...sa]
@@ -65,8 +62,8 @@ export function union<T>(a: T[], b: T[]): T[] {
  */
 
 export function difference<T>(a: T[], b: T[]): T[] {
-    let sa = new Set(a);
-    for( let entry of b) {
+    const sa = new Set(a);
+    for ( const entry of b) {
         sa.delete(entry)
     }
     return [...sa]
@@ -84,10 +81,12 @@ export function flatten<T>(accumulator: T[], currentValue: T[]): T[] {
 }
 
 /**
- * Returns true if all elements in an array pass the truth test
- * @param obj
+ * Returns true if all elements in an array pass the callback truth test
+ *
+ * @param elements - the elements to be tested
+ * @param callback - the callback function used as a test
  */
-export function every<T>(elements: T[], callback: ((element: T) => boolean)) {
+export function every<T>(elements: T[], callback: ((element: T) => boolean)): boolean {
     // return true if no false is found...
     const found = elements.find((element: T) => !callback(element));
     return found === undefined;
@@ -112,14 +111,14 @@ export function every<T>(elements: T[], callback: ((element: T) => boolean)) {
  * @param line - the full line of an IRC log
  * @return truncated line
  */
-export function remove_preamble(line: string, config: Configuration): string {
+function remove_preamble(line: string, config: Configuration): string {
     const preamble_size = (the_line: string): number => {
         if (config.irc_format) {
             switch (config.irc_format) {
-                case 'irccloud': return Constants.irccloud_preamble_size;
-                case 'textual' : return Constants.textual_preamble_size;
-                case 'rrsagent':
-                default: return Constants.rrsagent_preamble_size;
+            case 'irccloud': return Constants.irccloud_preamble_size;
+            case 'textual' : return Constants.textual_preamble_size;
+            case 'rrsagent':
+            default: return Constants.rrsagent_preamble_size;
             }
         } else if (the_line.match(Constants.irccloud_regexp) !== null) {
             config.irc_format = 'irccloud';
@@ -149,34 +148,34 @@ export function remove_preamble(line: string, config: Configuration): string {
  * @param line_object - a line object; the only important entry is the 'content'
  * @returns true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise
  */
-export function handle_scribejs(line_object: LineObject, config: Global): boolean {
+function handle_scribejs(line_object: LineObject, config: Global): boolean {
     if (line_object.content_lower.startsWith('scribejs, ') || line_object.content_lower.startsWith('sjs, ')) {
         // If there is a problem somewhere, it should simply be forgotten
         // these are all beautifying steps, ie, an exception could be ignored
         try {
             const words = line_object.content.split(' ');
             switch (words[1]) {
-                case 'issue':
-                case 'pr':
-                    // these are handled elsewhere; the directives should stay in content for further processing
-                    return true;
+            case 'issue':
+            case 'pr':
+                // these are handled elsewhere; the directives should stay in content for further processing
+                return true;
                 // Set a per-session nickname.
-                case 'set': {
-                    const nickname   = words[2].toLowerCase();
-                    const name_comps = words.slice(3);
-                    if (name_comps.length !== 0) {
-                        // The name is cleared from the '_' signs, which
-                        // are usually used to replace spaces...
-                        config.nicks.push({
-                            nick : [nickname],
-                            name : name_comps.join(' ').replace(/_/g, ' ')
-                        });
-                    }
-                    break;
+            case 'set': {
+                const nickname   = words[2].toLowerCase();
+                const name_comps = words.slice(3);
+                if (name_comps.length !== 0) {
+                    // The name is cleared from the '_' signs, which
+                    // are usually used to replace spaces...
+                    config.nicks.push({
+                        nick : [nickname],
+                        name : name_comps.join(' ').replace(/_/g, ' '),
+                    });
                 }
-                default: {
-                    return true;
-                }
+                break;
+            }
+            default: {
+                return true;
+            }
             }
         } catch (err) {
             return true;
@@ -187,6 +186,21 @@ export function handle_scribejs(line_object: LineObject, config: Global): boolea
     }
     // This line should remain for further processing
     return true;
+}
+
+/**
+ * Extract a labelled item, ie, something of the form "XXX: YYY", where
+ * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
+ * checked in lower case, too.
+ *
+ * @param label - the label we are looking for
+ * @param line - a line object of the form {nick, content},
+ * @returns  the content without the label, or null if that label is not present
+ */
+function get_labelled_item(label: string, line: LineObject): string {
+    const lower = line.content.toLowerCase();
+    const label_length = label.length + 1; // Accounting for the ':' character!
+    return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
 }
 
 
@@ -235,21 +249,6 @@ export function get_label(line: string): {label: string, content: string} {
     };
 }
 
-/**
- * Extract a labelled item, ie, something of the form "XXX: YYY", where
- * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
- * checked in lower case, too.
- *
- * @param label - the label we are looking for
- * @param line - a line object of the form {nick, content},
- * @returns  the content without the label, or null if that label is not present
- */
-export function get_labelled_item(label: string, line: LineObject): string {
-    const lower = line.content.toLowerCase();
-    const label_length = label.length + 1; // Accounting for the ':' character!
-    return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
-}
-
 
 /**
  * Create a "canonical" nickname, ie,
@@ -284,11 +283,11 @@ export function canonical_nick(nick: string, lower = true): string {
  */
 export function get_name_list(current_list: string[], line: LineObject, category :string, remove = true): string[] {
     // fake function, just to make the code below cleaner for the case when removal must be ignored
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const arg1 = (a: any, b: any): any => a;
 
     // Another fake function that only keeps the second argument, again to make the code cleaner
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const arg2 = (a: any, b: any): any => b;
 
     // Extract the (nick) names from the comma separated list of persons
@@ -334,7 +333,7 @@ export function get_name_list(current_list: string[], line: LineObject, category
             // This is not a correct usage...
             return undefined;
         }
-        return action(current_list,  names.map((name: string) => name.trim()));
+        return action(current_list, names.map((name: string) => name.trim()));
     } else {
         return undefined;
     }
@@ -357,6 +356,7 @@ export function get_name_list(current_list: string[], line: LineObject, category
  * @param body - the full IRC log
  * @returns array of {nick, content, content_lower} objects ('nick' is the IRC nick)
  */
+// eslint-disable-next-line max-lines-per-function
 export function cleanup(body: string[], config: Global): LineObject[] {
     const cleaned_up_lines: string[]  = body
         .filter((line: string): boolean => line.length !== 0)
@@ -374,10 +374,10 @@ export function cleanup(body: string[], config: Global): LineObject[] {
                 return true;
             }
             switch (config.irc_format) {
-                case 'textual': {
-                    const stripped_line = line.trim();
-                    return !(
-                        stripped_line.length === 0
+            case 'textual': {
+                const stripped_line = line.trim();
+                return !(
+                    stripped_line.length === 0
                         || stripped_line[0] === '•'
                         || stripped_line.startsWith('Disconnected for Sleep Mode')
                         || stripped_line.includes('rrsagent')
@@ -387,20 +387,19 @@ export function cleanup(body: string[], config: Global): LineObject[] {
                         || stripped_line.includes('------------- Begin Session -------------')
                         || stripped_line.includes('------------- End Session -------------')
                         || stripped_line.includes('changed the topic to')
-                    );
-                } case 'irccloud': {
-                    const stripped_line = line.trim();
-                    return !(
-                        stripped_line.length === 0
+                );
+            } case 'irccloud': {
+                const stripped_line = line.trim();
+                return !(
+                    stripped_line.length === 0
                         || stripped_line[0] === '→'
                         || stripped_line[0] === '—'
                         || stripped_line[0] === '⇐'
-                    );
-                }
-                default: {
-                    return true;
-                }
+                );
             }
+            default: {
+                return true;
+            }}
         });
 
     // IRC log lines are turned into objects, separating the nicknames.
@@ -410,7 +409,7 @@ export function cleanup(body: string[], config: Global): LineObject[] {
             // Note that I remove the '<' and the '>' characters
             // leaving only the real nickname
             nick    : line.slice(1, sp - 1),
-            content : line.slice(sp + 1).trim()
+            content : line.slice(sp + 1).trim(),
         };
     });
 
@@ -492,7 +491,7 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
         agenda  : '',
         date    : date || '',
         scribe  : [],
-        meeting : ''
+        meeting : '',
     };
 
     /**
@@ -521,17 +520,17 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
         // inherited from scribe.pl...
         let real_category;
         switch (category) {
-            case 'guest':
-                real_category = 'guests';
-                break;
-            case 'regret':
-                real_category = 'regrets';
-                break;
-            case 'scribenick':
-                real_category = 'scribe';
-                break;
-            default:
-                real_category = category;
+        case 'guest':
+            real_category = 'guests';
+            break;
+        case 'regret':
+            real_category = 'regrets';
+            break;
+        case 'scribenick':
+            real_category = 'scribe';
+            break;
+        default:
+            real_category = category;
         }
 
         const new_list = get_name_list(headers[real_category], line, category, remove);
@@ -580,8 +579,8 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
         .filter((line) => (line.nick !== 'trackbot'));
 
     return {
-        headers: headers,
-        lines: processed_lines
+        headers : headers,
+        lines   : processed_lines,
     };
 }
 
@@ -625,10 +624,10 @@ export function perform_insert(lines: LineObject[]): LineObject[] {
             if (r !== null) {
                 // store the regex results
                 insert_requests.push({
-                    lineno   : index,
-                    at       : r[1],
-                    add      : r[2],
-                    valid    : true,
+                    lineno : index,
+                    at     : r[1],
+                    add    : r[2],
+                    valid  : true,
                 });
                 // This line has to be removed at some point later...
                 line.content = marker;
@@ -640,7 +639,7 @@ export function perform_insert(lines: LineObject[]): LineObject[] {
             // Note that, temporarily, and array of Line Objects are returned, ie, the result of 'map' is
             // an array or arrays.
             if (line.content !== marker) {
-                let insert_retval: LineObject[] = [line];
+                const insert_retval: LineObject[] = [line];
                 for (const insert of insert_requests) {
                     if (insert.valid && index > insert.lineno && line.content.indexOf(insert.at) !== -1) {
                         // this request has played its role...
@@ -650,7 +649,7 @@ export function perform_insert(lines: LineObject[]): LineObject[] {
                         insert_retval.push({
                             nick          : line.nick,
                             content       : insert.add,
-                            content_lower : insert.add.toLowerCase()
+                            content_lower : insert.add.toLowerCase(),
                         });
                         break; // we do not need to look at other request for this line
                     }
@@ -662,12 +661,12 @@ export function perform_insert(lines: LineObject[]): LineObject[] {
             }
         });
 
-        return intermediate_retval
-            .reduce(flatten,[])
-            // Remove the markers, just to be on the safe side
-            .filter((line) => (line.content !== marker))
-            // return the array into its original order
-            .reverse();
+    return intermediate_retval
+        .reduce(flatten,[])
+    // Remove the markers, just to be on the safe side
+        .filter((line) => (line.content !== marker))
+    // return the array into its original order
+        .reverse();
 }
 
 
@@ -680,11 +679,11 @@ export function perform_insert(lines: LineObject[]): LineObject[] {
 export function perform_changes(lines: LineObject[]): LineObject[] {
     interface ChangeRequest {
         lineno: number;
-        valid:  boolean;
-        from:   string;
-        to:     string;
-        g:      boolean;
-        G:      boolean;
+        valid: boolean;
+        from: string;
+        to: string;
+        g: boolean;
+        G: boolean;
     }
     // This array will contain change request structures:
     // lineno: the line number of the change request
@@ -713,16 +712,14 @@ export function perform_changes(lines: LineObject[]): LineObject[] {
             if (r !== null) {
                 // Check whether the 'from' field is 'safe', ie, it does
                 // not create RegExp Denial of Service attack
-                if (safe(r[1])) {
-                    change_requests.push({
-                        lineno : index,
-                        from   : r[1],
-                        to     : r[2],
-                        g      : r[3] === 'g',
-                        G      : r[3] === 'G',
-                        valid  : true,
-                    });
-                }
+                change_requests.push({
+                    lineno : index,
+                    from   : r[1],
+                    to     : r[2],
+                    g      : r[3] === 'g',
+                    G      : r[3] === 'G',
+                    valid  : true,
+                });
                 line.content = marker;
             }
             return line;
@@ -747,7 +744,7 @@ export function perform_changes(lines: LineObject[]): LineObject[] {
                             }
                         }
                     }
-                };
+                }
             }
             return line;
         })
@@ -869,5 +866,5 @@ export function add_links(line: string): string {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
         return replace_links(words).map(simple_link_exchange).join(' ') + '.';
     }
-};
+}
 

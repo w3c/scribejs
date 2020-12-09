@@ -26,7 +26,7 @@ module.exports = {
         "indent" : [
             "error", 4
         ],
-        "no-var-requires": false,
+        "no-var-requires": 0,
         "no-multi-spaces": [
             "error",
             {

@@ -3,26 +3,34 @@
  *
  * @packageDocumentation
  */
-import { debug, Configuration } from './types';
 
-import * as url                                 from 'url';
 import * as issues                              from './issues';
 import * as utils                               from './utils'
 import { schema_data }                          from './jsonld_header';
-import { IssueReference, Global, PersonWithNickname, Person, LineObject, Header } from './types';
+import { IssueReference, Global }               from './types';
+import { PersonWithNickname, Person }           from './types';
+import { LineObject, Header }                   from './types';
 import { Constants }                            from './types';
 import { Actions }                              from './actions';
 
+/**
+ * The "top level" class to perform the conversion.
+ */
 export class Converter {
-    /** The global data for all things done */
+    /** The global data for all things done; an extension of the user configuration with some run-time data */
     private config: Global;
 
-    /** List of actions */
+    /** List of actions, collected while the conversion is done */
     private action_list: Actions;
 
     /** Whether kramdown (as opposed to vanilla markdown) is used for output */
     private kramdown: boolean;
 
+    /**
+     *
+     * @param config - the global data. Some of the fields are only placeholders and are filled in while processing
+     * @param action_list - place to accumulate the actions found in the minutes. The action issues themselves are raised after the conversion is done.
+     */
     constructor(config: Global, action_list: Actions) {
         this.config = config;
         this.action_list = action_list;
@@ -80,7 +88,7 @@ export class Converter {
             // Note that this case usually occurs when one time visitors make a `present+ Abc_Def` to appear
             // in the present list; that is why the nick cleanup should not include a lower case conversion.
             return {
-                name : utils.canonical_nick(nick, false).replace(/_/g, ' ')
+                name : utils.canonical_nick(nick, false).replace(/_/g, ' '),
             };
         }
     }
@@ -121,7 +129,7 @@ export class Converter {
     private generate_header_md(headers: Header): string {
         // Clean up the names in the headers, just to be on the safe side
         const convert_to_full_name = (nick: string): string => this.full_name(nick);
-        for( const key in headers) {
+        for ( const key in headers) {
             if (Array.isArray(headers[key])) {
                 headers[key] = headers[key]
                     .map((nickname: string): string => nickname.trim())
@@ -203,6 +211,7 @@ ${no_toc}
      * @param {array} lines - array of {nick, content, content_lower} objects
      * @returns {string} - the body of the minutes encoded in Markdown
      */
+    // eslint-disable-next-line max-lines-per-function
     private generate_content_md(lines: LineObject[]): string {
         // this will be the output
         let final_minutes = '\n---\n';
@@ -364,7 +373,7 @@ ${no_toc}
             } else if (label !== null && ['proposed', 'proposal', 'propose'].includes(label.toLowerCase())) {
                 within_scribed_content = false;
                 final_minutes = final_minutes.concat(
-                    `\n\n> **Proposed resolution: ${content}** *(${this.full_name(line_object.nick)})*`
+                    `\n\n> **Proposed resolution: ${content}** *(${this.full_name(line_object.nick)})*`,
                 );
                 if (this.kramdown) {
                     final_minutes = final_minutes.concat('\n{: .proposed_resolution}');
@@ -496,6 +505,7 @@ ${no_toc}
         //    {nick, content} structures
 
         const irc_log: LineObject[] = utils.cleanup(split_body, this.config);
+        // eslint-disable-next-line prefer-const
         let { headers, lines } = utils.separate_header(irc_log, this.config.date as string);
 
         // 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:

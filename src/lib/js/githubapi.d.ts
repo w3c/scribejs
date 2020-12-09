@@ -1,7 +1,7 @@
 /**
  * ## Minimal Interfacing the GitHub API
  *
- * This is not a complete API mapping, rather than the minimal configuration needed and implemented as a wrapper around the octocat JavaScript module.
+ * This is not a complete API mapping, rather the minimal configuration needed for the rest of the program and implemented as a wrapper around the octocat JavaScript module.
  *
  * (I wish there was a full TypeScript type definition for octocat, which would make this wrapper unnecessary...)
  *
@@ -9,7 +9,6 @@
 */
 
 import { Configuration } from '../types';
-
 
 /**
  * Wrapper around a the Github API using the more generic octocat library.
@@ -56,6 +55,9 @@ export class GitHub {
  * script.
  */
 declare namespace GitHub {
+    /**
+     * Data needed to raise an issue on github
+     */
     export interface IssueData {
         title: string;
         body: string;
@@ -63,16 +65,16 @@ declare namespace GitHub {
         assignee?: string;
     }
 
-    interface Label {
-        name: string;
-        [index: string]: any;
-    }
+    // interface Label {
+    //     name: string;
+    //     [index: string]: any;
+    // }
 
-    export interface Issue {
-        state: string;
-        pullRequest: string;
-        labels: Label[];
-        title: string;
-        [index: string]: any;
-    }
+    // export interface Issue {
+    //     state: string;
+    //     pullRequest: string;
+    //     labels: Label[];
+    //     title: string;
+    //     [index: string]: any;
+    // }
 }

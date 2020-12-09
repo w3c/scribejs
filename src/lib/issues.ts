@@ -2,9 +2,6 @@
  *
  * Handling the issue directives
  *
- *
- * For the moment, the default (ie, 'master') branch is used.
- *
  * @packageDocumentation
  */
 

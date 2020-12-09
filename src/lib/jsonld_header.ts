@@ -1,10 +1,17 @@
-'use strict';
+/**
+ * ## Creating the JSON-LD metadata for the minutes, to be dumped into the header of the generated minute files.
+ *
+ * (More exactly: the json-ld portion is added to the kramdown header; the jekyll setup must take care of generating a script element in the header of the
+ * generated HTML file.)
+ *
+ * @packageDocumentation
+*/
 
 import { Configuration, Header } from './types';
 
 
 /**
- * Adding a json-ld header to the minutes using schema.org vocabulary items.
+ * Generating a json-ld header to the minutes using schema.org vocabulary items.
  *
  * @param header - the structure used by the converter to generate the header entries into the minutes
  * @param config - the general configuration file for the scribejs run

@@ -4,7 +4,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Octokat = require('octokat');
 
-const base64_to_string = (data) => Buffer.from(data,'base64').toString('utf-8');
 const string_to_base64 = (string) => Buffer.from(string).toString('base64');
 
 
