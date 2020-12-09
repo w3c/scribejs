@@ -20,6 +20,7 @@
 
 
 import * as fs  from 'fs';
+import * as AJV from 'ajv';
 
 /** @internal */
 function get_schema(file_name: string): any {
@@ -46,10 +47,8 @@ const nicknames_schema = get_schema('schemas/nicknames_schema.json');
 *
 */
 /** @internal */
-const Ajv = require('ajv');
+const validator = new AJV({ allErrors: true });
 
-/** @internal */
-const validator = new Ajv({ allErrors: true });
 // I am not sure why this is necessary and not done automatically. Oh well...
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 validator.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
@@ -57,20 +56,20 @@ validator.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 /**
 * Validator objects/function for the configuration file checks
 */
-export const validate_config    = validator.compile(config_schema);
+export const validate_config: AJV.ValidateFunction   = validator.compile(config_schema);
 
 /**
 * Validator objects/function for the nickname file checks
 */
-export const validate_nicknames = validator.compile(nicknames_schema);
+export const validate_nicknames: AJV.ValidateFunction = validator.compile(nicknames_schema);
 
 /**
- * Display validation errors. This uses, per the Ajv idiom, the result of the validation using one of the validation functions, i.e., [[validate_config]] or [[validate_nicknames]].
+ * Display validation errors. This uses, per the Ajv idiom, one of the validation functions (i.e., [[validate_config]] or [[validate_nicknames]]) after having performed the validation itself.
  *
  *
- * @param validation_result - ajv validation result
+ * @param validate_function - ajv validation result
  * @return string version of the errors, separated by new line characters.
  */
-export function display_validation_errors(validation_result: any): string {
-    return validator.errorsText(validation_result.errors, { separator: '\n' });
+export function display_validation_errors(validate_function: AJV.ValidateFunction): string {
+    return validator.errorsText(validate_function.errors, { separator: '\n' });
 }

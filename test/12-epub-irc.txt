@@ -156,7 +156,6 @@
 01:01:09 <dauwhe> dauwhe: we're not sure how much we want to enforce restrictions on CSS
 01:01:39 <dauwhe> shiestyle: in conclusion, we will continue to discuss unsupported features. I will file a GitHub issue.
 01:01:46 <dauwhe> ... and we can continue the discussion there.
-01:02:48 <dauwhe> action: ivan to do something really interesting this time
 01:02:48 <Zakim> As of this point the attendees have been florian, MasakazuKitahara, MattChan, toshiakikoike, shiestyle, jyoshii_, naomi, Daihei, `1, duga
 01:02:50 <Zakim> RRSAgent, please draft minutes
 01:02:50 <RRSAgent> I have made the request to generate https://www.w3.org/2020/11/12-epub-minutes.html Zakim
