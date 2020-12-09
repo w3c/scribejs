@@ -3,8 +3,6 @@
  * Collection of utility functions, put here for a better maintenance
  *
  *
- * For the moment, the default (ie, 'master') branch is used.
- *
  * @packageDocumentation
  */
 
@@ -42,7 +40,7 @@ export function uniq<T>(inp: T[]): T[] {
 }
 
 /**
- * Union of two arrays ('union' in a set-theoretic sense, ie, no duplicates)
+ * Union of two arrays ('union' in a set-theoretic sense, i.e., with no duplicates)
  * @param a
  * @param b
  */
@@ -55,7 +53,7 @@ export function union<T>(a: T[], b: T[]): T[] {
 }
 
 /**
- * Difference of two arrays ('difference' in a set-theoretic sense, ie, `a \ b`)
+ * Difference of two arrays ('difference' in a set-theoretic sense, i.e., generating `a \ b`)
  *
  * @param a
  * @param b
@@ -71,7 +69,7 @@ export function difference<T>(a: T[], b: T[]): T[] {
 
 /**
  * Helper function to "flatten" arrays of arrays into a single array. This method should be used as the callback
- * for a `reduce`.
+ * for a `Array.reduce`.
  *
  * @param accumulator - Accumulated array in a reduce
  * @param currentValue - The next array to be considered
@@ -142,11 +140,13 @@ function remove_preamble(line: string, config: Configuration): string {
  *
  * At the moment there are two possible directives:
  *
- * 1. 'set', adding a temporary nick name (by extending the global data)
- * 2. Handling the issue/pr directives
+ * 1. `set`, adding a temporary nick name (by extending the global data on nicknames)
+ * 2. `issue` or `pr`,  handling the issue/pr directives
+ *
+ * Note, however, that the second block (issue directives) are not really handled by this function; their handling is delayed to the local context where these directives appear.
  *
  * @param line_object - a line object; the only important entry is the 'content'
- * @returns true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise
+ * @returns true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise. The function can therefore be used as part of an `Array.filter` call.
  */
 function handle_scribejs(line_object: LineObject, config: Global): boolean {
     if (line_object.content_lower.startsWith('scribejs, ') || line_object.content_lower.startsWith('sjs, ')) {
@@ -272,13 +272,13 @@ export function canonical_nick(nick: string, lower = true): string {
  * All of these have a common structure: 'XXX+' means add nicknames, 'XXX-' means remove
  * nicknames, 'XXX:' means set them.
  *
- * The function receives, as argument, a list containing the 'current' list of those
+ * The function receives, as argument, a list containing the current list of those
  * categories, and performs a 'union' or 'difference' actions, resulting in an updated list
  *
  * @param current_list - the current list of nicknames
  * @param line - IRC line object
  * @param category - the 'label' to look for (ie, 'present', 'regrets', 'scribe', etc.)
- * @param remove - whether removal should indeed happen with a '-' suffix
+ * @param remove - whether removal should indeed happen with a '-' suffix. A `false` value may make sense when the same irc line is reused twice: once to act upon it but without listing it and once when the list is collected for the header (e.g., scribe name extractions).
  * @returns  new value of the list of nicknames
  */
 export function get_name_list(current_list: string[], line: LineObject, category :string, remove = true): string[] {
@@ -500,7 +500,7 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
      * nicknames, 'XXX:' means set them.
      * If found, the relevant field in the header object is extended.
      *
-     * The real work is done in the `get_name_list` method; this utility just handles some usual mistakes
+     * The real work is done in the [[get_name_list]] function; this utility just handles some usual mistakes
      * before calling out the real one:
      *
      * * usage of 'guest' instead of 'guests'
@@ -591,7 +591,7 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
  * @param lines - array of {nick, content, content_lower} objects
  * @returns {array} - returns the lines with the possible changes done
  */
-export function perform_insert(lines: LineObject[]): LineObject[] {
+export function perform_insert_requests(lines: LineObject[]): LineObject[] {
     interface InsertRequest {
         lineno: number;
         valid: boolean;
@@ -676,7 +676,7 @@ export function perform_insert(lines: LineObject[]): LineObject[] {
  * @param {array} lines - array of {nick, content, content_lower} objects
  * @returns {array} - returns the lines with the possible changes done
  */
-export function perform_changes(lines: LineObject[]): LineObject[] {
+export function perform_change_requests(lines: LineObject[]): LineObject[] {
     interface ChangeRequest {
         lineno: number;
         valid: boolean;

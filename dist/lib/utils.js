@@ -9,9 +9,9 @@
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.perform_changes = exports.perform_insert = exports.separate_header = exports.get_name_list = exports.canonical_nick = exports.get_labelled_item = exports.get_label = exports.remove_preamble = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
+exports.add_links = exports.perform_changes = exports.perform_insert = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
 const types_1 = require("./types");
-const safe = require('safe-regex');
+const url = require("url");
 /** ******************************************************************* */
 /*                       Conversion generic utilities                   */
 /** ******************************************************************* */
@@ -44,8 +44,8 @@ exports.uniq = uniq;
  * @param b
  */
 function union(a, b) {
-    let sa = new Set(a);
-    for (let entry of b) {
+    const sa = new Set(a);
+    for (const entry of b) {
         sa.add(entry);
     }
     return [...sa];
@@ -58,8 +58,8 @@ exports.union = union;
  * @param b
  */
 function difference(a, b) {
-    let sa = new Set(a);
-    for (let entry of b) {
+    const sa = new Set(a);
+    for (const entry of b) {
         sa.delete(entry);
     }
     return [...sa];
@@ -77,8 +77,10 @@ function flatten(accumulator, currentValue) {
 }
 exports.flatten = flatten;
 /**
- * Returns true if all elements in an array pass the truth test
- * @param obj
+ * Returns true if all elements in an array pass the callback truth test
+ *
+ * @param elements - the elements to be tested
+ * @param callback - the callback function used as a test
  */
 function every(elements, callback) {
     // return true if no false is found...
@@ -130,7 +132,71 @@ function remove_preamble(line, config) {
     const preamble = preamble_size(line);
     return line.slice(preamble);
 }
-exports.remove_preamble = remove_preamble;
+/**
+ * Handle the 'scribejs' directives. The directives are of the form "scribejs, COMMAND ARGS" or, equivalently, "sjs, COMMAND ARGS".
+ *
+ * At the moment there are two possible directives:
+ *
+ * 1. 'set', adding a temporary nick name (by extending the global data)
+ * 2. Handling the issue/pr directives
+ *
+ * @param line_object - a line object; the only important entry is the 'content'
+ * @returns true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise
+ */
+function handle_scribejs(line_object, config) {
+    if (line_object.content_lower.startsWith('scribejs, ') || line_object.content_lower.startsWith('sjs, ')) {
+        // If there is a problem somewhere, it should simply be forgotten
+        // these are all beautifying steps, ie, an exception could be ignored
+        try {
+            const words = line_object.content.split(' ');
+            switch (words[1]) {
+                case 'issue':
+                case 'pr':
+                    // these are handled elsewhere; the directives should stay in content for further processing
+                    return true;
+                // Set a per-session nickname.
+                case 'set': {
+                    const nickname = words[2].toLowerCase();
+                    const name_comps = words.slice(3);
+                    if (name_comps.length !== 0) {
+                        // The name is cleared from the '_' signs, which
+                        // are usually used to replace spaces...
+                        config.nicks.push({
+                            nick: [nickname],
+                            name: name_comps.join(' ').replace(/_/g, ' '),
+                        });
+                    }
+                    break;
+                }
+                default: {
+                    return true;
+                }
+            }
+        }
+        catch (err) {
+            return true;
+        }
+        // If we got there, the directive has its effect and should be removed
+        // returning 'false' will remove this line from the result
+        return false;
+    }
+    // This line should remain for further processing
+    return true;
+}
+/**
+ * Extract a labelled item, ie, something of the form "XXX: YYY", where
+ * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
+ * checked in lower case, too.
+ *
+ * @param label - the label we are looking for
+ * @param line - a line object of the form {nick, content},
+ * @returns  the content without the label, or null if that label is not present
+ */
+function get_labelled_item(label, line) {
+    const lower = line.content.toLowerCase();
+    const label_length = label.length + 1; // Accounting for the ':' character!
+    return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
+}
 /**
  * Get a 'label', ie, find out if there is a 'XXX:' at the beginning of a line.
  *
@@ -174,21 +240,6 @@ function get_label(line) {
 }
 exports.get_label = get_label;
 /**
- * Extract a labelled item, ie, something of the form "XXX: YYY", where
- * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
- * checked in lower case, too.
- *
- * @param label - the label we are looking for
- * @param line - a line object of the form {nick, content},
- * @returns  the content without the label, or null if that label is not present
- */
-function get_labelled_item(label, line) {
-    const lower = line.content.toLowerCase();
-    const label_length = label.length + 1; // Accounting for the ':' character!
-    return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
-}
-exports.get_labelled_item = get_labelled_item;
-/**
  * Create a "canonical" nickname, ie,
  *
  * * lower case
@@ -220,10 +271,10 @@ exports.canonical_nick = canonical_nick;
  */
 function get_name_list(current_list, line, category, remove = true) {
     // fake function, just to make the code below cleaner for the case when removal must be ignored
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const arg1 = (a, b) => a;
     // Another fake function that only keeps the second argument, again to make the code cleaner
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const arg2 = (a, b) => b;
     // Extract the (nick) names from the comma separated list of persons
     const get_names = (index) => {
@@ -281,6 +332,117 @@ function get_name_list(current_list, line, category, remove = true) {
 }
 exports.get_name_list = get_name_list;
 /**
+ * Cleanup actions on the incoming body:
+ *  - turn the body (which is one giant string) into an array of lines
+ *  - remove empty lines
+ *  - remove the starting time stamps
+ *  - turn lines into objects, separating the nick name and the content
+ *  - remove the lines coming from zakim or rrsagent
+ *  - remove zakim queue commands
+ *  - remove zakim agenda control commands
+ *  - remove bot commands ("zakim,", "rrsagent,", etc.)
+ *  - remove the "XXX has joined #YYY" type messages
+ *  - handle the "scribejs, nick FULL NAME" type commands (or, equivalently, "sjs, nick ...")
+ *
+ *
+ * @param body - the full IRC log
+ * @returns array of {nick, content, content_lower} objects ('nick' is the IRC nick)
+ */
+// eslint-disable-next-line max-lines-per-function
+function cleanup(body, config) {
+    const cleaned_up_lines = body
+        .filter((line) => line.length !== 0)
+        // Remove the starting time stamp or equivalent. The function
+        // relies on the fact that each line starts with a specific number of characters.
+        // Alas!, this depends on the irc log format...
+        .map((line) => remove_preamble(line, config))
+        .filter((line) => {
+        // this filter is, in fact, unnecessary if rrsagent is properly used
+        // however, if the script is used against a line-oriented log
+        // of an irc client (like textual) then this come handy in taking
+        // out at least some of the problematic lines
+        if (config.irc_format === undefined) {
+            // use the default RRSAgent log, no extra filter is necessary
+            return true;
+        }
+        switch (config.irc_format) {
+            case 'textual': {
+                const stripped_line = line.trim();
+                return !(stripped_line.length === 0
+                    || stripped_line[0] === '•'
+                    || stripped_line.startsWith('Disconnected for Sleep Mode')
+                    || stripped_line.includes('rrsagent')
+                    || stripped_line.includes('zakim')
+                    || stripped_line.includes('github-bot')
+                    || stripped_line.includes('joined the channel')
+                    || stripped_line.includes('------------- Begin Session -------------')
+                    || stripped_line.includes('------------- End Session -------------')
+                    || stripped_line.includes('changed the topic to'));
+            }
+            case 'irccloud': {
+                const stripped_line = line.trim();
+                return !(stripped_line.length === 0
+                    || stripped_line[0] === '→'
+                    || stripped_line[0] === '—'
+                    || stripped_line[0] === '⇐');
+            }
+            default: {
+                return true;
+            }
+        }
+    });
+    // IRC log lines are turned into objects, separating the nicknames.
+    const line_objects = cleaned_up_lines.map((line) => {
+        const sp = line.indexOf(' ');
+        return {
+            // Note that I remove the '<' and the '>' characters
+            // leaving only the real nickname
+            nick: line.slice(1, sp - 1),
+            content: line.slice(sp + 1).trim(),
+        };
+    });
+    // From here on, the lines are cleaned up using the line object
+    return line_objects
+        // Taking care of the accidental appearance of what could be
+        // interpreted as an HTML tag...
+        // Unless... the scribe or the commenter has already put the tag into back quotes!
+        .map((line_object) => {
+        line_object.content = line_object.content.replace(/([^`])<(\w*\/?)>([^`])/g, '$1`<$2>`$3');
+        return line_object;
+    })
+        // Add a lower case version of the content to the objects; this will be used
+        // for comparisons later
+        .map((line_object) => {
+        line_object.content_lower = line_object.content.toLowerCase();
+        return line_object;
+    })
+        // Bunch of filters, removing the unnecessary lines
+        .filter((line_object) => (line_object.nick !== 'RRSAgent'
+        && line_object.nick !== 'Zakim'
+        && line_object.nick !== 'github-bot'))
+        .filter((line_object) => !(line_object.content_lower.startsWith('q+')
+        || line_object.content_lower.startsWith('+q')
+        || line_object.content_lower.startsWith('vq?')
+        || line_object.content_lower.startsWith('qq+')
+        || line_object.content_lower.startsWith('q-')
+        || line_object.content_lower.startsWith('q?')
+        || line_object.content_lower.startsWith('ack')
+        || line_object.content_lower.startsWith('agenda+')
+        || line_object.content_lower.startsWith('agenda?')
+        || line_object.content_lower.startsWith('trackbot,')
+        || line_object.content_lower.startsWith('zakim,')
+        || line_object.content_lower.startsWith('rrsagent,')
+        || line_object.content_lower.startsWith('github topic')
+        || line_object.content_lower.startsWith('github-bot,')))
+        // There are some irc messages that should be taken care of
+        .filter((line_object) => !(line_object.content.match(/^\w+ has joined #\w+/)
+        || line_object.content.match(/^\w+ has left #\w+/)
+        || line_object.content.match(/^\w+ has changed the topic to:/)))
+        // Handle the scribejs directives
+        .filter((line) => handle_scribejs(line, config));
+}
+exports.cleanup = cleanup;
+/**
  *  Fill in the header structure with
  *   - present: comma separated IRC nicknames
  *   - regrets: comma separated IRC nicknames
@@ -310,7 +472,7 @@ function separate_header(lines, date) {
         agenda: '',
         date: date || '',
         scribe: [],
-        meeting: ''
+        meeting: '',
     };
     /**
      * Extract a list of nick names (used for present, regrets, and guests)
@@ -394,7 +556,7 @@ function separate_header(lines, date) {
         .filter((line) => (line.nick !== 'trackbot'));
     return {
         headers: headers,
-        lines: processed_lines
+        lines: processed_lines,
     };
 }
 exports.separate_header = separate_header;
@@ -443,7 +605,7 @@ function perform_insert(lines) {
         // Note that, temporarily, and array of Line Objects are returned, ie, the result of 'map' is
         // an array or arrays.
         if (line.content !== marker) {
-            let insert_retval = [line];
+            const insert_retval = [line];
             for (const insert of insert_requests) {
                 if (insert.valid && index > insert.lineno && line.content.indexOf(insert.at) !== -1) {
                     // this request has played its role...
@@ -453,7 +615,7 @@ function perform_insert(lines) {
                     insert_retval.push({
                         nick: line.nick,
                         content: insert.add,
-                        content_lower: insert.add.toLowerCase()
+                        content_lower: insert.add.toLowerCase(),
                     });
                     break; // we do not need to look at other request for this line
                 }
@@ -505,16 +667,14 @@ function perform_changes(lines) {
         if (r !== null) {
             // Check whether the 'from' field is 'safe', ie, it does
             // not create RegExp Denial of Service attack
-            if (safe(r[1])) {
-                change_requests.push({
-                    lineno: index,
-                    from: r[1],
-                    to: r[2],
-                    g: r[3] === 'g',
-                    G: r[3] === 'G',
-                    valid: true,
-                });
-            }
+            change_requests.push({
+                lineno: index,
+                from: r[1],
+                to: r[2],
+                g: r[3] === 'g',
+                G: r[3] === 'G',
+                valid: true,
+            });
             line.content = marker;
         }
         return line;
@@ -540,7 +700,6 @@ function perform_changes(lines) {
                     }
                 }
             }
-            ;
         }
         return line;
     })
@@ -551,4 +710,115 @@ function perform_changes(lines) {
     return retval;
 }
 exports.perform_changes = perform_changes;
+/**
+* URL handling: find URL-s in a line and convert it into an active markdown link.
+*
+* There different possibilities:
+* * `-> URL some text` as a separate line (a.k.a. Ralph style links); "some text" becomes the link text
+* * `-> some text URL` anywhere in the line, possibly several patterns in a line; "some text" becomes the link text
+* * Simple URL formatted text where the link text is the URL itself
+*
+* Links in markup syntax are left unchanged.
+*
+* @param {String} line - the line itself
+* @returns {String} - the converted line
+*/
+function add_links(line) {
+    /**
+    * Rudimentary check whether the string should be considered a dereferencable URL
+    */
+    const check_url = (str) => {
+        const a = url.parse(str);
+        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:'].indexOf(a.protocol) !== -1;
+    };
+    /**
+     * Splitting the line into words. By default, one splits along a space character; however, markdown code
+     * (i.e., anything between a pair pair of "`" characters) should be considered a single word.
+     * @param {String} full_line - the content line
+     * @returns {Array} - array of strings, ie, the words
+     */
+    const split_to_words = (full_line) => {
+        const REPL_HACK = '$MD_CODE$';
+        const regex = /`[^`]+`/g;
+        const trimmed = full_line.trim();
+        const codes = trimmed.match(regex);
+        if (codes) {
+            // ugly hack: replacing the code portions with a fixed pattern
+            // now we can split to get words; each code portion appears a word with REPL_HACK
+            let code_index = 0;
+            const fake = trimmed.replace(regex, REPL_HACK);
+            return fake.split(' ').filter((word) => word !== '').map((word) => {
+                if (word.indexOf(REPL_HACK) !== -1) {
+                    // eslint-disable-next-line no-plusplus
+                    return word.replace(REPL_HACK, codes[code_index++]);
+                }
+                else {
+                    return word;
+                }
+            });
+        }
+        else {
+            // no codes to play with
+            // empty words are also filtered out
+            return trimmed.split(' ').filter((word) => word !== '');
+        }
+    };
+    /**
+    * Taking care of the case where only URL-s are in the line without a pattern: such words are found
+    * and are converted into markup-style links with the URL text as a link text itself.
+    */
+    const simple_link_exchange = (word) => (check_url(word) ? `[${word}](${word})` : word);
+    /**
+     * Taking care of the `-> some text URL` pattern. The list of words is converted into a list of words with the
+     * link portions turned into markup-style links. The '->' marker is dropped from the output.
+     *
+     * This is a recursive function to locate all pattern occurrences.
+     *
+     * @param {Array} list_of_words - the original string turned into a list of words
+     * @return {Array} - the converted list of words
+     */
+    const replace_links = (list_of_words) => {
+        if (list_of_words.length === 0)
+            return list_of_words;
+        const start = list_of_words.findIndex((word) => word === '->');
+        if (start === -1) {
+            // No links to worry about
+            return list_of_words;
+        }
+        else {
+            const preamble = list_of_words.slice(0, start);
+            const rest = list_of_words.slice(start + 1);
+            const link_index = rest.findIndex(check_url);
+            if (link_index <= 0) {
+                // the string '->' used for some other purposes
+                return list_of_words;
+            }
+            else {
+                const new_link_word = [`[${rest.slice(0, link_index).join(' ')}](${rest[link_index]})`];
+                const so_far = [...preamble, ...new_link_word];
+                if (link_index === rest.length) {
+                    return so_far;
+                }
+                else {
+                    const leftover = rest.slice(link_index + 1);
+                    // recursion to get possible other links in the line
+                    return [...so_far, ...replace_links(leftover)];
+                }
+            }
+        }
+    };
+    // 1. separate the line into an array of words (double spaces must be filtered out...)
+    const words = split_to_words(line);
+    // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
+    if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
+        const url_part = words[1];
+        const link_part = words.slice(2).join(' ');
+        return `See [${link_part}](${url_part}).`;
+    }
+    else {
+        // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
+        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
+    }
+}
+exports.add_links = add_links;
 //# sourceMappingURL=utils.js.map

@@ -41,7 +41,7 @@
         "excludeProtected" : false,
         "stripInternal" : true,
         "ignoreCompilerErrors": true,
-        "out" : "BrowserView/typedoc",
+        "out" : "BrowserView/docs",
         "theme": "default",
         "includeVersion": true,
         "categorizeByGroup": true,

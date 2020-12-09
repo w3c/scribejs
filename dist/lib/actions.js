@@ -1,6 +1,6 @@
 "use strict";
 /**
- * ## Action management
+ * ## Action management module
  *
  * @packageDocumentation
 */
@@ -66,7 +66,7 @@ class Actions {
      * Retrieve repo data that might be relevant for raising issues. This is a call to the
      * `get_issue_titles` and `get_assignees` methods. Also the method:
      *
-     * * filters the accumulated actions in `this.actions` to retain only the new ones
+     * * filters the accumulated actions in `this.actions` to retain only the new ones (to avoid re-assigning an action several times)
      * * fills the `this.assignees` array with the github id's of persons who can be assigned an action on an issue in the first place
      *
      */
@@ -147,7 +147,7 @@ class Actions {
         }
     }
     /**
-     * Raise all the issues
+     * Raise all the issues.
      */
     async raise_action_issues() {
         if (this.actions.length !== 0) {

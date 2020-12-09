@@ -7,7 +7,8 @@
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Constants = exports.debug = void 0;
-exports.debug = true;
+exports.debug = false;
+// eslint-disable-next-line @typescript-eslint/no-namespace
 var Constants;
 (function (Constants) {
     Constants.JEKYLL_NONE = 'none';

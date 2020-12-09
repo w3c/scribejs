@@ -33,6 +33,7 @@ const nicknames_schema = get_schema('schemas/nicknames_schema.json');
 * the two separate "validators" for the two schemas.
 *
 */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Ajv = require('ajv');
 const validator = new Ajv({ allErrors: true });
 // I am not sure why this is necessary and not done automatically. Oh well...
@@ -55,6 +56,7 @@ exports.validate_nicknames = validator.compile(nicknames_schema);
  * @return string version of the errors, separated by new line characters.
  *
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function validation_errors(validator_function) {
     return validator.errorsText(validator_function.errors, { separator: '\n' });
 }

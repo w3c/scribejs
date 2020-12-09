@@ -50,7 +50,7 @@ function json_conf_file(file_name: string, warn: boolean): Configuration {
     const valid = schemas.validate_config(js_conf);
     if (!valid) {
         console.warn(`Warning: validation error in the ${file_name} configuration file:
-                     ${schemas.validation_errors(schemas.validate_config)}`);
+                     ${schemas.display_validation_errors(schemas.validate_config)}`);
         console.warn('(default, minimal configuration used.)');
         return default_config;
     } else {

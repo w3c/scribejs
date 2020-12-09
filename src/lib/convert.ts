@@ -119,7 +119,7 @@ export class Converter {
 
 
     /**
-     * Generate the Header part of the minutes: present, guests, regrets, chair, etc.
+     * Generate the Header part of the minutes: present, guests, regrets, chair, etc. The nicknames stored in the incoming structure are converted into real names via the [[full_name]] method.
      *
      * Returns a string with the (markdown encoded) version of the header.
      *
@@ -493,7 +493,7 @@ ${no_toc}
     /**
      * The main entry point: generate the full content in the form of a large string (the minutes in markdown);
      *
-     * @param body - the IRC log; this is either a string or an array of strings; the latter happens when the code is called on the client side
+     * @param body - the IRC log; this is either a string or an array of strings (the latter is used when the code is called on the client side).
      */
     convert_to_markdown(body: string|string[]): string {
         // An array of lines should be used down from this point.
@@ -509,8 +509,8 @@ ${no_toc}
         let { headers, lines } = utils.separate_header(irc_log, this.config.date as string);
 
         // 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
-        lines = utils.perform_insert(lines);
-        lines = utils.perform_changes(lines);
+        lines = utils.perform_insert_requests(lines);
+        lines = utils.perform_change_requests(lines);
 
         // 4. Store the actions' date, if the separate action list handler is available.
         // (the list of actions is created on the fly...)

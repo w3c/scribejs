@@ -23,8 +23,9 @@ class GitHub {
     }
 
     /**
+     * Create a new (markdown) entry on the repository.
      *
-     * @param {string} data - string data to be uploaded
+     * @param {string} data - data to be uploaded as a separate file
      * @async
      */
     async commit_data(data) {
@@ -51,6 +52,7 @@ class GitHub {
      * Get the list of issue titles. The method takes care of paging.
      *
      * @return - array of issue titles
+     * @async
      */
     async get_issue_titles() {
         let issues = await this.repo.issues.fetch();
@@ -66,6 +68,9 @@ class GitHub {
 
     /**
      * Get the list of assignees' logins. The method takes care of paging.
+     *
+     * @return - list of github login names for the assignees
+     * @async
      */
     async get_assignees() {
         let collaborators = await this.repo.collaborators.fetch();
@@ -83,6 +88,7 @@ class GitHub {
      * Create a new issue.
      *
      * @param {Object} issue - issue structure (see the Github API for details)
+     * @async
      */
     async create_issue(issue) {
         return this.repo.issues.create(issue);

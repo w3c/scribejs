@@ -1,10 +1,11 @@
-#!/usr/bin/env node
 /**
- * Convert W3C’s RRSAgent IRC bot output into minutes in Markdown
+ * ## RSSAgent IRC logs Into Minutes in Markdown
  *
  * @version: 2.0.0
  * @author: Ivan Herman, <ivan@w3.org> (https://www.w3.org/People/Ivan/)
  * @license: W3C Software License <https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
+ *
+ * @packageDocumentation
  */
 
 import * as io          from './lib/io';
@@ -16,6 +17,11 @@ import { Global }       from './lib/types';
 
 /* This is just the overall driver of the script... */
 
+/**
+ * Entry point for the package: read the configuration files, get the IRC logs from the command line, convert and output the result in Markdown.
+ *
+ * The real work is done in the relevant modules, mostly controlled by an instance of a [[Converter]] class.
+ */
 async function main() {
     try {
         // Collect and combine the configuration file
@@ -34,7 +40,7 @@ async function main() {
         const valid = schemas.validate_nicknames(config.nicks);
         if (!valid) {
             console.warn(`Warning: scribejs validation error in nicknames:
-                         ${schemas.validation_errors(schemas.validate_nicknames)}`);
+                         ${schemas.display_validation_errors(schemas.validate_nicknames)}`);
             console.warn('(nicknames ignored)');
             config.nicks = [];
         }

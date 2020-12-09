@@ -1,10 +1,10 @@
 [Generate Minutes in your Browser!](https://w3c.github.io/scribejs/BrowserView/)
 
-# Converter of RSSAgent IRC logs into minutes in markdown
+# RSSAgent IRC logs Into Minutes in Markdown
 
-This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts into into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary](features.md) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
+This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary]([features.md](https://w3c.github.io/scribejs/features.html)) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
 
-The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. This means that the current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members.
+The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. The current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members. As an extra bonus, if the group’s Web site is also on github, the minutes can become integral part of that Web Site (including the look-and-feel).
 
 ## Usage
 
@@ -16,38 +16,42 @@ The `BrowserView/` directory contains an HTML file which provides a basic UI for
 
 The script runs on top of `node.js`. The “entry point” is the `main.js` file, which accepts the following command line arguments:
 
-```
+```sh
 scribejs [options] [filename]
 [--date|-d] date:    Date of the meeting in ISO (i.e., YYYY-MM-DD) format.
                      Default: today.
 [--group|-g] group:  Name of the IRC channel used by the group.
-[--config|-c] cfile: JSON configuration file (see [below](#conf)). Command
-                     line arguments have a higher priority.
-[--nick|-n] nfile:   JSON nickname mapping URL or filename (see [below](#nick)).
-[--output|-o] ofile: Output file name. See [below](#output) on how the final output is chosen.
-[--final|-f]:        The minutes are final, i.e., they won't be labeled as "DRAFT".
-[--auto|-a]:         Whether the draft label is to be generated automatically into the minutes via a separate script.
+[--config|-c] cfile: JSON configuration file (see below). Command line arguments
+                     have a higher priority.
+[--nick|-n] nfile:   JSON nickname mapping URL or filename (see below).
+[--output|-o] ofile: Output file name. See below on how the final output is chosen.
+[--final|-f]:        The minutes are final, i.e., they will not be labeled as "DRAFT".
+[--auto|-a]:         Whether the draft label is to be generated automatically into
+                     the minutes via a separate script.
 [--repo|-r]:         Whether the output should be stored in a github repository.
                      Default: false.
 [--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
                      Default: false.
-[--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll combination.
-                     Value can be "none", "md", or "kd" (see [below](#jekyll) for further details.)
+[--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll
+                     combination. Value can be "none", "md", or "kd"; (see below)
+                     for further details.)
                      Default: "md".
 [--irc|-i] client:   Whether the input is of the log format of a particular IRC client.
-                     Value can be "textual" or "irccloud", for the Textual or IRCCloud IRC clients, respectively;
-                     other values are (currently) ignored.
-                     Default: undefined, meaning that the log provided by W3C's RRSAgent is used.
+                     Value can be "textual" or "irccloud", for the Textual or
+                     IRCCloud IRC clients, respectively; other values are (currently)
+                     ignored.
+                     Default: undefined, meaning that the log provided by the W3C
+                     RRSAgent is used.
 ```
 
 Some notes:
 
-- On the `--irc` option: in the absence of the flag the script tries to make a guess whether Textual or IRCCloud was used instead of the default. I.e., this flag may be unnecessary in practice. In case the guess goes wrong, however, it may be used… Other IRC clients may be added in future.)
+
 - On the usage of the `--final` and `--auto` flags: by default, the script considers the minutes as drafts, and adds a "DRAFT" notice right after the title. This is in line with the practice that minutes are to be reviewed before the subsequent call before being considered as final. If the `--final` flag is used, this notice is not added to the final minutes; this is useful for minutes taken at a task force meeting, for example. The `--auto` flag provides an alternative to the explicit notice: instead of an explicit notice that title element (in the final HTML) a `class` value of `draft_notice_needed` is added to the title elements. Client side scripts may be used to control the appearance of a "Draft" notice, depending on, e.g., the date of the minutes.
 
 ### Configuration files
 
-While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file `~/.scribejs.json` will be used, if present.
+While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file `~/.scribejs.json` will be used, if present. A separate, `~/.ghid.json` can also be used (and shared with other applications), typically used to store the user’s GitHub credentials.
 
 The keys are as follows (see also the [description of the command line](#usage) for their explanation). Use only those keys that have a meaningful value.
 
@@ -57,12 +61,12 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `output`       : Output file name; irrelevant if `torepo` is `true`
 * `nicknames`    : Nickname file reference in the form of a URL or a filename
 * `final`        : `true`\|`false`
-* `auto`         : `true`\|`false`
-* `torepo`       : `true`\|`false`
-* `pandoc`       : `true`\|`false`
-* `jekyll`       : `"none"`\|`"md"`\|`"kd"`
-* `irc_format`   : `"textual"`\|`"irccloud"`\|`undefined`
-* `ghrepo`       : repository name, e.g., `w3c/epub-wg`
+* `auto`         : `true`\|`false`; see the notice above on the value of `final` and `auto`
+* `torepo`       : `true`\|`false`; whether the generated minutes should be uploaded to the group’s repository
+* `pandoc`       : `true`\|`false`; whether the goal is to post-process the minutes via the `pandoc` program (this requires minor adjustment on the output)
+* `jekyll`       : `"none"`\|`"md"`\|`"kd"`; controls the exact markdown dialect to be used for the output
+* `irc_format`   : `"textual"`\|`"irccloud"`\|`undefined`; choice among available IRC log formats
+* `ghrepo`       : repository name, e.g., `w3c/epub-wg`; this is where the minutes are to be stored
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
 * `acrepo`       : repository name where action issues should be generated. If not set, the value of `ghrepo` is used if set.
@@ -70,14 +74,14 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `acurlpattern` : url pattern used to refer the minutes. The strings `%YEAR%`, `%MONTH%`, `%DAY%`, and `%DATE%` are replaced by the respective values. Used to put references into the minutes when generating issues for actions.
 * `ghname`       : github login name
 * `ghemail`      : github email
-* `ghtoken`      : OAUTH personal access token (see the [relevant GitHub site](https://github.com/settings/tokens) for further details on OAUTH tokens and to generate one)
+* `ghtoken`      : OAUTH personal access token (see the [relevant GitHub site](https://github.com/settings/tokens) for further details on OAUTH tokens and how to generate one).
 
 The final configuration is a combination of the command line arguments, the (optional) configuration file provided through the command line, and the user-level configuration file (if it exists), in decreasing priority.
 
 A typical usage of the configuration files is:
 
 * set the group‘s repository data (e.g., `ghrepo`, `ghpath`, `ghbranch`, `acrepo`, `issuerepo`, `acurlpattern`, `group`, `nicknames`) in a shared configuration file that can be part of the repository itself;
-* use the user-level configuration for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)
+* use a user-level configuration (`~/.scribejs.json` or `~/.ghid.json`) for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
 There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead.
@@ -127,6 +131,7 @@ The generated minutes may be part of a page hosted by GitHub via the [Github+Jek
     ---
     layout: minutes
     date: [date of minutes]
+    json-ld: schema.org metadata
     ---
     ```
 
@@ -148,7 +153,7 @@ If the generated minutes are in kramdown format then a number of sections/paragr
 
 ### Schema.org data in JSON-LD
 
-The generated minutes contain schema.org metadata, encoded in JSON-LD as part of the page header. Various client-side scripts can make use of that...
+The generated minutes may contain schema.org metadata, encoded in JSON-LD as part of the page header. Various client-side scripts can make use of that.
 
 ## Installation
 
@@ -160,6 +165,15 @@ cd scribejs
 npm install
 ```
 
+The code itself is in Typescript. The sources are in the `src` directory in the repository. If you do any change, run
+
+```bash
+tsc
+```
+
+to generate the javascript files. All instructions below refer to the generated javascript versions.
+
+
 Follow specific instructions based on your needs/interests below.
 
 ### Browser
@@ -169,7 +183,7 @@ npm run build
 npm run serve
 ```
 
-You should be able to load the UX via `http://localhost:8080` (or whichever port was chosen by `http-server`). Of course, if you run a server on your machine already, that can be used as well.
+You should be able to load the UX via `http://localhost:8080` (or whichever port was chosen by `http-server`). Of course, if you run a server on your machine already, that can be used as well, in which case the second command is irrelevant.
 
 ### Command Line
 
@@ -183,8 +197,16 @@ $EDITOR ~/.scribejs.json                  # Fill in details: your GH token, etc
 To run scribejs (in its own directory):
 
 ```bash
-node .
+node main.js
 ```
+
+Optionally, you can also run
+
+```bash
+ts-node src/main.ts
+```
+
+which will compile the Typescript source into Javascript on the fly and run the results. (You will have to install `ts-node` separately, though.)
 
 Optionally, you can install it globally with:
 
@@ -219,10 +241,10 @@ We like clean code, so we've introduced tools to help our shared consistency.
 You can use `eslint` in the context of this project by running:
 
 ```sh
-npm run lint -- main.js
+npm run lint
 ```
 
-It will be run using the configuration settings found in `.eslintrc.yml`.
+It will be run using the configuration settings found in `.eslintrc.js`.
 
 ---
 

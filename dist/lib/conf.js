@@ -15,6 +15,7 @@ const commander_1 = require("commander");
 const schemas = require("./schemas");
 const utils = require("./utils");
 const types_1 = require("./types");
+/** Initial value for the final configuration. The values are overwritten by other possible configuration files and command line arguments. */
 const default_config = {
     date: utils.today,
     final: false,
@@ -105,8 +106,6 @@ function get_config() {
         console.log('    file:                   irc log file; if not present, retrieved from the W3C site');
     })
         .parse(process.argv);
-    // TODO: lots of whitespace https://eslint.org/docs/rules/no-multi-spaces
-    // TODO: consider setting defaults for all configs instead
     if (program.repo)
         argument_config.torepo = true;
     if (program.final)

@@ -1,8 +1,7 @@
 /**
- * ## Creating the JSON-LD metadata for the minutes, to be dumped into the header of the generated minute files.
+ * ## Generate schema.org metadata
  *
- * (More exactly: the json-ld portion is added to the kramdown header; the jekyll setup must take care of generating a script element in the header of the
- * generated HTML file.)
+ * Creating the schema.org metadata, in JSON-LD format, for the minutes. The json-ld portion is added to the kramdown header; the jekyll setup must take care of generating a `script` element in the header of the generated HTML file.
  *
  * @packageDocumentation
 */

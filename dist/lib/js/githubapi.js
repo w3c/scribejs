@@ -2,7 +2,6 @@
 'use strict';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Octokat = require('octokat');
-const base64_to_string = (data) => Buffer.from(data, 'base64').toString('utf-8');
 const string_to_base64 = (string) => Buffer.from(string).toString('base64');
 /**
  * Wrapper around a the Github API using the more generic octocat library.
@@ -15,8 +14,8 @@ class GitHub {
      * @param {Object} conf - program configuration
      */
     constructor(repo_id, conf) {
-        this.conf = conf;
-        this._repo = new Octokat({ token: conf.ghtoken }).repos(...repo_id.split('/'));
+        const octo = new Octokat({ token: conf.ghtoken });
+        this.repo = octo.repos(...repo_id.split('/'));
     }
     /**
      *
@@ -27,7 +26,7 @@ class GitHub {
         const path = `${this.conf.ghpath}/${this.conf.ghfname}`;
         const path_with_branch = path + (this.conf.ghbranch ? `?ref=${this.conf.ghbranch}` : '');
         // See if the data exists on the specific path; if so, its sha value must be used for the final change
-        const info = await this._repo.contents(path_with_branch).fetch();
+        const info = await this.repo.contents(path_with_branch).fetch();
         const params = {
             sha: (info && info.sha) ? info.sha : null,
             branch: this.conf.ghbranch,
@@ -38,26 +37,38 @@ class GitHub {
                 email: this.conf.ghemail,
             },
         };
-        const retval = await this._repo.contents(path).add(params);
+        const retval = await this.repo.contents(path).add(params);
         return retval.content.htmlUrl;
     }
     /**
-     * Get the list of issue titles. Note that the method takes care of paging.
+     * Get the list of issue titles. The method takes care of paging.
      *
      * @return - array of issue titles
      */
     async get_issue_titles() {
-        const pages = await this._repo.issues.fetch({ per_page: 200 });
-        const issues = await pages.all();
-        return issues.map((issue) => issue.title);
+        let issues = await this.repo.issues.fetch();
+        let retval = issues.items;
+        let page_number = 1;
+        while (issues.nextPageUrl) {
+            page_number += 1;
+            issues = await this.repo.issues.fetch({ page: page_number });
+            retval = [...retval, ...issues.items];
+        }
+        return retval.map((issue) => issue.title);
     }
     /**
-     * Get the list of assignees' logins. Note that the method takes care of paging.
+     * Get the list of assignees' logins. The method takes care of paging.
      */
     async get_assignees() {
-        const pages = await this._repo.assignees.fetch('assignees', {}, { per_page: 200 });
-        const assignees = await pages.all();
-        return assignees.map((assignee) => assignee.login);
+        let collaborators = await this.repo.collaborators.fetch();
+        let retval = collaborators.items;
+        let page_number = 1;
+        while (collaborators.nextPageUrl) {
+            page_number += 1;
+            collaborators = await this.repo.collaborators.fetch({ page: page_number });
+            retval = [...retval, ...collaborators.items];
+        }
+        return retval.map((person) => person.login);
     }
     /**
      * Create a new issue.
@@ -65,7 +76,7 @@ class GitHub {
      * @param {Object} issue - issue structure (see the Github API for details)
      */
     async create_issue(issue) {
-        return this._repo.issues.create(issue);
+        return this.repo.issues.create(issue);
     }
 }
 /* ------------------------------------------------------------ */

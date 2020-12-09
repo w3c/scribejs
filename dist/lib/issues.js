@@ -3,9 +3,6 @@
  *
  * Handling the issue directives
  *
- *
- * For the moment, the default (ie, 'master') branch is used.
- *
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });

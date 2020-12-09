@@ -1,0 +1,357 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</title>
+	<meta name="description" content="Documentation for Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<p><a href="https://w3c.github.io/scribejs/BrowserView/">Generate Minutes in your Browser!</a></p>
+				<a href="#rssagent-irc-logs-into-minutes-in-markdown" id="rssagent-irc-logs-into-minutes-in-markdown" style="color: inherit; text-decoration: none;">
+					<h1>RSSAgent IRC logs Into Minutes in Markdown</h1>
+				</a>
+				<p>This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of <a href="https://dev.w3.org/2002/scribe/scribedoc.htm">David Booth&#39;s script</a> are retained. See also a separate <a href="%5Bfeatures.md%5D(https://w3c.github.io/scribejs/features.html)">feature summary</a> for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.</p>
+				<p>The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. The current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members. As an extra bonus, if the group’s Web site is also on github, the minutes can become integral part of that Web Site (including the look-and-feel).</p>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<a href="#browser" id="browser" style="color: inherit; text-decoration: none;">
+					<h3>Browser</h3>
+				</a>
+				<p>The <code>BrowserView/</code> directory contains an HTML file which provides a basic UI for loading and editing IRC logs and processing them into Markdown (see the <a href="https://w3c.github.io/scribejs/BrowserView/index.html">service on-line</a>). See the <a href="#installation">Installation</a> section below for more information.</p>
+				<a href="#command-line" id="command-line" style="color: inherit; text-decoration: none;">
+					<h3>Command Line</h3>
+				</a>
+				<p>The script runs on top of <code>node.js</code>. The “entry point” is the <code>main.js</code> file, which accepts the following command line arguments:</p>
+				<pre><code class="language-sh">scribejs [options] [filename]
+[--date|-d] date:    Date of the meeting <span class="hljs-keyword">in</span> ISO (i.e., YYYY-MM-DD) format.
+                     Default: today.
+[--group|-g] group:  Name of the IRC channel used by the group.
+[--config|-c] cfile: JSON configuration file (see below). Command line arguments
+                     have a higher priority.
+[--nick|-n] nfile:   JSON nickname mapping URL or filename (see below).
+[--output|-o] ofile: Output file name. See below on how the final output is chosen.
+[--final|-f]:        The minutes are final, i.e., they will not be labeled as <span class="hljs-string">&quot;DRAFT&quot;</span>.
+[--auto|-a]:         Whether the draft label is to be generated automatically into
+                     the minutes via a separate script.
+[--repo|-r]:         Whether the output should be stored <span class="hljs-keyword">in</span> a github repository.
+                     Default: <span class="hljs-literal">false</span>.
+[--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
+                     Default: <span class="hljs-literal">false</span>.
+[--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll
+                     combination. Value can be <span class="hljs-string">&quot;none&quot;</span>, <span class="hljs-string">&quot;md&quot;</span>, or <span class="hljs-string">&quot;kd&quot;</span>; (see below)
+                     <span class="hljs-keyword">for</span> further details.)
+                     Default: <span class="hljs-string">&quot;md&quot;</span>.
+[--irc|-i] client:   Whether the input is of the <span class="hljs-built_in">log</span> format of a particular IRC client.
+                     Value can be <span class="hljs-string">&quot;textual&quot;</span> or <span class="hljs-string">&quot;irccloud&quot;</span>, <span class="hljs-keyword">for</span> the Textual or
+                     IRCCloud IRC clients, respectively; other values are (currently)
+                     ignored.
+                     Default: undefined, meaning that the <span class="hljs-built_in">log</span> provided by the W3C
+                     RRSAgent is used.</code></pre>
+				<p>Some notes:</p>
+				<ul>
+					<li>On the usage of the <code>--final</code> and <code>--auto</code> flags: by default, the script considers the minutes as drafts, and adds a &quot;DRAFT&quot; notice right after the title. This is in line with the practice that minutes are to be reviewed before the subsequent call before being considered as final. If the <code>--final</code> flag is used, this notice is not added to the final minutes; this is useful for minutes taken at a task force meeting, for example. The <code>--auto</code> flag provides an alternative to the explicit notice: instead of an explicit notice that title element (in the final HTML) a <code>class</code> value of <code>draft_notice_needed</code> is added to the title elements. Client side scripts may be used to control the appearance of a &quot;Draft&quot; notice, depending on, e.g., the date of the minutes.</li>
+				</ul>
+				<a href="#configuration-files" id="configuration-files" style="color: inherit; text-decoration: none;">
+					<h3>Configuration files</h3>
+				</a>
+				<p>While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file <code>~/.scribejs.json</code> will be used, if present. A separate, <code>~/.ghid.json</code> can also be used (and shared with other applications), typically used to store the user’s GitHub credentials.</p>
+				<p>The keys are as follows (see also the <a href="#usage">description of the command line</a> for their explanation). Use only those keys that have a meaningful value.</p>
+				<ul>
+					<li><code>date</code>         : Date in ISO Format</li>
+					<li><code>group</code>        : Group&#39;s IRC name</li>
+					<li><code>input</code>        : Input</li>
+					<li><code>output</code>       : Output file name; irrelevant if <code>torepo</code> is <code>true</code></li>
+					<li><code>nicknames</code>    : Nickname file reference in the form of a URL or a filename</li>
+					<li><code>final</code>        : <code>true</code>|<code>false</code></li>
+					<li><code>auto</code>         : <code>true</code>|<code>false</code>; see the notice above on the value of <code>final</code> and <code>auto</code></li>
+					<li><code>torepo</code>       : <code>true</code>|<code>false</code>; whether the generated minutes should be uploaded to the group’s repository</li>
+					<li><code>pandoc</code>       : <code>true</code>|<code>false</code>; whether the goal is to post-process the minutes via the <code>pandoc</code> program (this requires minor adjustment on the output)</li>
+					<li><code>jekyll</code>       : <code>&quot;none&quot;</code>|<code>&quot;md&quot;</code>|<code>&quot;kd&quot;</code>; controls the exact markdown dialect to be used for the output</li>
+					<li><code>irc_format</code>   : <code>&quot;textual&quot;</code>|<code>&quot;irccloud&quot;</code>|<code>undefined</code>; choice among available IRC log formats</li>
+					<li><code>ghrepo</code>       : repository name, e.g., <code>w3c/epub-wg</code>; this is where the minutes are to be stored</li>
+					<li><code>ghpath</code>       : path in the repository to the folder where the minutes are to be stored</li>
+					<li><code>ghbranch</code>     : branch of the repository where the minutes should be stored. If not set, default is used</li>
+					<li><code>acrepo</code>       : repository name where action issues should be generated. If not set, the value of <code>ghrepo</code> is used if set.</li>
+					<li><code>issuerepo</code>    : repository name used for issue comments by default, e.g., <code>w3c/epub-specs</code>. If none is set, <code>ghrepo</code> is used if set.</li>
+					<li><code>acurlpattern</code> : url pattern used to refer the minutes. The strings <code>%YEAR%</code>, <code>%MONTH%</code>, <code>%DAY%</code>, and <code>%DATE%</code> are replaced by the respective values. Used to put references into the minutes when generating issues for actions.</li>
+					<li><code>ghname</code>       : github login name</li>
+					<li><code>ghemail</code>      : github email</li>
+					<li><code>ghtoken</code>      : OAUTH personal access token (see the <a href="https://github.com/settings/tokens">relevant GitHub site</a> for further details on OAUTH tokens and how to generate one).</li>
+				</ul>
+				<p>The final configuration is a combination of the command line arguments, the (optional) configuration file provided through the command line, and the user-level configuration file (if it exists), in decreasing priority.</p>
+				<p>A typical usage of the configuration files is:</p>
+				<ul>
+					<li>set the group‘s repository data (e.g., <code>ghrepo</code>, <code>ghpath</code>, <code>ghbranch</code>, <code>acrepo</code>, <code>issuerepo</code>, <code>acurlpattern</code>, <code>group</code>, <code>nicknames</code>) in a shared configuration file that can be part of the repository itself;</li>
+					<li>use a user-level configuration (<code>~/.scribejs.json</code> or <code>~/.ghid.json</code>) for the more personal entries like <code>ghname</code>, <code>ghemail</code>, and <code>ghtoken</code>. <strong>This is especially important for <code>ghtoken</code> which should <em>never</em> be part of any repository in clear text</strong> (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)</li>
+					<li>use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the <code>gh*</code> type keys can be ignored if the user choses to never commit minutes automatically on GitHub.</li>
+				</ul>
+				<p>There is a <a href="schemas/config_schema.json">JSON schema</a> to validate the configuration file. The validation is also done run-time; the script warns (on <code>stderr</code>) if the configuration file is invalid, and a minimal default configuration is used instead.</p>
+				<p>Note that this repository contains the current <a href="./BrowserView/Groups/">configuration files for active WG-s</a>; external tools, local scripts, etc., are welcome to use them. Using these pre-set configuration files may make it easier to deploy the script.</p>
+				<a href="#choice-of-the-output" id="choice-of-the-output" style="color: inherit; text-decoration: none;">
+					<h3>Choice of the output</h3>
+				</a>
+				<p>The script’s choice of where resulting file is stored is as follows:</p>
+				<ul>
+					<li>if the value of <code>torepo</code> in the final configuration is <code>true</code>, the <code>gh...</code> values are used to determine the github repository (with, optionally, the relevant branch) and the path within the repository where the minutes should be stores (or updated);</li>
+					<li>otherwise, if the <code>output</code> value is set, the result is stored in that file;</li>
+					<li>otherwise the result is sent to the standard output.</li>
+				</ul>
+				<p>This means that the simplest possible usage of the script boils down to:</p>
+				<pre><code class="language-bash">scribejs IRC-log-file</code></pre>
+				<p>which takes the log from the local <code>IRC-log-file</code> and sends the markdown minutes to standard output.</p>
+				<a href="#nickname-mapping" id="nickname-mapping" style="color: inherit; text-decoration: none;">
+					<h3>Nickname mapping</h3>
+				</a>
+				<p>This JSON file is used to provide mapping among IRC nicknames and real names. The file itself is an array of objects; each object can use the following keys (use only those with a meaningful value):</p>
+				<ul>
+					<li><code>nick</code> : the value is an <em>array</em> of strings, each representing a possible IRC handle (nickname); this array (even if empty) is <em>required</em>.</li>
+					<li><code>name</code> : the value is a string, providing the name to be displayed for that person; this string is <em>required</em>.</li>
+					<li><code>github</code> : the GitHub id of the person</li>
+					<li><code>url</code> : a URL that can be used to set the person’s name as an active link (currently not used, but may be used later).</li>
+				</ul>
+				<p>There is a <a href="schemas/nicknames_schema.json">JSON schema</a> to validate the nickname mapping file. The validation is also done run-time; the script warns (on <code>stderr</code>) if the nickname mapping file is invalid, and an empty mapping is used instead.</p>
+				<a href="#pandoc" id="pandoc" style="color: inherit; text-decoration: none;">
+					<h3>Pandoc</h3>
+				</a>
+				<p>The generated minutes may be converted into some other format using <a href="https://pandoc.org">pandoc</a>. If so, a special <a href="(https://pandoc.org/MANUAL.html#metadata-blocks)">title header</a> is added, to be used by pandoc when generating HTML or LaTeX.</p>
+				<a href="#jekyll-option" id="jekyll-option" style="color: inherit; text-decoration: none;">
+					<h3>Jekyll option</h3>
+				</a>
+				<p>The generated minutes may be part of a page hosted by GitHub via the <a href="https://help.github.com/articles/about-github-pages-and-jekyll/">Github+Jekyll</a> combination. The possible options, and their meaning, are as follows.</p>
+				<ul>
+					<li><p><code>none</code>: Jekyll is ignored. This is the default.</p>
+					</li>
+					<li><p><code>md</code>: the generated minutes includes a special heading, namely:</p>
+						<pre><code><span class="hljs-meta">---</span>
+<span class="hljs-attr">layout:</span> <span class="hljs-string">minutes</span>
+<span class="hljs-attr">date:</span> [<span class="hljs-string">date</span> <span class="hljs-string">of</span> <span class="hljs-string">minutes</span>]
+<span class="hljs-attr">json-ld:</span> <span class="hljs-string">schema.org</span> <span class="hljs-string">metadata</span>
+<span class="hljs-meta">---</span></code></pre>
+						<p>  Furthermore, the W3C logo is <em>not</em> added to the minutes; this can be done by the layout used for the minutes. The syntax is (Github) markdown.</p>
+					</li>
+					<li><p><code>kd</code>: beyond the features of the <code>md</code> option, the minutes are generated in <a href="https://kramdown.gettalong.org/documentation.html">kramdown</a> syntax and not in (standard Github) markdown. This is the markdown dialect used by Jekyll; the notable difference, in terms of the generated minutes, is the syntax used to assign an identifier to a header, resolution, or an action. As a bonus, the resolutions and the actions are assigned a class name (<code>resolution</code> and <code>action</code>, respectively) which can be used for extra styling.</p>
+					</li>
+				</ul>
+				<a href="#generated-class-names" id="generated-class-names" style="color: inherit; text-decoration: none;">
+					<h4>Generated class names</h4>
+				</a>
+				<p>If the generated minutes are in kramdown format then a number of sections/paragraphs/etc. get specific class names. These can be used for CSS styling when the minutes are generated by Jekyll in HTML. These are:</p>
+				<table>
+					<thead>
+						<tr>
+							<th>Section content</th>
+							<th>class name</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td>resolution</td>
+							<td><code>resolution</code></td>
+						</tr>
+						<tr>
+							<td>proposed resolution</td>
+							<td><code>proposed_resolution</code></td>
+						</tr>
+						<tr>
+							<td>summary</td>
+							<td><code>summary</code></td>
+						</tr>
+						<tr>
+							<td>action</td>
+							<td><code>action</code></td>
+						</tr>
+						<tr>
+							<td>Draft notice at the top of the minutes</td>
+							<td><code>draft_notice</code></td>
+						</tr>
+						<tr>
+							<td>H1 element at the top of the minutes (if the <code>--auto</code> flag is used)</td>
+							<td><code>draft_notice_needed</code></td>
+						</tr>
+				</tbody></table>
+				<a href="#schemaorg-data-in-json-ld" id="schemaorg-data-in-json-ld" style="color: inherit; text-decoration: none;">
+					<h3>Schema.org data in JSON-LD</h3>
+				</a>
+				<p>The generated minutes may contain schema.org metadata, encoded in JSON-LD as part of the page header. Various client-side scripts can make use of that.</p>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<p>Setup the project locally and install Node.js dependencies:</p>
+				<pre><code class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/w3c/scribejs.git
+<span class="hljs-built_in">cd</span> scribejs
+npm install</code></pre>
+				<p>The code itself is in Typescript. The sources are in the <code>src</code> directory in the repository. If you do any change, run</p>
+				<pre><code class="language-bash">tsc</code></pre>
+				<p>to generate the javascript files. All instructions below refer to the generated javascript versions.</p>
+				<p>Follow specific instructions based on your needs/interests below.</p>
+				<a href="#browser-1" id="browser-1" style="color: inherit; text-decoration: none;">
+					<h3>Browser</h3>
+				</a>
+				<pre><code class="language-bash">npm run build
+npm run serve</code></pre>
+				<p>You should be able to load the UX via <code>http://localhost:8080</code> (or whichever port was chosen by <code>http-server</code>). Of course, if you run a server on your machine already, that can be used as well, in which case the second command is irrelevant.</p>
+				<a href="#command-line-1" id="command-line-1" style="color: inherit; text-decoration: none;">
+					<h3>Command Line</h3>
+				</a>
+				<p>Standard Node.js practices have been followed.</p>
+				<pre><code class="language-bash">cp config.json.sample ~/.scribejs.json
+<span class="hljs-variable">$EDITOR</span> ~/.scribejs.json                  <span class="hljs-comment"># Fill in details: your GH token, etc</span></code></pre>
+				<p>To run scribejs (in its own directory):</p>
+				<pre><code class="language-bash">node main.js</code></pre>
+				<p>Optionally, you can also run</p>
+				<pre><code class="language-bash">ts-node src/main.ts</code></pre>
+				<p>which will compile the Typescript source into Javascript on the fly and run the results. (You will have to install <code>ts-node</code> separately, though.)</p>
+				<p>Optionally, you can install it globally with:</p>
+				<pre><code class="language-bash">sudo npm i -g .</code></pre>
+				<p>which will create a symbolic link to <code>main.js</code> in the user&#39;s search path with the name <code>scribejs</code>, so you should be able to invoke it this way, too:</p>
+				<pre><code class="language-bash">scribejs</code></pre>
+				<p>The <code>schemas</code> directory also includes two <a href="http://json-schema.org/documentation.html">JSON schemas</a> files for the configuration and the nickname json files, respectively. These can be used with a suitable schema processor (e.g., the <a href="https://github.com/jessedc/ajv-cli">CLI for ajv</a>) to check the validity of the configuration files. This schemas are used by the running code, too, to check configuration and nickname files.</p>
+				<a href="#testing" id="testing" style="color: inherit; text-decoration: none;">
+					<h2>Testing</h2>
+				</a>
+				<pre><code class="language-bash">npm <span class="hljs-built_in">test</span></code></pre>
+				<p>If you have <a href="https://github.com/tj/node-growl#installation">Growl</a> setup for
+				your platform, you can use it like so:</p>
+				<pre><code class="language-bash">npm <span class="hljs-built_in">test</span> -- --growl</code></pre>
+				<a href="#linting" id="linting" style="color: inherit; text-decoration: none;">
+					<h2>Linting</h2>
+				</a>
+				<p>We like clean code, so we&#39;ve introduced tools to help our shared consistency.
+				You can use <code>eslint</code> in the context of this project by running:</p>
+				<pre><code class="language-sh">npm run lint</code></pre>
+				<p>It will be run using the configuration settings found in <code>.eslintrc.js</code>.</p>
+				<hr>
+				<p>Maintainers: <a href="https://ivan-herman.net/professional/">Ivan Herman</a> and <a href="http://bigbluehat.com/">BigBlueHat</a></p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_actions_.html">&quot;src/lib/actions&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_conf_.html">&quot;src/lib/conf&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_convert_.html">&quot;src/lib/convert&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_io_.html">&quot;src/lib/io&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_issues_.html">&quot;src/lib/issues&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_js_githubapi_.html">&quot;src/lib/js/githubapi&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_js_githubapi_d_.html">&quot;src/lib/js/githubapi.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_jsonld_header_.html">&quot;src/lib/jsonld_<wbr>header&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_schemas_.html">&quot;src/lib/schemas&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_types_.html">&quot;src/lib/types&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_utils_.html">&quot;src/lib/utils&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_main_.html">&quot;src/main&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

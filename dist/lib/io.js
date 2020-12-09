@@ -1,13 +1,12 @@
 "use strict";
 /**
  *
- * Collection of methods to perform, essentially I/O operations. This include:
+ * Collection of methods to perform, essentially I/O operations. These include:
  *
  * * Get the IRC log itself
  * * Get the nickname file
  * * Dump the generated minutes into a file or upload it to github.
  *
- * For the moment, the default (ie, 'master') branch is used.
  *
  * @packageDocumentation
  */
@@ -16,8 +15,8 @@ exports.output_minutes = exports.get_nick_mapping = exports.get_irc_log = void 0
 const url = require("url");
 const node_fetch = require("node-fetch");
 const fs = require("fs");
-const githubapi_1 = require("./js/githubapi");
 const validUrl = require("valid-url");
+const githubapi_1 = require("./js/githubapi");
 const utils = require("./utils");
 /** @internal */
 const fsp = fs.promises;
@@ -81,10 +80,8 @@ exports.get_irc_log = get_irc_log;
 *
 * The checks are as follows:
 *
-* 1. Check whether the protocol is http(s). Other protocols are not accepted
-*    (actually rejected by fetch, too)
-* 2. Run the URL through a valid-url check, which looks at the validity of the
-*    URL in terms of characters used, for example
+* 1. Check whether the protocol is http(s). Other protocols are not accepted (actually rejected by fetch, too)
+* 2. Run the URL through a valid-url check, which looks at the validity of the URL in terms of characters used, for example
 * 3. Check that the port (if specified) is in the allowed range, ie, > 1024
 * 4. Don't allow localhost in a CGI answer...
 *
@@ -127,8 +124,7 @@ function check_url(address) {
  * retrieved via HTTP) or not (in which case it is considered to be a local file).
  * Returns a Promise with the content of the input as an object.
  *
- * @param conf - Overall configuration; the only field that matter
- *     here is "conf.nicknames"
+ * @param conf - Overall configuration; the only field that matter here is "conf.nicknames"
  * @returns - a promise containing the nicknames as an object parsed from JSON.
  */
 async function get_nick_mapping(conf) {

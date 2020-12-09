@@ -45,6 +45,7 @@ const my_fetch: ((arg :string) => Promise<any>) = utils.is_browser ? fetch : nod
  *
  * @param conf - Overall configuration; the only field that matter here is "conf.input"
  * @returns a promise containing the irc log as a single string.
+ * @async
  */
 export async function get_irc_log(conf: Configuration): Promise<string> {
     if (conf.irclog) {
@@ -132,6 +133,7 @@ function check_url(address: string): string {
  *
  * @param conf - Overall configuration; the only field that matter here is "conf.nicknames"
  * @returns - a promise containing the nicknames as an object parsed from JSON.
+ * @async
  */
 export async function get_nick_mapping(conf: Configuration): Promise<PersonWithNickname[]> {
     /**
@@ -171,23 +173,21 @@ export async function get_nick_mapping(conf: Configuration): Promise<PersonWithN
 }
 
 /**
- * Committing new data on the github repo
+ * Committing new markdown file on the github repo.
  *
  * The following terms in the configuration are relevant for this function
- * - ghrepo: the full name of the repository. E.g., "w3c/scribejs"
- * - ghpath: the path within the repository where the data must be stored. E.g., "test/minutes"
- * - ghfname: the file name
- * - ghname: the user name to be used when committing
- * - ghemail: the user email to be used when committing
- * - ghtoken: the user's OAUTH personal access token provided by GitHub
- *             (see https://github.com/settings/tokens/new)
- * - ghbranch: the target branch within the repository. This term may be
- *             missing from the configuration, in which case the default
- *             branch of the repo is used
+ * - `ghrepo`: the full name of the repository. E.g., "w3c/scribejs"
+ * - `ghpath`: the path within the repository where the data must be stored. E.g., "test/minutes"
+ * - `ghfname`: the file name
+ * - `ghtoken`: the user's OAUTH personal access token provided by GitHub (see https://github.com/settings/tokens/new)
+ * - `ghbranch`: the target branch within the repository. This term may be missing from the configuration, in which case the default branch of the repo is used
  *
- * @param data - the markdown data to be uploaded
- * @param conf - the configuration containing additional data
+ * The real work is done in the [[GitHub]] interface to Github.
+ *
+ * @param data - the markdown file to be uploaded
+ * @param conf - the configuration containing the necessary data for upload.
  * @returns the returned promise data is the URL of the content; its only use is for debug
+ * @async
  */
 async function commit(data: string, conf: Configuration): Promise<string> {
     // The token below is essential, it gives the access right to the repository.
@@ -204,6 +204,7 @@ async function commit(data: string, conf: Configuration): Promise<string> {
  * @param  minutes - the markdown data to be uploaded
  * @param conf - the configuration containing additional data
  * @returns the returned promise data with the file name or URL of the generated minutes
+ * @async
  */
 export async function output_minutes(minutes: string, conf: Configuration): Promise<string> {
     if (conf.torepo) {
