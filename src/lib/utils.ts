@@ -9,6 +9,7 @@
 import { LineObject, Header, Configuration, Global }    from './types';
 import { Constants }                                    from './types';
 import * as url                                         from 'url';
+import safe_regex = require('safe-regex');
 
 /** ******************************************************************* */
 /*                       Conversion generic utilities                   */
@@ -699,6 +700,7 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
     //   s|...|...|{gG}
     const get_change_request = (str: string) => str.match(/^s\/([^/]+)\/([^/]*)\/{0,1}(g|G){0,1}/) || str.match(/^s\|([^|]+)\|([^/|]*)\|{0,1}(g|G){0,1}/);
     const marker             = '----CHANGEREQUESTXYZ----';
+    const error_marker       = '----ERRORINREQUESTXYZ----';
 
     const retval = lines
         // Because the change is to work on the preceding values, the
@@ -713,7 +715,7 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
             if (r !== null) {
                 // The 'from' in the change request is r[1]; this will be used in the form of a
                 // regular expression. That is created here;
-                try {
+                if (safe_regex(r[1])) {
                     change_requests.push({
                         lineno      : index,
                         from        : r[1],
@@ -724,15 +726,16 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
                         from_regexp : RegExp(r[1],'g'),
                     });
                     line.content = marker;
-                } catch (e) {
-                    console.error(`The change request for '${r[1]}' cannot be used as a regular expression.`);
+                } else {
+                    console.warn(`The change request for '${r[1]}' cannot be used as a regular expression; ignored.`);
+                    line.content = error_marker;
                 }
             }
             return line;
         })
         .map((line, index) => {
             // See if a line has to be modified by one of the change requests
-            if (line.content !== marker) {
+            if (line.content !== marker && line.content !== error_marker) {
                 for (const change of change_requests) {
                     // One change request: the change should occur
                     // - in any case if the 'G' flag is on
@@ -758,7 +761,7 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
             return line;
         })
         // Remove the markers
-        .filter((line) => (line.content !== marker))
+        .filter((line) => (line.content !== marker && line.content !== error_marker))
         // return the array into its original order
         .reverse();
 
