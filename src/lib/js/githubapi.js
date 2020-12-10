@@ -55,14 +55,14 @@ class GitHub {
      * @async
      */
     async get_issue_titles() {
-        let issues = await this.repo.issues.fetch();
-        let retval = issues.items;
+        let issues;
+        let retval = [];
         let page_number = 1;
-        while (issues.nextPageUrl) {
+        do {
+            issues = await this.repo.issues.fetch({per_page: 100, page: page_number});
             page_number += 1;
-            issues = await this.repo.issues.fetch({page: page_number});
             retval = [...retval, ...issues.items]
-        }
+        } while (issues.nextPageUrl)
         return retval.map((issue) => issue.title);
     }
 
@@ -73,14 +73,14 @@ class GitHub {
      * @async
      */
     async get_assignees() {
-        let collaborators = await this.repo.collaborators.fetch();
-        let retval = collaborators.items;
+        let collaborators;
+        let retval = [];
         let page_number = 1;
-        while (collaborators.nextPageUrl) {
+        do {
+            collaborators = await this.repo.collaborators.fetch({per_page: 100, page: page_number});
             page_number += 1;
-            collaborators = await this.repo.collaborators.fetch({page: page_number});
             retval = [...retval, ...collaborators.items]
-        }
+        } while (collaborators.nextPageUrl);
         return retval.map((person) => person.login);
     }
 
@@ -97,3 +97,4 @@ class GitHub {
 
 /* ------------------------------------------------------------ */
 module.exports = { GitHub };
+
