@@ -2,7 +2,7 @@
   "name": "scribejs",
   "version": "2.0.0",
   "description": "RSSAgent IRC logs Into Minutes in Markdown",
-  "main": "dist/main.js",
+  "main": "main.js",
   "keywords": [
     "W3C",
     "scribe",
@@ -73,7 +73,7 @@
   "scripts": {
     "docs": "./node_modules/typedoc/bin/typedoc",
     "dist" : "tsc",
-    "build": "browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
+    "build": "tsc && browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
     "lint": "eslint src/*",
     "serve": "http-server BrowserView/"
   }

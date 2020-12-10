@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * ## RSSAgent IRC logs Into Minutes in Markdown
  *

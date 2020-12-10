@@ -148,11 +148,12 @@
 00:58:04 <tzviya> tzviya has joined #epub
 00:58:18 <dauwhe> ... should we issue an info only for epub prefixes?
 00:58:31 <dauwhe> florian: my opinion is that it is low priority
-00:58:46 <dauwhe> ... when we know what unprefixed property should be used
+00:58:46 <dauwhe> ... when we know what unprefixed property should be used ?
 00:58:49 <dauwhe> q+
 00:59:32 <shiestyle> ack dauwhe
 01:00:41 <duga> duga has joined #epub
 01:00:59 <duga> present+
+01:00:59 <ivan> s/?/question/
 01:01:09 <dauwhe> dauwhe: we're not sure how much we want to enforce restrictions on CSS
 01:01:39 <dauwhe> shiestyle: in conclusion, we will continue to discuss unsupported features. I will file a GitHub issue.
 01:01:46 <dauwhe> ... and we can continue the discussion there.

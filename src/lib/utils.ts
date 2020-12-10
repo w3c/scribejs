@@ -684,6 +684,7 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
         to: string;
         g: boolean;
         G: boolean;
+        from_regexp: RegExp;
     }
     // This array will contain change request structures:
     // lineno: the line number of the change request
@@ -710,17 +711,22 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
             // the array index later...)
             const r = get_change_request(line.content);
             if (r !== null) {
-                // Check whether the 'from' field is 'safe', ie, it does
-                // not create RegExp Denial of Service attack
-                change_requests.push({
-                    lineno : index,
-                    from   : r[1],
-                    to     : r[2],
-                    g      : r[3] === 'g',
-                    G      : r[3] === 'G',
-                    valid  : true,
-                });
-                line.content = marker;
+                // The 'from' in the change request is r[1]; this will be used in the form of a
+                // regular expression. That is created here;
+                try {
+                    change_requests.push({
+                        lineno      : index,
+                        from        : r[1],
+                        to          : r[2],
+                        g           : r[3] === 'g',
+                        G           : r[3] === 'G',
+                        valid       : true,
+                        from_regexp : RegExp(r[1],'g'),
+                    });
+                    line.content = marker;
+                } catch (e) {
+                    console.error(`The change request for '${r[1]}' cannot be used as a regular expression.`);
+                }
             }
             return line;
         })
@@ -735,12 +741,15 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
                         if (line.content.indexOf(change.from) !== -1) {
                             // There is a change to be performed. The conversion to regexp
                             // ensures that all occurrences of the 'from' pattern is exchanged
-                            line.content = line.content.replace(RegExp(change.from, 'g'), change.to);
-                            // line.content = line.content.replace(change.from, change.to);
-                            // If this was not a form of 'global' change then its role is done
-                            // and the request should be invalidated
-                            if (!(change.G || change.g)) {
-                                change.valid = false;
+                            try {
+                                line.content = line.content.replace(change.from_regexp, change.to);
+                                // If this was not a form of 'global' change then its role is done
+                                // and the request should be invalidated
+                                if (!(change.G || change.g)) {
+                                    change.valid = false;
+                                }
+                            } catch (e) {
+                                console.error(`Error in handling change request with ${change.from}: ${e.message}. Change request ignored`);
                             }
                         }
                     }
