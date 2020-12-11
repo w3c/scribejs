@@ -9,7 +9,6 @@
 import { LineObject, Header, Configuration, Global }    from './types';
 import { Constants }                                    from './types';
 import * as url                                         from 'url';
-import safe_regex = require('safe-regex');
 
 /** ******************************************************************* */
 /*                       Conversion generic utilities                   */
@@ -678,6 +677,15 @@ export function perform_insert_requests(lines: LineObject[]): LineObject[] {
  * @returns {array} - returns the lines with the possible changes done
  */
 export function perform_change_requests(lines: LineObject[]): LineObject[] {
+    // Interestingly, node.js does not have the replaceAll function, although defined for Javascript... oh well...
+    const replaceAll = (inp: string, from: string, to: string): string => {
+        let retval = inp;
+        while (retval.includes(from) ) {
+            retval = retval.replace(from, to);
+        }
+        return retval;
+    }
+
     interface ChangeRequest {
         lineno: number;
         valid: boolean;
@@ -685,7 +693,6 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
         to: string;
         g: boolean;
         G: boolean;
-        from_regexp: RegExp;
     }
     // This array will contain change request structures:
     // lineno: the line number of the change request
@@ -715,21 +722,15 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
             if (r !== null) {
                 // The 'from' in the change request is r[1]; this will be used in the form of a
                 // regular expression. That is created here;
-                if (safe_regex(r[1])) {
-                    change_requests.push({
-                        lineno      : index,
-                        from        : r[1],
-                        to          : r[2],
-                        g           : r[3] === 'g',
-                        G           : r[3] === 'G',
-                        valid       : true,
-                        from_regexp : RegExp(r[1],'g'),
-                    });
-                    line.content = marker;
-                } else {
-                    console.warn(`The change request for '${r[1]}' cannot be used as a regular expression; ignored.`);
-                    line.content = error_marker;
-                }
+                change_requests.push({
+                    lineno : index,
+                    from   : r[1],
+                    to     : r[2],
+                    g      : r[3] === 'g',
+                    G      : r[3] === 'G',
+                    valid  : true,
+                });
+                line.content = marker;
             }
             return line;
         })
@@ -742,10 +743,9 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
                     // - if the index is beyond the change request position otherwise
                     if (change.valid && (change.G || index >= change.lineno)) {
                         if (line.content.indexOf(change.from) !== -1) {
-                            // There is a change to be performed. The conversion to regexp
-                            // ensures that all occurrences of the 'from' pattern is exchanged
+                            // There is a change to be performed.
                             try {
-                                line.content = line.content.replace(change.from_regexp, change.to);
+                                line.content = replaceAll(line.content, change.from, change.to);
                                 // If this was not a form of 'global' change then its role is done
                                 // and the request should be invalidated
                                 if (!(change.G || change.g)) {
