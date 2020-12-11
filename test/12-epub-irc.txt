@@ -54,7 +54,8 @@
 00:14:56 <Daihei> +1
 00:16:04 <dauwhe> Resolved: deprecate `rendition:align-x-center` pending confirmation on NA call
 00:16:46 <dauwhe> q+
-00:16:51 <dauwhe> topic: CSS Writing Modes reference @issue 1389
+00:16:51 <dauwhe> topic: CSS Writing Modes reference @issue 1389,1390
+00:16:51 <dauwhe> scribejs, issue 1391
 00:17:48 <shiestyle> ack dauwhe
 00:18:16 <florian> q+
 00:19:12 <shiestyle> ack florian
