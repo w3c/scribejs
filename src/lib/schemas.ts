@@ -23,7 +23,9 @@ import * as AJV from 'ajv';
 /** @internal */
 function get_schema(file_name: string): any {
     try {
-        const filename = `${__dirname}/../../${file_name}`;
+        // This is something ugly: the schema files themselves are in a different relative
+        // directory, depending on whether we run it directly from ts-node or from javascript...
+        const filename = __filename.includes('src/lib') ? `${__dirname}/../../${file_name}` : `${__dirname}/../${file_name}`;
         const file_c = fs.readFileSync(filename, 'utf-8');
         return JSON.parse(file_c);
     } catch (e) {
