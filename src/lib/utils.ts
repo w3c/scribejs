@@ -11,7 +11,7 @@ import { Constants }                                    from './types';
 import * as url                                         from 'url';
 
 /** ******************************************************************* */
-/*                       Conversion generic utilities                   */
+/*                           Generic utilities                          */
 /** ******************************************************************* */
 
 /** (Calculated) constant to decide whether the code runs in a browser or via node.js */
@@ -97,19 +97,28 @@ export function every<T>(elements: T[], callback: ((element: T) => boolean)): bo
 /**
  * Remove the 'preamble' from the line, ie, the part that is
  * put there by the IRC client. Unfortunately, that is not standard,
- * which means that each client does it differently.
+ * which means that each client adds a different preamble.
  *
- * This function relies on a user option, if available; otherwise
+ * This function relies on a user option for the IRC log format. If not available
  * it tries some heuristics among the currently known IRC logs formats:
  * RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.
+ *
+ * The fallback, in all cases, is the RSSAgent format.
  *
  * The function has a side effect of setting the irc_format value in the configuration. This means
  * the right extra lines will be removed, if necessary (and the regexp will be matched only once)
  *
  * @param line - the full line of an IRC log
- * @return truncated line
+ * @return truncated line, ie, with preamble removed.
  */
 function remove_preamble(line: string, config: Configuration): string {
+    /**
+     * Establish the size of the preamble to be removed; set the irc format in the config
+     * in case that has not be set originally.
+     *
+     * @param the_line - The incoming IRC log line
+     * @return the size of the preamble
+     */
     const preamble_size = (the_line: string): number => {
         if (config.irc_format) {
             switch (config.irc_format) {
@@ -143,10 +152,13 @@ function remove_preamble(line: string, config: Configuration): string {
  * 1. `set`, adding a temporary nick name (by extending the global data on nicknames)
  * 2. `issue` or `pr`,  handling the issue/pr directives
  *
+ * This function is used as part of an `Array.filter` operation; i.e., the return value is a
+ * boolean signaling whether the line should be kept or not. See the exact value of the boolean below.
+ *
  * Note, however, that the second block (issue directives) are not really handled by this function; their handling is delayed to the local context where these directives appear.
  *
  * @param line_object - a line object; the only important entry is the 'content'
- * @returns true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise. The function can therefore be used as part of an `Array.filter` call.
+ * @returns true if the line is _not_ a global scribejs directive (ie, the line should be kept), false otherwise.
  */
 function handle_scribejs(line_object: LineObject, config: Global): boolean {
     if (line_object.content_lower.startsWith('scribejs, ') || line_object.content_lower.startsWith('sjs, ')) {
@@ -158,9 +170,10 @@ function handle_scribejs(line_object: LineObject, config: Global): boolean {
             case 'issue':
             case 'pr':
                 // these are handled elsewhere; the directives should stay in content for further processing
+                // This switch branch is unnecessary, and left here for 'documentation' purposes only.
                 return true;
-                // Set a per-session nickname.
             case 'set': {
+                // Set a per-session nickname.
                 const nickname   = words[2].toLowerCase();
                 const name_comps = words.slice(3);
                 if (name_comps.length !== 0) {
@@ -181,26 +194,11 @@ function handle_scribejs(line_object: LineObject, config: Global): boolean {
             return true;
         }
         // If we got there, the directive has its effect and should be removed
-        // returning 'false' will remove this line from the result
+        // returning 'false' will remove this line from the overall result
         return false;
     }
     // This line should remain for further processing
     return true;
-}
-
-/**
- * Extract a labelled item, ie, something of the form "XXX: YYY", where
- * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
- * checked in lower case, too.
- *
- * @param label - the label we are looking for
- * @param line - a line object of the form {nick, content},
- * @returns  the content without the label, or null if that label is not present
- */
-function get_labelled_item(label: string, line: LineObject): string {
-    const lower = line.content.toLowerCase();
-    const label_length = label.length + 1; // Accounting for the ':' character!
-    return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
 }
 
 
@@ -211,8 +209,7 @@ function get_labelled_item(label: string, line: LineObject): string {
  * is sometimes preceded by a ':'. This is taken care of by returning the full line without the ':'.
  *
  * @param {string} line - one line of text
- * @returns {object} - {label, content}, containing the (possibly null)
- *     label, separated from the rest
+ * @returns {object} - {label, content}, containing the (possibly null) label, separated from the rest
  */
 export function get_label(line: string): {label: string, content: string} {
     const reg = line.trim().match(/^(\w+):(.*)$/);
@@ -226,7 +223,7 @@ export function get_label(line: string): {label: string, content: string} {
     const possible_label   = reg[1].trim();
     const possible_content = reg[2].trim();
     // There are some funny cases, however...
-    if (['http', 'https', 'email', 'ftp', 'doi'].includes(possible_label)) {
+    if (['http', 'https', 'email', 'ftp', 'doi', 'did', 'data'].includes(possible_label)) {
         // Ignore the label...
         return {
             label   : null,
@@ -254,8 +251,7 @@ export function get_label(line: string): {label: string, content: string} {
  * Create a "canonical" nickname, ie,
  *
  * * lower case
- * * free of additional characters used by (some) IRC servers, like adding a '@' character, or
- *   adding an '_' character to the start or the end of the nickname.
+ * * free of additional characters used by (some) IRC servers, like adding a '@' character, or adding an '_' character to the start or the end of the nickname.
  *
  * @param nick - the original nickname
  * @param lower - whether the name should be put into lower case
@@ -278,7 +274,8 @@ export function canonical_nick(nick: string, lower = true): string {
  * @param current_list - the current list of nicknames
  * @param line - IRC line object
  * @param category - the 'label' to look for (ie, 'present', 'regrets', 'scribe', etc.)
- * @param remove - whether removal should indeed happen with a '-' suffix. A `false` value may make sense when the same irc line is reused twice: once to act upon it but without listing it and once when the list is collected for the header (e.g., scribe name extractions).
+ * @param remove - whether removal should indeed happen with a '-' suffix. A `false` value may make sense when the same irc line is reused for two different purposes: list the name in the header but also act on its presence in the minutes. Scribe setting is the typical case: the effect of `scribe-` should result of removing the name from the header report
+ *
  * @returns  new value of the list of nicknames
  */
 export function get_name_list(current_list: string[], line: LineObject, category :string, remove = true): string[] {
@@ -291,6 +288,7 @@ export function get_name_list(current_list: string[], line: LineObject, category
     const arg2 = (a: any, b: any): any => b;
 
     // Extract the (nick) names from the comma separated list of persons
+    // 'number' is the number of characters that must be ignored, corresponding to the category
     const get_names = (index: number): string[] => {
         // Care should be taken to trim everything in order keep the nick names clean of extra spaces...
         const retval = line.content.slice(index + 1).trim().split(',');
@@ -304,13 +302,13 @@ export function get_name_list(current_list: string[], line: LineObject, category
     const cutIndex = category.length;
 
     if (lower.startsWith(category) === true) {
-        // bingo, we have to extract the content
-        // There are various possibilities, through
-        let action = union;
-        let names  = [];
+        // bingo, we have to extract the content.
+        // There are various possibilities, through...
+        let action :(a: any, b:any) => any = union; // This is the default action on the nicknames
+        let names :string[]  = [];
         // Note that, although the correct syntax is, e.g., "present+", a frequent
         // mistake is to type "present +". Same for the usage of '-'.
-        // I decided to make the script resilient on this:-)
+        // The script resilient on this:-)
         if (lower.startsWith(`${category}+`) === true) {
             names = get_names(cutIndex);
         } else if (lower.startsWith(`${category} +`) === true) {
@@ -339,13 +337,14 @@ export function get_name_list(current_list: string[], line: LineObject, category
     }
 }
 
+
 /**
- * Cleanup actions on the incoming body:
- *  - turn the body (which is one giant string) into an array of lines
+ * Cleanup actions on the incoming irc log (ie, an array of lines):
+ *
  *  - remove empty lines
- *  - remove the starting time stamps
+ *  - remove the irc preamble (time stamp, typically)
  *  - turn lines into objects, separating the nick name and the content
- *  - remove the lines coming from zakim or rrsagent
+ *  - remove the lines coming from zakim, rrsagent, and possibly other bots
  *  - remove zakim queue commands
  *  - remove zakim agenda control commands
  *  - remove bot commands ("zakim,", "rrsagent,", etc.)
@@ -353,19 +352,25 @@ export function get_name_list(current_list: string[], line: LineObject, category
  *  - handle the "scribejs, nick FULL NAME" type commands (or, equivalently, "sjs, nick ...")
  *
  *
- * @param body - the full IRC log
+ * @param minutes - the full IRC log
  * @returns array of {nick, content, content_lower} objects ('nick' is the IRC nick)
  */
 // eslint-disable-next-line max-lines-per-function
-export function cleanup(body: string[], config: Global): LineObject[] {
-    const cleaned_up_lines: string[]  = body
+export function cleanup(minutes: string[], config: Global): LineObject[] {
+
+    // Cleanup action on the log lines
+    const cleaned_up_lines: string[]  = minutes
+        // remove the empty lines
         .filter((line: string): boolean => line.length !== 0)
+
         // Remove the starting time stamp or equivalent. The function
         // relies on the fact that each line starts with a specific number of characters.
-        // Alas!, this depends on the irc log format...
+        // This depends on the irc log format...
         .map((line: string) => remove_preamble(line, config))
+
+        // remove possible IRC format specific lines
         .filter((line: string): boolean => {
-            // this filter is, in fact, unnecessary if rrsagent is properly used
+            // this filter is, in fact, unnecessary if rrsagent is used
             // however, if the script is used against a line-oriented log
             // of an irc client (like textual) then this come handy in taking
             // out at least some of the problematic lines
@@ -402,8 +407,9 @@ export function cleanup(body: string[], config: Global): LineObject[] {
             }}
         });
 
-    // IRC log lines are turned into objects, separating the nicknames.
-    const line_objects: LineObject[] = cleaned_up_lines.map( (line: string): LineObject => {
+    // IRC log lines are turned into objects, separating the nicknames. From now on, the minutes
+    // is an array of special objects.
+    const line_objects: LineObject[] = cleaned_up_lines.map((line: string): LineObject => {
         const sp = line.indexOf(' ');
         return {
             // Note that I remove the '<' and the '>' characters
@@ -413,7 +419,7 @@ export function cleanup(body: string[], config: Global): LineObject[] {
         };
     });
 
-    // From here on, the lines are cleaned up using the line object
+    // Filtering on the line objects now
     return line_objects
         // Taking care of the accidental appearance of what could be
         // interpreted as an HTML tag...
@@ -422,17 +428,20 @@ export function cleanup(body: string[], config: Global): LineObject[] {
             line_object.content = line_object.content.replace(/([^`])<(\w*\/?)>([^`])/g, '$1`<$2>`$3');
             return line_object;
         })
+
         // Add a lower case version of the content to the objects; this will be used
         // for comparisons later
         .map((line_object: LineObject): LineObject => {
             line_object.content_lower = line_object.content.toLowerCase();
             return line_object;
         })
+
         // Bunch of filters, removing the unnecessary lines
         .filter((line_object: LineObject): boolean => (
             line_object.nick !== 'RRSAgent'
             && line_object.nick !== 'Zakim'
             && line_object.nick !== 'github-bot'
+            && line_object.nick !== 'trackbot'
         ))
         .filter((line_object: LineObject): boolean => !(
             line_object.content_lower.startsWith('q+')
@@ -456,7 +465,7 @@ export function cleanup(body: string[], config: Global): LineObject[] {
             || line_object.content.match(/^\w+ has left #\w+/)
             || line_object.content.match(/^\w+ has changed the topic to:/)
         ))
-        // Handle the scribejs directives
+        // Handle the scribejs directives which **may** lead to the removal of that line from the minutes
         .filter((line: LineObject): boolean => handle_scribejs(line, config));
 }
 
@@ -471,17 +480,12 @@ export function cleanup(body: string[], config: Global): LineObject[] {
  *   - meeting: string
  *   - date: string
  *   - scribe: comma separated IRC nicknames
- * All these actions, except for 'scribe', also remove the corresponding
- * lines from the IRC log array.
+ * All these actions, except for 'scribe', also remove the corresponding lines from the IRC log array.
  *
  * @param lines - array of {nick, content, content_lower} objects
  * @param date - date to be used in the header
- * @param cleanup_names - call back function to turn nicknames into real names
- * @returns  {header, lines}, where "header" is the header object, "lines" is the cleaned up IRC log
+ * @returns {header, lines}, where "header" is the header object, "lines" is the rest of the IRC log, with header specific lines removed
  */
-// Beware: although using underscore functions, ie, very functional oriented style, the
-// filters all have side effects in the sense of expanding the 'header structure'. Not
-// very functional but, oh well...
 export function separate_header(lines: LineObject[], date: string): {headers: Header, lines: LineObject[]} {
     const headers: Header = {
         present : [],
@@ -500,24 +504,21 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
      * nicknames, 'XXX:' means set them.
      * If found, the relevant field in the header object is extended.
      *
-     * The real work is done in the [[get_name_list]] function; this utility just handles some usual mistakes
+     * The real work is done in the [[get_name_list]] function; this wrapper utility just handles some usual mistakes
      * before calling out the real one:
      *
      * * usage of 'guest' instead of 'guests'
      * * usage of 'regret' instead of 'regrets'
      * * usage of 'scribenick' instead of 'scribe' (this is a historical remain…)
      *
+     * This method is used in filter, hence its return type.
+     *
      * @param category - the 'label' to look for
      * @param line - IRC line object
      * @param remove - whether removal should indeed happen with a '-' suffix
-     * @returns true or false, depending on whether this is indeed a line with that category
+     * @returns true or false, depending on whether this is indeed a line with that category.
      */
     const people = (category: string, line: LineObject, remove = true): boolean => {
-        // A frequent scribing mistake is to use "guest" instead of "guests", or
-        // "regret" instead of "regrets". Although the "official" documented
-        // version is the plural form, I decided to make the script resilient...
-        // Then there is also the duality of 'scribe' and 'scribenick',
-        // inherited from scribe.pl...
         let real_category;
         switch (category) {
         case 'guest':
@@ -528,6 +529,9 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
             break;
         case 'scribenick':
             real_category = 'scribe';
+            break;
+        case 'chairs':
+            real_category = 'chair';
             break;
         default:
             real_category = category;
@@ -542,7 +546,6 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
         }
     };
 
-
     /**
      * Extract single items like "agenda:" or "meeting:"
      * If found, the relevant field in the header object is set.
@@ -552,7 +555,17 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
      * @returns true or false, depending on whether this is indeed a line with that category
      */
     const single_item = (category: string, line: LineObject): boolean => {
-        const item = get_labelled_item(category, line);
+        /**
+         * Extract a labelled item, ie, something of the form "XXX: YYY", where
+         * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
+         * checked in lower case, too.
+         */
+        const get_labelled_item = (label: string): string => {
+            const lower = line.content.toLowerCase();
+            const label_length = label.length + 1; // Accounting for the ':' character!
+            return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
+        }
+        const item = get_labelled_item(category);
         if (item !== null) {
             headers[category] = item;
             return true;
@@ -567,7 +580,7 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
         .filter((line) => !people('present', line))
         .filter((line) => !(people('regrets', line) || people('regret', line)))
         .filter((line) => !(people('guests', line) || people('guest', line)))
-        .filter((line) => !people('chair', line))
+        .filter((line) => !(people('chairs', line) || people('chair', line)))
         .filter((line) => {
             people('scribe', line, false);
             people('scribenick', line, false);
@@ -576,7 +589,7 @@ export function separate_header(lines: LineObject[], date: string): {headers: He
         .filter((line) => !single_item('agenda', line))
         .filter((line) => !single_item('meeting', line))
         .filter((line) => !single_item('date', line))
-        .filter((line) => (line.nick !== 'trackbot'));
+        ;
 
     return {
         headers : headers,
@@ -612,7 +625,7 @@ export function perform_insert_requests(lines: LineObject[]): LineObject[] {
     const marker             = '----INSERTREQUESTXYZ----';
 
     const intermediate_retval: (LineObject[])[] = lines
-        // Because the insert is to work on the preceding values, the
+        // Because the insert is to work on the *preceding* values, the processing with indexes is simpler if the
         // array has to be traversed upside down...
         .reverse()
         .map((line: LineObject, index: number) => {
@@ -663,9 +676,9 @@ export function perform_insert_requests(lines: LineObject[]): LineObject[] {
 
     return intermediate_retval
         .reduce(flatten,[])
-    // Remove the markers, just to be on the safe side
+        // Remove the markers, just to be on the safe side
         .filter((line) => (line.content !== marker))
-    // return the array into its original order
+        // return the array into its original order
         .reverse();
 }
 
@@ -772,7 +785,7 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
 /**
 * URL handling: find URL-s in a line and convert it into an active markdown link.
 *
-* There different possibilities:
+* There are different possibilities:
 * * `-> URL some text` as a separate line (a.k.a. Ralph style links); "some text" becomes the link text
 * * `-> some text URL` anywhere in the line, possibly several patterns in a line; "some text" becomes the link text
 * * Simple URL formatted text where the link text is the URL itself
@@ -788,7 +801,7 @@ export function add_links(line: string): string {
     */
     const check_url = (str: string): boolean => {
         const a = url.parse(str);
-        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:'].indexOf(a.protocol) !== -1;
+        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
     };
 
     /**
@@ -798,16 +811,16 @@ export function add_links(line: string): string {
      * @returns {Array} - array of strings, ie, the words
      */
     const split_to_words = (full_line: string): string[] => {
-        const REPL_HACK = '$MD_CODE$';
-        const regex = /`[^`]+`/g;
         const trimmed = full_line.trim();
-        const codes = trimmed.match(regex);
+        const REPL_HACK = '$MD_CODE$';
+        const code_regex = /`[^`]+`/g;
+        const codes = trimmed.match(code_regex);
 
         if (codes) {
             // ugly hack: replacing the code portions with a fixed pattern
-            // now we can split to get words; each code portion appears a word with REPL_HACK
+            // then we can split to get words; each code portion appears a word with REPL_HACK
             let code_index = 0;
-            const fake = trimmed.replace(regex, REPL_HACK);
+            const fake = trimmed.replace(code_regex, REPL_HACK);
             return fake.split(' ').filter((word) => word !== '').map((word) => {
                 if (word.indexOf(REPL_HACK) !== -1) {
                     // eslint-disable-next-line no-plusplus

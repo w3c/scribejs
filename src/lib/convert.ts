@@ -42,7 +42,7 @@ export class Converter {
     /** ******************************************************************* */
 
     /**
-     * Get a name structure for a nickname. This relies on the (optional) nickname list that
+     * Get a Person structure for a nickname. This relies on the (optional) nickname list that
      * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
      * The configuration structure is also extended to include the nicknames, so that
      * the same full names can be used throughout the minutes.
@@ -69,27 +69,27 @@ export class Converter {
         };
 
         // IRC clients tend to add a '_' to a usual nickname when there
-        // are duplicate logins. Then there are the special users, denoted with a '@'.
+        // are duplicate logins. Also, there are the special users denoted with a '@'.
         // Remove those.
         const clean_nick = utils.canonical_nick(nick);
 
         // if this nickname has been used before, just return it
         if (this.config.nick_mappings[clean_nick]) {
             return this.config.nick_mappings[clean_nick];
-        }
-
-        const person: PersonWithNickname = nick_mapping(clean_nick);
-        if (person) {
-            this.config.nick_mappings[clean_nick] = person;
-            return person;
         } else {
-            // As a minimal measure, remove the '_' characters from the name
-            // (many people use this to signal their presence when using, e.g., present+)
-            // Note that this case usually occurs when one time visitors make a `present+ Abc_Def` to appear
-            // in the present list; that is why the nick cleanup should not include a lower case conversion.
-            return {
-                name : utils.canonical_nick(nick, false).replace(/_/g, ' '),
-            };
+            const person: PersonWithNickname = nick_mapping(clean_nick);
+            if (person) {
+                this.config.nick_mappings[clean_nick] = person;
+                return person;
+            } else {
+                // As a minimal measure, remove the '_' characters from the name
+                // (many people use this to signal their presence when using, e.g., present+)
+                // Note that this case usually occurs when one time visitors make a `present+ Abc_Def` to appear
+                // in the present list; that is why the nick cleanup should not include a lower case conversion.
+                return {
+                    name : utils.canonical_nick(nick, false).replace(/_/g, ' '),
+                };
+            }
         }
     }
 
@@ -127,18 +127,24 @@ export class Converter {
      * @returns the header in Markdown
      */
     private generate_header_md(headers: Header): string {
-        // Clean up the names in the headers, just to be on the safe side
+        // This constant is necessary to bind the 'this' value when used in the
+        // chain below...
         const convert_to_full_name = (nick: string): string => this.full_name(nick);
+
+        // Clean up all the names in the headers, just to be on the safe side
         for ( const key in headers) {
             if (Array.isArray(headers[key])) {
                 headers[key] = headers[key]
                     .map((nickname: string): string => nickname.trim())
                     .filter((nickname: string): boolean => nickname !== '')
                     .map(convert_to_full_name);
+
+                // Take care of removing duplicates
                 headers[key] = utils.uniq(headers[key]);
             }
         }
 
+        // Collect the header values into strings
         let header_start = '';
         if (this.config.jekyll !== Constants.JEKYLL_NONE) {
             const json_ld = schema_data(headers, this.config);
@@ -237,7 +243,16 @@ ${no_toc}
         let numbering          = '';
         let header_level       = '';
         let toc_spaces         = '';
-        const add_toc = (content: string, level: number): void => {
+
+        /**
+         * Add a new header level to the TOC and generate the right markdown
+         *
+         * @param content Content of the IRC log line
+         * @param level header level
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_toc = (content: string, level: number): string => {
+            let retval = '';
             // Remove the markdown-style links
             const de_link = (line: string): string => {
                 // eslint-disable-next-line no-useless-escape
@@ -266,38 +281,50 @@ ${no_toc}
                 id = `section${sec_number_level_1}-${sec_number_level_2}`;
             }
             if (this.kramdown) {
-                final_minutes = final_minutes.concat('\n\n', `${header_level}${numbering}. ${bare_content}\n{: #${id}}`);
-                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`);
+                retval = `\n\n${header_level}${numbering}. ${bare_content}\n{: #${id}}`
+                TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`;
             } else {
                 const auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
-                final_minutes = final_minutes.concat('\n\n', `${header_level}${numbering}. ${bare_content}`);
-                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`);
+                retval = `\n\n${header_level}${numbering}. ${bare_content}`
+                TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`;
             }
+
+            return retval;
         };
 
-        /**
-        * Resolution handling: the resolution receives an ID, and a list of
-        * resolution is repeated at the end
-        */
         let rcounter = 1;
-        const add_resolution = (content: string): void => {
+        /**
+         * Resolution handling: the resolution receives an ID, and a list of
+         * resolution is repeated at the end
+         *
+         * @param content Content of the IRC log line
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_resolutions = (content: string): string => {
             const id = `resolution${rcounter}`;
+            let retval ='';
             if (this.kramdown) {
-                final_minutes = final_minutes.concat(`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`);
+                retval =`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`;
                 resolutions = resolutions.concat(`\n* [Resolution #${rcounter}](#${id}): ${content}`);
             } else {
-                final_minutes = final_minutes.concat(`\n\n> ***Resolution #${rcounter}: ${content}***`);
+                retval = `\n\n> ***Resolution #${rcounter}: ${content}***`;
                 // GFM and CommonMark do not support anchor creation...so we can't link to the resolutions :-(
                 resolutions = resolutions.concat(`\n* Resolution #${rcounter}: ${content}`);
             }
             rcounter += 1;
+            return retval;
         };
 
-        /**
-        * Action handling: the action receives an ID, and a list of actions is repeated at the end
-        */
+
         let acounter = 1;
-        const add_action = (content:string ): void => {
+        /**
+         * Action handling: the action receives an ID, and a list of actions is repeated at the end
+         *
+         * @param content Content of the IRC log line
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_actions = (content:string ): string => {
+            let retval = '';
             const words = content.trim().split(' ');
             if (words[1] === 'to') {
                 const ghname = this.github_name(words[0]);
@@ -306,10 +333,10 @@ ${no_toc}
                 const final_content = `${message} (${name})`;
                 const id = `action${acounter}`;
                 if (this.kramdown) {
-                    final_minutes = final_minutes.concat(`\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`);
+                    retval = `\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`;
                     actions = actions.concat(`\n* [Action #${acounter}](#${id}): ${final_content}`);
                 } else {
-                    final_minutes = final_minutes.concat(`\n\n> ***Action #${acounter}: ${final_content}***`);
+                    retval = `\n\n> ***Action #${acounter}: ${final_content}***`;
                     // GFM and CommonMark do not support anchor creation...so we can't link to the actions T_T
                     actions = actions.concat(`\n* Action #${acounter}: ${final_content}`);
                 }
@@ -324,23 +351,30 @@ ${no_toc}
             } else {
                 console.log(`Warning: incorrect action syntax used: ${words}`);
             }
+            return retval;
         };
 
-
+        /* ----------- The core of the cycle: going through the IRC log line and do what is necessary ------------------- */
+        /* ----------- the final minutes are collected in the "final_minutes" string, that is returned to the caller ---- */
         // "state" variables for the main cycle...
         let scribes: string[]      = [];
+
         // This is important if the scribe portion is 'interrupted' by, e.g., a topic setting or a resolution;
         // this helps in re-establishing the current speaker
         let within_scribed_content = false;
+
+        // Storing the reference to the current person is important to "combine" the comments
+        // coming from the same person to a series of lines connected by a '...', even if the scribe
+        // chooses to put in the person's nickname at every line.
         let current_person         = '';
 
-        // The main cycle on the content
+        // ------------------------------  The main cycle on the content: take each line one-by-one and turn it into Github...
         for (const line_object of lines) {
             // This is declared here to use an assignment in a conditional below...
             let issue_match;
 
-            // What is done depends on some context...
-            // Do we have a new scribe?
+            // What has to be done done depends on some context...
+            // Do we have a new scribe? If so, he/she should be added to the list of scribes
             const new_scribe_list = utils.get_name_list(scribes, line_object, 'scribe') || utils.get_name_list(scribes, line_object, 'scribenick');
             if (new_scribe_list) {
                 scribes = new_scribe_list.map((person) => utils.canonical_nick(person));
@@ -348,56 +382,76 @@ ${no_toc}
                 continue;
             }
 
-            // Add links, and separate the label (ie, "topic:", "proposed:", etc.) from the rest
+            // Add links using the the various possibilities offered by the '-> ...' syntax.
             const content_with_links: string = utils.add_links(line_object.content);
+
+            // Separate the label (ie, "topic:", "proposed:", etc.) from the rest
             const { label, content } = utils.get_label(content_with_links);
 
             // First handle special entries that must be handled regardless
-            // of whether it was typed in by the scribe or not.
+            // of whether it was typed by the scribe or not; the scribe specific handling is left to the end
+            // Most of the special cases are based on the label, if applicable.
+
+            // Handle a new topic: separate the possible issue/pr reference, add a TOC item and display the header with a '###'
+            // The separate utility function that handles the issue/pr directives
+            // The 'add_to_toc' function above generates the right markdown.
             if (label !== null && label.toLowerCase() === 'topic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
                 const title_structure: IssueReference = issues.titles(this.config, content);
-                add_toc(title_structure.title_text, 1);
+                final_minutes += add_to_toc(title_structure.title_text, 1);
                 if (title_structure.issue_reference !== '') {
-                    final_minutes = final_minutes.concat(title_structure.issue_reference);
+                    final_minutes += title_structure.issue_reference;
                 }
+
+            // Handle a new topic: separate the possible issue/pr reference, add a TOC item and display the header with a '####'
+            // The separate utility function that handles the issue/pr directives
+            // The 'add_to_toc' function above generates the right markdown.
             } else if (label !== null && label.toLowerCase() === 'subtopic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
                 const title_structure: IssueReference = issues.titles(this.config, content);
-                add_toc(title_structure.title_text, 2);
+                final_minutes += add_to_toc(title_structure.title_text, 2);
                 if (title_structure.issue_reference !== '') {
-                    final_minutes = final_minutes.concat(title_structure.issue_reference);
+                    final_minutes += title_structure.issue_reference;
                 }
+
+            // Handle a resolution proposal, displayed with a special markdown
             } else if (label !== null && ['proposed', 'proposal', 'propose'].includes(label.toLowerCase())) {
                 within_scribed_content = false;
-                final_minutes = final_minutes.concat(
-                    `\n\n> **Proposed resolution: ${content}** *(${this.full_name(line_object.nick)})*`,
-                );
+                final_minutes += `\n\n> **Proposed resolution: ${content}** *(${this.full_name(line_object.nick)})*`
                 if (this.kramdown) {
-                    final_minutes = final_minutes.concat('\n{: .proposed_resolution}');
+                    final_minutes += '\n{: .proposed_resolution}';
                 }
+
+            // Handle a discussion summary, displayed with a special markdown
             } else if (label !== null && label.toLowerCase() === 'summary') {
                 within_scribed_content = false;
-                final_minutes = final_minutes.concat(`\n\n> **Summary: ${content}** *(${this.full_name(line_object.nick)})*`);
+                final_minutes += `\n\n> **Summary: ${content}** *(${this.full_name(line_object.nick)})*`;
                 if (this.kramdown) {
-                    final_minutes = final_minutes.concat('\n{: .summary}');
+                    final_minutes += '\n{: .summary}';
                 }
+
+            // Handle a resolution: the resolution must be stored separately and a special markdown is used
             } else if (label !== null && ['resolved', 'resolution'].includes(label.toLowerCase())) {
                 within_scribed_content = false;
-                add_resolution(content);
+                final_minutes += add_to_resolutions(content);
+
+            // Handle an action: the action must be stored separately, and a special markdown is used
             } else if (label !== null && label.toLowerCase() === 'action') {
                 within_scribed_content = false;
-                add_action(content);
-            // eslint-disable-next-line no-cond-assign
+                final_minutes += add_to_actions(content);
+
+            // Handle an issue directive: the line is replaced with a set of references and a possible
+            // extra comment for postprocessing
             } else if ((issue_match = content.match(Constants.issue_regexp)) !== null) {
                 within_scribed_content = false;
                 const directive        = issue_match[2];
                 const issue_references = issue_match[3];
-                final_minutes = final_minutes.concat(issues.issue_directives(this.config, directive, issue_references));
+                final_minutes += issues.issue_directives(this.config, directive, issue_references);
+
+            // The 'scribed' line, ie, the lines whose 'nick' is one of the registered scribes.
             } else if (scribes.includes(utils.canonical_nick(line_object.nick))) {
-                // This is a line produced one of the 'registered' scribes
                 if (label !== null) {
                     // A new person is talking...
                     // Note the two spaces at the end of the generated line, this
@@ -405,17 +459,21 @@ ${no_toc}
                     // But... maybe this is not a new person after all! (Scribes, sometimes, forget about the usage of '...' or prefer to use the nickname)
                     if (within_scribed_content && this.full_name(label) === this.full_name(current_person)) {
                         // Just mimic the continuation line:
-                        final_minutes = final_minutes.concat(`\n… ${content}  `);
+                        final_minutes += `\n… ${content}  `;
                     } else {
-                        final_minutes = final_minutes.concat(`\n\n**${this.full_name(label)}:** ${content}  `);
+                        // Yep, this is indeed a new person talking
+                        final_minutes += `\n\n**${this.full_name(label)}:** ${content}  `;
                         current_person = label;
                         within_scribed_content = true;
                     }
                 } else {
+                    // This is a 'continuation' line
+
+                    // There are two types of continuation lines, we have to get the number of characters
                     // eslint-disable-next-line no-nested-ternary
                     const dots = content.startsWith('...') ? 3 : (content.startsWith('…') ? 1 : 0);
-
                     if (dots > 0) {
+                        // Remove the continuation character(s). The goal is to be uniform, ie, to use '…' (ellipses) everywhere
                         let new_content = content.slice(dots).trim();
                         if (new_content && new_content[0] === ':') {
                             // This is a relatively frequent scribe error,
@@ -427,12 +485,12 @@ ${no_toc}
                             // We are in the middle of a full paragraph for
                             // one person, safe to simply add the text to
                             // the previous line without any further ado
-                            final_minutes = final_minutes.concat('\n… ', new_content, '  ');
+                            final_minutes += `\n… ${new_content}  `;
                         } else {
                             // For some reasons, there was a previous line
-                            // that interrupted the normal flow, a new
-                            // paragraph should be started
-                            final_minutes = final_minutes.concat(`\n\n**${this.full_name(current_person)}:** ${new_content}  `);
+                            // that interrupted the normal flow (eg, setting a new topic), a new
+                            // paragraph should be started with the person's name
+                            final_minutes += `\n\n**${this.full_name(current_person)}:** ${new_content}  `;
                             // content_md = content_md.concat("\n\n", content.slice(dots))
                             within_scribed_content = true;
                         }
@@ -443,40 +501,42 @@ ${no_toc}
                         within_scribed_content = false;
 
                         // This is a fall back: somebody (not the scribe) makes a note on IRC
-                        final_minutes = final_minutes.concat(`\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`);
+                        final_minutes += `\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`;
                     }
                 }
             } else {
                 // This is a fall back: somebody (not the scribe) makes a note on IRC
                 within_scribed_content = false;
-                final_minutes = final_minutes.concat(`\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`);
+                final_minutes += `\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`;
             }
         }
 
+        // ------------------------------  'final_minutes' contains the core minutes by now.
+
         // Endgame: pulling the TOC, the real minutes and, possibly, the
         // resolutions and actions together
-        final_minutes = final_minutes.concat('\n\n---\n');
+        final_minutes += '\n\n---\n';
 
         if (rcounter > 1) {
             // There has been at least one resolution
             sec_number_level_1 += 1;
             if (this.kramdown) {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#res)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n${resolutions}`);
+                TOC += `* [${sec_number_level_1}. Resolutions](#res)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n${resolutions}`;
             } else {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#${sec_number_level_1}-resolutions)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Resolutions\n${resolutions}`);
+                TOC += `* [${sec_number_level_1}. Resolutions](#${sec_number_level_1}-resolutions)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Resolutions\n${resolutions}`;
             }
         }
         if (acounter > 1) {
             // There has been at least one resolution
             sec_number_level_1 += 1;
             if (this.kramdown) {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#act)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n${actions}`);
+                TOC += `* [${sec_number_level_1}. Action Items](#act)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n${actions}`;
             } else {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Action Items\n${actions}`);
+                TOC += `* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n${actions}`;
             }
         }
 
@@ -500,15 +560,15 @@ ${no_toc}
         const split_body: string[] = Array.isArray(body) ? body : body.split(/\n/);
 
         // 1. cleanup the content, ie, remove the bot commands and the like
-        // 2. separate the header information (present, chair, date, etc)
-        //    from the 'real' content. That real content is stored in an array
-        //    {nick, content} structures
-
+        // The lines of text are also converted to LineObject-s on the fly, ie
+        // in an array of {nick, content} structures
         const irc_log: LineObject[] = utils.cleanup(split_body, this.config);
+
+        // 2. separate the header information
         // eslint-disable-next-line prefer-const
         let { headers, lines } = utils.separate_header(irc_log, this.config.date as string);
 
-        // 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
+        // 3. Perform changes, ie, execute on requests of the "i/.../..." and "s/.../.../" forms in the log:
         lines = utils.perform_insert_requests(lines);
         lines = utils.perform_change_requests(lines);
 
@@ -521,11 +581,11 @@ ${no_toc}
         // 5. Generate the header part of the minutes (using the 'headers' object)
         const header_md = this.generate_header_md(headers)
 
-        // 6. Generate the content part, that also includes the TOC, the list of
-        //    resolutions and (if any) actions (using the 'lines' array of objects)
+        // 6. Generate the content part; that also includes the TOC, the list of
+        //    resolutions and (if any) of actions
         const content_md = this.generate_content_md(lines)
 
-        // 7. Return the concatenation of the two
+        // 7. Return the concatenation of the two.
         return header_md + content_md;
     }
 }

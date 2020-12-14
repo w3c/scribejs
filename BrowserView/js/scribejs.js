@@ -786,8 +786,7 @@ class Actions {
      */
     async get_issue_titles() {
         // Get the titles of issues already stored.
-        const issue_titles = await this.repo.get_issue_titles();
-        return issue_titles;
+        return this.repo.get_issue_titles();
     }
     /**
      *
@@ -797,8 +796,7 @@ class Actions {
      * @return - list of github id-s of users who can appear as assignees.
      */
     async get_assignees() {
-        const assignees = await this.repo.get_assignees();
-        return assignees;
+        return this.repo.get_assignees();
     }
     /**
      * Retrieve repo data that might be relevant for raising issues. This is a call to the
@@ -930,7 +928,7 @@ class Converter {
     /*                Helper functions for nicknames                        */
     /** ******************************************************************* */
     /**
-     * Get a name structure for a nickname. This relies on the (optional) nickname list that
+     * Get a Person structure for a nickname. This relies on the (optional) nickname list that
      * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
      * The configuration structure is also extended to include the nicknames, so that
      * the same full names can be used throughout the minutes.
@@ -957,26 +955,28 @@ class Converter {
             }
         };
         // IRC clients tend to add a '_' to a usual nickname when there
-        // are duplicate logins. Then there are the special users, denoted with a '@'.
+        // are duplicate logins. Also, there are the special users denoted with a '@'.
         // Remove those.
         const clean_nick = utils.canonical_nick(nick);
         // if this nickname has been used before, just return it
         if (this.config.nick_mappings[clean_nick]) {
             return this.config.nick_mappings[clean_nick];
         }
-        const person = nick_mapping(clean_nick);
-        if (person) {
-            this.config.nick_mappings[clean_nick] = person;
-            return person;
-        }
         else {
-            // As a minimal measure, remove the '_' characters from the name
-            // (many people use this to signal their presence when using, e.g., present+)
-            // Note that this case usually occurs when one time visitors make a `present+ Abc_Def` to appear
-            // in the present list; that is why the nick cleanup should not include a lower case conversion.
-            return {
-                name: utils.canonical_nick(nick, false).replace(/_/g, ' '),
-            };
+            const person = nick_mapping(clean_nick);
+            if (person) {
+                this.config.nick_mappings[clean_nick] = person;
+                return person;
+            }
+            else {
+                // As a minimal measure, remove the '_' characters from the name
+                // (many people use this to signal their presence when using, e.g., present+)
+                // Note that this case usually occurs when one time visitors make a `present+ Abc_Def` to appear
+                // in the present list; that is why the nick cleanup should not include a lower case conversion.
+                return {
+                    name: utils.canonical_nick(nick, false).replace(/_/g, ' '),
+                };
+            }
         }
     }
     /**
@@ -1009,17 +1009,21 @@ class Converter {
      * @returns the header in Markdown
      */
     generate_header_md(headers) {
-        // Clean up the names in the headers, just to be on the safe side
+        // This constant is necessary to bind the 'this' value when used in the
+        // chain below...
         const convert_to_full_name = (nick) => this.full_name(nick);
+        // Clean up all the names in the headers, just to be on the safe side
         for (const key in headers) {
             if (Array.isArray(headers[key])) {
                 headers[key] = headers[key]
                     .map((nickname) => nickname.trim())
                     .filter((nickname) => nickname !== '')
                     .map(convert_to_full_name);
+                // Take care of removing duplicates
                 headers[key] = utils.uniq(headers[key]);
             }
         }
+        // Collect the header values into strings
         let header_start = '';
         if (this.config.jekyll !== types_1.Constants.JEKYLL_NONE) {
             const json_ld = jsonld_header_1.schema_data(headers, this.config);
@@ -1112,7 +1116,15 @@ ${no_toc}
         let numbering = '';
         let header_level = '';
         let toc_spaces = '';
-        const add_toc = (content, level) => {
+        /**
+         * Add a new header level to the TOC and generate the right markdown
+         *
+         * @param content Content of the IRC log line
+         * @param level header level
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_toc = (content, level) => {
+            let retval = '';
             // Remove the markdown-style links
             const de_link = (line) => {
                 // eslint-disable-next-line no-useless-escape
@@ -1141,38 +1153,48 @@ ${no_toc}
                 id = `section${sec_number_level_1}-${sec_number_level_2}`;
             }
             if (this.kramdown) {
-                final_minutes = final_minutes.concat('\n\n', `${header_level}${numbering}. ${bare_content}\n{: #${id}}`);
-                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`);
+                retval = `\n\n${header_level}${numbering}. ${bare_content}\n{: #${id}}`;
+                TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`;
             }
             else {
                 const auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
-                final_minutes = final_minutes.concat('\n\n', `${header_level}${numbering}. ${bare_content}`);
-                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`);
+                retval = `\n\n${header_level}${numbering}. ${bare_content}`;
+                TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`;
             }
+            return retval;
         };
-        /**
-        * Resolution handling: the resolution receives an ID, and a list of
-        * resolution is repeated at the end
-        */
         let rcounter = 1;
-        const add_resolution = (content) => {
+        /**
+         * Resolution handling: the resolution receives an ID, and a list of
+         * resolution is repeated at the end
+         *
+         * @param content Content of the IRC log line
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_resolutions = (content) => {
             const id = `resolution${rcounter}`;
+            let retval = '';
             if (this.kramdown) {
-                final_minutes = final_minutes.concat(`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`);
+                retval = `\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`;
                 resolutions = resolutions.concat(`\n* [Resolution #${rcounter}](#${id}): ${content}`);
             }
             else {
-                final_minutes = final_minutes.concat(`\n\n> ***Resolution #${rcounter}: ${content}***`);
+                retval = `\n\n> ***Resolution #${rcounter}: ${content}***`;
                 // GFM and CommonMark do not support anchor creation...so we can't link to the resolutions :-(
                 resolutions = resolutions.concat(`\n* Resolution #${rcounter}: ${content}`);
             }
             rcounter += 1;
+            return retval;
         };
-        /**
-        * Action handling: the action receives an ID, and a list of actions is repeated at the end
-        */
         let acounter = 1;
-        const add_action = (content) => {
+        /**
+         * Action handling: the action receives an ID, and a list of actions is repeated at the end
+         *
+         * @param content Content of the IRC log line
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_actions = (content) => {
+            let retval = '';
             const words = content.trim().split(' ');
             if (words[1] === 'to') {
                 const ghname = this.github_name(words[0]);
@@ -1181,11 +1203,11 @@ ${no_toc}
                 const final_content = `${message} (${name})`;
                 const id = `action${acounter}`;
                 if (this.kramdown) {
-                    final_minutes = final_minutes.concat(`\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`);
+                    retval = `\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`;
                     actions = actions.concat(`\n* [Action #${acounter}](#${id}): ${final_content}`);
                 }
                 else {
-                    final_minutes = final_minutes.concat(`\n\n> ***Action #${acounter}: ${final_content}***`);
+                    retval = `\n\n> ***Action #${acounter}: ${final_content}***`;
                     // GFM and CommonMark do not support anchor creation...so we can't link to the actions T_T
                     actions = actions.concat(`\n* Action #${acounter}: ${final_content}`);
                 }
@@ -1200,79 +1222,98 @@ ${no_toc}
             else {
                 console.log(`Warning: incorrect action syntax used: ${words}`);
             }
+            return retval;
         };
+        /* ----------- The core of the cycle: going through the IRC log line and do what is necessary ------------------- */
+        /* ----------- the final minutes are collected in the "final_minutes" string, that is returned to the caller ---- */
         // "state" variables for the main cycle...
         let scribes = [];
         // This is important if the scribe portion is 'interrupted' by, e.g., a topic setting or a resolution;
         // this helps in re-establishing the current speaker
         let within_scribed_content = false;
+        // Storing the reference to the current person is important to "combine" the comments
+        // coming from the same person to a series of lines connected by a '...', even if the scribe
+        // chooses to put in the person's nickname at every line.
         let current_person = '';
-        // The main cycle on the content
+        // ------------------------------  The main cycle on the content: take each line one-by-one and turn it into Github...
         for (const line_object of lines) {
             // This is declared here to use an assignment in a conditional below...
             let issue_match;
-            // What is done depends on some context...
-            // Do we have a new scribe?
+            // What has to be done done depends on some context...
+            // Do we have a new scribe? If so, he/she should be added to the list of scribes
             const new_scribe_list = utils.get_name_list(scribes, line_object, 'scribe') || utils.get_name_list(scribes, line_object, 'scribenick');
             if (new_scribe_list) {
                 scribes = new_scribe_list.map((person) => utils.canonical_nick(person));
                 // this line can be forgotten...
                 continue;
             }
-            // Add links, and separate the label (ie, "topic:", "proposed:", etc.) from the rest
+            // Add links using the the various possibilities offered by the '-> ...' syntax.
             const content_with_links = utils.add_links(line_object.content);
+            // Separate the label (ie, "topic:", "proposed:", etc.) from the rest
             const { label, content } = utils.get_label(content_with_links);
             // First handle special entries that must be handled regardless
-            // of whether it was typed in by the scribe or not.
+            // of whether it was typed by the scribe or not; the scribe specific handling is left to the end
+            // Most of the special cases are based on the label, if applicable.
+            // Handle a new topic: separate the possible issue/pr reference, add a TOC item and display the header with a '###'
+            // The separate utility function that handles the issue/pr directives
+            // The 'add_to_toc' function above generates the right markdown.
             if (label !== null && label.toLowerCase() === 'topic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
                 const title_structure = issues.titles(this.config, content);
-                add_toc(title_structure.title_text, 1);
+                final_minutes += add_to_toc(title_structure.title_text, 1);
                 if (title_structure.issue_reference !== '') {
-                    final_minutes = final_minutes.concat(title_structure.issue_reference);
+                    final_minutes += title_structure.issue_reference;
                 }
+                // Handle a new topic: separate the possible issue/pr reference, add a TOC item and display the header with a '####'
+                // The separate utility function that handles the issue/pr directives
+                // The 'add_to_toc' function above generates the right markdown.
             }
             else if (label !== null && label.toLowerCase() === 'subtopic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
                 const title_structure = issues.titles(this.config, content);
-                add_toc(title_structure.title_text, 2);
+                final_minutes += add_to_toc(title_structure.title_text, 2);
                 if (title_structure.issue_reference !== '') {
-                    final_minutes = final_minutes.concat(title_structure.issue_reference);
+                    final_minutes += title_structure.issue_reference;
                 }
+                // Handle a resolution proposal, displayed with a special markdown
             }
             else if (label !== null && ['proposed', 'proposal', 'propose'].includes(label.toLowerCase())) {
                 within_scribed_content = false;
-                final_minutes = final_minutes.concat(`\n\n> **Proposed resolution: ${content}** *(${this.full_name(line_object.nick)})*`);
+                final_minutes += `\n\n> **Proposed resolution: ${content}** *(${this.full_name(line_object.nick)})*`;
                 if (this.kramdown) {
-                    final_minutes = final_minutes.concat('\n{: .proposed_resolution}');
+                    final_minutes += '\n{: .proposed_resolution}';
                 }
+                // Handle a discussion summary, displayed with a special markdown
             }
             else if (label !== null && label.toLowerCase() === 'summary') {
                 within_scribed_content = false;
-                final_minutes = final_minutes.concat(`\n\n> **Summary: ${content}** *(${this.full_name(line_object.nick)})*`);
+                final_minutes += `\n\n> **Summary: ${content}** *(${this.full_name(line_object.nick)})*`;
                 if (this.kramdown) {
-                    final_minutes = final_minutes.concat('\n{: .summary}');
+                    final_minutes += '\n{: .summary}';
                 }
+                // Handle a resolution: the resolution must be stored separately and a special markdown is used
             }
             else if (label !== null && ['resolved', 'resolution'].includes(label.toLowerCase())) {
                 within_scribed_content = false;
-                add_resolution(content);
+                final_minutes += add_to_resolutions(content);
+                // Handle an action: the action must be stored separately, and a special markdown is used
             }
             else if (label !== null && label.toLowerCase() === 'action') {
                 within_scribed_content = false;
-                add_action(content);
-                // eslint-disable-next-line no-cond-assign
+                final_minutes += add_to_actions(content);
+                // Handle an issue directive: the line is replaced with a set of references and a possible
+                // extra comment for postprocessing
             }
             else if ((issue_match = content.match(types_1.Constants.issue_regexp)) !== null) {
                 within_scribed_content = false;
                 const directive = issue_match[2];
                 const issue_references = issue_match[3];
-                final_minutes = final_minutes.concat(issues.issue_directives(this.config, directive, issue_references));
+                final_minutes += issues.issue_directives(this.config, directive, issue_references);
+                // The 'scribed' line, ie, the lines whose 'nick' is one of the registered scribes.
             }
             else if (scribes.includes(utils.canonical_nick(line_object.nick))) {
-                // This is a line produced one of the 'registered' scribes
                 if (label !== null) {
                     // A new person is talking...
                     // Note the two spaces at the end of the generated line, this
@@ -1280,18 +1321,22 @@ ${no_toc}
                     // But... maybe this is not a new person after all! (Scribes, sometimes, forget about the usage of '...' or prefer to use the nickname)
                     if (within_scribed_content && this.full_name(label) === this.full_name(current_person)) {
                         // Just mimic the continuation line:
-                        final_minutes = final_minutes.concat(`\n… ${content}  `);
+                        final_minutes += `\n… ${content}  `;
                     }
                     else {
-                        final_minutes = final_minutes.concat(`\n\n**${this.full_name(label)}:** ${content}  `);
+                        // Yep, this is indeed a new person talking
+                        final_minutes += `\n\n**${this.full_name(label)}:** ${content}  `;
                         current_person = label;
                         within_scribed_content = true;
                     }
                 }
                 else {
+                    // This is a 'continuation' line
+                    // There are two types of continuation lines, we have to get the number of characters
                     // eslint-disable-next-line no-nested-ternary
                     const dots = content.startsWith('...') ? 3 : (content.startsWith('…') ? 1 : 0);
                     if (dots > 0) {
+                        // Remove the continuation character(s). The goal is to be uniform, ie, to use '…' (ellipses) everywhere
                         let new_content = content.slice(dots).trim();
                         if (new_content && new_content[0] === ':') {
                             // This is a relatively frequent scribe error,
@@ -1303,13 +1348,13 @@ ${no_toc}
                             // We are in the middle of a full paragraph for
                             // one person, safe to simply add the text to
                             // the previous line without any further ado
-                            final_minutes = final_minutes.concat('\n… ', new_content, '  ');
+                            final_minutes += `\n… ${new_content}  `;
                         }
                         else {
                             // For some reasons, there was a previous line
-                            // that interrupted the normal flow, a new
-                            // paragraph should be started
-                            final_minutes = final_minutes.concat(`\n\n**${this.full_name(current_person)}:** ${new_content}  `);
+                            // that interrupted the normal flow (eg, setting a new topic), a new
+                            // paragraph should be started with the person's name
+                            final_minutes += `\n\n**${this.full_name(current_person)}:** ${new_content}  `;
                             // content_md = content_md.concat("\n\n", content.slice(dots))
                             within_scribed_content = true;
                         }
@@ -1320,41 +1365,42 @@ ${no_toc}
                         // help that:-(
                         within_scribed_content = false;
                         // This is a fall back: somebody (not the scribe) makes a note on IRC
-                        final_minutes = final_minutes.concat(`\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`);
+                        final_minutes += `\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`;
                     }
                 }
             }
             else {
                 // This is a fall back: somebody (not the scribe) makes a note on IRC
                 within_scribed_content = false;
-                final_minutes = final_minutes.concat(`\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`);
+                final_minutes += `\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`;
             }
         }
+        // ------------------------------  'final_minutes' contains the core minutes by now.
         // Endgame: pulling the TOC, the real minutes and, possibly, the
         // resolutions and actions together
-        final_minutes = final_minutes.concat('\n\n---\n');
+        final_minutes += '\n\n---\n';
         if (rcounter > 1) {
             // There has been at least one resolution
             sec_number_level_1 += 1;
             if (this.kramdown) {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#res)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n${resolutions}`);
+                TOC += `* [${sec_number_level_1}. Resolutions](#res)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n${resolutions}`;
             }
             else {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#${sec_number_level_1}-resolutions)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Resolutions\n${resolutions}`);
+                TOC += `* [${sec_number_level_1}. Resolutions](#${sec_number_level_1}-resolutions)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Resolutions\n${resolutions}`;
             }
         }
         if (acounter > 1) {
             // There has been at least one resolution
             sec_number_level_1 += 1;
             if (this.kramdown) {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#act)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n${actions}`);
+                TOC += `* [${sec_number_level_1}. Action Items](#act)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n${actions}`;
             }
             else {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`);
-                final_minutes = final_minutes.concat(`\n\n### ${sec_number_level_1}. Action Items\n${actions}`);
+                TOC += `* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n${actions}`;
             }
         }
         // A final bifurcation: if kramdown is used, it is more advantageous to rely on on the
@@ -1375,13 +1421,13 @@ ${no_toc}
         // An array of lines should be used down from this point.
         const split_body = Array.isArray(body) ? body : body.split(/\n/);
         // 1. cleanup the content, ie, remove the bot commands and the like
-        // 2. separate the header information (present, chair, date, etc)
-        //    from the 'real' content. That real content is stored in an array
-        //    {nick, content} structures
+        // The lines of text are also converted to LineObject-s on the fly, ie
+        // in an array of {nick, content} structures
         const irc_log = utils.cleanup(split_body, this.config);
+        // 2. separate the header information
         // eslint-disable-next-line prefer-const
         let { headers, lines } = utils.separate_header(irc_log, this.config.date);
-        // 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
+        // 3. Perform changes, ie, execute on requests of the "i/.../..." and "s/.../.../" forms in the log:
         lines = utils.perform_insert_requests(lines);
         lines = utils.perform_change_requests(lines);
         // 4. Store the actions' date, if the separate action list handler is available.
@@ -1391,10 +1437,10 @@ ${no_toc}
         }
         // 5. Generate the header part of the minutes (using the 'headers' object)
         const header_md = this.generate_header_md(headers);
-        // 6. Generate the content part, that also includes the TOC, the list of
-        //    resolutions and (if any) actions (using the 'lines' array of objects)
+        // 6. Generate the content part; that also includes the TOC, the list of
+        //    resolutions and (if any) of actions
         const content_md = this.generate_content_md(lines);
-        // 7. Return the concatenation of the two
+        // 7. Return the concatenation of the two.
         return header_md + content_md;
     }
 }
@@ -1772,7 +1818,7 @@ exports.add_links = exports.perform_change_requests = exports.perform_insert_req
 const types_1 = require("./types");
 const url = require("url");
 /** ******************************************************************* */
-/*                       Conversion generic utilities                   */
+/*                           Generic utilities                          */
 /** ******************************************************************* */
 /** (Calculated) constant to decide whether the code runs in a browser or via node.js */
 exports.is_browser = (process === undefined || process.title === 'browser');
@@ -1853,19 +1899,28 @@ exports.every = every;
 /**
  * Remove the 'preamble' from the line, ie, the part that is
  * put there by the IRC client. Unfortunately, that is not standard,
- * which means that each client does it differently.
+ * which means that each client adds a different preamble.
  *
- * This function relies on a user option, if available; otherwise
+ * This function relies on a user option for the IRC log format. If not available
  * it tries some heuristics among the currently known IRC logs formats:
  * RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.
+ *
+ * The fallback, in all cases, is the RSSAgent format.
  *
  * The function has a side effect of setting the irc_format value in the configuration. This means
  * the right extra lines will be removed, if necessary (and the regexp will be matched only once)
  *
  * @param line - the full line of an IRC log
- * @return truncated line
+ * @return truncated line, ie, with preamble removed.
  */
 function remove_preamble(line, config) {
+    /**
+     * Establish the size of the preamble to be removed; set the irc format in the config
+     * in case that has not be set originally.
+     *
+     * @param the_line - The incoming IRC log line
+     * @return the size of the preamble
+     */
     const preamble_size = (the_line) => {
         if (config.irc_format) {
             switch (config.irc_format) {
@@ -1899,10 +1954,13 @@ function remove_preamble(line, config) {
  * 1. `set`, adding a temporary nick name (by extending the global data on nicknames)
  * 2. `issue` or `pr`,  handling the issue/pr directives
  *
+ * This function is used as part of an `Array.filter` operation; i.e., the return value is a
+ * boolean signaling whether the line should be kept or not. See the exact value of the boolean below.
+ *
  * Note, however, that the second block (issue directives) are not really handled by this function; their handling is delayed to the local context where these directives appear.
  *
  * @param line_object - a line object; the only important entry is the 'content'
- * @returns true if the line is _not_ a scribejs directive (ie, the line should be kept), false otherwise. The function can therefore be used as part of an `Array.filter` call.
+ * @returns true if the line is _not_ a global scribejs directive (ie, the line should be kept), false otherwise.
  */
 function handle_scribejs(line_object, config) {
     if (line_object.content_lower.startsWith('scribejs, ') || line_object.content_lower.startsWith('sjs, ')) {
@@ -1914,9 +1972,10 @@ function handle_scribejs(line_object, config) {
                 case 'issue':
                 case 'pr':
                     // these are handled elsewhere; the directives should stay in content for further processing
+                    // This switch branch is unnecessary, and left here for 'documentation' purposes only.
                     return true;
-                // Set a per-session nickname.
                 case 'set': {
+                    // Set a per-session nickname.
                     const nickname = words[2].toLowerCase();
                     const name_comps = words.slice(3);
                     if (name_comps.length !== 0) {
@@ -1938,25 +1997,11 @@ function handle_scribejs(line_object, config) {
             return true;
         }
         // If we got there, the directive has its effect and should be removed
-        // returning 'false' will remove this line from the result
+        // returning 'false' will remove this line from the overall result
         return false;
     }
     // This line should remain for further processing
     return true;
-}
-/**
- * Extract a labelled item, ie, something of the form "XXX: YYY", where
- * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
- * checked in lower case, too.
- *
- * @param label - the label we are looking for
- * @param line - a line object of the form {nick, content},
- * @returns  the content without the label, or null if that label is not present
- */
-function get_labelled_item(label, line) {
-    const lower = line.content.toLowerCase();
-    const label_length = label.length + 1; // Accounting for the ':' character!
-    return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
 }
 /**
  * Get a 'label', ie, find out if there is a 'XXX:' at the beginning of a line.
@@ -1965,8 +2010,7 @@ function get_labelled_item(label, line) {
  * is sometimes preceded by a ':'. This is taken care of by returning the full line without the ':'.
  *
  * @param {string} line - one line of text
- * @returns {object} - {label, content}, containing the (possibly null)
- *     label, separated from the rest
+ * @returns {object} - {label, content}, containing the (possibly null) label, separated from the rest
  */
 function get_label(line) {
     const reg = line.trim().match(/^(\w+):(.*)$/);
@@ -1979,7 +2023,7 @@ function get_label(line) {
     const possible_label = reg[1].trim();
     const possible_content = reg[2].trim();
     // There are some funny cases, however...
-    if (['http', 'https', 'email', 'ftp', 'doi'].includes(possible_label)) {
+    if (['http', 'https', 'email', 'ftp', 'doi', 'did', 'data'].includes(possible_label)) {
         // Ignore the label...
         return {
             label: null,
@@ -2004,8 +2048,7 @@ exports.get_label = get_label;
  * Create a "canonical" nickname, ie,
  *
  * * lower case
- * * free of additional characters used by (some) IRC servers, like adding a '@' character, or
- *   adding an '_' character to the start or the end of the nickname.
+ * * free of additional characters used by (some) IRC servers, like adding a '@' character, or adding an '_' character to the start or the end of the nickname.
  *
  * @param nick - the original nickname
  * @param lower - whether the name should be put into lower case
@@ -2027,7 +2070,8 @@ exports.canonical_nick = canonical_nick;
  * @param current_list - the current list of nicknames
  * @param line - IRC line object
  * @param category - the 'label' to look for (ie, 'present', 'regrets', 'scribe', etc.)
- * @param remove - whether removal should indeed happen with a '-' suffix. A `false` value may make sense when the same irc line is reused twice: once to act upon it but without listing it and once when the list is collected for the header (e.g., scribe name extractions).
+ * @param remove - whether removal should indeed happen with a '-' suffix. A `false` value may make sense when the same irc line is reused for two different purposes: list the name in the header but also act on its presence in the minutes. Scribe setting is the typical case: the effect of `scribe-` should result of removing the name from the header report
+ *
  * @returns  new value of the list of nicknames
  */
 function get_name_list(current_list, line, category, remove = true) {
@@ -2038,6 +2082,7 @@ function get_name_list(current_list, line, category, remove = true) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const arg2 = (a, b) => b;
     // Extract the (nick) names from the comma separated list of persons
+    // 'number' is the number of characters that must be ignored, corresponding to the category
     const get_names = (index) => {
         // Care should be taken to trim everything in order keep the nick names clean of extra spaces...
         const retval = line.content.slice(index + 1).trim().split(',');
@@ -2049,13 +2094,13 @@ function get_name_list(current_list, line, category, remove = true) {
     const lower = line.content_lower.trim();
     const cutIndex = category.length;
     if (lower.startsWith(category) === true) {
-        // bingo, we have to extract the content
-        // There are various possibilities, through
-        let action = union;
+        // bingo, we have to extract the content.
+        // There are various possibilities, through...
+        let action = union; // This is the default action on the nicknames
         let names = [];
         // Note that, although the correct syntax is, e.g., "present+", a frequent
         // mistake is to type "present +". Same for the usage of '-'.
-        // I decided to make the script resilient on this:-)
+        // The script resilient on this:-)
         if (lower.startsWith(`${category}+`) === true) {
             names = get_names(cutIndex);
         }
@@ -2093,12 +2138,12 @@ function get_name_list(current_list, line, category, remove = true) {
 }
 exports.get_name_list = get_name_list;
 /**
- * Cleanup actions on the incoming body:
- *  - turn the body (which is one giant string) into an array of lines
+ * Cleanup actions on the incoming irc log (ie, an array of lines):
+ *
  *  - remove empty lines
- *  - remove the starting time stamps
+ *  - remove the irc preamble (time stamp, typically)
  *  - turn lines into objects, separating the nick name and the content
- *  - remove the lines coming from zakim or rrsagent
+ *  - remove the lines coming from zakim, rrsagent, and possibly other bots
  *  - remove zakim queue commands
  *  - remove zakim agenda control commands
  *  - remove bot commands ("zakim,", "rrsagent,", etc.)
@@ -2106,19 +2151,22 @@ exports.get_name_list = get_name_list;
  *  - handle the "scribejs, nick FULL NAME" type commands (or, equivalently, "sjs, nick ...")
  *
  *
- * @param body - the full IRC log
+ * @param minutes - the full IRC log
  * @returns array of {nick, content, content_lower} objects ('nick' is the IRC nick)
  */
 // eslint-disable-next-line max-lines-per-function
-function cleanup(body, config) {
-    const cleaned_up_lines = body
+function cleanup(minutes, config) {
+    // Cleanup action on the log lines
+    const cleaned_up_lines = minutes
+        // remove the empty lines
         .filter((line) => line.length !== 0)
         // Remove the starting time stamp or equivalent. The function
         // relies on the fact that each line starts with a specific number of characters.
-        // Alas!, this depends on the irc log format...
+        // This depends on the irc log format...
         .map((line) => remove_preamble(line, config))
+        // remove possible IRC format specific lines
         .filter((line) => {
-        // this filter is, in fact, unnecessary if rrsagent is properly used
+        // this filter is, in fact, unnecessary if rrsagent is used
         // however, if the script is used against a line-oriented log
         // of an irc client (like textual) then this come handy in taking
         // out at least some of the problematic lines
@@ -2152,7 +2200,8 @@ function cleanup(body, config) {
             }
         }
     });
-    // IRC log lines are turned into objects, separating the nicknames.
+    // IRC log lines are turned into objects, separating the nicknames. From now on, the minutes
+    // is an array of special objects.
     const line_objects = cleaned_up_lines.map((line) => {
         const sp = line.indexOf(' ');
         return {
@@ -2162,7 +2211,7 @@ function cleanup(body, config) {
             content: line.slice(sp + 1).trim(),
         };
     });
-    // From here on, the lines are cleaned up using the line object
+    // Filtering on the line objects now
     return line_objects
         // Taking care of the accidental appearance of what could be
         // interpreted as an HTML tag...
@@ -2180,7 +2229,8 @@ function cleanup(body, config) {
         // Bunch of filters, removing the unnecessary lines
         .filter((line_object) => (line_object.nick !== 'RRSAgent'
         && line_object.nick !== 'Zakim'
-        && line_object.nick !== 'github-bot'))
+        && line_object.nick !== 'github-bot'
+        && line_object.nick !== 'trackbot'))
         .filter((line_object) => !(line_object.content_lower.startsWith('q+')
         || line_object.content_lower.startsWith('+q')
         || line_object.content_lower.startsWith('vq?')
@@ -2199,7 +2249,7 @@ function cleanup(body, config) {
         .filter((line_object) => !(line_object.content.match(/^\w+ has joined #\w+/)
         || line_object.content.match(/^\w+ has left #\w+/)
         || line_object.content.match(/^\w+ has changed the topic to:/)))
-        // Handle the scribejs directives
+        // Handle the scribejs directives which **may** lead to the removal of that line from the minutes
         .filter((line) => handle_scribejs(line, config));
 }
 exports.cleanup = cleanup;
@@ -2213,17 +2263,12 @@ exports.cleanup = cleanup;
  *   - meeting: string
  *   - date: string
  *   - scribe: comma separated IRC nicknames
- * All these actions, except for 'scribe', also remove the corresponding
- * lines from the IRC log array.
+ * All these actions, except for 'scribe', also remove the corresponding lines from the IRC log array.
  *
  * @param lines - array of {nick, content, content_lower} objects
  * @param date - date to be used in the header
- * @param cleanup_names - call back function to turn nicknames into real names
- * @returns  {header, lines}, where "header" is the header object, "lines" is the cleaned up IRC log
+ * @returns {header, lines}, where "header" is the header object, "lines" is the rest of the IRC log, with header specific lines removed
  */
-// Beware: although using underscore functions, ie, very functional oriented style, the
-// filters all have side effects in the sense of expanding the 'header structure'. Not
-// very functional but, oh well...
 function separate_header(lines, date) {
     const headers = {
         present: [],
@@ -2241,24 +2286,21 @@ function separate_header(lines, date) {
      * nicknames, 'XXX:' means set them.
      * If found, the relevant field in the header object is extended.
      *
-     * The real work is done in the [[get_name_list]] function; this utility just handles some usual mistakes
+     * The real work is done in the [[get_name_list]] function; this wrapper utility just handles some usual mistakes
      * before calling out the real one:
      *
      * * usage of 'guest' instead of 'guests'
      * * usage of 'regret' instead of 'regrets'
      * * usage of 'scribenick' instead of 'scribe' (this is a historical remain…)
      *
+     * This method is used in filter, hence its return type.
+     *
      * @param category - the 'label' to look for
      * @param line - IRC line object
      * @param remove - whether removal should indeed happen with a '-' suffix
-     * @returns true or false, depending on whether this is indeed a line with that category
+     * @returns true or false, depending on whether this is indeed a line with that category.
      */
     const people = (category, line, remove = true) => {
-        // A frequent scribing mistake is to use "guest" instead of "guests", or
-        // "regret" instead of "regrets". Although the "official" documented
-        // version is the plural form, I decided to make the script resilient...
-        // Then there is also the duality of 'scribe' and 'scribenick',
-        // inherited from scribe.pl...
         let real_category;
         switch (category) {
             case 'guest':
@@ -2269,6 +2311,9 @@ function separate_header(lines, date) {
                 break;
             case 'scribenick':
                 real_category = 'scribe';
+                break;
+            case 'chairs':
+                real_category = 'chair';
                 break;
             default:
                 real_category = category;
@@ -2291,7 +2336,17 @@ function separate_header(lines, date) {
      * @returns true or false, depending on whether this is indeed a line with that category
      */
     const single_item = (category, line) => {
-        const item = get_labelled_item(category, line);
+        /**
+         * Extract a labelled item, ie, something of the form "XXX: YYY", where
+         * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
+         * checked in lower case, too.
+         */
+        const get_labelled_item = (label) => {
+            const lower = line.content.toLowerCase();
+            const label_length = label.length + 1; // Accounting for the ':' character!
+            return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
+        };
+        const item = get_labelled_item(category);
         if (item !== null) {
             headers[category] = item;
             return true;
@@ -2305,7 +2360,7 @@ function separate_header(lines, date) {
         .filter((line) => !people('present', line))
         .filter((line) => !(people('regrets', line) || people('regret', line)))
         .filter((line) => !(people('guests', line) || people('guest', line)))
-        .filter((line) => !people('chair', line))
+        .filter((line) => !(people('chairs', line) || people('chair', line)))
         .filter((line) => {
         people('scribe', line, false);
         people('scribenick', line, false);
@@ -2313,8 +2368,7 @@ function separate_header(lines, date) {
     })
         .filter((line) => !single_item('agenda', line))
         .filter((line) => !single_item('meeting', line))
-        .filter((line) => !single_item('date', line))
-        .filter((line) => (line.nick !== 'trackbot'));
+        .filter((line) => !single_item('date', line));
     return {
         headers: headers,
         lines: processed_lines,
@@ -2339,7 +2393,7 @@ function perform_insert_requests(lines) {
     const get_insert_request = (str) => str.match(/^i\/([^/]+)\/([^/]+)\/{0,1}/) || str.match(/^i\|([^|]+)\|([^|]+)\|{0,1}/);
     const marker = '----INSERTREQUESTXYZ----';
     const intermediate_retval = lines
-        // Because the insert is to work on the preceding values, the
+        // Because the insert is to work on the *preceding* values, the processing with indexes is simpler if the
         // array has to be traversed upside down...
         .reverse()
         .map((line, index) => {
@@ -2486,7 +2540,7 @@ exports.perform_change_requests = perform_change_requests;
 /**
 * URL handling: find URL-s in a line and convert it into an active markdown link.
 *
-* There different possibilities:
+* There are different possibilities:
 * * `-> URL some text` as a separate line (a.k.a. Ralph style links); "some text" becomes the link text
 * * `-> some text URL` anywhere in the line, possibly several patterns in a line; "some text" becomes the link text
 * * Simple URL formatted text where the link text is the URL itself
@@ -2502,7 +2556,7 @@ function add_links(line) {
     */
     const check_url = (str) => {
         const a = url.parse(str);
-        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:'].indexOf(a.protocol) !== -1;
+        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
     };
     /**
      * Splitting the line into words. By default, one splits along a space character; however, markdown code
@@ -2511,15 +2565,15 @@ function add_links(line) {
      * @returns {Array} - array of strings, ie, the words
      */
     const split_to_words = (full_line) => {
-        const REPL_HACK = '$MD_CODE$';
-        const regex = /`[^`]+`/g;
         const trimmed = full_line.trim();
-        const codes = trimmed.match(regex);
+        const REPL_HACK = '$MD_CODE$';
+        const code_regex = /`[^`]+`/g;
+        const codes = trimmed.match(code_regex);
         if (codes) {
             // ugly hack: replacing the code portions with a fixed pattern
-            // now we can split to get words; each code portion appears a word with REPL_HACK
+            // then we can split to get words; each code portion appears a word with REPL_HACK
             let code_index = 0;
-            const fake = trimmed.replace(regex, REPL_HACK);
+            const fake = trimmed.replace(code_regex, REPL_HACK);
             return fake.split(' ').filter((word) => word !== '').map((word) => {
                 if (word.indexOf(REPL_HACK) !== -1) {
                     // eslint-disable-next-line no-plusplus

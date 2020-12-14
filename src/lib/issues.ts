@@ -100,6 +100,7 @@ export function issue_directives(config: Configuration, directive: string, issue
                         return `[${prefix}${num_url[0]}](${num_url[1]})`;
                     })
                     .join(', ');
+
                 const md_part =  `_See github ${issue_or_pr} ${all_issues}._`;
 
                 // Add, if necessary, the comment to the return.

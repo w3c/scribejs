@@ -60,8 +60,7 @@ export class Actions {
      */
     private async get_issue_titles(): Promise<string[]> {
         // Get the titles of issues already stored.
-        const issue_titles: string[] = await this.repo.get_issue_titles();
-        return issue_titles;
+        return this.repo.get_issue_titles();
     }
 
     /**
@@ -72,8 +71,7 @@ export class Actions {
      * @return - list of github id-s of users who can appear as assignees.
      */
     private async get_assignees(): Promise<string[]> {
-        const assignees: string[] = await this.repo.get_assignees();
-        return assignees;
+        return this.repo.get_assignees();
     }
 
     /**

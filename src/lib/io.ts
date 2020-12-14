@@ -22,7 +22,6 @@ import * as utils                               from './utils';
 const fsp = fs.promises;
 
 
-
 /**
  * The effective fetch implementation run by the rest of the code.
  *
@@ -56,8 +55,7 @@ export async function get_irc_log(conf: Configuration): Promise<string> {
         const response = await my_fetch(conf.input);
         if (response.ok) {
             if (response.headers.get('content-type') === 'text/plain') {
-                const txt = await response.text();
-                return txt;
+                return response.text();
             } else {
                 throw new Error('IRC log must be of type text/plain');
             }
@@ -65,8 +63,7 @@ export async function get_irc_log(conf: Configuration): Promise<string> {
             throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
         }
     } else {
-        const txt = await fsp.readFile(conf.input, 'utf-8');
-        return txt;
+        return fsp.readFile(conf.input, 'utf-8');
     }
 }
 
@@ -193,8 +190,7 @@ async function commit(data: string, conf: Configuration): Promise<string> {
     // The token below is essential, it gives the access right to the repository.
     // See GH documentation how to obtain it...
     const gh = new GitHub(conf.ghrepo, conf);
-    const retval = await gh.commit_data(data);
-    return retval;
+    return gh.commit_data(data);
 }
 
 /**

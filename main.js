@@ -27,9 +27,6 @@ async function main() {
         // Note that the get_config method is synchronous
         // (uses a sync version of file system access)
         const config = conf.get_config();
-        // if (debug) {
-        //     console.log(JSON.stringify(config, null, 2));
-        // }
         // Get the nickname mappings object. The result gets added to the configuration
         // config.nicks is of type Nickname[]
         config.nicks = await io.get_nick_mapping(config);

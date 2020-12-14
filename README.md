@@ -1,6 +1,6 @@
 [Generate Minutes in your Browser!](https://w3c.github.io/scribejs/BrowserView/)
 
-# RSSAgent IRC logs Into Minutes in Markdown
+# RSSAgent IRC Logs Into Minutes in Markdown
 
 This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary]([features.md](https://w3c.github.io/scribejs/features.html)) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
 

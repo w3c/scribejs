@@ -88,6 +88,8 @@ export function get_config(): Global {
     const program = new Command();
     const argument_config: Configuration = {};
     program
+        .name('scribejs')
+        .description('Converting RSSAgent IRC logs into minutes in markdown.')
         .usage('[options] [file]')
         .option('-d, --date [date]', 'date of the meeting in ISO (i.e., YYYY-MM-DD) format')
         .option('-r, --repo', 'whether the output should be stored in a github repository')
@@ -103,7 +105,7 @@ export function get_config(): Global {
         .option('-i, --irc [format string]', "use an input format of a specific irc client's log,"
                                              + 'rather than the default RRSAgent log')
         .on('--help', () => {
-            console.log('    file:                   irc log file; if not present, retrieved from the W3C site');
+            console.log('  file:                      irc log file; if not present, retrieved from the W3C site');
         })
         .parse(process.argv);
 

@@ -92,7 +92,6 @@
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#every" class="tsd-kind-icon">every</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#flatten" class="tsd-kind-icon">flatten</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#get_label" class="tsd-kind-icon">get_<wbr>label</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_src_lib_utils_.html#get_labelled_item" class="tsd-kind-icon">get_<wbr>labelled_<wbr>item</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#get_name_list" class="tsd-kind-icon">get_<wbr>name_<wbr>list</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_src_lib_utils_.html#handle_scribejs" class="tsd-kind-icon">handle_<wbr>scribejs</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#perform_change_requests" class="tsd-kind-icon">perform_<wbr>change_<wbr>requests</a></li>
@@ -115,7 +114,7 @@
 					<div class="tsd-signature tsd-kind-icon">is_<wbr>browser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = (process &#x3D;&#x3D;&#x3D; undefined || process.title &#x3D;&#x3D;&#x3D; &#x27;browser&#x27;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L18">src/lib/utils.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L18">src/lib/utils.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -130,7 +129,7 @@
 					<div class="tsd-signature tsd-kind-icon">today<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = new Date().toISOString().split(&#x27;T&#x27;)[0]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L21">src/lib/utils.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L21">src/lib/utils.ts:21</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -152,14 +151,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L782">src/lib/utils.ts:782</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L798">src/lib/utils.ts:798</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>URL handling: find URL-s in a line and convert it into an active markdown link.</p>
 								</div>
-								<p>There different possibilities:</p>
+								<p>There are different possibilities:</p>
 								<ul>
 									<li><code>-&gt; URL some text</code> as a separate line (a.k.a. Ralph style links); &quot;some text&quot; becomes the link text</li>
 									<li><code>-&gt; some text URL</code> anywhere in the line, possibly several patterns in a line; &quot;some text&quot; becomes the link text</li>
@@ -193,7 +192,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L264">src/lib/utils.ts:264</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L260">src/lib/utils.ts:260</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -202,8 +201,7 @@
 								</div>
 								<ul>
 									<li>lower case</li>
-									<li>free of additional characters used by (some) IRC servers, like adding a &#39;@&#39; character, or
-									adding an &#39;_&#39; character to the start or the end of the nickname.</li>
+									<li>free of additional characters used by (some) IRC servers, like adding a &#39;@&#39; character, or adding an &#39;_&#39; character to the start or the end of the nickname.</li>
 								</ul>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -230,36 +228,35 @@
 					<a name="cleanup" class="tsd-anchor"></a>
 					<h3>cleanup</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">cleanup<span class="tsd-signature-symbol">(</span>body<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.global.html" class="tsd-signature-type">Global</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">cleanup<span class="tsd-signature-symbol">(</span>minutes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.global.html" class="tsd-signature-type">Global</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L360">src/lib/utils.ts:360</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L359">src/lib/utils.ts:359</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Cleanup actions on the incoming body:</p>
-									<ul>
-										<li>turn the body (which is one giant string) into an array of lines</li>
-										<li>remove empty lines</li>
-										<li>remove the starting time stamps</li>
-										<li>turn lines into objects, separating the nick name and the content</li>
-										<li>remove the lines coming from zakim or rrsagent</li>
-										<li>remove zakim queue commands</li>
-										<li>remove zakim agenda control commands</li>
-										<li>remove bot commands (&quot;zakim,&quot;, &quot;rrsagent,&quot;, etc.)</li>
-										<li>remove the &quot;XXX has joined #YYY&quot; type messages</li>
-										<li>handle the &quot;scribejs, nick FULL NAME&quot; type commands (or, equivalently, &quot;sjs, nick ...&quot;)</li>
-									</ul>
+									<p>Cleanup actions on the incoming irc log (ie, an array of lines):</p>
 								</div>
+								<ul>
+									<li>remove empty lines</li>
+									<li>remove the irc preamble (time stamp, typically)</li>
+									<li>turn lines into objects, separating the nick name and the content</li>
+									<li>remove the lines coming from zakim, rrsagent, and possibly other bots</li>
+									<li>remove zakim queue commands</li>
+									<li>remove zakim agenda control commands</li>
+									<li>remove bot commands (&quot;zakim,&quot;, &quot;rrsagent,&quot;, etc.)</li>
+									<li>remove the &quot;XXX has joined #YYY&quot; type messages</li>
+									<li>handle the &quot;scribejs, nick FULL NAME&quot; type commands (or, equivalently, &quot;sjs, nick ...&quot;)</li>
+								</ul>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>body: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<h5>minutes: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>the full IRC log</p>
 									</div>
@@ -283,7 +280,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L62">src/lib/utils.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L62">src/lib/utils.ts:62</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -322,7 +319,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L87">src/lib/utils.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L87">src/lib/utils.ts:87</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -383,7 +380,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L77">src/lib/utils.ts:77</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L77">src/lib/utils.ts:77</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -427,7 +424,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L217">src/lib/utils.ts:217</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L214">src/lib/utils.ts:214</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -448,8 +445,7 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></h4>
 							<ul>
-								<li>{label, content}, containing the (possibly null)
-								label, separated from the rest</li>
+								<li>{label, content}, containing the (possibly null) label, separated from the rest</li>
 							</ul>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
@@ -459,46 +455,6 @@
 									<h5>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-					<a name="get_labelled_item" class="tsd-anchor"></a>
-					<h3>get_<wbr>labelled_<wbr>item</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">get_<wbr>labelled_<wbr>item<span class="tsd-signature-symbol">(</span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, line<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L200">src/lib/utils.ts:200</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Extract a labelled item, ie, something of the form &quot;XXX: YYY&quot;, where
-										&quot;XXX:&quot; is the &#39;label&#39;. &quot;XXX&quot; is always in lower case, and the content is
-									checked in lower case, too.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>label: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>the label we are looking for</p>
-									</div>
-								</li>
-								<li>
-									<h5>line: <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>a line object of the form {nick, content},</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-							<p>the content without the label, or null if that label is not present</p>
 						</li>
 					</ul>
 				</section>
@@ -512,7 +468,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L284">src/lib/utils.ts:284</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L281">src/lib/utils.ts:281</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -547,7 +503,7 @@
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> remove: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>whether removal should indeed happen with a &#39;-&#39; suffix. A <code>false</code> value may make sense when the same irc line is reused twice: once to act upon it but without listing it and once when the list is collected for the header (e.g., scribe name extractions).</p>
+										<p>whether removal should indeed happen with a &#39;-&#39; suffix. A <code>false</code> value may make sense when the same irc line is reused for two different purposes: list the name in the header but also act on its presence in the minutes. Scribe setting is the typical case: the effect of <code>scribe-</code> should result of removing the name from the header report</p>
 									</div>
 								</li>
 							</ul>
@@ -566,7 +522,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L151">src/lib/utils.ts:151</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L163">src/lib/utils.ts:163</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -578,6 +534,8 @@
 									<li><code>set</code>, adding a temporary nick name (by extending the global data on nicknames)</li>
 									<li><code>issue</code> or <code>pr</code>,  handling the issue/pr directives</li>
 								</ol>
+								<p>This function is used as part of an <code>Array.filter</code> operation; i.e., the return value is a
+								boolean signaling whether the line should be kept or not. See the exact value of the boolean below.</p>
 								<p>Note, however, that the second block (issue directives) are not really handled by this function; their handling is delayed to the local context where these directives appear.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -593,7 +551,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-							<p>true if the line is <em>not</em> a scribejs directive (ie, the line should be kept), false otherwise. The function can therefore be used as part of an <code>Array.filter</code> call.</p>
+							<p>true if the line is <em>not</em> a global scribejs directive (ie, the line should be kept), false otherwise.</p>
 						</li>
 					</ul>
 				</section>
@@ -607,7 +565,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L679">src/lib/utils.ts:679</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L692">src/lib/utils.ts:692</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -641,7 +599,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L594">src/lib/utils.ts:594</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L607">src/lib/utils.ts:607</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -675,18 +633,19 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L112">src/lib/utils.ts:112</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L114">src/lib/utils.ts:114</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Remove the &#39;preamble&#39; from the line, ie, the part that is
 										put there by the IRC client. Unfortunately, that is not standard,
-									which means that each client does it differently.</p>
+									which means that each client adds a different preamble.</p>
 								</div>
-								<p>This function relies on a user option, if available; otherwise
+								<p>This function relies on a user option for the IRC log format. If not available
 									it tries some heuristics among the currently known IRC logs formats:
 								RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.</p>
+								<p>The fallback, in all cases, is the RSSAgent format.</p>
 								<p>The function has a side effect of setting the irc_format value in the configuration. This means
 								the right extra lines will be removed, if necessary (and the regexp will be matched only once)</p>
 							</div>
@@ -703,7 +662,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-							<p>truncated line</p>
+							<p>truncated line, ie, with preamble removed.</p>
 						</li>
 					</ul>
 				</section>
@@ -717,7 +676,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L485">src/lib/utils.ts:485</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L489">src/lib/utils.ts:489</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -732,8 +691,7 @@
 										<li>meeting: string</li>
 										<li>date: string</li>
 										<li>scribe: comma separated IRC nicknames
-											All these actions, except for &#39;scribe&#39;, also remove the corresponding
-										lines from the IRC log array.</li>
+										All these actions, except for &#39;scribe&#39;, also remove the corresponding lines from the IRC log array.</li>
 									</ul>
 								</div>
 							</div>
@@ -753,7 +711,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>headers<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.header.html" class="tsd-signature-type">Header</a><span class="tsd-signature-symbol">; </span>lines<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></h4>
-							<p>, where &quot;header&quot; is the header object, &quot;lines&quot; is the cleaned up IRC log</p>
+							<p>, where &quot;header&quot; is the header object, &quot;lines&quot; is the rest of the IRC log, with header specific lines removed</p>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
 									<h5>headers<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.header.html" class="tsd-signature-type">Header</a></h5>
@@ -775,7 +733,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L47">src/lib/utils.ts:47</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L47">src/lib/utils.ts:47</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -814,7 +772,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L38">src/lib/utils.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L38">src/lib/utils.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -848,7 +806,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/a4240a4/src/lib/utils.ts#L26">src/lib/utils.ts:26</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L26">src/lib/utils.ts:26</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -952,9 +910,6 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_src_lib_utils_.html#get_label" class="tsd-kind-icon">get_<wbr>label</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<a href="_src_lib_utils_.html#get_labelled_item" class="tsd-kind-icon">get_<wbr>labelled_<wbr>item</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_src_lib_utils_.html#get_name_list" class="tsd-kind-icon">get_<wbr>name_<wbr>list</a>
