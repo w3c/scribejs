@@ -1,0 +1,969 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>&quot;src/lib/utils&quot; | Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</title>
+	<meta name="description" content="Documentation for Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="_src_lib_utils_.html">&quot;src/lib/utils&quot;</a>
+				</li>
+			</ul>
+			<h1>Module &quot;src/lib/utils&quot;</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Collection of utility functions, put here for a better maintenance</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_src_lib_utils_.html#is_browser" class="tsd-kind-icon">is_<wbr>browser</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_src_lib_utils_.html#today" class="tsd-kind-icon">today</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#add_links" class="tsd-kind-icon">add_<wbr>links</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#canonical_nick" class="tsd-kind-icon">canonical_<wbr>nick</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#cleanup" class="tsd-kind-icon">cleanup</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#difference" class="tsd-kind-icon">difference</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#every" class="tsd-kind-icon">every</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#flatten" class="tsd-kind-icon">flatten</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#get_label" class="tsd-kind-icon">get_<wbr>label</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#get_name_list" class="tsd-kind-icon">get_<wbr>name_<wbr>list</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_src_lib_utils_.html#handle_scribejs" class="tsd-kind-icon">handle_<wbr>scribejs</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#perform_change_requests" class="tsd-kind-icon">perform_<wbr>change_<wbr>requests</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#perform_insert_requests" class="tsd-kind-icon">perform_<wbr>insert_<wbr>requests</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_src_lib_utils_.html#remove_preamble" class="tsd-kind-icon">remove_<wbr>preamble</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_utils_.html#separate_header" class="tsd-kind-icon">separate_<wbr>header</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#union" class="tsd-kind-icon">union</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#uniq" class="tsd-kind-icon">uniq</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="_src_lib_utils_.html#zip" class="tsd-kind-icon">zip</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="is_browser" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> is_<wbr>browser</h3>
+					<div class="tsd-signature tsd-kind-icon">is_<wbr>browser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = (process &#x3D;&#x3D;&#x3D; undefined || process.title &#x3D;&#x3D;&#x3D; &#x27;browser&#x27;)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L18">src/lib/utils.ts:18</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>(Calculated) constant to decide whether the code runs in a browser or via node.js</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="today" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> today</h3>
+					<div class="tsd-signature tsd-kind-icon">today<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = new Date().toISOString().split(&#x27;T&#x27;)[0]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L21">src/lib/utils.ts:21</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>(Calculated) constant for today&#39;s date in ISO format</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="add_links" class="tsd-anchor"></a>
+					<h3>add_<wbr>links</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">add_<wbr>links<span class="tsd-signature-symbol">(</span>line<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L798">src/lib/utils.ts:798</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>URL handling: find URL-s in a line and convert it into an active markdown link.</p>
+								</div>
+								<p>There are different possibilities:</p>
+								<ul>
+									<li><code>-&gt; URL some text</code> as a separate line (a.k.a. Ralph style links); &quot;some text&quot; becomes the link text</li>
+									<li><code>-&gt; some text URL</code> anywhere in the line, possibly several patterns in a line; &quot;some text&quot; becomes the link text</li>
+									<li>Simple URL formatted text where the link text is the URL itself</li>
+								</ul>
+								<p>Links in markup syntax are left unchanged.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>line: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the line itself</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<ul>
+								<li>the converted line</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="canonical_nick" class="tsd-anchor"></a>
+					<h3>canonical_<wbr>nick</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">canonical_<wbr>nick<span class="tsd-signature-symbol">(</span>nick<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, lower<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L260">src/lib/utils.ts:260</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a &quot;canonical&quot; nickname, ie,</p>
+								</div>
+								<ul>
+									<li>lower case</li>
+									<li>free of additional characters used by (some) IRC servers, like adding a &#39;@&#39; character, or adding an &#39;_&#39; character to the start or the end of the nickname.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>nick: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the original nickname</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> lower: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>whether the name should be put into lower case</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<p>the &#39;canonical&#39; nickname</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="cleanup" class="tsd-anchor"></a>
+					<h3>cleanup</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">cleanup<span class="tsd-signature-symbol">(</span>minutes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.global.html" class="tsd-signature-type">Global</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L359">src/lib/utils.ts:359</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Cleanup actions on the incoming irc log (ie, an array of lines):</p>
+								</div>
+								<ul>
+									<li>remove empty lines</li>
+									<li>remove the irc preamble (time stamp, typically)</li>
+									<li>turn lines into objects, separating the nick name and the content</li>
+									<li>remove the lines coming from zakim, rrsagent, and possibly other bots</li>
+									<li>remove zakim queue commands</li>
+									<li>remove zakim agenda control commands</li>
+									<li>remove bot commands (&quot;zakim,&quot;, &quot;rrsagent,&quot;, etc.)</li>
+									<li>remove the &quot;XXX has joined #YYY&quot; type messages</li>
+									<li>handle the &quot;scribejs, nick FULL NAME&quot; type commands (or, equivalently, &quot;sjs, nick ...&quot;)</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>minutes: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the full IRC log</p>
+									</div>
+								</li>
+								<li>
+									<h5>config: <a href="../interfaces/_src_lib_types_.global.html" class="tsd-signature-type">Global</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></h4>
+							<p>array of {nick, content, content_lower} objects (&#39;nick&#39; is the IRC nick)</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="difference" class="tsd-anchor"></a>
+					<h3>difference</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">difference&lt;T&gt;<span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span>, b<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L62">src/lib/utils.ts:62</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Difference of two arrays (&#39;difference&#39; in a set-theoretic sense, i.e., generating <code>a \ b</code>)</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>a: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>b: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="every" class="tsd-anchor"></a>
+					<h3>every</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">every&lt;T&gt;<span class="tsd-signature-symbol">(</span>elements<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L87">src/lib/utils.ts:87</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if all elements in an array pass the callback truth test</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>elements: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the elements to be tested</p>
+									</div>
+								</li>
+								<li>
+									<h5>callback: <span class="tsd-signature-symbol">(</span>element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the callback function used as a test</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>element: <span class="tsd-signature-type">T</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="flatten" class="tsd-anchor"></a>
+					<h3>flatten</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">flatten&lt;T&gt;<span class="tsd-signature-symbol">(</span>accumulator<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span>, currentValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L77">src/lib/utils.ts:77</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Helper function to &quot;flatten&quot; arrays of arrays into a single array. This method should be used as the callback
+									for a <code>Array.reduce</code>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>accumulator: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Accumulated array in a reduce</p>
+									</div>
+								</li>
+								<li>
+									<h5>currentValue: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The next array to be considered</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="get_label" class="tsd-anchor"></a>
+					<h3>get_<wbr>label</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">get_<wbr>label<span class="tsd-signature-symbol">(</span>line<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L214">src/lib/utils.ts:214</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get a &#39;label&#39;, ie, find out if there is a &#39;XXX:&#39; at the beginning of a line.</p>
+								</div>
+								<p>The function takes care of a frequent scribe error: the continuation line (starting with a &#39;...&#39; or an &#39;…&#39;)
+								is sometimes preceded by a &#39;:&#39;. This is taken care of by returning the full line without the &#39;:&#39;.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>line: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>one line of text</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul>
+								<li>{label, content}, containing the (possibly null) label, separated from the rest</li>
+							</ul>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="get_name_list" class="tsd-anchor"></a>
+					<h3>get_<wbr>name_<wbr>list</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">get_<wbr>name_<wbr>list<span class="tsd-signature-symbol">(</span>current_list<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, line<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a>, category<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, remove<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L281">src/lib/utils.ts:281</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Extract a list of nick names (used for present, regrets, and guests, etc)
+										All of these have a common structure: &#39;XXX+&#39; means add nicknames, &#39;XXX-&#39; means remove
+									nicknames, &#39;XXX:&#39; means set them.</p>
+								</div>
+								<p>The function receives, as argument, a list containing the current list of those
+								categories, and performs a &#39;union&#39; or &#39;difference&#39; actions, resulting in an updated list</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>current_list: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the current list of nicknames</p>
+									</div>
+								</li>
+								<li>
+									<h5>line: <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>IRC line object</p>
+									</div>
+								</li>
+								<li>
+									<h5>category: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the &#39;label&#39; to look for (ie, &#39;present&#39;, &#39;regrets&#39;, &#39;scribe&#39;, etc.)</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> remove: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>whether removal should indeed happen with a &#39;-&#39; suffix. A <code>false</code> value may make sense when the same irc line is reused for two different purposes: list the name in the header but also act on its presence in the minutes. Scribe setting is the typical case: the effect of <code>scribe-</code> should result of removing the name from the header report</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>new value of the list of nicknames</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+					<a name="handle_scribejs" class="tsd-anchor"></a>
+					<h3>handle_<wbr>scribejs</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">handle_<wbr>scribejs<span class="tsd-signature-symbol">(</span>line_object<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a>, config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.global.html" class="tsd-signature-type">Global</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L163">src/lib/utils.ts:163</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handle the &#39;scribejs&#39; directives. The directives are of the form &quot;scribejs, COMMAND ARGS&quot; or, equivalently, &quot;sjs, COMMAND ARGS&quot;.</p>
+								</div>
+								<p>At the moment there are two possible directives:</p>
+								<ol>
+									<li><code>set</code>, adding a temporary nick name (by extending the global data on nicknames)</li>
+									<li><code>issue</code> or <code>pr</code>,  handling the issue/pr directives</li>
+								</ol>
+								<p>This function is used as part of an <code>Array.filter</code> operation; i.e., the return value is a
+								boolean signaling whether the line should be kept or not. See the exact value of the boolean below.</p>
+								<p>Note, however, that the second block (issue directives) are not really handled by this function; their handling is delayed to the local context where these directives appear.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>line_object: <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>a line object; the only important entry is the &#39;content&#39;</p>
+									</div>
+								</li>
+								<li>
+									<h5>config: <a href="../interfaces/_src_lib_types_.global.html" class="tsd-signature-type">Global</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>true if the line is <em>not</em> a global scribejs directive (ie, the line should be kept), false otherwise.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="perform_change_requests" class="tsd-anchor"></a>
+					<h3>perform_<wbr>change_<wbr>requests</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">perform_<wbr>change_<wbr>requests<span class="tsd-signature-symbol">(</span>lines<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L692">src/lib/utils.ts:692</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handle the s/../.. type lines, ie, make changes on the contents</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>lines: <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of {nick, content, content_lower} objects</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></h4>
+							<ul>
+								<li>returns the lines with the possible changes done</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="perform_insert_requests" class="tsd-anchor"></a>
+					<h3>perform_<wbr>insert_<wbr>requests</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">perform_<wbr>insert_<wbr>requests<span class="tsd-signature-symbol">(</span>lines<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L607">src/lib/utils.ts:607</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handle the i/../../ type lines, ie, insert new lines</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>lines: <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of {nick, content, content_lower} objects</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></h4>
+							<ul>
+								<li>returns the lines with the possible changes done</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+					<a name="remove_preamble" class="tsd-anchor"></a>
+					<h3>remove_<wbr>preamble</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">remove_<wbr>preamble<span class="tsd-signature-symbol">(</span>line<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L114">src/lib/utils.ts:114</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Remove the &#39;preamble&#39; from the line, ie, the part that is
+										put there by the IRC client. Unfortunately, that is not standard,
+									which means that each client adds a different preamble.</p>
+								</div>
+								<p>This function relies on a user option for the IRC log format. If not available
+									it tries some heuristics among the currently known IRC logs formats:
+								RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.</p>
+								<p>The fallback, in all cases, is the RSSAgent format.</p>
+								<p>The function has a side effect of setting the irc_format value in the configuration. This means
+								the right extra lines will be removed, if necessary (and the regexp will be matched only once)</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>line: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the full line of an IRC log</p>
+									</div>
+								</li>
+								<li>
+									<h5>config: <a href="../interfaces/_src_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<p>truncated line, ie, with preamble removed.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="separate_header" class="tsd-anchor"></a>
+					<h3>separate_<wbr>header</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">separate_<wbr>header<span class="tsd-signature-symbol">(</span>lines<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span>, date<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>headers<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.header.html" class="tsd-signature-type">Header</a><span class="tsd-signature-symbol">; </span>lines<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L489">src/lib/utils.ts:489</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p> Fill in the header structure with</p>
+									<ul>
+										<li>present: comma separated IRC nicknames</li>
+										<li>regrets: comma separated IRC nicknames</li>
+										<li>guests: comma separated IRC nicknames</li>
+										<li>chair: string</li>
+										<li>agenda: string</li>
+										<li>meeting: string</li>
+										<li>date: string</li>
+										<li>scribe: comma separated IRC nicknames
+										All these actions, except for &#39;scribe&#39;, also remove the corresponding lines from the IRC log array.</li>
+									</ul>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>lines: <a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of {nick, content, content_lower} objects</p>
+									</div>
+								</li>
+								<li>
+									<h5>date: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>date to be used in the header</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>headers<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.header.html" class="tsd-signature-type">Header</a><span class="tsd-signature-symbol">; </span>lines<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></h4>
+							<p>, where &quot;header&quot; is the header object, &quot;lines&quot; is the rest of the IRC log, with header specific lines removed</p>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>headers<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.header.html" class="tsd-signature-type">Header</a></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>lines<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.lineobject.html" class="tsd-signature-type">LineObject</a><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="union" class="tsd-anchor"></a>
+					<h3>union</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">union&lt;T&gt;<span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span>, b<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L47">src/lib/utils.ts:47</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Union of two arrays (&#39;union&#39; in a set-theoretic sense, i.e., with no duplicates)</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>a: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>b: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="uniq" class="tsd-anchor"></a>
+					<h3>uniq</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">uniq&lt;T&gt;<span class="tsd-signature-symbol">(</span>inp<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L38">src/lib/utils.ts:38</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Remove duplicates from an array</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>inp: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="zip" class="tsd-anchor"></a>
+					<h3>zip</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">zip&lt;T, U&gt;<span class="tsd-signature-symbol">(</span>left<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span>, right<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/utils.ts#L26">src/lib/utils.ts:26</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>&quot;Zip&quot; two arrays, i.e., create an array whose elements are pairs of the corresponding elements in the two arrays being processed.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+								<li>
+									<h4>U</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>left: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>right: <span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_actions_.html">&quot;src/lib/actions&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_conf_.html">&quot;src/lib/conf&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_convert_.html">&quot;src/lib/convert&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_io_.html">&quot;src/lib/io&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_issues_.html">&quot;src/lib/issues&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_js_githubapi_.html">&quot;src/lib/js/githubapi&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_js_githubapi_d_.html">&quot;src/lib/js/githubapi.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_jsonld_header_.html">&quot;src/lib/jsonld_<wbr>header&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_schemas_.html">&quot;src/lib/schemas&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_lib_types_.html">&quot;src/lib/types&quot;</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="_src_lib_utils_.html">&quot;src/lib/utils&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_src_main_.html">&quot;src/main&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#is_browser" class="tsd-kind-icon">is_<wbr>browser</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#today" class="tsd-kind-icon">today</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#add_links" class="tsd-kind-icon">add_<wbr>links</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#canonical_nick" class="tsd-kind-icon">canonical_<wbr>nick</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#cleanup" class="tsd-kind-icon">cleanup</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="_src_lib_utils_.html#difference" class="tsd-kind-icon">difference</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="_src_lib_utils_.html#every" class="tsd-kind-icon">every</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="_src_lib_utils_.html#flatten" class="tsd-kind-icon">flatten</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#get_label" class="tsd-kind-icon">get_<wbr>label</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#get_name_list" class="tsd-kind-icon">get_<wbr>name_<wbr>list</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+						<a href="_src_lib_utils_.html#handle_scribejs" class="tsd-kind-icon">handle_<wbr>scribejs</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#perform_change_requests" class="tsd-kind-icon">perform_<wbr>change_<wbr>requests</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#perform_insert_requests" class="tsd-kind-icon">perform_<wbr>insert_<wbr>requests</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+						<a href="_src_lib_utils_.html#remove_preamble" class="tsd-kind-icon">remove_<wbr>preamble</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_utils_.html#separate_header" class="tsd-kind-icon">separate_<wbr>header</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="_src_lib_utils_.html#union" class="tsd-kind-icon">union</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="_src_lib_utils_.html#uniq" class="tsd-kind-icon">uniq</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="_src_lib_utils_.html#zip" class="tsd-kind-icon">zip</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

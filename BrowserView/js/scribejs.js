@@ -1,4 +1,5 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-alert */
 /* eslint-env browser */
 
@@ -67,7 +68,7 @@ async function bridge(form) {
 
     const irc_log  = form.elements.text.value;
     // undefined for testing...
-    return convert.to_markdown(irc_log, config, theActions);
+    return new convert.Converter(config, theActions).convert_to_markdown(irc_log);
 }
 
 function emptyNode(n) {
@@ -118,7 +119,7 @@ window.addEventListener('load', () => {
 
 module.exports = { getActions };
 
-},{"../../lib/actions":5,"../../lib/convert":6,"./nicknames":2,"./schema":4,"marked-it-core":135}],2:[function(require,module,exports){
+},{"../../lib/actions":5,"../../lib/convert":6,"./nicknames":2,"./schema":4,"marked-it-core":138}],2:[function(require,module,exports){
 /* eslint-disable no-alert */
 /* eslint-env browser */
 
@@ -245,7 +246,7 @@ exports.get_nick_mapping = (conf) => {
     });
 };
 
-},{"underscore":238,"url":240,"valid-url":245}],3:[function(require,module,exports){
+},{"underscore":196,"url":198,"valid-url":203}],3:[function(require,module,exports){
 /* eslint-disable no-alert */
 
 'use strict';
@@ -688,7 +689,7 @@ window.addEventListener('load', () => {
     save_button.addEventListener('click', save_minutes);
 });
 
-},{"./bridge":1,"underscore":238}],4:[function(require,module,exports){
+},{"./bridge":1,"underscore":196}],4:[function(require,module,exports){
 
 
 'use strict';
@@ -734,18 +735,24 @@ exports.validate_nicknames = ajv.compile(nicknames_schema);
  */
 exports.validation_errors = (validator) => ajv.errorsText(validator.errors, { separator: '\n' });
 
-},{"../../schemas/nicknames_schema.json":246,"ajv":9,"ajv/lib/refs/json-schema-draft-06.json":50}],5:[function(require,module,exports){
-'use strict';
-
-/* eslint-disable no-underscore-dangle */
-const Octokat = require('octokat');
-
+},{"../../schemas/nicknames_schema.json":204,"ajv":12,"ajv/lib/refs/json-schema-draft-06.json":53}],5:[function(require,module,exports){
+"use strict";
+/**
+ * ## Action management module
+ *
+ * @packageDocumentation
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Actions = void 0;
+const githubapi_1 = require("./js/githubapi");
 /**
  * Class to encapsulate all methods to handle actions. The public methods are:
  *
  * * set_date
  * * add_action
- * * async raise_action_issues
+ * * raise_action_issues
+ *
+ * This methods must be called in this order (with, of course, as many `add_action` calls as necessary).
  */
 class Actions {
     /**
@@ -755,1022 +762,271 @@ class Actions {
      * @param {Object} conf - scribejs configuration.
      */
     constructor(conf) {
-        this._valid = false;
-        this._actions = [];
-        this._assignees = [];
-        this._date = '';
-        this._url_pattern = conf.acurlpattern || undefined;
+        this.valid = false;
+        this.actions = [];
+        this.assignees = [];
+        this.date = '';
+        this.url = '';
+        this.url_pattern = conf.acurlpattern || undefined;
         const repo_name = conf.acrepo || conf.ghrepo;
         if (repo_name && conf.ghname && conf.ghtoken) {
-            const github = new Octokat({ token: conf.ghtoken });
-            this._repo = github.repos(...repo_name.split('/'));
-            // this._repo = github.repos('w3c','json-ld-wg');
-            this._valid = true;
-        } else {
+            this.repo = new githubapi_1.GitHub(repo_name, conf);
+            this.valid = true;
+        }
+        else {
             console.log('Action setup data missing. Provide acrepo, ghname, and ghtoken');
         }
     }
-
     /**
      *
      * Get the list of existing action titles from github; this should be done to filter
      * out the actions that have already been added in a previous run.
      *
-     * @async
-     * @return {Array} - list of action issue titles on the repo.
+     * @return - list of action issue titles on the repo.
      */
-    async _get_issue_titles() {
-        const filter_issue = (issue) => {
-            // check if the issue is open
-            if (issue.state === 'open' && issue.pullRequest === undefined) {
-                // check whether this is indeed an action item!
-                return issue.labels.map((label) => label.name).includes('action');
-                // return labels.includes('action');
-            }
-            return false;
-        };
-        const extract_titles = (open_issues) => open_issues.items.filter(filter_issue).map((issue) => issue.title);
-
+    async get_issue_titles() {
         // Get the titles of issues already stored.
-        // The number of action issues may not be that high, better avoid pagination...
-        let issues = await this._repo.issues.fetch({ per_page: 200 });
-        let issue_titles = extract_titles(issues);
-        // ... but take care of pages nevertheless
-        while (issues.nextPage !== undefined) {
-            // eslint-disable-next-line no-await-in-loop
-            issues = await issues.nextPage.fetch();
-            issue_titles = [...issue_titles, ...extract_titles(issues)];
-        }
-        return issue_titles;
+        return this.repo.get_issue_titles();
     }
-
     /**
      *
      * Get the list of possible assignees from github; this is used to decide whether an
      * explicit assignee can be set for an issue or not.
      *
-     * @async
-     * @return {Array} - list of github id-s of users who can appear as assignees.
+     * @return - list of github id-s of users who can appear as assignees.
      */
-    async _get_assignees() {
-        // The number of assignees  may not be that high, better avoid pagination...
-        let assignee_structures = await this._repo.assignees.fetch({ per_page: 200 });
-        let assignees = assignee_structures.items.map((object) => object.login);
-        // ... but take care of pages nevertheless
-        while (assignee_structures.nextPage !== undefined) {
-            // eslint-disable-next-line no-await-in-loop
-            assignee_structures = await assignee_structures.nextPage.fetch();
-            assignees = [...assignees, ...assignee_structures.items.map((object) => object.login)];
-        }
-        return assignees;
+    async get_assignees() {
+        return this.repo.get_assignees();
     }
-
     /**
      * Retrieve repo data that might be relevant for raising issues. This is a call to the
-     * `_get_issue_titles` and `_get_assignees` methods (in parallel). Also the method:
+     * `get_issue_titles` and `get_assignees` methods. Also the method:
      *
-     * * filters the accumulated actions in `this._actions` to retain only the new ones
-     * * fills the `this._assignees` array with the github id's of persons who can be assigned an action on an issue
+     * * filters the accumulated actions in `this.actions` to retain only the new ones (to avoid re-assigning an action several times)
+     * * fills the `this.assignees` array with the github id's of persons who can be assigned an action on an issue in the first place
      *
-     * @async
      */
-    async _retrieve_repo_data() {
-        const [titles, assignees] = await Promise.all([this._get_issue_titles(), this._get_assignees()]);
-
+    async retrieve_repo_data() {
+        const [titles, assignees] = await Promise.all([this.get_issue_titles(), this.get_assignees()]);
         // filter the accumulated actions
-        const action_not_defined = (action) => titles.find((title) => title.startsWith(action.gh_action_id)) === undefined;
-        this._actions = this._actions.filter(action_not_defined);
-        if (this._actions.length > 0) {
-            console.log(`Raising ${this._actions.length} new issue(s) handling actions`);
-        } else {
+        this.actions = this.actions.filter((action) => {
+            // see if any of the existing actions matches this one; the match is based on the fact that
+            // any action title starts with the id, ie, the date of the call and an internal id of the action
+            const found = titles.find((title) => title.startsWith(action.gh_action_id));
+            return found === undefined;
+        });
+        if (this.actions.length > 0) {
+            console.log(`Raising ${this.actions.length} new issue(s) handling actions`);
+        }
+        else {
             console.log('No new actions');
         }
-        this._assignees = assignees;
+        this.assignees = assignees;
     }
-
     /**
-     * Store all the actions, i.e., raise github issues using the `Octocat` library.
+     * Raise github issues.
      *
-     * @async
      */
-    async _store_actions() {
+    async raise_issues() {
         // Set up an array of Promises to raise actions
-        const raised_issues = this._actions.map((action) => {
+        const raised_issues = this.actions.map((action) => {
             const issue = {
-                title  : action.title,
-                body   : action.body,
-                labels : ['action']
+                title: action.title,
+                body: action.body,
+                labels: ['action'],
             };
-            if (action.assignee && this._assignees.includes(action.assignee)) {
-                issue.assignees = [action.assignee];
+            if (action.assignee && this.assignees.includes(action.assignee)) {
+                issue.assignee = action.assignee;
             }
-            return this._repo.issues.create(issue);
+            return this.repo.create_issue(issue);
         });
         await Promise.all(raised_issues);
     }
-
     // ------------------------ "Public" methods ----------------------------------------
-
     /**
      * Set the date of all actions. This method is called by the minute generator once the
      * date has been established (e.g., from a 'date' line in the IRC log). Based on the date, this method
-     * also sets the value of `this._url`, replacing the patterns in `acurlpattern`, if necessary.
+     * also sets the value of `this.url`, replacing the patterns in `acurlpattern`, if necessary.
      *
-     * @param {String} date - date of the minutes
+     * @param date - date of the minutes
      */
     set_date(date) {
-        this._date = date;
-        if (this._url_pattern) {
+        this.date = date;
+        if (this.url_pattern) {
             const [year, month, day] = date.split('-');
-            this._url = this._url_pattern
+            this.url = this.url_pattern
                 .replace(/%YEAR%/g, year)
                 .replace(/%MONTH%/g, month)
                 .replace(/%DAY%/g, day)
                 .replace(/%DATE%/g, date);
         }
     }
-
     /**
      * Add a new action to the list of actions for these minutes.
      *
-     * @param {String} id - the ID of the action (i.e., the fragment ID used in the minutes)
-     * @param {String} message - description of the action
-     * @param {String} name - the name of the assignee
-     * @param {String} assignee - the github id of the assignee
+     * @param id - the ID of the action (i.e., the fragment ID used in the minutes)
+     * @param message - description of the action
+     * @param name - the name of the assignee
+     * @param assignee - the github id of the assignee
      */
     add_action(id, message, name, assignee) {
-        if (this._valid) {
-            const gh_action_id = `${this._date}-${id}`;
+        if (this.valid) {
+            const gh_action_id = `${this.date}-${id}`;
             const short_message = `${message} (${name})`;
-            const full_message = this._url ? `${short_message} ([see details](${this._url}#${id}))` : short_message;
-            this._actions.push({
+            const full_message = this.url ? `${short_message} ([see details](${this.url}#${id}))` : short_message;
+            this.actions.push({
                 gh_action_id,
-                title : `${gh_action_id}: ${short_message}`,
-                body  : `${full_message}\n\nCc: @${assignee}`,
-                assignee
+                title: `${gh_action_id}: ${short_message}`,
+                body: `${full_message}\n\nCc: @${assignee}`,
+                assignee,
             });
         }
     }
-
+    /**
+     * Raise all the issues.
+     */
     async raise_action_issues() {
-        if (this._actions.length !== 0) {
-            await this._retrieve_repo_data();
-            await this._store_actions();
-        } else {
+        if (this.actions.length !== 0) {
+            await this.retrieve_repo_data();
+            await this.raise_issues();
+        }
+        else {
             console.log('No new actions');
         }
     }
 }
+exports.Actions = Actions;
 
-/* -------------------------------------------------------------------------------- */
-module.exports = { Actions };
-
-},{"octokat":168}],6:[function(require,module,exports){
-/* eslint-disable no-else-return */
-
-'use strict';
-
-const _      = require('underscore');
-const url    = require('url');
-const safe   = require('safe-regex');
-const issues = require('./issues');
-const { schema_data } = require('./jsonld_header');
-
-const JEKYLL_NONE     = 'none';
-const JEKYLL_KRAMDOWN = 'kd';
-
-const rrsagent_preamble_size = 8 + 1;
-// const rrsagent_regexp = /^[0-9]{2}:[0-9]{2}:[0-9]{2}/;
-
-const irccloud_preamble_size = 1 + 10 + 1 + 8 + 1 + 1;
-const irccloud_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/;
-
-const textual_preamble_size  = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
-const textual_regexp  = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
-
-const issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
-
+},{"./js/githubapi":8}],6:[function(require,module,exports){
+"use strict";
 /**
- * Conversion of an RRS output into markdown. This is the real "meat" of the whole library...
+ * ## Retrieving the configuration files and merge them into the final configuration structure
  *
- * @param {string} body - the IRC log
- * @param {Array of Objects} config - the configuration file
- * @param {action_list} - the class handling actions
- * @returns {string} - the minutes in markdown
+ * @packageDocumentation
  */
-exports.to_markdown = (body, config, action_list) => {
-    const kramdown = config.jekyll === JEKYLL_KRAMDOWN;
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Converter = void 0;
+const issues = require("./issues");
+const utils = require("./utils");
+const jsonld_header_1 = require("./jsonld_header");
+const types_1 = require("./types");
+/**
+ * The "top level" class to perform the conversion.
+ */
+class Converter {
+    /**
+     *
+     * @param config - the global data. Some of the fields are only placeholders and are filled in while processing
+     * @param action_list - place to accumulate the actions found in the minutes. The action issues themselves are raised after the conversion is done.
+     */
+    constructor(config, action_list) {
+        this.config = config;
+        this.action_list = action_list;
+        this.kramdown = config.jekyll === types_1.Constants.JEKYLL_KRAMDOWN;
+    }
     /** ******************************************************************* */
-    /*                        Helper functions                              */
+    /*                Helper functions for nicknames                        */
     /** ******************************************************************* */
-
     /**
-     * Remove the 'preamble' from the line, ie, the part that is
-     * put there by the IRC client. Unfortunately, that is not standard,
-     * which means that each client does it differently.
-     *
-     * This function relies on a user option, if available; otherwise
-     * it tries some heuristics among the currently known IRC logs formats:
-     * RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.
-     *
-     * The function has a side effect of setting the irc_format value in the configuration. This means
-     * the right extra lines will be removed, if necessary (and the regexp will be matched only once)
-     *
-     * @param {string} line - the full line of an IRC log
-     * @return {string} - truncated line
-     */
-    function remove_preamble(line) {
-        const preamble_size = (the_line) => {
-            if (config.irc_format) {
-                switch (config.irc_format) {
-                    case 'irccloud': return irccloud_preamble_size;
-                    case 'textual': return textual_preamble_size;
-                    case 'rrsagent':
-                    default: return rrsagent_preamble_size;
-                }
-            } else if (the_line.match(irccloud_regexp) !== null) {
-                config.irc_format = 'irccloud';
-                return irccloud_preamble_size;
-            } else if (the_line.match(textual_regexp) !== null) {
-                config.irc_format = 'textual';
-                return textual_preamble_size;
-            } else {
-                config.irc_format = 'rrsagent';
-                return rrsagent_preamble_size;
-            }
-        };
-        const preamble = preamble_size(line);
-        return line.slice(preamble);
-    }
-
-
-    /**
-     * Get a 'label', ie, find out if there is a 'XXX:' at the beginning of a line
-     *
-     * @param {string} line - one line of text
-     * @returns {object} - {label, content}, containing the (possibly null)
-     *     label, separated from the rest
-     */
-    function get_label(line) {
-        const reg = line.trim().match(/^(\w+):(.*)$/);
-        if (reg === null) {
-            return {
-                label   : null,
-                content : line
-            };
-        }
-
-        const possible_label   = reg[1].trim();
-        const possible_content = reg[2].trim();
-        // There are some funny cases, however...
-        if (['http', 'https', 'email', 'ftp', 'doi'].includes(possible_label)) {
-            // Ignore the label...
-            return {
-                label   : null,
-                content : line
-            };
-        }
-        if (possible_label === '...') {
-            // this seems to be a recurring error: scribe continuation lines are
-            // preceded by "...:" instead of purely "...""
-            return {
-                label   : null,
-                content : `... ${possible_content}`
-            };
-        }
-
-        return {
-            label   : possible_label,
-            content : possible_content
-        };
-    }
-
-
-    /**
-     * Create a "canonical" nickname, ie,
-     *
-     * * lower case
-     * * free of additional characters used by (some) IRC servers, like adding a '@' character, or
-     *   adding an '_' character to the start or the end of the nickname.
-     *
-     * @param {string} nick - the original nickname
-     * @param {boolean} lower - whether the name should be put into lower case
-     * @return {string} - the 'canonical' nickname
-     */
-    function canonical_nick(nick, lower = true) {
-        const to_canonicalize = lower ? nick.toLocaleLowerCase() : nick;
-        return to_canonicalize.replace(/^_+/, '').replace(/_+$/, '').replace(/^@/, '');
-    }
-
-
-    /**
-     * Get a name structure for a nickname. This relies on the (optional) nickname list that
+     * Get a Person structure for a nickname. This relies on the (optional) nickname list that
      * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
      * The configuration structure is also extended to include the nicknames, so that
      * the same full names can be used throughout the minutes.
      *
-     * @param {string} nick - name/nickname
-     * @returns {object} - `name` for the full name and `url`/`github` if available
+     * @param nick - name/nickname
+     * @returns The structure includes `name` for the full name and `url`/`github`/`role` if available.
      */
-    function get_name(nick) {
+    get_name(nick) {
         /**
-         * Get the nickname mapping structure, if any, for a nickname.
+         * Get the nickname mapping structure, if available, for a nickname.
          * Usage of a nickname mapping is really just a beautification step, so if there is
          * a problem in that structure, it should simply ignore it.
          *
-         * @param {string} nick - name/nickname
+         * @param nick - name/nickname
          * @returns {object} the object for the nickname or null if not found
          */
         const nick_mapping = (the_nick) => {
             try {
-                // eslint-disable-next-line no-restricted-syntax
-                for (const struct of config.nicks) {
-                    if (_.indexOf(struct.nick, the_nick) !== -1) {
-                        // bingo, the right structure has been found:
-                        return struct;
-                    }
-                }
-            } catch (e) {
+                const retval = this.config.nicks.find((ns) => ns.nick.includes(the_nick));
+                return retval || null;
+            }
+            catch (e) {
                 return null;
             }
-            // If we got here, there isn't any structure defined for this nickname
-            return null;
         };
-
         // IRC clients tend to add a '_' to a usual nickname when there
-        // are duplicate logins. Then there are the special users, denoted with a '@'.
+        // are duplicate logins. Also, there are the special users denoted with a '@'.
         // Remove those.
-        const clean_nick = canonical_nick(nick);
-
+        const clean_nick = utils.canonical_nick(nick);
         // if this nickname has been used before, just return it
-        if (config.nick_mappings[clean_nick]) {
-            return config.nick_mappings[clean_nick];
+        if (this.config.nick_mappings[clean_nick]) {
+            return this.config.nick_mappings[clean_nick];
         }
-
-        const struct = nick_mapping(clean_nick);
-        if (struct) {
-            config.nick_mappings[clean_nick] = { name: struct.name };
-            if (struct.url) config.nick_mappings[clean_nick].url = struct.url;
-            if (struct.github) config.nick_mappings[clean_nick].github = struct.github;
-
-            return config.nick_mappings[clean_nick];
-        // eslint-disable-next-line no-else-return
-        } else {
-            // As a minimal measure, remove the '_' characters from the name
-            // (many people use this to signal their presence when using, e.g., present+)
-            // Note that this case usually occurs when one time visitors make a `present+ Abc_Def` to appear
-            // in the present list; that is why the nick cleanup should not include a lower case conversion.
-            return {
-                nick : [clean_nick],
-                name : canonical_nick(nick, false).replace(/_/g, ' ')
-            };
-        }
-    }
-
-
-    /**
-      * Cleanup a name. This relies on the (optional) nickname list that
-      * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
-      * The configuration structure is also extended to include the nicknames, so that
-      * the same full names can be used throughout the minutes.
-      *
-      * @param {string} nick - name/nickname
-      * @returns {string} - cleaned up name
-      */
-    function cleanup_name(nick) {
-        return get_name(nick).name;
-    }
-
-
-    /**
-      * Provide with the github name for a nickname. This relies on the (optional) nickname list that
-      * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
-      *
-      * @param {string} nick - name/nickname
-      * @returns {string} - cleaned up name
-      */
-    function github_name(nick) {
-        return get_name(nick).github;
-    }
-
-
-    /**
-     * Cleanup the header/guest/regret/chair entries. This relies on the
-     * (optional) nickname list that the user may provide, and replaces the
-     * (sometimes cryptic) nicknames with real names. The configuration
-     * structure is also extended to include the nicknames, so that the same
-     * full names can be used throughout the minutes.
-     *
-     * This method is used for the header lists; it also creates a link for the
-     * name, if available.
-     *
-     * @param {array} nicks - list of names/nicknames
-     * @returns {array} - list of cleaned up names
-     *
-     */
-    function cleanup_names(nicks) {
-        return _.chain(nicks)
-            .map(get_name)
-            .map((obj) => (obj.url ? `[${obj.name}](${obj.url})` : obj.name))
-            .uniq()
-            .value();
-    }
-
-
-    /**
-     * Extract a labelled item, ie, something of the form "XXX: YYY", where
-     * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
-     * checked in lower case, too.
-     *
-     * @param {string} label - the label we are looking for
-     * @param {object} line - a line object of the form {nick, content},
-     * @returns {string} - the content without the label, or null if that label is not present
-     */
-    function get_labelled_item(label, line) {
-        const lower = line.content.toLowerCase();
-        const label_length = label.length + 1; // Accounting for the ':' character!
-        return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
-    }
-
-
-    /**
-     * Handle the 'scribejs' directives. The directives are of the form "scribejs, COMMAND ARGS" or, equivalently, "sjs, COMMAND ARGS".
-     *
-     * At the moment, the only directive is 'set', adding a temporary nick name
-     * to the ones coming from the nickname file
-     *
-     * @param {object} line_object - a line object; the only important entry is the 'content'
-     * @returns {boolean} - true if the line is _not_ a scribejs directive
-     *     (ie, the line should be kept), false otherwise
-     */
-    function handle_scribejs(line_object) {
-        if (line_object.content_lower.startsWith('scribejs,') || line_object.content_lower.startsWith('sjs,')) {
-            // If there is a problem somewhere, it should simply be forgotten
-            // these are all beautifying steps, ie, an exception could be ignored
-            try {
-                const words = line_object.content.split(' ');
-                switch (words[1]) {
-                    // Set a per-session nickname.
-                    case 'issue':
-                    case 'pr':
-                        // these are handled elsewhere; the directives should stay in content for further processing
-                        return true;
-                    case 'set': {
-                        const nickname   = words[2].toLowerCase();
-                        const name_comps = words.slice(3);
-                        if (name_comps.length !== 0) {
-                            // The name is cleared from the '_' signs, which
-                            // are usually used to replace spaces...
-                            config.nicks.push({
-                                nick : [nickname],
-                                name : name_comps.join(' ').replace(/_/g, ' ')
-                            });
-                        }
-                        break;
-                    }
-                    default: {
-                        // do nothing; keep going
-                    }
-                }
-            } catch (err) {
-                // console.log(err)
+        else {
+            const person = nick_mapping(clean_nick);
+            if (person) {
+                this.config.nick_mappings[clean_nick] = person;
+                return person;
             }
-            // returning 'false' will remove this line from the result
-            return false;
-        }
-        // This line should remain for further processing
-        return true;
-    }
-
-
-    /**
-     * Cleanup actions on the incoming body:
-     *  - turn the body (which is one giant string) into an array of lines
-     *  - remove empty lines
-     *  - remove the starting time stamps
-     *  - turn lines into objects, separating the nick name and the content
-     *  - remove the lines coming from zakim or rrsagent
-     *  - remove zakim queue commands
-     *  - remove zakim agenda control commands
-     *  - remove bot commands ("zakim,", "rrsagent,", etc.)
-     *  - remove the "XXX has joined #YYY" type messages
-     *  - handle the "scribejs, nick FULL NAME" type commands (or, equivalently, "sjs, nick ...")
-     *
-     * The incoming body is either a single string with many lines (this is the
-     * case when the script is invoked from the command line) or already split
-     * into individual lines (this is the case when the data comes via the CGI interface).
-     *
-     * @param {string} body - the full IRC log
-     * @returns {array} - array of {nick, content, content_lower} objects ('nick' is the IRC nick)
-     */
-    function cleanup(body_to_clean) {
-        const split_body = _.isArray(body_to_clean)
-            ? body_to_clean
-            : body_to_clean.split(/\n/);
-
-        // (the chaining feature of underscore is really helpful here...)
-        // @ts-ignore
-        return _.chain(split_body)
-            .filter((line) => (_.size(line) !== 0))
-            // Remove the starting time stamp or equivalent. The function
-            // relies on the fact that each line starts with a specific number of characters.
-            // Alas!, this depends on the irc log format...
-            .map(remove_preamble)
-            .filter((line) => {
-                // these filters are, in fact, unnecessary if rrsagent is properly used
-                // however, if the script is used against a line-oriented log
-                // of an irc client (like textual) then this come handy in taking
-                // out at least some of the problematic lines
-                if (config.irc_format === undefined) {
-                    // use the default RRSAgent log, no extra filter is necessary
-                    return true;
-                }
-
-                switch (config.irc_format) {
-                    case 'textual': {
-                        const stripped_line = line.trim();
-                        return !(
-                            stripped_line.length === 0
-                            || stripped_line[0] === '•'
-                            || stripped_line.startsWith('Disconnected for Sleep Mode')
-                            || stripped_line.includes('rrsagent')
-                            || stripped_line.includes('zakim')
-                            || stripped_line.includes('github-bot')
-                            || stripped_line.includes('joined the channel')
-                            || stripped_line.includes('------------- Begin Session -------------')
-                            || stripped_line.includes('------------- End Session -------------')
-                            || stripped_line.includes('changed the topic to')
-                        );
-                    } case 'irccloud': {
-                        const stripped_line = line.trim();
-                        return !(
-                            stripped_line.length === 0
-                            || stripped_line[0] === '→'
-                            || stripped_line[0] === '—'
-                            || stripped_line[0] === '⇐'
-                        );
-                    }
-                    default: {
-                        return true;
-                    }
-                }
-            })
-            // This is where the IRC log lines are turned into objects, separating the nicknames.
-            .map((line) => {
-                const sp = line.indexOf(' ');
+            else {
+                // As a minimal measure, remove the '_' characters from the name
+                // (many people use this to signal their presence when using, e.g., present+)
+                // Note that this case usually occurs when one time visitors make a `present+ Abc_Def` to appear
+                // in the present list; that is why the nick cleanup should not include a lower case conversion.
                 return {
-                    // Note that I remove the '<' and the '>' characters
-                    // leaving only the real nickname
-                    nick    : line.slice(1, sp - 1),
-                    content : line.slice(sp + 1).trim()
+                    name: utils.canonical_nick(nick, false).replace(/_/g, ' '),
                 };
-            })
-            // Taking care of the accidental appearance of what could be
-            // interpreted as an HTML tag...
-            // Unless... the scribe or the commenter has already put the tag into back quotes!
-            .map((line_object) => {
-                line_object.content = line_object.content.replace(/([^`])<(\w*\/?)>([^`])/g, '$1`<$2>`$3');
-                return line_object;
-            })
-            // Add a lower case version of the content to the objects; this will be used
-            // for comparisons later
-            .map((line_object) => {
-                // @ts-ignore
-                line_object.content_lower = line_object.content.toLowerCase();
-                return line_object;
-            })
-            // Bunch of filters, removing the unnecessary lines
-            .filter((line_object) => (
-                line_object.nick !== 'RRSAgent'
-                && line_object.nick !== 'Zakim'
-                && line_object.nick !== 'github-bot'
-            ))
-            .filter((line_object) => !(
-                // @ts-ignore
-                line_object.content_lower.startsWith('q+')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('+q')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('vq?')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('qq+')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('q-')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('q?')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('ack')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('agenda+')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('agenda?')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('trackbot,')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('zakim,')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('rrsagent,')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('github topic')
-                // @ts-ignore
-                || line_object.content_lower.startsWith('github-bot,')
-            ))
-            // There are some irc messages that should be taken care of
-            .filter((line_object) => !(
-                line_object.content.match(/^\w+ has joined #\w+/)
-                || line_object.content.match(/^\w+ has left #\w+/)
-                || line_object.content.match(/^\w+ has changed the topic to:/)
-            ))
-            // Handle the scribejs directives
-            .filter(handle_scribejs)
-            // End of the underscore chain, retrieve the final value
-            .value();
-    }
-
-
-    /**
-     * Extract a list of nick names (used for present, regrets, and guests, etc)
-     * All of these have a common structure: 'XXX+' means add nicknames, 'XXX-' means remove
-     * nicknames, 'XXX:' means set them.
-     *
-     * The function receives, as argument, a list containing the 'current' list of those
-     * categories, and performs a 'union' or 'difference' actions, resulting in an updated list
-     *
-     * @param {Array of string} current_list - the current list of nicknames
-     * @param {string} category - the 'label' to look for (ie, 'present', 'regrets', 'scribe', etc.)
-     * @param {object} line - IRC line object
-     * @param {boolean} remove - whether removal should indeed happen with a '-' suffix
-     * @returns {Array of string} - new value of the list of nicknames
-     */
-    function get_name_list(current_list, line, category, remove = true) {
-        // fake function, just to make the code below cleaner for the case when removal must be ignored
-        // eslint-disable-next-line no-unused-vars
-        // @ts-ignore
-        // eslint-disable-next-line no-unused-vars
-        const arg1 = (a, b) => a;
-
-        // Another fake function that only keeps the second argument, again to make the code cleaner
-        // eslint-disable-next-line no-unused-vars
-        // @ts-ignore
-        // eslint-disable-next-line no-unused-vars
-        const arg2 = (a, b) => b;
-
-        const get_names = (index) => {
-            // Care should be taken to trim everything, to keep the nick names clean of extra spaces...
-            const retval = line.content.slice(index + 1).trim().split(',');
-            if (retval.length === 0 || (retval.length === 1 && retval[0].length === 0)) {
-                return [line.nick];
             }
-            return retval;
-        };
-
-        const lower    = line.content_lower.trim();
-        const cutIndex = category.length;
-
-        if (lower.startsWith(category) === true) {
-            // bingo, we have to extract the content
-            // There are various possibilities, through
-            let action = _.union;
-            let names  = [];
-            // Note that, although the correct syntax is, e.g., "present+", a frequent
-            // mistake is to type "present +". Same for the usage of '-'.
-            // I decided to make the script resilient on this:-)
-            if (lower.startsWith(`${category}+`) === true) {
-                names = get_names(cutIndex);
-            } else if (lower.startsWith(`${category} +`) === true) {
-                names = get_names(cutIndex + 1);
-            } else if (lower.startsWith(`${category}:`) === true) {
-                names = get_names(cutIndex);
-            } else if (lower.startsWith(`${category}-`) === true) {
-                names = get_names(cutIndex);
-                action = remove ? _.difference : arg1;
-            } else if (lower.startsWith(`${category} -`) === true) {
-                names = get_names(cutIndex + 1);
-                action = remove ? _.difference : arg1;
-            } else if (lower.startsWith(`${category}=`) === true) {
-                names = get_names(cutIndex);
-                action = arg2;
-            } else if (lower.startsWith(`${category} =`) === true) {
-                names = get_names(cutIndex + 2);
-                action = arg2;
-            } else {
-                // This is not a correct usage...
-                return undefined;
-            }
-            return action(current_list, _.map(names, (name) => name.trim()));
-        } else {
-            return undefined;
         }
     }
-
-
     /**
-     *  Fill in the header structure with
-     *   - present: comma separated IRC nicknames
-     *   - regrets: comma separated IRC nicknames
-     *   - guests: comma separated IRC nicknames
-     *   - chair: string
-     *   - agenda: string
-     *   - meeting: string
-     *   - date: string
-     *   - scribe: comma separated IRC nicknames
-     * All these actions, except for 'scribe', also remove the corresponding
-     * lines from the IRC log array.
+     * Full name. This relies on the (optional) nickname list that
+     * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
      *
-     * @param {array} lines - array of {nick, content, content_lower} objects
-     *     ('nick' is the IRC nick)
-     * @returns {object} - {header, lines}, where "header" is the header object,
-     *     "lines" is the cleaned up IRC log
+     * @param nick - name/nickname
+     * @returns  (real) full name (extracted from the corresponding [[Person]] structure)
      */
-    // Beware: although using underscore functions, ie, very functional oriented style, the
-    // filters all have side effects in the sense of expanding the 'header structure'. Not
-    // very functional but, oh well...
-    function set_header(lines) {
-        const headers = {
-            present : [],
-            regrets : [],
-            guests  : [],
-            chair   : [],
-            agenda  : '',
-            date    : config.date ? config.date : '',
-            scribe  : [],
-            meeting : ''
-        };
-
-        /**
-         * Extract a list of nick names (used for present, regrets, and guests)
-         * All of these have a common structure: 'XXX+' means add nicknames, 'XXX-' means remove
-         * nicknames, 'XXX:' means set them.
-         * If found, the relevant field in the header object is extended.
-         *
-         * The real work is done in the `get_name_list` method; this utility just handles some usual mistakes
-         * before calling out the real one:
-         *
-         * * usage of 'guest' instead of 'guests'
-         * * usage of 'regret' instead of 'regrets'
-         * * usage of 'scribenick' instead of 'scribe' (this is a historical remain…)
-         *
-         * @param {string} category - the 'label' to look for
-         * @param {object} line - IRC line object
-         * @param {boolean} remove - whether removal should indeed happen with a '-' suffix
-         * @returns {boolean} - true or false, depending on whether this is indeed a line with that category
-         */
-        const people = (category, line, remove = true) => {
-            // A frequent scribing mistake is to use "guest" instead of "guests", or
-            // "regret" instead of "regrets". Although the "official" documented
-            // version is the plural form, I decided to make the script resilient...
-            // Then there is also the duality of 'scribe' and 'scribenick',
-            // inherited from scribe.pl...
-            let real_category;
-            switch (category) {
-                case 'guest':
-                    real_category = 'guests';
-                    break;
-                case 'regret':
-                    real_category = 'regrets';
-                    break;
-                case 'scribenick':
-                    real_category = 'scribe';
-                    break;
-                default:
-                    real_category = category;
-            }
-
-            const new_list = get_name_list(headers[real_category], line, category, remove);
-            if (new_list === undefined) {
-                return false;
-            } else {
-                headers[real_category] = new_list;
-                return true;
-            }
-        };
-
-
-        /**
-         * Extract single items like "agenda:" or "meeting:"
-         * If found, the relevant field in the header object is set.
-         *
-         * @param {string} category - the 'label' to look for
-         * @param {object} line - IRC line object
-         * @returns {boolean} - true or false, depending on whether this is indeed a line with that category
-         */
-        const single_item = (category, line) => {
-            const item = get_labelled_item(category, line);
-            if (item !== null) {
-                headers[category] = item;
-                return true;
-            }
-            return false;
-        };
-
-        // filter out all irc log lines that are related to header information
-        // except for the scribe-related lines; those should 'enrich' the headers, but
-        // the lines themselves should remain to control the final output
-        const processed_lines = _.chain(lines)
-            .filter((line) => !people('present', line))
-            .filter((line) => !(people('regrets', line) || people('regret', line)))
-            .filter((line) => !(people('guests', line) || people('guest', line)))
-            .filter((line) => !people('chair', line))
-            .filter((line) => {
-                people('scribe', line, false);
-                people('scribenick', line, false);
-                return true;
-            })
-            .filter((line) => !single_item('agenda', line))
-            .filter((line) => !single_item('meeting', line))
-            .filter((line) => !single_item('date', line))
-            .filter((line) => (line.nick !== 'trackbot'))
-            .value();
-        return {
-            headers: _.mapObject(headers, (val) => {
-                if (_.isArray(val)) {
-                    return cleanup_names(val).join(', ');
-                }
-                return val;
-            }),
-            lines: processed_lines
-        };
+    full_name(nick) {
+        return this.get_name(nick).name;
     }
-
-
     /**
-     * Handle the i/../../ type lines, ie, insert new lines
+     * Provide with the github name for a nickname. This relies on the (optional) nickname list that
+     * the user may provide, and replaces the (sometimes cryptic) nicknames with real names.
      *
-     * @param {array} lines - array of {nick, content, content_lower} objects
-     *     ('nick' is the IRC nick)
-     * @returns {array} - returns the lines with the possible changes done
+     * @param nick - name/nickname
+     * @returns github id (extracted from the corresponding [[Person]] structure). `undefined` if the github id has not been set.
      */
-    function perform_insert(lines) {
-        // This array will contain change request structures:
-        // lineno: the line number of the change request
-        // at, add: the insert values
-        const insert_requests    = [];
-
-        // This is the method used to see if it is a change request.
-        // Note that there are two possible syntaxes:
-        //   i/.../.../
-        //   i|...|...|
-        const get_insert_request = (str) => str.match(/^i\/([^/]+)\/([^/]+)\/{0,1}/) || str.match(/^i\|([^|]+)\|([^|]+)\|{0,1}/);
-        const marker           = '----INSERTREQUESTXYZ----';
-
-        const retval = _.chain(lines)
-            // Because the insert is to work on the preceding values, the
-            // array has to be traversed upside down...
-            .reverse()
-            .map((line, index) => {
-                // Find the insert requests, extract the values to a separate array
-                // and place a marker to remove the original request
-                // (Removing it right away is not a good idea, because things are based on
-                // the array index later...)
-                const r = get_insert_request(line.content);
-                if (r !== null) {
-                    // store the regex results
-                    insert_requests.push({
-                        lineno : index,
-                        at     : r[1],
-                        add    : r[2],
-                        valid  : true
-                    });
-                    line.content = marker;
-                }
-                return line;
-            })
-            .map((line, index) => {
-                // See if a content has to be modified by one of the insert requests
-                if (line.content !== marker) {
-                    let map_retval = line;
-                    for (let i = 0; i < insert_requests.length; i++) {
-                        const insert = insert_requests[i];
-                        if (insert.valid && index > insert.lineno
-                            && line.content.indexOf(insert.at) !== -1) {
-                            // this request has played its role...
-                            insert.valid = false;
-                            // This is the real action: add a new structure, ie, a new line
-                            const new_line = {
-                                nick          : line.nick,
-                                content       : insert.add,
-                                content_lower : insert.add.toLowerCase()
-                            };
-                            map_retval = [line, new_line];
-                            break; // we do not need to look at other request for this line
-                        }
-                    }
-                    return map_retval;
-                }
-                return line;
-            })
-            // Flatten, ie, what was added as an array of two lines should now transformed
-            // into simple entries
-            .flatten(true)
-            // Remove the markers
-            .filter((line) => (line.content !== marker))
-            // return the array into its original order
-            .reverse()
-            // done:-)
-            .value();
-
-        return retval;
+    github_name(nick) {
+        return this.get_name(nick).github;
     }
-
-
+    /** ******************************************************************* */
     /**
-     * Handle the s/../.. type lines, ie, make changes on the contents
-     *
-     * @param {array} lines - array of {nick, content, content_lower} objects
-     *     ('nick' is the IRC nick)
-     * @returns {array} - returns the lines with the possible changes done
-     */
-    function perform_changes(lines) {
-        // This array will contain change request structures:
-        // lineno: the line number of the change request
-        // from, to: the change values
-        // g, G: booleans to signal whether these flag have been set
-        // valid: boolean that signals that this request is still valid
-        const change_requests    = [];
-
-        // This is the method used to see if it is a change request.
-        // Note that there are two possible syntaxes:
-        //   s/.../.../{gG}
-        //   s|...|...|{gG}
-        const get_change_request = (str) => str.match(/^s\/([^/]+)\/([^/]*)\/{0,1}(g|G){0,1}/) || str.match(/^s\|([^|]+)\|([^/|]*)\|{0,1}(g|G){0,1}/);
-        const marker             = '----CHANGEREQUESTXYZ----';
-
-        const retval = _.chain(lines)
-            // Because the change is to work on the preceding values, the
-            // array has to be traversed upside down...
-            .reverse()
-            .map((line, index) => {
-                // Find the change requests, extract the values to a separate array
-                // and place a marker to remove the original request
-                // (Removing it right away is not a good idea, because things are based on
-                // the array index later...)
-                const r = get_change_request(line.content);
-                if (r !== null) {
-                    // Check whether the 'from' field is 'safe', ie, it does
-                    // not create RegExp Denial of Service attack
-                    if (safe(r[1])) {
-                        change_requests.push({
-                            lineno : index,
-                            from   : r[1],
-                            to     : r[2],
-                            g      : r[3] === 'g',
-                            G      : r[3] === 'G',
-                            valid  : true
-                        });
-                        line.content = marker;
-                    }
-                }
-                return line;
-            })
-            .map((line, index) => {
-                // See if a line has to be modified by one of the change requests
-                if (line.content !== marker) {
-                    _.forEach(change_requests, (change) => {
-                        // One change request: the change should occur
-                        // - in any case if the 'G' flag is on
-                        // - if the index is beyond the change request position otherwise
-                        if (change.valid && (change.G || index >= change.lineno)) {
-                            if (line.content.indexOf(change.from) !== -1) {
-                                // There is a change to be performed. The conversion to regexp
-                                // ensures that all occurrences of the 'from' pattern is exchanged
-                                line.content = line.content.replace(RegExp(change.from, 'g'), change.to);
-                                // line.content = line.content.replace(change.from, change.to);
-                                // If this was not a form of 'global' change then its role is done
-                                // and the request should be invalidated
-                                if (!(change.G || change.g)) {
-                                    change.valid = false;
-                                }
-                            }
-                        }
-                    });
-                }
-                return line;
-            })
-            // Remove the markers
-            .filter((line) => (line.content !== marker))
-            // return the array into its original order
-            .reverse()
-            // done:-)
-            .value();
-
-        // console.log(change_requests)
-        return retval;
-    }
-
-
-    /**
-     * Generate the Header part of the minutes: present, guests, regrets, chair, etc.
+     * Generate the Header part of the minutes: present, guests, regrets, chair, etc. The nicknames stored in the incoming structure are converted into real names via the [[full_name]] method.
      *
      * Returns a string with the (markdown encoded) version of the header.
      *
-     * @param {object} headers - the full header structure
-     * @returns {string} - the header in Markdown
+     * @param headers - the full header structure
+     * @returns the header in Markdown
      */
-    function generate_header_md(headers) {
+    generate_header_md(headers) {
+        // This constant is necessary to bind the 'this' value when used in the
+        // chain below...
+        const convert_to_full_name = (nick) => this.full_name(nick);
+        // Clean up all the names in the headers, just to be on the safe side
+        for (const key in headers) {
+            if (Array.isArray(headers[key])) {
+                headers[key] = headers[key]
+                    .map((nickname) => nickname.trim())
+                    .filter((nickname) => nickname !== '')
+                    .map(convert_to_full_name);
+                // Take care of removing duplicates
+                headers[key] = utils.uniq(headers[key]);
+            }
+        }
+        // Collect the header values into strings
         let header_start = '';
-        if (config.jekyll !== JEKYLL_NONE) {
-            const json_ld = schema_data(headers, config);
+        if (this.config.jekyll !== types_1.Constants.JEKYLL_NONE) {
+            const json_ld = jsonld_header_1.schema_data(headers, this.config);
             header_start = `---
 layout: minutes
 date: ${headers.date}
@@ -1779,7 +1035,8 @@ json-ld: |
 ${json_ld}
 ---
 `;
-        } else if (config.pandoc) {
+        }
+        else if (this.config.pandoc) {
             // TODO: can jekyll and pandoc be used together?
             // ...could use some refactoring for clarity
             header_start = `% ${headers.meeting} — ${headers.date}
@@ -1787,44 +1044,42 @@ ${json_ld}
 ![W3C Logo](https://www.w3.org/Icons/w3c_home)
 
 `;
-        } else {
+        }
+        else {
             header_start = '![W3C Logo](https://www.w3.org/Icons/w3c_home)\n';
         }
-
         let header_class = '';
-        if (kramdown) {
-            header_class = (config.final === true || config.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
-        } else {
+        if (this.kramdown) {
+            header_class = (this.config.final === true || this.config.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
+        }
+        else {
             header_class = '';
         }
-        const no_toc = (kramdown) ? '{: .no_toc}' : '';
-
+        const no_toc = (this.kramdown) ? '{: .no_toc}' : '';
         const core_header = `
 # ${headers.meeting} — Minutes
 ${header_class}
-${config.final === true || config.auto === true ? '' : '***– DRAFT Minutes –***'}
-${(config.final === true || config.auto === true) && kramdown ? '' : '{: .draft_notice}'}
+${this.config.final === true || this.config.auto === true ? '' : '***– DRAFT Minutes –***'}
+${(this.config.final === true || this.config.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
 
 **Date:** ${headers.date}
 
-See also the [Agenda](${headers.agenda}) and the [IRC Log](${config.orig_irc_log})
+See also the [Agenda](${headers.agenda}) and the [IRC Log](${this.config.orig_irc_log})
 
 ## Attendees
 ${no_toc}
-**Present:** ${headers.present}
+**Present:** ${headers.present.join(', ')}
 
-**Regrets:** ${headers.regrets}
+**Regrets:** ${headers.regrets.join(', ')}
 
-**Guests:** ${headers.guests}
+**Guests:** ${headers.guests.join(', ')}
 
-**Chair:** ${headers.chair}
+**Chair:** ${headers.chair.join(', ')}
 
-**Scribe(s):** ${headers.scribe}
+**Scribe(s):** ${headers.scribe.join(', ')}
 `;
         return header_start + core_header;
     }
-
-
     /**
      * Generate the real content. This is the real core of the conversion...
      *
@@ -1838,20 +1093,19 @@ ${no_toc}
      *    TOC is also generated
      *
      * @param {array} lines - array of {nick, content, content_lower} objects
-     *     ('nick' is the IRC nick)
      * @returns {string} - the body of the minutes encoded in Markdown
      */
-    function generate_content_md(lines) {
+    // eslint-disable-next-line max-lines-per-function
+    generate_content_md(lines) {
         // this will be the output
-        let content_md     = '\n---\n';
+        let final_minutes = '\n---\n';
         // this will be the table of contents
-        let TOC        = '\n## Content:\n';
+        let TOC = '\n## Content:\n';
         const jekyll_toc = '\n## Content:\n{: .no_toc}\n\n* TOC\n{:toc}';
         // this will be the list or resolutions
         let resolutions = '';
-        // this will be the list or actions
+        // this will be the list of actions
         let actions = '';
-
         /**
         * Table of content handling: a (Sub)topic's is set a label as well as a
         * reference into a table of content structure that grows as we go.
@@ -1859,298 +1113,230 @@ ${no_toc}
         */
         let sec_number_level_1 = 0;
         let sec_number_level_2 = 0;
-        let numbering          = '';
-        let header_level       = '';
-        let toc_spaces         = '';
-
-        const add_toc = (content, level) => {
+        let numbering = '';
+        let header_level = '';
+        let toc_spaces = '';
+        /**
+         * Add a new header level to the TOC and generate the right markdown
+         *
+         * @param content Content of the IRC log line
+         * @param level header level
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_toc = (content, level) => {
+            let retval = '';
             // Remove the markdown-style links
             const de_link = (line) => {
                 // eslint-disable-next-line no-useless-escape
                 const regex_link = /\[([^\[]+)\]\([^\(]+\)/g;
                 return line.replace(regex_link, '$1');
             };
-
             // Alas! Links in titles do not work; otherwise the generated TOC would contain link texts with links...
             const bare_content = de_link(content);
-
             // id is used to set the @id value for the section header. For some
             // reasons, the '.' is not accepted at least by jekyll for a proper
             // TOC, so the '-' must be used.
             let id = '';
             if (level === 1) {
                 sec_number_level_1 += 1;
-                // @ts-ignore
-                numbering = sec_number_level_1;
+                numbering = `${sec_number_level_1}`;
                 sec_number_level_2 = 0;
                 header_level = '### ';
                 toc_spaces = '';
                 id = `section${sec_number_level_1}`;
-            } else {
+            }
+            else {
                 sec_number_level_2 += 1;
                 numbering = `${sec_number_level_1}.${sec_number_level_2}`;
                 header_level = '#### ';
                 toc_spaces = '    ';
                 id = `section${sec_number_level_1}-${sec_number_level_2}`;
             }
-            if (kramdown) {
-                content_md = content_md.concat('\n\n', `${header_level}${numbering}. ${bare_content}\n{: #${id}}`);
-                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`);
-            } else {
-                const auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
-                content_md = content_md.concat('\n\n', `${header_level}${numbering}. ${bare_content}`);
-                TOC = TOC.concat(`${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`);
+            if (this.kramdown) {
+                retval = `\n\n${header_level}${numbering}. ${bare_content}\n{: #${id}}`;
+                TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`;
             }
+            else {
+                const auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
+                retval = `\n\n${header_level}${numbering}. ${bare_content}`;
+                TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`;
+            }
+            return retval;
         };
-
-        /**
-        * Resolution handling: the resolution receives an ID, and a list of
-        * resolution is repeated at the end
-        */
         let rcounter = 1;
-        const add_resolution = (content) => {
+        /**
+         * Resolution handling: the resolution receives an ID, and a list of
+         * resolution is repeated at the end
+         *
+         * @param content Content of the IRC log line
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_resolutions = (content) => {
             const id = `resolution${rcounter}`;
-            if (kramdown) {
-                content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`);
+            let retval = '';
+            if (this.kramdown) {
+                retval = `\n\n> ***Resolution #${rcounter}: ${content}***\n{: #${id} .resolution}`;
                 resolutions = resolutions.concat(`\n* [Resolution #${rcounter}](#${id}): ${content}`);
-            } else {
-                content_md = content_md.concat(`\n\n> ***Resolution #${rcounter}: ${content}***`);
-                // GFM and CommonMark do not support anchor creation...so we can't link to the resolutions T_T
+            }
+            else {
+                retval = `\n\n> ***Resolution #${rcounter}: ${content}***`;
+                // GFM and CommonMark do not support anchor creation...so we can't link to the resolutions :-(
                 resolutions = resolutions.concat(`\n* Resolution #${rcounter}: ${content}`);
             }
             rcounter += 1;
+            return retval;
         };
-
-        /**
-        * Action handling: the action receives an ID, and a list of actions is repeated at the end
-        */
         let acounter = 1;
-        const add_action = (content) => {
+        /**
+         * Action handling: the action receives an ID, and a list of actions is repeated at the end
+         *
+         * @param content Content of the IRC log line
+         * @return the final lines in the minutes in Markdown
+         */
+        const add_to_actions = (content) => {
+            let retval = '';
             const words = content.trim().split(' ');
             if (words[1] === 'to') {
-                const ghname = github_name(words[0]);
-                const name = cleanup_name(words[0]);
+                const ghname = this.github_name(words[0]);
+                const name = this.full_name(words[0]);
                 const message = words.slice(2).join(' ');
                 const final_content = `${message} (${name})`;
                 const id = `action${acounter}`;
-                if (kramdown) {
-                    content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`);
+                if (this.kramdown) {
+                    retval = `\n\n> ***Action #${acounter}: ${final_content}***\n{: #${id} .action}`;
                     actions = actions.concat(`\n* [Action #${acounter}](#${id}): ${final_content}`);
-                } else {
-                    content_md = content_md.concat(`\n\n> ***Action #${acounter}: ${final_content}***`);
+                }
+                else {
+                    retval = `\n\n> ***Action #${acounter}: ${final_content}***`;
                     // GFM and CommonMark do not support anchor creation...so we can't link to the actions T_T
                     actions = actions.concat(`\n* Action #${acounter}: ${final_content}`);
                 }
                 acounter += 1;
-
                 // ------
                 // Store the actions, if the separate action list handler is available
                 // add_action(name, action, id)
-                if (action_list !== undefined) {
-                    action_list.add_action(`${id}`, message, name, ghname);
+                if (this.action_list !== undefined) {
+                    this.action_list.add_action(`${id}`, message, name, ghname);
                 }
-            } else {
+            }
+            else {
                 console.log(`Warning: incorrect action syntax used: ${words}`);
             }
+            return retval;
         };
-
-        /**
-        * URL handling: find URL-s in a line and convert it into an active markdown link.
-        *
-        * There different possibilities:
-        * * `-> URL some text` as a separate line (a.k.a. Ralph style links); "some text" becomes the link text
-        * * `-> some text URL` anywhere in the line, possibly several patterns in a line; "some text" becomes the link text
-        * * Simple URL formatted text where the link text is the URL itself
-        *
-        * Markup syntaxed link are left unchanged.
-        *
-        * @param {String} line - the line itself
-        * @returns {String} - the converted line
-        */
-        const add_links = (line) => {
-            /**
-            * Rudimentary check whether the string should be considered a dereferencable URL
-            */
-            const check_url = (str) => {
-                const a = url.parse(str);
-                return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:'].indexOf(a.protocol) !== -1;
-            };
-
-            /**
-             * Splitting the line into words. By default, one splits along a space character; however, markdown code
-             * (i.e., anything between a pair pf "`" characters) should be considered a single word.
-             * @param {String} full_line - the content line
-             * @returns {Array} - array of strings, ie, the words
-             */
-            const split_to_words = (full_line) => {
-                const REPL_HACK = '$MD_CODE$';
-                const regex = /`[^`]+`/g;
-                const trimmed = full_line.trim();
-                const codes = trimmed.match(regex);
-
-                if (codes) {
-                    // ugly hack: replacing the code portions with a fixed pattern
-                    // now we can split to get words; each code portion appears a word with REPL_HACK
-                    let code_index = 0;
-                    const fake = trimmed.replace(regex, REPL_HACK);
-                    return fake.split(' ').filter((word) => word !== '').map((word) => {
-                        if (word.indexOf(REPL_HACK) !== -1) {
-                            // eslint-disable-next-line no-plusplus
-                            return word.replace(REPL_HACK, codes[code_index++]);
-                        } else {
-                            return word;
-                        }
-                    });
-                } else {
-                    // no codes to play with
-                    // empty words are also filtered out
-                    return trimmed.split(' ').filter((word) => word !== '');
-                }
-            };
-
-            /**
-            * Taking care of the case where only URL-s are in the line without a pattern: such words are found
-            * and are converted into markup-style links with the URL text as a link text itself.
-            */
-            const simple_link_exchange = (word) => (check_url(word) ? `[${word}](${word})` : word);
-
-            /**
-             * Taking care of the `-> some text URL` pattern. The list of words is converted into a list of words with the
-             * link portions turned into markup-style links. The '->' marker is dropped from the output.
-             *
-             * This is a recursive function to locate all pattern occurrences.
-             *
-             * @param {Array} list_of_words - the original string turned into a list of words
-             * @return {Array} - the converted list of words
-             */
-            const replace_links = (list_of_words) => {
-                if (list_of_words.length === 0) return list_of_words;
-
-                const start = list_of_words.findIndex((word) => word === '->');
-                if (start === -1) {
-                    // No links to worry about
-                    return list_of_words;
-                } else {
-                    const preamble = list_of_words.slice(0, start);
-                    const rest = list_of_words.slice(start + 1);
-                    const link_index = rest.findIndex(check_url);
-                    if (link_index <= 0) {
-                        // the string '->' used for some other purposes
-                        return list_of_words;
-                    } else {
-                        const new_link_word = [`[${rest.slice(0, link_index).join(' ')}](${rest[link_index]})`];
-                        const so_far = [...preamble, ...new_link_word];
-                        if (link_index === rest.length) {
-                            return so_far;
-                        } else {
-                            const leftover = rest.slice(link_index + 1);
-                            // recursion to get possible other links in the line
-                            return [...so_far, ...replace_links(leftover)];
-                        }
-                    }
-                }
-            };
-
-            // 1. separate the line into an array of words (double spaces must be filtered out...)
-            const words = split_to_words(line);
-
-            // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
-            if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
-                const url_part = words[1];
-                const link_part = words.slice(2).join(' ');
-                return `See [${link_part}](${url_part})`;
-            } else {
-                // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-                return replace_links(words).map(simple_link_exchange).join(' ');
-            }
-        };
-
-
+        /* ----------- The core of the cycle: going through the IRC log line and do what is necessary ------------------- */
+        /* ----------- the final minutes are collected in the "final_minutes" string, that is returned to the caller ---- */
         // "state" variables for the main cycle...
-        let scribes                = [];
+        let scribes = [];
+        // This is important if the scribe portion is 'interrupted' by, e.g., a topic setting or a resolution;
+        // this helps in re-establishing the current speaker
         let within_scribed_content = false;
-        let current_person         = '';
-
-        // The main cycle on the content
-        _.forEach(lines, (line_object) => {
+        // Storing the reference to the current person is important to "combine" the comments
+        // coming from the same person to a series of lines connected by a '...', even if the scribe
+        // chooses to put in the person's nickname at every line.
+        let current_person = '';
+        // ------------------------------  The main cycle on the content: take each line one-by-one and turn it into Github...
+        for (const line_object of lines) {
             // This is declared here to use an assignment in a conditional below...
             let issue_match;
-
-            // What is done depends on some context...
-            // Do we have a new scribe?
-            const new_scribe_list = get_name_list(scribes, line_object, 'scribe') || get_name_list(scribes, line_object, 'scribenick');
+            // What has to be done done depends on some context...
+            // Do we have a new scribe? If so, he/she should be added to the list of scribes
+            const new_scribe_list = utils.get_name_list(scribes, line_object, 'scribe') || utils.get_name_list(scribes, line_object, 'scribenick');
             if (new_scribe_list) {
-                scribes = new_scribe_list.map((person) => canonical_nick(person));
+                scribes = new_scribe_list.map((person) => utils.canonical_nick(person));
                 // this line can be forgotten...
-                return;
+                continue;
             }
-
-            // Add links, and separate the label from the rest
-            const content_with_links = add_links(line_object.content);
-            const { label, content } = get_label(content_with_links);
-
+            // Add links using the the various possibilities offered by the '-> ...' syntax.
+            const content_with_links = utils.add_links(line_object.content);
+            // Separate the label (ie, "topic:", "proposed:", etc.) from the rest
+            const { label, content } = utils.get_label(content_with_links);
             // First handle special entries that must be handled regardless
-            // of whether it was typed in by the scribe or not.
+            // of whether it was typed by the scribe or not; the scribe specific handling is left to the end
+            // Most of the special cases are based on the label, if applicable.
+            // Handle a new topic: separate the possible issue/pr reference, add a TOC item and display the header with a '###'
+            // The separate utility function that handles the issue/pr directives
+            // The 'add_to_toc' function above generates the right markdown.
             if (label !== null && label.toLowerCase() === 'topic') {
+                // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure = issues.titles(config, content);
-                add_toc(title_structure.title_text, 1);
+                const title_structure = issues.titles(this.config, content);
+                final_minutes += add_to_toc(title_structure.title_text, 1);
                 if (title_structure.issue_reference !== '') {
-                    content_md = content_md.concat(title_structure.issue_reference);
+                    final_minutes += title_structure.issue_reference;
                 }
-            } else if (label !== null && label.toLowerCase() === 'subtopic') {
+                // Handle a new topic: separate the possible issue/pr reference, add a TOC item and display the header with a '####'
+                // The separate utility function that handles the issue/pr directives
+                // The 'add_to_toc' function above generates the right markdown.
+            }
+            else if (label !== null && label.toLowerCase() === 'subtopic') {
+                // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure = issues.titles(config, content);
-                add_toc(title_structure.title_text, 2);
+                const title_structure = issues.titles(this.config, content);
+                final_minutes += add_to_toc(title_structure.title_text, 2);
                 if (title_structure.issue_reference !== '') {
-                    content_md = content_md.concat(title_structure.issue_reference);
+                    final_minutes += title_structure.issue_reference;
                 }
-            } else if (label !== null && ['proposed', 'proposal', 'propose'].includes(label.toLowerCase())) {
+                // Handle a resolution proposal, displayed with a special markdown
+            }
+            else if (label !== null && ['proposed', 'proposal', 'propose'].includes(label.toLowerCase())) {
                 within_scribed_content = false;
-                content_md = content_md.concat(
-                    `\n\n> **Proposed resolution: ${content}** *(${cleanup_name(line_object.nick)})*`
-                );
-                if (kramdown) {
-                    content_md = content_md.concat('\n{: .proposed_resolution}');
+                final_minutes += `\n\n> **Proposed resolution: ${content}** *(${this.full_name(line_object.nick)})*`;
+                if (this.kramdown) {
+                    final_minutes += '\n{: .proposed_resolution}';
                 }
-            } else if (label !== null && label.toLowerCase() === 'summary') {
+                // Handle a discussion summary, displayed with a special markdown
+            }
+            else if (label !== null && label.toLowerCase() === 'summary') {
                 within_scribed_content = false;
-                content_md = content_md.concat(`\n\n> **Summary: ${content}** *(${cleanup_name(line_object.nick)})*`);
-                if (kramdown) {
-                    content_md = content_md.concat('\n{: .summary}');
+                final_minutes += `\n\n> **Summary: ${content}** *(${this.full_name(line_object.nick)})*`;
+                if (this.kramdown) {
+                    final_minutes += '\n{: .summary}';
                 }
-            } else if (label !== null && ['resolved', 'resolution'].includes(label.toLowerCase())) {
+                // Handle a resolution: the resolution must be stored separately and a special markdown is used
+            }
+            else if (label !== null && ['resolved', 'resolution'].includes(label.toLowerCase())) {
                 within_scribed_content = false;
-                add_resolution(content);
-            } else if (label !== null && label.toLowerCase() === 'action') {
+                final_minutes += add_to_resolutions(content);
+                // Handle an action: the action must be stored separately, and a special markdown is used
+            }
+            else if (label !== null && label.toLowerCase() === 'action') {
                 within_scribed_content = false;
-                add_action(content);
-            // eslint-disable-next-line no-cond-assign
-            } else if ((issue_match = content.match(issue_regexp)) !== null) {
+                final_minutes += add_to_actions(content);
+                // Handle an issue directive: the line is replaced with a set of references and a possible
+                // extra comment for postprocessing
+            }
+            else if ((issue_match = content.match(types_1.Constants.issue_regexp)) !== null) {
                 within_scribed_content = false;
-                const directive        = issue_match[2];
+                const directive = issue_match[2];
                 const issue_references = issue_match[3];
-                content_md = content_md.concat(issues.issue_directives(config, directive, issue_references));
-            } else if (scribes.includes(canonical_nick(line_object.nick))) {
-                // This is a line produced one of the 'registered' scribes
+                final_minutes += issues.issue_directives(this.config, directive, issue_references);
+                // The 'scribed' line, ie, the lines whose 'nick' is one of the registered scribes.
+            }
+            else if (scribes.includes(utils.canonical_nick(line_object.nick))) {
                 if (label !== null) {
                     // A new person is talking...
-                    // Note the two spaces at the end of the line, this
+                    // Note the two spaces at the end of the generated line, this
                     // ensure line breaks within the paragraph!
-                    // But... maybe this is not a new person after all! (Scribes, sometimes, forget about the usage of '...')
-                    if (within_scribed_content && cleanup_name(label) === cleanup_name(current_person)) {
+                    // But... maybe this is not a new person after all! (Scribes, sometimes, forget about the usage of '...' or prefer to use the nickname)
+                    if (within_scribed_content && this.full_name(label) === this.full_name(current_person)) {
                         // Just mimic the continuation line:
-                        content_md = content_md.concat(`\n… ${content}  `);
-                    } else {
-                        content_md = content_md.concat(`\n\n**${cleanup_name(label)}:** ${content}  `);
+                        final_minutes += `\n… ${content}  `;
+                    }
+                    else {
+                        // Yep, this is indeed a new person talking
+                        final_minutes += `\n\n**${this.full_name(label)}:** ${content}  `;
                         current_person = label;
                         within_scribed_content = true;
                     }
-                } else {
+                }
+                else {
+                    // This is a 'continuation' line
+                    // There are two types of continuation lines, we have to get the number of characters
                     // eslint-disable-next-line no-nested-ternary
                     const dots = content.startsWith('...') ? 3 : (content.startsWith('…') ? 1 : 0);
-
                     if (dots > 0) {
+                        // Remove the continuation character(s). The goal is to be uniform, ie, to use '…' (ellipses) everywhere
                         let new_content = content.slice(dots).trim();
                         if (new_content && new_content[0] === ':') {
                             // This is a relatively frequent scribe error,
@@ -2162,59 +1348,61 @@ ${no_toc}
                             // We are in the middle of a full paragraph for
                             // one person, safe to simply add the text to
                             // the previous line without any further ado
-                            content_md = content_md.concat('\n… ', new_content, '  ');
-                        } else {
+                            final_minutes += `\n… ${new_content}  `;
+                        }
+                        else {
                             // For some reasons, there was a previous line
-                            // that interrupted the normal flow, a new
-                            // paragraph should be started
-                            content_md = content_md.concat(`\n\n**${cleanup_name(current_person)}:** ${new_content}  `);
+                            // that interrupted the normal flow (eg, setting a new topic), a new
+                            // paragraph should be started with the person's name
+                            final_minutes += `\n\n**${this.full_name(current_person)}:** ${new_content}  `;
                             // content_md = content_md.concat("\n\n", content.slice(dots))
                             within_scribed_content = true;
                         }
-                    } else {
+                    }
+                    else {
                         // It is the scribe talking. Except if the scribe
                         // forgot to put the "...", but we cannot really
                         // help that:-(
                         within_scribed_content = false;
-
                         // This is a fall back: somebody (not the scribe) makes a note on IRC
-                        content_md = content_md.concat(`\n\n> *${cleanup_name(line_object.nick)}:* ${content_with_links}`);
+                        final_minutes += `\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`;
                     }
                 }
-            } else {
+            }
+            else {
                 // This is a fall back: somebody (not the scribe) makes a note on IRC
                 within_scribed_content = false;
-                content_md = content_md.concat(`\n\n> *${cleanup_name(line_object.nick)}:* ${content_with_links}`);
+                final_minutes += `\n\n> *${this.full_name(line_object.nick)}:* ${content_with_links}`;
             }
-        });
-
+        }
+        // ------------------------------  'final_minutes' contains the core minutes by now.
         // Endgame: pulling the TOC, the real minutes and, possibly, the
         // resolutions and actions together
-        content_md = content_md.concat('\n\n---\n');
-
+        final_minutes += '\n\n---\n';
         if (rcounter > 1) {
             // There has been at least one resolution
             sec_number_level_1 += 1;
-            if (kramdown) {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#res)\n`);
-                content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n${resolutions}`);
-            } else {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Resolutions](#${sec_number_level_1}-resolutions)\n`);
-                content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Resolutions\n${resolutions}`);
+            if (this.kramdown) {
+                TOC += `* [${sec_number_level_1}. Resolutions](#res)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Resolutions\n{: #res}\n${resolutions}`;
+            }
+            else {
+                TOC += `* [${sec_number_level_1}. Resolutions](#${sec_number_level_1}-resolutions)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Resolutions\n${resolutions}`;
             }
         }
         if (acounter > 1) {
             // There has been at least one resolution
             sec_number_level_1 += 1;
-            if (kramdown) {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#act)\n`);
-                content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n${actions}`);
-            } else {
-                TOC = TOC.concat(`* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`);
-                content_md = content_md.concat(`\n\n### ${sec_number_level_1}. Action Items\n${actions}`);
+            if (this.kramdown) {
+                TOC += `* [${sec_number_level_1}. Action Items](#act)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n{: #act}\n${actions}`;
+            }
+            else {
+                TOC += `* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`;
+                final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n${actions}`;
             }
         }
-
         // A final bifurcation: if kramdown is used, it is more advantageous to rely on on the
         // TOC generation of kramdown. It makes the ulterior changes of the minutes (eg, adding
         // new sections or subsections) easier, because one does not have to modify the TOC.
@@ -2222,43 +1410,56 @@ ${no_toc}
         // It is sub-optimal that the TOC content is generated in the previous
         // steps and possibly ignored at this step, but the code would have
         // been much uglier if it was littered with conditionals everywhere...
-        return (kramdown ? jekyll_toc : TOC) + content_md;
+        return (this.kramdown ? jekyll_toc : TOC) + final_minutes;
     }
-
-
-    // The real steps...
-    // 1. cleanup the content, ie, remove the bot commands and the like
-    // 2. separate the header information (present, chair, date, etc)
-    //    from the 'real' content. That real content is stored in an array
-    //    {nick, content} structures
-
-    let { headers, lines } = set_header(cleanup(body)); // eslint-disable-line prefer-const
-
-    // 3. Perform changes, ie, execute on requests of the "s/.../.../" form in the log:
-    lines = perform_insert(lines);
-    lines = perform_changes(lines);
-
-    // 4. Store the actions' date, if the separate action list handler is available.
-    // (the list of actions is created on the fly...)
-    if (action_list !== undefined) {
-        action_list.set_date(headers.date);
+    /**
+     * The main entry point: generate the full content in the form of a large string (the minutes in markdown);
+     *
+     * @param body - the IRC log; this is either a string or an array of strings (the latter is used when the code is called on the client side).
+     */
+    convert_to_markdown(body) {
+        // An array of lines should be used down from this point.
+        const split_body = Array.isArray(body) ? body : body.split(/\n/);
+        // 1. cleanup the content, ie, remove the bot commands and the like
+        // The lines of text are also converted to LineObject-s on the fly, ie
+        // in an array of {nick, content} structures
+        const irc_log = utils.cleanup(split_body, this.config);
+        // 2. separate the header information
+        // eslint-disable-next-line prefer-const
+        let { headers, lines } = utils.separate_header(irc_log, this.config.date);
+        // 3. Perform changes, ie, execute on requests of the "i/.../..." and "s/.../.../" forms in the log:
+        lines = utils.perform_insert_requests(lines);
+        lines = utils.perform_change_requests(lines);
+        // 4. Store the actions' date, if the separate action list handler is available.
+        // (the list of actions is created on the fly...)
+        if (this.action_list !== undefined) {
+            this.action_list.set_date(headers.date);
+        }
+        // 5. Generate the header part of the minutes (using the 'headers' object)
+        const header_md = this.generate_header_md(headers);
+        // 6. Generate the content part; that also includes the TOC, the list of
+        //    resolutions and (if any) of actions
+        const content_md = this.generate_content_md(lines);
+        // 7. Return the concatenation of the two.
+        return header_md + content_md;
     }
+}
+exports.Converter = Converter;
 
-    // 5. Generate the header part of the minutes (using the 'headers' object)
-    // 6. Generate the content part, that also includes the TOC, the list of
-    //    resolutions and (if any) actions (using the 'lines' array of objects)
-    // 7. Return the concatenation of the two
-    return (generate_header_md(headers) + generate_content_md(lines));
-};
-
-},{"./issues":7,"./jsonld_header":8,"safe-regex":235,"underscore":238,"url":240}],7:[function(require,module,exports){
-'use strict';
-
-const _ = require('underscore');
-
+},{"./issues":7,"./jsonld_header":9,"./types":10,"./utils":11}],7:[function(require,module,exports){
+"use strict";
+/**
+ *
+ * Handling the issue directives
+ *
+ * @packageDocumentation
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.titles = exports.issue_directives = void 0;
+const utils_1 = require("./utils");
 /**
  * Handling the `scribejs, issue X,Y,Z` type directives. The method returns a set of strings to be added to the
- * final (markdown) minutes. Two informations are returned
+ * final (markdown) minutes. Two information items are returned
  *
  * 1. A standard markdown line is added listing the the issue URL-s.
  * 2. If this works with Jekyll, a comment is returned with the list of URL-s in the form of `<!-- issue URL_X,URL_Y,URL_Z -->`
@@ -2268,159 +1469,261 @@ const _ = require('underscore');
  * While the comments are invisible when displayed as part of the minutes, they can be used by postprocessing tools that
  * gathers a portion of the discussions that is relevant to a particular issue or set of issues.
  *
- * @param {Object} config - the general scribejs configuration object
- * @param {string} directive - either 'pr' or 'issue'
- * @param {string} issue_references - comma separated list of issue numbers, possibly of the form `repo#number`
- * @returns {string} - the markdown lines to be added to the final minutes
+ * @param config - the general scribejs configuration object
+ * @param directive - either 'pr' or 'issue'
+ * @param issue_references - comma separated list of issue numbers, possibly of the form `repo#number`
+ * @returns the markdown lines to be added to the final minutes
  */
-exports.issue_directives = (config, directive, issue_references) => {
+function issue_directives(config, directive, issue_references) {
     // see if there is an issue repository to use:
     const repo = config.issuerepo || config.ghrepo;
     if (repo === undefined) {
         return '';
-    } else {
+    }
+    else {
+        // Previous steps may add a '.' to the end of a line; this is removed here to be on the safe side:
+        let final_issue_references = issue_references.trim();
+        if (final_issue_references.endsWith('.')) {
+            final_issue_references = final_issue_references.slice(0, -1);
+        }
         // No exception should disrupt the flow of the minutes generation; the directive is then simply discarded.
         try {
             // This information is necessary if the issue is not bound to the default repository.
             const organization = repo.split('/')[0];
-
             // Some details are different whether we are talking about PR-s or issues: the exact URL and the text to be added to the response
             const peel_issue_pr = (val) => {
                 if (val === 'pr') {
                     return {
-                        issue_or_pr : 'pull request',
-                        url_part    : 'pull'
+                        issue_or_pr: 'pull request',
+                        url_part: 'pull',
                     };
-                } else {
+                }
+                else {
                     return {
-                        issue_or_pr : 'issue',
-                        url_part    : 'issues'
+                        issue_or_pr: 'issue',
+                        url_part: 'issues',
                     };
                 }
             };
             const { issue_or_pr, url_part } = peel_issue_pr(directive);
-
             // Separate the 'closing' directive
             if (url_part.startsWith('-')) {
-                // This, in fact, is to stop the effect of the issue discussion
+                // This is to stop the effect of the issue discussion
                 if (config.jekyll !== 'none') {
                     return '\n\n<!-- issue - -->\n\n';
-                } else {
+                }
+                else {
                     return '';
                 }
-            } else {
-                const issue_numbers = issue_references.trim().split(',').map((str) => str.trim());
+            }
+            else {
+                const issue_numbers = final_issue_references.split(',').map((str) => str.trim());
                 // By default, the numbers are just numbers for the default issue repository, but the
                 // user is entitled to give a repo#number, and the URL must be separated.
                 // Note that, at this moment, the organization remains the same, the tooling is not prepared for the case
                 // when the group is handling several organizational repositories at the same time... The default group
                 // repository's organization wins.
-
                 // List of the final issue URL-s
                 const urls = issue_numbers.map((num) => {
                     if (num.includes('#')) {
                         const parts = num.split('#');
                         return `https://github.com/${organization}/${parts[0]}/${url_part}/${parts[1]}`;
-                    } else {
+                    }
+                    else {
                         return `https://github.com/${repo}/${url_part}/${num}`;
                     }
                 });
-
                 const issue_ids = issue_numbers.map((num) => {
                     if (num.includes('#')) {
                         const parts = num.split('#');
                         return `${organization}/${parts[0]}/${parts[1]}`;
-                    } else {
+                    }
+                    else {
                         return `${repo}/${num}`;
                     }
                 });
-
                 // Generation of the (visible) markdown entries
-                const all_issues = _.zip(issue_numbers, urls)
+                const all_issues = utils_1.zip(issue_numbers, urls)
                     .map((num_url) => {
-                        const prefix = num_url[0].includes('#') ? '' : '#';
-                        return `[${prefix}${num_url[0]}](${num_url[1]})`;
-                    })
+                    const prefix = num_url[0].includes('#') ? '' : '#';
+                    return `[${prefix}${num_url[0]}](${num_url[1]})`;
+                })
                     .join(', ');
-                const md_part =  `_See github ${issue_or_pr} ${all_issues}._`;
-
+                const md_part = `_See github ${issue_or_pr} ${all_issues}._`;
                 // Add, if necessary, the comment to the return.
                 if (config.jekyll !== 'none') {
                     const md_comment = `<!-- issue ${issue_ids.join(' ')} -->`;
                     return `\n\n${md_part}\n\n${md_comment}\n\n`;
-                } else {
+                }
+                else {
                     return `\n\n${md_part}\n\n`;
                 }
             }
-        } catch (e) {
+        }
+        catch (e) {
             // No exception should disrupt the flow of the minutes generation; the directive is then simply discarded.
             return '';
         }
     }
-};
-
-
+}
+exports.issue_directives = issue_directives;
 /**
  * Handling a (sub)topic line: find, if present, a `@issue XX,YY,ZZ` line and process it as in [[issue_directives]] leaving the rest of content as the
  * real (sub)topic line.
  *
- * @param {Object} config - the general scribejs configuration object
- * @param {string} content - the content of the full title line
+ * @param config - the general scribejs configuration object
+ * @param content - the content of the full title line
  * @return {object} - object with `title_text` set to the title line content (issue number if missing)
  * and `issue_reference` to the list of issues to display (empty string if missing)
  */
-exports.titles = (config, content) => {
+function titles(config, content) {
     const get_values = (directive) => {
         if (content.includes(`@${directive}`)) {
             const [title, issue] = content.split(`@${directive}`);
             return {
-                title_text      : title || issue,
-                issue_reference : exports.issue_directives(config, directive, issue)
+                title_text: title || issue,
+                issue_reference: issue_directives(config, directive, issue),
             };
-        } else {
+        }
+        else {
             return undefined;
         }
     };
     return get_values('issue') || get_values('issues') || get_values('pr') || { title_text: content, issue_reference: '' };
-};
+}
+exports.titles = titles;
 
-},{"underscore":238}],8:[function(require,module,exports){
+},{"./utils":11}],8:[function(require,module,exports){
+(function (Buffer){
+
 'use strict';
-
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Octokat = require('octokat');
+const string_to_base64 = (string) => Buffer.from(string).toString('base64');
 /**
- * Adding a json-ld header to the minutes using schema.org vocabulary items.
+ * Wrapper around a the Github API using the more generic octocat library.
  *
- * @param {Object} header - the structured used by the converter to generate the header entries
- * @param {Object} config - the general configuration file for the scribejs run
- * @returns {String} - the JSON-LD encoded schema.org metadata of the minutes
+ */
+class GitHub {
+    /**
+     *
+     * @param {string} repo_id - Github repo identifier in a `owner/repo` format
+     * @param {Object} conf - program configuration
+     */
+    constructor(repo_id, conf) {
+        const octo = new Octokat({ token: conf.ghtoken });
+        this.repo = octo.repos(...repo_id.split('/'));
+    }
+    /**
+     * Create a new (markdown) entry on the repository.
+     *
+     * @param {string} data - data to be uploaded as a separate file
+     * @async
+     */
+    async commit_data(data) {
+        const path = `${this.conf.ghpath}/${this.conf.ghfname}`;
+        const path_with_branch = path + (this.conf.ghbranch ? `?ref=${this.conf.ghbranch}` : '');
+        // See if the data exists on the specific path; if so, its sha value must be used for the final change
+        const info = await this.repo.contents(path_with_branch).fetch();
+        const params = {
+            sha: (info && info.sha) ? info.sha : null,
+            branch: this.conf.ghbranch,
+            message: this.conf.ghmessage,
+            content: string_to_base64(data),
+            committer: {
+                name: this.conf.ghname,
+                email: this.conf.ghemail,
+            },
+        };
+        const retval = await this.repo.contents(path).add(params);
+        return retval.content.htmlUrl;
+    }
+    /**
+     * Get the list of issue titles. The method takes care of paging.
+     *
+     * @return - array of issue titles
+     * @async
+     */
+    async get_issue_titles() {
+        let issues;
+        let retval = [];
+        let page_number = 1;
+        do {
+            issues = await this.repo.issues.fetch({ per_page: 100, page: page_number });
+            page_number += 1;
+            retval = [...retval, ...issues.items];
+        } while (issues.nextPageUrl);
+        return retval.map((issue) => issue.title);
+    }
+    /**
+     * Get the list of assignees' logins. The method takes care of paging.
+     *
+     * @return - list of github login names for the assignees
+     * @async
+     */
+    async get_assignees() {
+        let collaborators;
+        let retval = [];
+        let page_number = 1;
+        do {
+            collaborators = await this.repo.collaborators.fetch({ per_page: 100, page: page_number });
+            page_number += 1;
+            retval = [...retval, ...collaborators.items];
+        } while (collaborators.nextPageUrl);
+        return retval.map((person) => person.login);
+    }
+    /**
+     * Create a new issue.
+     *
+     * @param {Object} issue - issue structure (see the Github API for details)
+     * @async
+     */
+    async create_issue(issue) {
+        return this.repo.issues.create(issue);
+    }
+}
+/* ------------------------------------------------------------ */
+module.exports = { GitHub };
+
+}).call(this,require("buffer").Buffer)
+},{"buffer":58,"octokat":171}],9:[function(require,module,exports){
+"use strict";
+/**
+ * ## Generate schema.org metadata
+ *
+ * Creating the schema.org metadata, in JSON-LD format, for the minutes. The json-ld portion is added to the kramdown header; the jekyll setup must take care of generating a `script` element in the header of the generated HTML file.
+ *
+ * @packageDocumentation
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.schema_data = void 0;
+/**
+ * Generating a json-ld header to the minutes using schema.org vocabulary items.
+ *
+ * @param header - the structure used by the converter to generate the header entries into the minutes
+ * @param config - the general configuration file for the scribejs run
+ * @returns the JSON-LD encoded schema.org metadata of the minutes
  */
 function schema_data(header, config) {
-    /** turn a comma separated list into an array of strings. */
-    const people_list = (comma_list) => comma_list.split(',').map((name) => name.trim()).filter((name) => name !== '');
-
-    // Variables needed to produce the right URL (if the URL pattern is present)
-    const [year, month, day] = header.date.split('-');
     // eslint-disable-next-line max-len
     const url_pattern = (pattern) => pattern.replace(/%YEAR%/g, year).replace(/%MONTH%/g, month).replace(/%DAY%/g, day).replace(/%DATE%/g, header.date);
-
+    // Variables needed to produce the right URL (if the URL pattern is present)
+    const [year, month, day] = header.date.split('-');
     // Get the different types of participants from the comma separated lists
-    const chairs   = people_list(header.chair);
-    const scribes  = people_list(header.scribe);
+    const chairs = header.chair;
+    const scribes = header.scribe;
     // eslint-disable-next-line arrow-body-style
-    const present  = [...people_list(header.present), ...people_list(header.guests)].filter((name) => {
+    const present = [...header.present, ...header.guests].filter((name) => {
         return !(chairs.includes(name) || scribes.includes(name));
     });
-
     // Build up the structures that is then returned as a JSON string
     const schema_metadata = {
-        '@context' : 'https://schema.org/',
-        '@type'    : 'CreativeWork'
+        '@context': 'https://schema.org/',
+        '@type': 'CreativeWork',
     };
-
     if (config.acurlpattern) {
         schema_metadata.url = url_pattern(config.acurlpattern);
     }
-
     schema_metadata.name = `${header.meeting} — Minutes`;
     schema_metadata.about = header.meeting;
     schema_metadata.dateCreated = header.date;
@@ -2430,51 +1733,926 @@ function schema_data(header, config) {
     schema_metadata.accessModeSufficient = 'textual';
     schema_metadata.encodingFormat = 'text/html';
     schema_metadata.publisher = {
-        '@type' : 'Organization',
-        name    : 'World Wide Web Consortium',
-        url     : 'https://www.w3.org/'
+        '@type': 'Organization',
+        name: 'World Wide Web Consortium',
+        url: 'https://www.w3.org/',
     };
     schema_metadata.inLanguage = 'en-US';
     schema_metadata.recordedAt = {
-        '@type'   : 'Event',
-        name      : header.meeting,
-        startDate : header.date,
-        endDate   : header.date,
-        location  : {
-            '@type'     : 'VirtualLocation',
-            description : 'Teleconference'
+        '@type': 'Event',
+        name: header.meeting,
+        startDate: header.date,
+        endDate: header.date,
+        location: {
+            '@type': 'VirtualLocation',
+            description: 'Teleconference',
         },
         attendee: [
             {
-                '@type'  : 'OrganizationRole',
-                roleName : 'chair',
-                attendee : chairs.map((chair) => ({
-                    '@type' : 'Person',
-                    name    : chair
-                }))
+                '@type': 'OrganizationRole',
+                roleName: 'chair',
+                attendee: chairs.map((chair) => ({
+                    '@type': 'Person',
+                    name: chair,
+                })),
             },
             {
-                '@type'  : 'OrganizationRole',
-                roleName : 'scribe',
-                attendee : scribes.map((scribe) => ({
-                    '@type' : 'Person',
-                    name    : scribe
-                }))
+                '@type': 'OrganizationRole',
+                roleName: 'scribe',
+                attendee: scribes.map((scribe) => ({
+                    '@type': 'Person',
+                    name: scribe,
+                })),
             },
             ...present.map((attendee) => ({
-                '@type' : 'Person',
-                name    : attendee
-            }))
-        ]
+                '@type': 'Person',
+                name: attendee,
+            })),
+        ],
     };
     // Care should be taken to properly indent the data, otherwise jekyll ignores this
     return JSON.stringify(schema_metadata, null, 4).replace(/\n/g, '\n    ').replace(/^{/, '    {');
 }
+exports.schema_data = schema_data;
 
-/* -------------------------------------------------------------------------------- */
-module.exports = { schema_data };
+},{}],10:[function(require,module,exports){
+"use strict";
+/* eslint-disable no-multi-spaces */
+/**
+ * ## Common types and constants
+ *
+ * @packageDocumentation
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Constants = exports.debug = void 0;
+exports.debug = false;
+// eslint-disable-next-line @typescript-eslint/no-namespace
+var Constants;
+(function (Constants) {
+    Constants.JEKYLL_NONE = 'none';
+    Constants.JEKYLL_MARKDOWN = 'md';
+    Constants.JEKYLL_KRAMDOWN = 'kd';
+    Constants.rrsagent_preamble_size = 8 + 1;
+    // const rrsagent_regexp = /^[0-9]{2}:[0-9]{2}:[0-9]{2}/;
+    Constants.irccloud_preamble_size = 1 + 10 + 1 + 8 + 1 + 1;
+    Constants.irccloud_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/;
+    Constants.textual_preamble_size = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
+    Constants.textual_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
+    Constants.issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
+    Constants.user_config_name = '.scribejs.json';
+    Constants.user_ghid_file = '.ghid.json';
+})(Constants = exports.Constants || (exports.Constants = {}));
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+(function (process){
+"use strict";
+/**
+ *
+ * Collection of utility functions, put here for a better maintenance
+ *
+ *
+ * @packageDocumentation
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.add_links = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
+const types_1 = require("./types");
+const url = require("url");
+/** ******************************************************************* */
+/*                           Generic utilities                          */
+/** ******************************************************************* */
+/** (Calculated) constant to decide whether the code runs in a browser or via node.js */
+exports.is_browser = (process === undefined || process.title === 'browser');
+/** (Calculated) constant for today's date in ISO format */
+exports.today = new Date().toISOString().split('T')[0];
+/**
+ * "Zip" two arrays, i.e., create an array whose elements are pairs of the corresponding elements in the two arrays being processed.
+ */
+function zip(left, right) {
+    const l = (left.length <= right.length) ? left.length : right.length;
+    const retval = [];
+    for (let i = 0; i < l; i++) {
+        retval.push([left[i], right[i]]);
+    }
+    return retval;
+}
+exports.zip = zip;
+/**
+ * Remove duplicates from an array
+ */
+function uniq(inp) {
+    return [...new Set(inp)];
+}
+exports.uniq = uniq;
+/**
+ * Union of two arrays ('union' in a set-theoretic sense, i.e., with no duplicates)
+ * @param a
+ * @param b
+ */
+function union(a, b) {
+    const sa = new Set(a);
+    for (const entry of b) {
+        sa.add(entry);
+    }
+    return [...sa];
+}
+exports.union = union;
+/**
+ * Difference of two arrays ('difference' in a set-theoretic sense, i.e., generating `a \ b`)
+ *
+ * @param a
+ * @param b
+ */
+function difference(a, b) {
+    const sa = new Set(a);
+    for (const entry of b) {
+        sa.delete(entry);
+    }
+    return [...sa];
+}
+exports.difference = difference;
+/**
+ * Helper function to "flatten" arrays of arrays into a single array. This method should be used as the callback
+ * for a `Array.reduce`.
+ *
+ * @param accumulator - Accumulated array in a reduce
+ * @param currentValue - The next array to be considered
+ */
+function flatten(accumulator, currentValue) {
+    return [...accumulator, ...currentValue];
+}
+exports.flatten = flatten;
+/**
+ * Returns true if all elements in an array pass the callback truth test
+ *
+ * @param elements - the elements to be tested
+ * @param callback - the callback function used as a test
+ */
+function every(elements, callback) {
+    // return true if no false is found...
+    const found = elements.find((element) => !callback(element));
+    return found === undefined;
+}
+exports.every = every;
+/** ******************************************************************* */
+/*                       Conversion utility functions                   */
+/** ******************************************************************* */
+/**
+ * Remove the 'preamble' from the line, ie, the part that is
+ * put there by the IRC client. Unfortunately, that is not standard,
+ * which means that each client adds a different preamble.
+ *
+ * This function relies on a user option for the IRC log format. If not available
+ * it tries some heuristics among the currently known IRC logs formats:
+ * RRSAgent (default), Textual, or IRCCloud. New formats can be added here as needed.
+ *
+ * The fallback, in all cases, is the RSSAgent format.
+ *
+ * The function has a side effect of setting the irc_format value in the configuration. This means
+ * the right extra lines will be removed, if necessary (and the regexp will be matched only once)
+ *
+ * @param line - the full line of an IRC log
+ * @return truncated line, ie, with preamble removed.
+ */
+function remove_preamble(line, config) {
+    /**
+     * Establish the size of the preamble to be removed; set the irc format in the config
+     * in case that has not be set originally.
+     *
+     * @param the_line - The incoming IRC log line
+     * @return the size of the preamble
+     */
+    const preamble_size = (the_line) => {
+        if (config.irc_format) {
+            switch (config.irc_format) {
+                case 'irccloud': return types_1.Constants.irccloud_preamble_size;
+                case 'textual': return types_1.Constants.textual_preamble_size;
+                case 'rrsagent':
+                default: return types_1.Constants.rrsagent_preamble_size;
+            }
+        }
+        else if (the_line.match(types_1.Constants.irccloud_regexp) !== null) {
+            config.irc_format = 'irccloud';
+            return types_1.Constants.irccloud_preamble_size;
+        }
+        else if (the_line.match(types_1.Constants.textual_regexp) !== null) {
+            config.irc_format = 'textual';
+            return types_1.Constants.textual_preamble_size;
+        }
+        else {
+            config.irc_format = 'rrsagent';
+            return types_1.Constants.rrsagent_preamble_size;
+        }
+    };
+    const preamble = preamble_size(line);
+    return line.slice(preamble);
+}
+/**
+ * Handle the 'scribejs' directives. The directives are of the form "scribejs, COMMAND ARGS" or, equivalently, "sjs, COMMAND ARGS".
+ *
+ * At the moment there are two possible directives:
+ *
+ * 1. `set`, adding a temporary nick name (by extending the global data on nicknames)
+ * 2. `issue` or `pr`,  handling the issue/pr directives
+ *
+ * This function is used as part of an `Array.filter` operation; i.e., the return value is a
+ * boolean signaling whether the line should be kept or not. See the exact value of the boolean below.
+ *
+ * Note, however, that the second block (issue directives) are not really handled by this function; their handling is delayed to the local context where these directives appear.
+ *
+ * @param line_object - a line object; the only important entry is the 'content'
+ * @returns true if the line is _not_ a global scribejs directive (ie, the line should be kept), false otherwise.
+ */
+function handle_scribejs(line_object, config) {
+    if (line_object.content_lower.startsWith('scribejs, ') || line_object.content_lower.startsWith('sjs, ')) {
+        // If there is a problem somewhere, it should simply be forgotten
+        // these are all beautifying steps, ie, an exception could be ignored
+        try {
+            const words = line_object.content.split(' ');
+            switch (words[1]) {
+                case 'issue':
+                case 'pr':
+                    // these are handled elsewhere; the directives should stay in content for further processing
+                    // This switch branch is unnecessary, and left here for 'documentation' purposes only.
+                    return true;
+                case 'set': {
+                    // Set a per-session nickname.
+                    const nickname = words[2].toLowerCase();
+                    const name_comps = words.slice(3);
+                    if (name_comps.length !== 0) {
+                        // The name is cleared from the '_' signs, which
+                        // are usually used to replace spaces...
+                        config.nicks.push({
+                            nick: [nickname],
+                            name: name_comps.join(' ').replace(/_/g, ' '),
+                        });
+                    }
+                    break;
+                }
+                default: {
+                    return true;
+                }
+            }
+        }
+        catch (err) {
+            return true;
+        }
+        // If we got there, the directive has its effect and should be removed
+        // returning 'false' will remove this line from the overall result
+        return false;
+    }
+    // This line should remain for further processing
+    return true;
+}
+/**
+ * Get a 'label', ie, find out if there is a 'XXX:' at the beginning of a line.
+ *
+ * The function takes care of a frequent scribe error: the continuation line (starting with a '...' or an '…')
+ * is sometimes preceded by a ':'. This is taken care of by returning the full line without the ':'.
+ *
+ * Another frequent error is to put a space after the label but before the ':' character. This is also taken care of.
+ *
+ * @param {string} line - one line of text
+ * @returns {object} - {label, content}, containing the (possibly null) label, separated from the rest
+ */
+function get_label(line) {
+    const reg = line.trim().match(/^(\w+)[ ]{0,2}:(.*)$/);
+    if (reg === null) {
+        return {
+            label: null,
+            content: line,
+        };
+    }
+    const possible_label = reg[1].trim();
+    const possible_content = reg[2].trim();
+    // There are some funny cases, however...
+    if (['http', 'https', 'email', 'ftp', 'doi', 'did', 'data'].includes(possible_label)) {
+        // Ignore the label...
+        return {
+            label: null,
+            content: line,
+        };
+    }
+    if (possible_label === '...' || possible_label === '…') {
+        // this seems to be a recurring error: scribe continuation lines are
+        // preceded by "...:" instead of purely "..."
+        return {
+            label: null,
+            content: `${possible_label} ${possible_content}`,
+        };
+    }
+    return {
+        label: possible_label,
+        content: possible_content,
+    };
+}
+exports.get_label = get_label;
+/**
+ * Create a "canonical" nickname, ie,
+ *
+ * * lower case
+ * * free of additional characters used by (some) IRC servers, like adding a '@' character, or adding an '_' character to the start or the end of the nickname.
+ *
+ * @param nick - the original nickname
+ * @param lower - whether the name should be put into lower case
+ * @return the 'canonical' nickname
+ */
+function canonical_nick(nick, lower = true) {
+    const to_canonicalize = lower ? nick.toLocaleLowerCase() : nick;
+    return to_canonicalize.replace(/^_+/, '').replace(/_+$/, '').replace(/^@/, '');
+}
+exports.canonical_nick = canonical_nick;
+/**
+ * Extract a list of nick names (used for present, regrets, and guests, etc)
+ * All of these have a common structure: 'XXX+' means add nicknames, 'XXX-' means remove
+ * nicknames, 'XXX:' means set them.
+ *
+ * The function receives, as argument, a list containing the current list of those
+ * categories, and performs a 'union' or 'difference' actions, resulting in an updated list
+ *
+ * @param current_list - the current list of nicknames
+ * @param line - IRC line object
+ * @param category - the 'label' to look for (ie, 'present', 'regrets', 'scribe', etc.)
+ * @param remove - whether removal should indeed happen with a '-' suffix. A `false` value may make sense when the same irc line is reused for two different purposes: list the name in the header but also act on its presence in the minutes. Scribe setting is the typical case: the effect of `scribe-` should result of removing the name from the header report
+ *
+ * @returns  new value of the list of nicknames
+ */
+function get_name_list(current_list, line, category, remove = true) {
+    // fake function, just to make the code below cleaner for the case when removal must be ignored
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const arg1 = (a, b) => a;
+    // Another fake function that only keeps the second argument, again to make the code cleaner
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const arg2 = (a, b) => b;
+    // Extract the (nick) names from the comma separated list of persons
+    // 'number' is the number of characters that must be ignored, corresponding to the category
+    const get_names = (index) => {
+        // Care should be taken to trim everything in order keep the nick names clean of extra spaces...
+        const retval = line.content.slice(index + 1).trim().split(',');
+        if (retval.length === 0 || (retval.length === 1 && retval[0].length === 0)) {
+            return [line.nick];
+        }
+        return retval;
+    };
+    const lower = line.content_lower.trim();
+    const cutIndex = category.length;
+    if (lower.startsWith(category) === true) {
+        // bingo, we have to extract the content.
+        // There are various possibilities, through...
+        let action = union; // This is the default action on the nicknames
+        let names = [];
+        // Note that, although the correct syntax is, e.g., "present+", a frequent
+        // mistake is to type "present +". Same for the usage of '-'.
+        // The script resilient on this:-)
+        if (lower.startsWith(`${category}+`) === true) {
+            names = get_names(cutIndex);
+        }
+        else if (lower.startsWith(`${category} +`) === true) {
+            names = get_names(cutIndex + 1);
+        }
+        else if (lower.startsWith(`${category}:`) === true) {
+            names = get_names(cutIndex);
+        }
+        else if (lower.startsWith(`${category}-`) === true) {
+            names = get_names(cutIndex);
+            action = remove ? difference : arg1;
+        }
+        else if (lower.startsWith(`${category} -`) === true) {
+            names = get_names(cutIndex + 1);
+            action = remove ? difference : arg1;
+        }
+        else if (lower.startsWith(`${category}=`) === true) {
+            names = get_names(cutIndex);
+            action = arg2;
+        }
+        else if (lower.startsWith(`${category} =`) === true) {
+            names = get_names(cutIndex + 2);
+            action = arg2;
+        }
+        else {
+            // This is not a correct usage...
+            return undefined;
+        }
+        return action(current_list, names.map((name) => name.trim()));
+    }
+    else {
+        return undefined;
+    }
+}
+exports.get_name_list = get_name_list;
+/**
+ * Cleanup actions on the incoming irc log (ie, an array of lines):
+ *
+ *  - remove empty lines
+ *  - remove the irc preamble (time stamp, typically)
+ *  - turn lines into objects, separating the nick name and the content
+ *  - remove the lines coming from zakim, rrsagent, and possibly other bots
+ *  - remove zakim queue commands
+ *  - remove zakim agenda control commands
+ *  - remove bot commands ("zakim,", "rrsagent,", etc.)
+ *  - remove the "XXX has joined #YYY" type messages
+ *  - handle the "scribejs, nick FULL NAME" type commands (or, equivalently, "sjs, nick ...")
+ *
+ *
+ * @param minutes - the full IRC log
+ * @returns array of {nick, content, content_lower} objects ('nick' is the IRC nick)
+ */
+// eslint-disable-next-line max-lines-per-function
+function cleanup(minutes, config) {
+    // Cleanup action on the log lines
+    const cleaned_up_lines = minutes
+        // remove the empty lines
+        .filter((line) => line.length !== 0)
+        // Remove the starting time stamp or equivalent. The function
+        // relies on the fact that each line starts with a specific number of characters.
+        // This depends on the irc log format...
+        .map((line) => remove_preamble(line, config))
+        // remove possible IRC format specific lines
+        .filter((line) => {
+        // this filter is, in fact, unnecessary if rrsagent is used
+        // however, if the script is used against a line-oriented log
+        // of an irc client (like textual) then this come handy in taking
+        // out at least some of the problematic lines
+        if (config.irc_format === undefined) {
+            // use the default RRSAgent log, no extra filter is necessary
+            return true;
+        }
+        switch (config.irc_format) {
+            case 'textual': {
+                const stripped_line = line.trim();
+                return !(stripped_line.length === 0
+                    || stripped_line[0] === '•'
+                    || stripped_line.startsWith('Disconnected for Sleep Mode')
+                    || stripped_line.includes('rrsagent')
+                    || stripped_line.includes('zakim')
+                    || stripped_line.includes('github-bot')
+                    || stripped_line.includes('joined the channel')
+                    || stripped_line.includes('------------- Begin Session -------------')
+                    || stripped_line.includes('------------- End Session -------------')
+                    || stripped_line.includes('changed the topic to'));
+            }
+            case 'irccloud': {
+                const stripped_line = line.trim();
+                return !(stripped_line.length === 0
+                    || stripped_line[0] === '→'
+                    || stripped_line[0] === '—'
+                    || stripped_line[0] === '⇐');
+            }
+            default: {
+                return true;
+            }
+        }
+    });
+    // IRC log lines are turned into objects, separating the nicknames. From now on, the minutes
+    // is an array of special objects.
+    const line_objects = cleaned_up_lines.map((line) => {
+        const sp = line.indexOf(' ');
+        return {
+            // Note that I remove the '<' and the '>' characters
+            // leaving only the real nickname
+            nick: line.slice(1, sp - 1),
+            content: line.slice(sp + 1).trim(),
+        };
+    });
+    // Filtering on the line objects now
+    return line_objects
+        // Taking care of the accidental appearance of what could be
+        // interpreted as an HTML tag...
+        // Unless... the scribe or the commenter has already put the tag into back quotes!
+        .map((line_object) => {
+        line_object.content = line_object.content.replace(/([^`])<(\w*\/?)>([^`])/g, '$1`<$2>`$3');
+        return line_object;
+    })
+        // Add a lower case version of the content to the objects; this will be used
+        // for comparisons later
+        .map((line_object) => {
+        line_object.content_lower = line_object.content.toLowerCase();
+        return line_object;
+    })
+        // Bunch of filters, removing the unnecessary lines
+        .filter((line_object) => (line_object.nick !== 'RRSAgent'
+        && line_object.nick !== 'Zakim'
+        && line_object.nick !== 'github-bot'
+        && line_object.nick !== 'trackbot'))
+        .filter((line_object) => !(line_object.content_lower.startsWith('q+')
+        || line_object.content_lower.startsWith('+q')
+        || line_object.content_lower.startsWith('vq?')
+        || line_object.content_lower.startsWith('qq+')
+        || line_object.content_lower.startsWith('q-')
+        || line_object.content_lower.startsWith('q?')
+        || line_object.content_lower.startsWith('ack')
+        || line_object.content_lower.startsWith('agenda+')
+        || line_object.content_lower.startsWith('agenda?')
+        || line_object.content_lower.startsWith('trackbot,')
+        || line_object.content_lower.startsWith('zakim,')
+        || line_object.content_lower.startsWith('rrsagent,')
+        || line_object.content_lower.startsWith('github topic')
+        || line_object.content_lower.startsWith('github-bot,')))
+        // There are some irc messages that should be taken care of
+        .filter((line_object) => !(line_object.content.match(/^\w+ has joined #\w+/)
+        || line_object.content.match(/^\w+ has left #\w+/)
+        || line_object.content.match(/^\w+ has changed the topic to:/)))
+        // Handle the scribejs directives which **may** lead to the removal of that line from the minutes
+        .filter((line) => handle_scribejs(line, config));
+}
+exports.cleanup = cleanup;
+/**
+ *  Fill in the header structure with
+ *   - present: comma separated IRC nicknames
+ *   - regrets: comma separated IRC nicknames
+ *   - guests: comma separated IRC nicknames
+ *   - chair: string
+ *   - agenda: string
+ *   - meeting: string
+ *   - date: string
+ *   - scribe: comma separated IRC nicknames
+ * All these actions, except for 'scribe', also remove the corresponding lines from the IRC log array.
+ *
+ * @param lines - array of {nick, content, content_lower} objects
+ * @param date - date to be used in the header
+ * @returns {header, lines}, where "header" is the header object, "lines" is the rest of the IRC log, with header specific lines removed
+ */
+function separate_header(lines, date) {
+    const headers = {
+        present: [],
+        regrets: [],
+        guests: [],
+        chair: [],
+        agenda: '',
+        date: date || '',
+        scribe: [],
+        meeting: '',
+    };
+    /**
+     * Extract a list of nick names (used for present, regrets, and guests)
+     * All of these have a common structure: 'XXX+' means add nicknames, 'XXX-' means remove
+     * nicknames, 'XXX:' means set them.
+     * If found, the relevant field in the header object is extended.
+     *
+     * The real work is done in the [[get_name_list]] function; this wrapper utility just handles some usual mistakes
+     * before calling out the real one:
+     *
+     * * usage of 'guest' instead of 'guests'
+     * * usage of 'regret' instead of 'regrets'
+     * * usage of 'scribenick' instead of 'scribe' (this is a historical remain…)
+     *
+     * This method is used in filter, hence its return type.
+     *
+     * @param category - the 'label' to look for
+     * @param line - IRC line object
+     * @param remove - whether removal should indeed happen with a '-' suffix
+     * @returns true or false, depending on whether this is indeed a line with that category.
+     */
+    const people = (category, line, remove = true) => {
+        let real_category;
+        switch (category) {
+            case 'guest':
+                real_category = 'guests';
+                break;
+            case 'regret':
+                real_category = 'regrets';
+                break;
+            case 'scribenick':
+                real_category = 'scribe';
+                break;
+            case 'chairs':
+                real_category = 'chair';
+                break;
+            default:
+                real_category = category;
+        }
+        const new_list = get_name_list(headers[real_category], line, category, remove);
+        if (new_list === undefined) {
+            return false;
+        }
+        else {
+            headers[real_category] = new_list;
+            return true;
+        }
+    };
+    /**
+     * Extract single items like "agenda:" or "meeting:"
+     * If found, the relevant field in the header object is set.
+     *
+     * @param category - the 'label' to look for
+     * @param line - IRC line object
+     * @returns true or false, depending on whether this is indeed a line with that category
+     */
+    const single_item = (category, line) => {
+        /**
+         * Extract a labelled item, ie, something of the form "XXX: YYY", where
+         * "XXX:" is the 'label'. "XXX" is always in lower case, and the content is
+         * checked in lower case, too.
+         */
+        const get_labelled_item = (label) => {
+            const lower = line.content.toLowerCase();
+            const label_length = label.length + 1; // Accounting for the ':' character!
+            return lower.startsWith(`${label}:`) === true ? line.content.slice(label_length).trim() : null;
+        };
+        const item = get_labelled_item(category);
+        if (item !== null) {
+            headers[category] = item;
+            return true;
+        }
+        return false;
+    };
+    // filter out all irc log lines that are related to header information
+    // except for the scribe-related lines; while those should 'enrich' the headers,
+    // the lines themselves should remain to control the final output
+    const processed_lines = lines
+        .filter((line) => !people('present', line))
+        .filter((line) => !(people('regrets', line) || people('regret', line)))
+        .filter((line) => !(people('guests', line) || people('guest', line)))
+        .filter((line) => !(people('chairs', line) || people('chair', line)))
+        .filter((line) => {
+        people('scribe', line, false);
+        people('scribenick', line, false);
+        return true;
+    })
+        .filter((line) => !single_item('agenda', line))
+        .filter((line) => !single_item('meeting', line))
+        .filter((line) => !single_item('date', line));
+    return {
+        headers: headers,
+        lines: processed_lines,
+    };
+}
+exports.separate_header = separate_header;
+/**
+ * Handle the i/../../ type lines, ie, insert new lines
+ *
+ * @param lines - array of {nick, content, content_lower} objects
+ * @returns {array} - returns the lines with the possible changes done
+ */
+function perform_insert_requests(lines) {
+    // This array will contain change request structures:
+    // lineno: the line number of the change request
+    // at, add: the insert values
+    const insert_requests = [];
+    // This is the method used to see if it is a change request.
+    // Note that there are two possible syntaxes:
+    //   i/.../.../
+    //   i|...|...|
+    const get_insert_request = (str) => str.match(/^i\/([^/]+)\/([^/]+)\/{0,1}/) || str.match(/^i\|([^|]+)\|([^|]+)\|{0,1}/);
+    const marker = '----INSERTREQUESTXYZ----';
+    const intermediate_retval = lines
+        // Because the insert is to work on the *preceding* values, the processing with indexes is simpler if the
+        // array has to be traversed upside down...
+        .reverse()
+        .map((line, index) => {
+        // Find the insert requests, extract the values to a separate array
+        // and place a marker to signal original request
+        // (Adding new content right away is not a good idea, because things are based on
+        // the array index later...)
+        const r = get_insert_request(line.content);
+        if (r !== null) {
+            // store the regex results
+            insert_requests.push({
+                lineno: index,
+                at: r[1],
+                add: r[2],
+                valid: true,
+            });
+            // This line has to be removed at some point later...
+            line.content = marker;
+        }
+        return line;
+    })
+        .map((line, index) => {
+        // See if a content has to be modified by one of the insert requests
+        // Note that, temporarily, and array of Line Objects are returned, ie, the result of 'map' is
+        // an array or arrays.
+        if (line.content !== marker) {
+            const insert_retval = [line];
+            for (const insert of insert_requests) {
+                if (insert.valid && index > insert.lineno && line.content.indexOf(insert.at) !== -1) {
+                    // this request has played its role...
+                    insert.valid = false;
+                    // This is the real action: add a new structure, ie, a new line
+                    // Note that it is added and not inserted; we are upside down and the order of the lines will be reversed later
+                    insert_retval.push({
+                        nick: line.nick,
+                        content: insert.add,
+                        content_lower: insert.add.toLowerCase(),
+                    });
+                    break; // we do not need to look at other request for this line
+                }
+            }
+            return insert_retval;
+        }
+        else {
+            // This is a placeholder of the original request, will be removed later.
+            return [line];
+        }
+    });
+    return intermediate_retval
+        .reduce(flatten, [])
+        // Remove the markers, just to be on the safe side
+        .filter((line) => (line.content !== marker))
+        // return the array into its original order
+        .reverse();
+}
+exports.perform_insert_requests = perform_insert_requests;
+/**
+ * Handle the s/../.. type lines, ie, make changes on the contents
+ *
+ * @param {array} lines - array of {nick, content, content_lower} objects
+ * @returns {array} - returns the lines with the possible changes done
+ */
+function perform_change_requests(lines) {
+    // Interestingly, node.js does not have the replaceAll function, although defined for Javascript... oh well...
+    const replaceAll = (inp, from, to) => {
+        let retval = inp;
+        while (retval.includes(from)) {
+            retval = retval.replace(from, to);
+        }
+        return retval;
+    };
+    // This array will contain change request structures:
+    // lineno: the line number of the change request
+    // from, to: the change values
+    // g, G: booleans to signal whether these flag have been set
+    // valid: boolean that signals that this request is still valid
+    const change_requests = [];
+    // This is the method used to see if it is a change request.
+    // Note that there are two possible syntaxes:
+    //   s/.../.../{gG}
+    //   s|...|...|{gG}
+    const get_change_request = (str) => str.match(/^s\/([^/]+)\/([^/]*)\/{0,1}(g|G){0,1}/) || str.match(/^s\|([^|]+)\|([^/|]*)\|{0,1}(g|G){0,1}/);
+    const marker = '----CHANGEREQUESTXYZ----';
+    const error_marker = '----ERRORINREQUESTXYZ----';
+    const retval = lines
+        // Because the change is to work on the preceding values, the
+        // array has to be traversed upside down...
+        .reverse()
+        .map((line, index) => {
+        // Find the change requests, extract the values to a separate array
+        // and place a marker to remove the original request later
+        // (Removing it right away is not a good idea, because things are based on
+        // the array index later...)
+        const r = get_change_request(line.content);
+        if (r !== null) {
+            // The 'from' in the change request is r[1]; this will be used in the form of a
+            // regular expression. That is created here;
+            change_requests.push({
+                lineno: index,
+                from: r[1],
+                to: r[2],
+                g: r[3] === 'g',
+                G: r[3] === 'G',
+                valid: true,
+            });
+            line.content = marker;
+        }
+        return line;
+    })
+        .map((line, index) => {
+        // See if a line has to be modified by one of the change requests
+        if (line.content !== marker && line.content !== error_marker) {
+            for (const change of change_requests) {
+                // One change request: the change should occur
+                // - in any case if the 'G' flag is on
+                // - if the index is beyond the change request position otherwise
+                if (change.valid && (change.G || index >= change.lineno)) {
+                    if (line.content.indexOf(change.from) !== -1) {
+                        // There is a change to be performed.
+                        try {
+                            line.content = replaceAll(line.content, change.from, change.to);
+                            // If this was not a form of 'global' change then its role is done
+                            // and the request should be invalidated
+                            if (!(change.G || change.g)) {
+                                change.valid = false;
+                            }
+                        }
+                        catch (e) {
+                            console.error(`Error in handling change request with ${change.from}: ${e.message}. Change request ignored`);
+                        }
+                    }
+                }
+            }
+        }
+        return line;
+    })
+        // Remove the markers
+        .filter((line) => (line.content !== marker && line.content !== error_marker))
+        // return the array into its original order
+        .reverse();
+    return retval;
+}
+exports.perform_change_requests = perform_change_requests;
+/**
+* URL handling: find URL-s in a line and convert it into an active markdown link.
+*
+* There are different possibilities:
+* * `-> URL some text` as a separate line (a.k.a. Ralph style links); "some text" becomes the link text
+* * `-> some text URL` anywhere in the line, possibly several patterns in a line; "some text" becomes the link text
+* * Simple URL formatted text where the link text is the URL itself
+*
+* Links in markup syntax are left unchanged.
+*
+* @param {String} line - the line itself
+* @returns {String} - the converted line
+*/
+function add_links(line) {
+    /**
+    * Rudimentary check whether the string should be considered a dereferencable URL
+    */
+    const check_url = (str) => {
+        const a = url.parse(str);
+        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
+    };
+    /**
+     * Splitting the line into words. By default, one splits along a space character; however, markdown code
+     * (i.e., anything between a pair pair of "`" characters) should be considered a single word.
+     * @param {String} full_line - the content line
+     * @returns {Array} - array of strings, ie, the words
+     */
+    const split_to_words = (full_line) => {
+        const trimmed = full_line.trim();
+        const REPL_HACK = '$MD_CODE$';
+        const code_regex = /`[^`]+`/g;
+        const codes = trimmed.match(code_regex);
+        if (codes) {
+            // ugly hack: replacing the code portions with a fixed pattern
+            // then we can split to get words; each code portion appears a word with REPL_HACK
+            let code_index = 0;
+            const fake = trimmed.replace(code_regex, REPL_HACK);
+            return fake.split(' ').filter((word) => word !== '').map((word) => {
+                if (word.indexOf(REPL_HACK) !== -1) {
+                    // eslint-disable-next-line no-plusplus
+                    return word.replace(REPL_HACK, codes[code_index++]);
+                }
+                else {
+                    return word;
+                }
+            });
+        }
+        else {
+            // no codes to play with
+            // empty words are also filtered out
+            return trimmed.split(' ').filter((word) => word !== '');
+        }
+    };
+    /**
+    * Taking care of the case where only URL-s are in the line without a pattern: such words are found
+    * and are converted into markup-style links with the URL text as a link text itself.
+    */
+    const simple_link_exchange = (word) => (check_url(word) ? `[${word}](${word})` : word);
+    /**
+     * Taking care of the `-> some text URL` pattern. The list of words is converted into a list of words with the
+     * link portions turned into markup-style links. The '->' marker is dropped from the output.
+     *
+     * This is a recursive function to locate all pattern occurrences.
+     *
+     * @param {Array} list_of_words - the original string turned into a list of words
+     * @return {Array} - the converted list of words
+     */
+    const replace_links = (list_of_words) => {
+        if (list_of_words.length === 0)
+            return list_of_words;
+        const start = list_of_words.findIndex((word) => word === '->');
+        if (start === -1) {
+            // No links to worry about
+            return list_of_words;
+        }
+        else {
+            const preamble = list_of_words.slice(0, start);
+            const rest = list_of_words.slice(start + 1);
+            const link_index = rest.findIndex(check_url);
+            if (link_index <= 0) {
+                // the string '->' used for some other purposes
+                return list_of_words;
+            }
+            else {
+                const new_link_word = [`See [${rest.slice(0, link_index).join(' ')}](${rest[link_index]})`];
+                const so_far = [...preamble, ...new_link_word];
+                if (link_index === rest.length) {
+                    return so_far;
+                }
+                else {
+                    const leftover = rest.slice(link_index + 1);
+                    // recursion to get possible other links in the line
+                    return [...so_far, ...replace_links(leftover)];
+                }
+            }
+        }
+    };
+    // 1. separate the line into an array of words (double spaces must be filtered out...)
+    const words = split_to_words(line);
+    // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
+    if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
+        const url_part = words[1];
+        const link_part = words.slice(2).join(' ');
+        return `See [${link_part}](${url_part}).`;
+    }
+    else {
+        // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
+        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
+    }
+}
+exports.add_links = add_links;
+
+}).call(this,require('_process'))
+},{"./types":10,"_process":175,"url":198}],12:[function(require,module,exports){
 'use strict';
 
 var compileSchema = require('./compile')
@@ -2973,7 +3151,7 @@ function setLogger(self) {
 
 function noop() {}
 
-},{"./cache":10,"./compile":14,"./compile/async":11,"./compile/error_classes":12,"./compile/formats":13,"./compile/resolve":15,"./compile/rules":16,"./compile/schema_obj":17,"./compile/util":19,"./data":20,"./keyword":48,"./refs/data.json":49,"./refs/json-schema-draft-07.json":51,"fast-json-stable-stringify":86}],10:[function(require,module,exports){
+},{"./cache":13,"./compile":17,"./compile/async":14,"./compile/error_classes":15,"./compile/formats":16,"./compile/resolve":18,"./compile/rules":19,"./compile/schema_obj":20,"./compile/util":22,"./data":23,"./keyword":51,"./refs/data.json":52,"./refs/json-schema-draft-07.json":54,"fast-json-stable-stringify":89}],13:[function(require,module,exports){
 'use strict';
 
 
@@ -3001,7 +3179,7 @@ Cache.prototype.clear = function Cache_clear() {
   this._cache = {};
 };
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var MissingRefError = require('./error_classes').MissingRef;
@@ -3093,7 +3271,7 @@ function compileAsync(schema, meta, callback) {
   }
 }
 
-},{"./error_classes":12}],12:[function(require,module,exports){
+},{"./error_classes":15}],15:[function(require,module,exports){
 'use strict';
 
 var resolve = require('./resolve');
@@ -3129,7 +3307,7 @@ function errorSubclass(Subclass) {
   return Subclass;
 }
 
-},{"./resolve":15}],13:[function(require,module,exports){
+},{"./resolve":18}],16:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -3280,7 +3458,7 @@ function regex(str) {
   }
 }
 
-},{"./util":19}],14:[function(require,module,exports){
+},{"./util":22}],17:[function(require,module,exports){
 'use strict';
 
 var resolve = require('./resolve')
@@ -3669,7 +3847,7 @@ function vars(arr, statement) {
   return code;
 }
 
-},{"../dotjs/validate":47,"./error_classes":12,"./resolve":15,"./util":19,"fast-deep-equal":85,"fast-json-stable-stringify":86}],15:[function(require,module,exports){
+},{"../dotjs/validate":50,"./error_classes":15,"./resolve":18,"./util":22,"fast-deep-equal":88,"fast-json-stable-stringify":89}],18:[function(require,module,exports){
 'use strict';
 
 var URI = require('uri-js')
@@ -3941,7 +4119,7 @@ function resolveIds(schema) {
   return localRefs;
 }
 
-},{"./schema_obj":17,"./util":19,"fast-deep-equal":85,"json-schema-traverse":129,"uri-js":239}],16:[function(require,module,exports){
+},{"./schema_obj":20,"./util":22,"fast-deep-equal":88,"json-schema-traverse":132,"uri-js":197}],19:[function(require,module,exports){
 'use strict';
 
 var ruleModules = require('../dotjs')
@@ -4009,7 +4187,7 @@ module.exports = function rules() {
   return RULES;
 };
 
-},{"../dotjs":36,"./util":19}],17:[function(require,module,exports){
+},{"../dotjs":39,"./util":22}],20:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -4020,7 +4198,7 @@ function SchemaObject(obj) {
   util.copy(obj, this);
 }
 
-},{"./util":19}],18:[function(require,module,exports){
+},{"./util":22}],21:[function(require,module,exports){
 'use strict';
 
 // https://mathiasbynens.be/notes/javascript-encoding
@@ -4042,7 +4220,7 @@ module.exports = function ucs2length(str) {
   return length;
 };
 
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 
@@ -4318,7 +4496,7 @@ function unescapeJsonPointer(str) {
   return str.replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
-},{"./ucs2length":18,"fast-deep-equal":85}],20:[function(require,module,exports){
+},{"./ucs2length":21,"fast-deep-equal":88}],23:[function(require,module,exports){
 'use strict';
 
 var KEYWORDS = [
@@ -4369,7 +4547,7 @@ module.exports = function (metaSchema, keywordsJsonPointers) {
   return metaSchema;
 };
 
-},{}],21:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 var metaSchema = require('./refs/json-schema-draft-07.json');
@@ -4408,7 +4586,7 @@ module.exports = {
   }
 };
 
-},{"./refs/json-schema-draft-07.json":51}],22:[function(require,module,exports){
+},{"./refs/json-schema-draft-07.json":54}],25:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limit(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4567,7 +4745,7 @@ module.exports = function generate__limit(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limitItems(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4646,7 +4824,7 @@ module.exports = function generate__limitItems(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],24:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limitLength(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4730,7 +4908,7 @@ module.exports = function generate__limitLength(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],25:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 module.exports = function generate__limitProperties(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4809,7 +4987,7 @@ module.exports = function generate__limitProperties(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],26:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 module.exports = function generate_allOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4854,7 +5032,7 @@ module.exports = function generate_allOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],27:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 module.exports = function generate_anyOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4930,7 +5108,7 @@ module.exports = function generate_anyOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],28:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 module.exports = function generate_comment(it, $keyword, $ruleType) {
   var out = ' ';
@@ -4946,7 +5124,7 @@ module.exports = function generate_comment(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 module.exports = function generate_const(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5004,7 +5182,7 @@ module.exports = function generate_const(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 module.exports = function generate_contains(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5088,7 +5266,7 @@ module.exports = function generate_contains(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],31:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 module.exports = function generate_custom(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5318,7 +5496,7 @@ module.exports = function generate_custom(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],32:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 module.exports = function generate_dependencies(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5488,7 +5666,7 @@ module.exports = function generate_dependencies(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 module.exports = function generate_enum(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5556,7 +5734,7 @@ module.exports = function generate_enum(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 module.exports = function generate_format(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5708,7 +5886,7 @@ module.exports = function generate_format(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],35:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 module.exports = function generate_if(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5814,7 +5992,7 @@ module.exports = function generate_if(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],36:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 //all requires must be explicit because browserify won't work with dynamic requires
@@ -5849,7 +6027,7 @@ module.exports = {
   validate: require('./validate')
 };
 
-},{"./_limit":22,"./_limitItems":23,"./_limitLength":24,"./_limitProperties":25,"./allOf":26,"./anyOf":27,"./comment":28,"./const":29,"./contains":30,"./dependencies":32,"./enum":33,"./format":34,"./if":35,"./items":37,"./multipleOf":38,"./not":39,"./oneOf":40,"./pattern":41,"./properties":42,"./propertyNames":43,"./ref":44,"./required":45,"./uniqueItems":46,"./validate":47}],37:[function(require,module,exports){
+},{"./_limit":25,"./_limitItems":26,"./_limitLength":27,"./_limitProperties":28,"./allOf":29,"./anyOf":30,"./comment":31,"./const":32,"./contains":33,"./dependencies":35,"./enum":36,"./format":37,"./if":38,"./items":40,"./multipleOf":41,"./not":42,"./oneOf":43,"./pattern":44,"./properties":45,"./propertyNames":46,"./ref":47,"./required":48,"./uniqueItems":49,"./validate":50}],40:[function(require,module,exports){
 'use strict';
 module.exports = function generate_items(it, $keyword, $ruleType) {
   var out = ' ';
@@ -5992,7 +6170,7 @@ module.exports = function generate_items(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],38:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 module.exports = function generate_multipleOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6071,7 +6249,7 @@ module.exports = function generate_multipleOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],39:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 module.exports = function generate_not(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6157,7 +6335,7 @@ module.exports = function generate_not(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 module.exports = function generate_oneOf(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6232,7 +6410,7 @@ module.exports = function generate_oneOf(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],41:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 module.exports = function generate_pattern(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6309,7 +6487,7 @@ module.exports = function generate_pattern(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],42:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 module.exports = function generate_properties(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6641,7 +6819,7 @@ module.exports = function generate_properties(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 module.exports = function generate_propertyNames(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6725,7 +6903,7 @@ module.exports = function generate_propertyNames(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 module.exports = function generate_ref(it, $keyword, $ruleType) {
   var out = ' ';
@@ -6851,7 +7029,7 @@ module.exports = function generate_ref(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],45:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 module.exports = function generate_required(it, $keyword, $ruleType) {
   var out = ' ';
@@ -7123,7 +7301,7 @@ module.exports = function generate_required(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],46:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 module.exports = function generate_uniqueItems(it, $keyword, $ruleType) {
   var out = ' ';
@@ -7211,7 +7389,7 @@ module.exports = function generate_uniqueItems(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 'use strict';
 module.exports = function generate_validate(it, $keyword, $ruleType) {
   var out = '';
@@ -7707,7 +7885,7 @@ module.exports = function generate_validate(it, $keyword, $ruleType) {
   return out;
 }
 
-},{}],48:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 var IDENTIFIER = /^[a-z_$][a-z0-9_$-]*$/i;
@@ -7855,7 +8033,7 @@ function validateKeyword(definition, throwError) {
     return false;
 }
 
-},{"./definition_schema":21,"./dotjs/custom":31}],49:[function(require,module,exports){
+},{"./definition_schema":24,"./dotjs/custom":34}],52:[function(require,module,exports){
 module.exports={
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://raw.githubusercontent.com/epoberezkin/ajv/master/lib/refs/data.json#",
@@ -7874,7 +8052,7 @@ module.exports={
     "additionalProperties": false
 }
 
-},{}],50:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports={
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://json-schema.org/draft-06/schema#",
@@ -8030,7 +8208,7 @@ module.exports={
     "default": {}
 }
 
-},{}],51:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports={
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://json-schema.org/draft-07/schema#",
@@ -8200,7 +8378,7 @@ module.exports={
     "default": true
 }
 
-},{}],52:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -8353,9 +8531,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],53:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 
-},{}],54:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -8892,7 +9070,7 @@ function fromByteArray (uint8) {
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],55:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 (function (Buffer){
 /*!
  * The buffer module from node.js, for the browser.
@@ -10673,7 +10851,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"base64-js":52,"buffer":55,"ieee754":95}],56:[function(require,module,exports){
+},{"base64-js":55,"buffer":58,"ieee754":98}],59:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -10784,7 +10962,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":97}],57:[function(require,module,exports){
+},{"../../is-buffer/index.js":100}],60:[function(require,module,exports){
 module.exports={
   "elementNames" : {
 "altglyph" : "altGlyph",
@@ -10888,7 +11066,7 @@ module.exports={
   }
 }
 
-},{}],58:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 /*
   Module dependencies
 */
@@ -11073,7 +11251,7 @@ function renderComment(elem) {
   return '<!--' + elem.data + '-->';
 }
 
-},{"./foreignNames.json":57,"domelementtype":59,"entities":63}],59:[function(require,module,exports){
+},{"./foreignNames.json":60,"domelementtype":62,"entities":66}],62:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
@@ -11097,7 +11275,7 @@ exports.Tag = "tag" /* Tag */; //Any tag
 exports.CDATA = "cdata" /* CDATA */; //<![CDATA[ ... ]]>
 exports.Doctype = "doctype" /* Doctype */;
 
-},{}],60:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -11153,7 +11331,7 @@ function getReplacer(map) {
     };
 }
 
-},{"./decode_codepoint":61,"./maps/entities.json":65,"./maps/legacy.json":66,"./maps/xml.json":67}],61:[function(require,module,exports){
+},{"./decode_codepoint":64,"./maps/entities.json":68,"./maps/legacy.json":69,"./maps/xml.json":70}],64:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -11180,7 +11358,7 @@ function decodeCodePoint(codePoint) {
 }
 exports.default = decodeCodePoint;
 
-},{"./maps/decode.json":64}],62:[function(require,module,exports){
+},{"./maps/decode.json":67}],65:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -11249,7 +11427,7 @@ function escape(data) {
 }
 exports.escape = escape;
 
-},{"./maps/entities.json":65,"./maps/xml.json":67}],63:[function(require,module,exports){
+},{"./maps/entities.json":68,"./maps/xml.json":70}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var decode_1 = require("./decode");
@@ -11284,19 +11462,19 @@ exports.decodeHTML4Strict = decode_2.decodeHTMLStrict;
 exports.decodeHTML5Strict = decode_2.decodeHTMLStrict;
 exports.decodeXMLStrict = decode_2.decodeXML;
 
-},{"./decode":60,"./encode":62}],64:[function(require,module,exports){
+},{"./decode":63,"./encode":65}],67:[function(require,module,exports){
 module.exports={ "0": 65533, "128": 8364, "130": 8218, "131": 402, "132": 8222, "133": 8230, "134": 8224, "135": 8225, "136": 710, "137": 8240, "138": 352, "139": 8249, "140": 338, "142": 381, "145": 8216, "146": 8217, "147": 8220, "148": 8221, "149": 8226, "150": 8211, "151": 8212, "152": 732, "153": 8482, "154": 353, "155": 8250, "156": 339, "158": 382, "159": 376 }
 
-},{}],65:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports={ "Aacute": "\u00C1", "aacute": "\u00E1", "Abreve": "\u0102", "abreve": "\u0103", "ac": "\u223E", "acd": "\u223F", "acE": "\u223E\u0333", "Acirc": "\u00C2", "acirc": "\u00E2", "acute": "\u00B4", "Acy": "\u0410", "acy": "\u0430", "AElig": "\u00C6", "aelig": "\u00E6", "af": "\u2061", "Afr": "\uD835\uDD04", "afr": "\uD835\uDD1E", "Agrave": "\u00C0", "agrave": "\u00E0", "alefsym": "\u2135", "aleph": "\u2135", "Alpha": "\u0391", "alpha": "\u03B1", "Amacr": "\u0100", "amacr": "\u0101", "amalg": "\u2A3F", "amp": "&", "AMP": "&", "andand": "\u2A55", "And": "\u2A53", "and": "\u2227", "andd": "\u2A5C", "andslope": "\u2A58", "andv": "\u2A5A", "ang": "\u2220", "ange": "\u29A4", "angle": "\u2220", "angmsdaa": "\u29A8", "angmsdab": "\u29A9", "angmsdac": "\u29AA", "angmsdad": "\u29AB", "angmsdae": "\u29AC", "angmsdaf": "\u29AD", "angmsdag": "\u29AE", "angmsdah": "\u29AF", "angmsd": "\u2221", "angrt": "\u221F", "angrtvb": "\u22BE", "angrtvbd": "\u299D", "angsph": "\u2222", "angst": "\u00C5", "angzarr": "\u237C", "Aogon": "\u0104", "aogon": "\u0105", "Aopf": "\uD835\uDD38", "aopf": "\uD835\uDD52", "apacir": "\u2A6F", "ap": "\u2248", "apE": "\u2A70", "ape": "\u224A", "apid": "\u224B", "apos": "'", "ApplyFunction": "\u2061", "approx": "\u2248", "approxeq": "\u224A", "Aring": "\u00C5", "aring": "\u00E5", "Ascr": "\uD835\uDC9C", "ascr": "\uD835\uDCB6", "Assign": "\u2254", "ast": "*", "asymp": "\u2248", "asympeq": "\u224D", "Atilde": "\u00C3", "atilde": "\u00E3", "Auml": "\u00C4", "auml": "\u00E4", "awconint": "\u2233", "awint": "\u2A11", "backcong": "\u224C", "backepsilon": "\u03F6", "backprime": "\u2035", "backsim": "\u223D", "backsimeq": "\u22CD", "Backslash": "\u2216", "Barv": "\u2AE7", "barvee": "\u22BD", "barwed": "\u2305", "Barwed": "\u2306", "barwedge": "\u2305", "bbrk": "\u23B5", "bbrktbrk": "\u23B6", "bcong": "\u224C", "Bcy": "\u0411", "bcy": "\u0431", "bdquo": "\u201E", "becaus": "\u2235", "because": "\u2235", "Because": "\u2235", "bemptyv": "\u29B0", "bepsi": "\u03F6", "bernou": "\u212C", "Bernoullis": "\u212C", "Beta": "\u0392", "beta": "\u03B2", "beth": "\u2136", "between": "\u226C", "Bfr": "\uD835\uDD05", "bfr": "\uD835\uDD1F", "bigcap": "\u22C2", "bigcirc": "\u25EF", "bigcup": "\u22C3", "bigodot": "\u2A00", "bigoplus": "\u2A01", "bigotimes": "\u2A02", "bigsqcup": "\u2A06", "bigstar": "\u2605", "bigtriangledown": "\u25BD", "bigtriangleup": "\u25B3", "biguplus": "\u2A04", "bigvee": "\u22C1", "bigwedge": "\u22C0", "bkarow": "\u290D", "blacklozenge": "\u29EB", "blacksquare": "\u25AA", "blacktriangle": "\u25B4", "blacktriangledown": "\u25BE", "blacktriangleleft": "\u25C2", "blacktriangleright": "\u25B8", "blank": "\u2423", "blk12": "\u2592", "blk14": "\u2591", "blk34": "\u2593", "block": "\u2588", "bne": "=\u20E5", "bnequiv": "\u2261\u20E5", "bNot": "\u2AED", "bnot": "\u2310", "Bopf": "\uD835\uDD39", "bopf": "\uD835\uDD53", "bot": "\u22A5", "bottom": "\u22A5", "bowtie": "\u22C8", "boxbox": "\u29C9", "boxdl": "\u2510", "boxdL": "\u2555", "boxDl": "\u2556", "boxDL": "\u2557", "boxdr": "\u250C", "boxdR": "\u2552", "boxDr": "\u2553", "boxDR": "\u2554", "boxh": "\u2500", "boxH": "\u2550", "boxhd": "\u252C", "boxHd": "\u2564", "boxhD": "\u2565", "boxHD": "\u2566", "boxhu": "\u2534", "boxHu": "\u2567", "boxhU": "\u2568", "boxHU": "\u2569", "boxminus": "\u229F", "boxplus": "\u229E", "boxtimes": "\u22A0", "boxul": "\u2518", "boxuL": "\u255B", "boxUl": "\u255C", "boxUL": "\u255D", "boxur": "\u2514", "boxuR": "\u2558", "boxUr": "\u2559", "boxUR": "\u255A", "boxv": "\u2502", "boxV": "\u2551", "boxvh": "\u253C", "boxvH": "\u256A", "boxVh": "\u256B", "boxVH": "\u256C", "boxvl": "\u2524", "boxvL": "\u2561", "boxVl": "\u2562", "boxVL": "\u2563", "boxvr": "\u251C", "boxvR": "\u255E", "boxVr": "\u255F", "boxVR": "\u2560", "bprime": "\u2035", "breve": "\u02D8", "Breve": "\u02D8", "brvbar": "\u00A6", "bscr": "\uD835\uDCB7", "Bscr": "\u212C", "bsemi": "\u204F", "bsim": "\u223D", "bsime": "\u22CD", "bsolb": "\u29C5", "bsol": "\\", "bsolhsub": "\u27C8", "bull": "\u2022", "bullet": "\u2022", "bump": "\u224E", "bumpE": "\u2AAE", "bumpe": "\u224F", "Bumpeq": "\u224E", "bumpeq": "\u224F", "Cacute": "\u0106", "cacute": "\u0107", "capand": "\u2A44", "capbrcup": "\u2A49", "capcap": "\u2A4B", "cap": "\u2229", "Cap": "\u22D2", "capcup": "\u2A47", "capdot": "\u2A40", "CapitalDifferentialD": "\u2145", "caps": "\u2229\uFE00", "caret": "\u2041", "caron": "\u02C7", "Cayleys": "\u212D", "ccaps": "\u2A4D", "Ccaron": "\u010C", "ccaron": "\u010D", "Ccedil": "\u00C7", "ccedil": "\u00E7", "Ccirc": "\u0108", "ccirc": "\u0109", "Cconint": "\u2230", "ccups": "\u2A4C", "ccupssm": "\u2A50", "Cdot": "\u010A", "cdot": "\u010B", "cedil": "\u00B8", "Cedilla": "\u00B8", "cemptyv": "\u29B2", "cent": "\u00A2", "centerdot": "\u00B7", "CenterDot": "\u00B7", "cfr": "\uD835\uDD20", "Cfr": "\u212D", "CHcy": "\u0427", "chcy": "\u0447", "check": "\u2713", "checkmark": "\u2713", "Chi": "\u03A7", "chi": "\u03C7", "circ": "\u02C6", "circeq": "\u2257", "circlearrowleft": "\u21BA", "circlearrowright": "\u21BB", "circledast": "\u229B", "circledcirc": "\u229A", "circleddash": "\u229D", "CircleDot": "\u2299", "circledR": "\u00AE", "circledS": "\u24C8", "CircleMinus": "\u2296", "CirclePlus": "\u2295", "CircleTimes": "\u2297", "cir": "\u25CB", "cirE": "\u29C3", "cire": "\u2257", "cirfnint": "\u2A10", "cirmid": "\u2AEF", "cirscir": "\u29C2", "ClockwiseContourIntegral": "\u2232", "CloseCurlyDoubleQuote": "\u201D", "CloseCurlyQuote": "\u2019", "clubs": "\u2663", "clubsuit": "\u2663", "colon": ":", "Colon": "\u2237", "Colone": "\u2A74", "colone": "\u2254", "coloneq": "\u2254", "comma": ",", "commat": "@", "comp": "\u2201", "compfn": "\u2218", "complement": "\u2201", "complexes": "\u2102", "cong": "\u2245", "congdot": "\u2A6D", "Congruent": "\u2261", "conint": "\u222E", "Conint": "\u222F", "ContourIntegral": "\u222E", "copf": "\uD835\uDD54", "Copf": "\u2102", "coprod": "\u2210", "Coproduct": "\u2210", "copy": "\u00A9", "COPY": "\u00A9", "copysr": "\u2117", "CounterClockwiseContourIntegral": "\u2233", "crarr": "\u21B5", "cross": "\u2717", "Cross": "\u2A2F", "Cscr": "\uD835\uDC9E", "cscr": "\uD835\uDCB8", "csub": "\u2ACF", "csube": "\u2AD1", "csup": "\u2AD0", "csupe": "\u2AD2", "ctdot": "\u22EF", "cudarrl": "\u2938", "cudarrr": "\u2935", "cuepr": "\u22DE", "cuesc": "\u22DF", "cularr": "\u21B6", "cularrp": "\u293D", "cupbrcap": "\u2A48", "cupcap": "\u2A46", "CupCap": "\u224D", "cup": "\u222A", "Cup": "\u22D3", "cupcup": "\u2A4A", "cupdot": "\u228D", "cupor": "\u2A45", "cups": "\u222A\uFE00", "curarr": "\u21B7", "curarrm": "\u293C", "curlyeqprec": "\u22DE", "curlyeqsucc": "\u22DF", "curlyvee": "\u22CE", "curlywedge": "\u22CF", "curren": "\u00A4", "curvearrowleft": "\u21B6", "curvearrowright": "\u21B7", "cuvee": "\u22CE", "cuwed": "\u22CF", "cwconint": "\u2232", "cwint": "\u2231", "cylcty": "\u232D", "dagger": "\u2020", "Dagger": "\u2021", "daleth": "\u2138", "darr": "\u2193", "Darr": "\u21A1", "dArr": "\u21D3", "dash": "\u2010", "Dashv": "\u2AE4", "dashv": "\u22A3", "dbkarow": "\u290F", "dblac": "\u02DD", "Dcaron": "\u010E", "dcaron": "\u010F", "Dcy": "\u0414", "dcy": "\u0434", "ddagger": "\u2021", "ddarr": "\u21CA", "DD": "\u2145", "dd": "\u2146", "DDotrahd": "\u2911", "ddotseq": "\u2A77", "deg": "\u00B0", "Del": "\u2207", "Delta": "\u0394", "delta": "\u03B4", "demptyv": "\u29B1", "dfisht": "\u297F", "Dfr": "\uD835\uDD07", "dfr": "\uD835\uDD21", "dHar": "\u2965", "dharl": "\u21C3", "dharr": "\u21C2", "DiacriticalAcute": "\u00B4", "DiacriticalDot": "\u02D9", "DiacriticalDoubleAcute": "\u02DD", "DiacriticalGrave": "`", "DiacriticalTilde": "\u02DC", "diam": "\u22C4", "diamond": "\u22C4", "Diamond": "\u22C4", "diamondsuit": "\u2666", "diams": "\u2666", "die": "\u00A8", "DifferentialD": "\u2146", "digamma": "\u03DD", "disin": "\u22F2", "div": "\u00F7", "divide": "\u00F7", "divideontimes": "\u22C7", "divonx": "\u22C7", "DJcy": "\u0402", "djcy": "\u0452", "dlcorn": "\u231E", "dlcrop": "\u230D", "dollar": "$", "Dopf": "\uD835\uDD3B", "dopf": "\uD835\uDD55", "Dot": "\u00A8", "dot": "\u02D9", "DotDot": "\u20DC", "doteq": "\u2250", "doteqdot": "\u2251", "DotEqual": "\u2250", "dotminus": "\u2238", "dotplus": "\u2214", "dotsquare": "\u22A1", "doublebarwedge": "\u2306", "DoubleContourIntegral": "\u222F", "DoubleDot": "\u00A8", "DoubleDownArrow": "\u21D3", "DoubleLeftArrow": "\u21D0", "DoubleLeftRightArrow": "\u21D4", "DoubleLeftTee": "\u2AE4", "DoubleLongLeftArrow": "\u27F8", "DoubleLongLeftRightArrow": "\u27FA", "DoubleLongRightArrow": "\u27F9", "DoubleRightArrow": "\u21D2", "DoubleRightTee": "\u22A8", "DoubleUpArrow": "\u21D1", "DoubleUpDownArrow": "\u21D5", "DoubleVerticalBar": "\u2225", "DownArrowBar": "\u2913", "downarrow": "\u2193", "DownArrow": "\u2193", "Downarrow": "\u21D3", "DownArrowUpArrow": "\u21F5", "DownBreve": "\u0311", "downdownarrows": "\u21CA", "downharpoonleft": "\u21C3", "downharpoonright": "\u21C2", "DownLeftRightVector": "\u2950", "DownLeftTeeVector": "\u295E", "DownLeftVectorBar": "\u2956", "DownLeftVector": "\u21BD", "DownRightTeeVector": "\u295F", "DownRightVectorBar": "\u2957", "DownRightVector": "\u21C1", "DownTeeArrow": "\u21A7", "DownTee": "\u22A4", "drbkarow": "\u2910", "drcorn": "\u231F", "drcrop": "\u230C", "Dscr": "\uD835\uDC9F", "dscr": "\uD835\uDCB9", "DScy": "\u0405", "dscy": "\u0455", "dsol": "\u29F6", "Dstrok": "\u0110", "dstrok": "\u0111", "dtdot": "\u22F1", "dtri": "\u25BF", "dtrif": "\u25BE", "duarr": "\u21F5", "duhar": "\u296F", "dwangle": "\u29A6", "DZcy": "\u040F", "dzcy": "\u045F", "dzigrarr": "\u27FF", "Eacute": "\u00C9", "eacute": "\u00E9", "easter": "\u2A6E", "Ecaron": "\u011A", "ecaron": "\u011B", "Ecirc": "\u00CA", "ecirc": "\u00EA", "ecir": "\u2256", "ecolon": "\u2255", "Ecy": "\u042D", "ecy": "\u044D", "eDDot": "\u2A77", "Edot": "\u0116", "edot": "\u0117", "eDot": "\u2251", "ee": "\u2147", "efDot": "\u2252", "Efr": "\uD835\uDD08", "efr": "\uD835\uDD22", "eg": "\u2A9A", "Egrave": "\u00C8", "egrave": "\u00E8", "egs": "\u2A96", "egsdot": "\u2A98", "el": "\u2A99", "Element": "\u2208", "elinters": "\u23E7", "ell": "\u2113", "els": "\u2A95", "elsdot": "\u2A97", "Emacr": "\u0112", "emacr": "\u0113", "empty": "\u2205", "emptyset": "\u2205", "EmptySmallSquare": "\u25FB", "emptyv": "\u2205", "EmptyVerySmallSquare": "\u25AB", "emsp13": "\u2004", "emsp14": "\u2005", "emsp": "\u2003", "ENG": "\u014A", "eng": "\u014B", "ensp": "\u2002", "Eogon": "\u0118", "eogon": "\u0119", "Eopf": "\uD835\uDD3C", "eopf": "\uD835\uDD56", "epar": "\u22D5", "eparsl": "\u29E3", "eplus": "\u2A71", "epsi": "\u03B5", "Epsilon": "\u0395", "epsilon": "\u03B5", "epsiv": "\u03F5", "eqcirc": "\u2256", "eqcolon": "\u2255", "eqsim": "\u2242", "eqslantgtr": "\u2A96", "eqslantless": "\u2A95", "Equal": "\u2A75", "equals": "=", "EqualTilde": "\u2242", "equest": "\u225F", "Equilibrium": "\u21CC", "equiv": "\u2261", "equivDD": "\u2A78", "eqvparsl": "\u29E5", "erarr": "\u2971", "erDot": "\u2253", "escr": "\u212F", "Escr": "\u2130", "esdot": "\u2250", "Esim": "\u2A73", "esim": "\u2242", "Eta": "\u0397", "eta": "\u03B7", "ETH": "\u00D0", "eth": "\u00F0", "Euml": "\u00CB", "euml": "\u00EB", "euro": "\u20AC", "excl": "!", "exist": "\u2203", "Exists": "\u2203", "expectation": "\u2130", "exponentiale": "\u2147", "ExponentialE": "\u2147", "fallingdotseq": "\u2252", "Fcy": "\u0424", "fcy": "\u0444", "female": "\u2640", "ffilig": "\uFB03", "fflig": "\uFB00", "ffllig": "\uFB04", "Ffr": "\uD835\uDD09", "ffr": "\uD835\uDD23", "filig": "\uFB01", "FilledSmallSquare": "\u25FC", "FilledVerySmallSquare": "\u25AA", "fjlig": "fj", "flat": "\u266D", "fllig": "\uFB02", "fltns": "\u25B1", "fnof": "\u0192", "Fopf": "\uD835\uDD3D", "fopf": "\uD835\uDD57", "forall": "\u2200", "ForAll": "\u2200", "fork": "\u22D4", "forkv": "\u2AD9", "Fouriertrf": "\u2131", "fpartint": "\u2A0D", "frac12": "\u00BD", "frac13": "\u2153", "frac14": "\u00BC", "frac15": "\u2155", "frac16": "\u2159", "frac18": "\u215B", "frac23": "\u2154", "frac25": "\u2156", "frac34": "\u00BE", "frac35": "\u2157", "frac38": "\u215C", "frac45": "\u2158", "frac56": "\u215A", "frac58": "\u215D", "frac78": "\u215E", "frasl": "\u2044", "frown": "\u2322", "fscr": "\uD835\uDCBB", "Fscr": "\u2131", "gacute": "\u01F5", "Gamma": "\u0393", "gamma": "\u03B3", "Gammad": "\u03DC", "gammad": "\u03DD", "gap": "\u2A86", "Gbreve": "\u011E", "gbreve": "\u011F", "Gcedil": "\u0122", "Gcirc": "\u011C", "gcirc": "\u011D", "Gcy": "\u0413", "gcy": "\u0433", "Gdot": "\u0120", "gdot": "\u0121", "ge": "\u2265", "gE": "\u2267", "gEl": "\u2A8C", "gel": "\u22DB", "geq": "\u2265", "geqq": "\u2267", "geqslant": "\u2A7E", "gescc": "\u2AA9", "ges": "\u2A7E", "gesdot": "\u2A80", "gesdoto": "\u2A82", "gesdotol": "\u2A84", "gesl": "\u22DB\uFE00", "gesles": "\u2A94", "Gfr": "\uD835\uDD0A", "gfr": "\uD835\uDD24", "gg": "\u226B", "Gg": "\u22D9", "ggg": "\u22D9", "gimel": "\u2137", "GJcy": "\u0403", "gjcy": "\u0453", "gla": "\u2AA5", "gl": "\u2277", "glE": "\u2A92", "glj": "\u2AA4", "gnap": "\u2A8A", "gnapprox": "\u2A8A", "gne": "\u2A88", "gnE": "\u2269", "gneq": "\u2A88", "gneqq": "\u2269", "gnsim": "\u22E7", "Gopf": "\uD835\uDD3E", "gopf": "\uD835\uDD58", "grave": "`", "GreaterEqual": "\u2265", "GreaterEqualLess": "\u22DB", "GreaterFullEqual": "\u2267", "GreaterGreater": "\u2AA2", "GreaterLess": "\u2277", "GreaterSlantEqual": "\u2A7E", "GreaterTilde": "\u2273", "Gscr": "\uD835\uDCA2", "gscr": "\u210A", "gsim": "\u2273", "gsime": "\u2A8E", "gsiml": "\u2A90", "gtcc": "\u2AA7", "gtcir": "\u2A7A", "gt": ">", "GT": ">", "Gt": "\u226B", "gtdot": "\u22D7", "gtlPar": "\u2995", "gtquest": "\u2A7C", "gtrapprox": "\u2A86", "gtrarr": "\u2978", "gtrdot": "\u22D7", "gtreqless": "\u22DB", "gtreqqless": "\u2A8C", "gtrless": "\u2277", "gtrsim": "\u2273", "gvertneqq": "\u2269\uFE00", "gvnE": "\u2269\uFE00", "Hacek": "\u02C7", "hairsp": "\u200A", "half": "\u00BD", "hamilt": "\u210B", "HARDcy": "\u042A", "hardcy": "\u044A", "harrcir": "\u2948", "harr": "\u2194", "hArr": "\u21D4", "harrw": "\u21AD", "Hat": "^", "hbar": "\u210F", "Hcirc": "\u0124", "hcirc": "\u0125", "hearts": "\u2665", "heartsuit": "\u2665", "hellip": "\u2026", "hercon": "\u22B9", "hfr": "\uD835\uDD25", "Hfr": "\u210C", "HilbertSpace": "\u210B", "hksearow": "\u2925", "hkswarow": "\u2926", "hoarr": "\u21FF", "homtht": "\u223B", "hookleftarrow": "\u21A9", "hookrightarrow": "\u21AA", "hopf": "\uD835\uDD59", "Hopf": "\u210D", "horbar": "\u2015", "HorizontalLine": "\u2500", "hscr": "\uD835\uDCBD", "Hscr": "\u210B", "hslash": "\u210F", "Hstrok": "\u0126", "hstrok": "\u0127", "HumpDownHump": "\u224E", "HumpEqual": "\u224F", "hybull": "\u2043", "hyphen": "\u2010", "Iacute": "\u00CD", "iacute": "\u00ED", "ic": "\u2063", "Icirc": "\u00CE", "icirc": "\u00EE", "Icy": "\u0418", "icy": "\u0438", "Idot": "\u0130", "IEcy": "\u0415", "iecy": "\u0435", "iexcl": "\u00A1", "iff": "\u21D4", "ifr": "\uD835\uDD26", "Ifr": "\u2111", "Igrave": "\u00CC", "igrave": "\u00EC", "ii": "\u2148", "iiiint": "\u2A0C", "iiint": "\u222D", "iinfin": "\u29DC", "iiota": "\u2129", "IJlig": "\u0132", "ijlig": "\u0133", "Imacr": "\u012A", "imacr": "\u012B", "image": "\u2111", "ImaginaryI": "\u2148", "imagline": "\u2110", "imagpart": "\u2111", "imath": "\u0131", "Im": "\u2111", "imof": "\u22B7", "imped": "\u01B5", "Implies": "\u21D2", "incare": "\u2105", "in": "\u2208", "infin": "\u221E", "infintie": "\u29DD", "inodot": "\u0131", "intcal": "\u22BA", "int": "\u222B", "Int": "\u222C", "integers": "\u2124", "Integral": "\u222B", "intercal": "\u22BA", "Intersection": "\u22C2", "intlarhk": "\u2A17", "intprod": "\u2A3C", "InvisibleComma": "\u2063", "InvisibleTimes": "\u2062", "IOcy": "\u0401", "iocy": "\u0451", "Iogon": "\u012E", "iogon": "\u012F", "Iopf": "\uD835\uDD40", "iopf": "\uD835\uDD5A", "Iota": "\u0399", "iota": "\u03B9", "iprod": "\u2A3C", "iquest": "\u00BF", "iscr": "\uD835\uDCBE", "Iscr": "\u2110", "isin": "\u2208", "isindot": "\u22F5", "isinE": "\u22F9", "isins": "\u22F4", "isinsv": "\u22F3", "isinv": "\u2208", "it": "\u2062", "Itilde": "\u0128", "itilde": "\u0129", "Iukcy": "\u0406", "iukcy": "\u0456", "Iuml": "\u00CF", "iuml": "\u00EF", "Jcirc": "\u0134", "jcirc": "\u0135", "Jcy": "\u0419", "jcy": "\u0439", "Jfr": "\uD835\uDD0D", "jfr": "\uD835\uDD27", "jmath": "\u0237", "Jopf": "\uD835\uDD41", "jopf": "\uD835\uDD5B", "Jscr": "\uD835\uDCA5", "jscr": "\uD835\uDCBF", "Jsercy": "\u0408", "jsercy": "\u0458", "Jukcy": "\u0404", "jukcy": "\u0454", "Kappa": "\u039A", "kappa": "\u03BA", "kappav": "\u03F0", "Kcedil": "\u0136", "kcedil": "\u0137", "Kcy": "\u041A", "kcy": "\u043A", "Kfr": "\uD835\uDD0E", "kfr": "\uD835\uDD28", "kgreen": "\u0138", "KHcy": "\u0425", "khcy": "\u0445", "KJcy": "\u040C", "kjcy": "\u045C", "Kopf": "\uD835\uDD42", "kopf": "\uD835\uDD5C", "Kscr": "\uD835\uDCA6", "kscr": "\uD835\uDCC0", "lAarr": "\u21DA", "Lacute": "\u0139", "lacute": "\u013A", "laemptyv": "\u29B4", "lagran": "\u2112", "Lambda": "\u039B", "lambda": "\u03BB", "lang": "\u27E8", "Lang": "\u27EA", "langd": "\u2991", "langle": "\u27E8", "lap": "\u2A85", "Laplacetrf": "\u2112", "laquo": "\u00AB", "larrb": "\u21E4", "larrbfs": "\u291F", "larr": "\u2190", "Larr": "\u219E", "lArr": "\u21D0", "larrfs": "\u291D", "larrhk": "\u21A9", "larrlp": "\u21AB", "larrpl": "\u2939", "larrsim": "\u2973", "larrtl": "\u21A2", "latail": "\u2919", "lAtail": "\u291B", "lat": "\u2AAB", "late": "\u2AAD", "lates": "\u2AAD\uFE00", "lbarr": "\u290C", "lBarr": "\u290E", "lbbrk": "\u2772", "lbrace": "{", "lbrack": "[", "lbrke": "\u298B", "lbrksld": "\u298F", "lbrkslu": "\u298D", "Lcaron": "\u013D", "lcaron": "\u013E", "Lcedil": "\u013B", "lcedil": "\u013C", "lceil": "\u2308", "lcub": "{", "Lcy": "\u041B", "lcy": "\u043B", "ldca": "\u2936", "ldquo": "\u201C", "ldquor": "\u201E", "ldrdhar": "\u2967", "ldrushar": "\u294B", "ldsh": "\u21B2", "le": "\u2264", "lE": "\u2266", "LeftAngleBracket": "\u27E8", "LeftArrowBar": "\u21E4", "leftarrow": "\u2190", "LeftArrow": "\u2190", "Leftarrow": "\u21D0", "LeftArrowRightArrow": "\u21C6", "leftarrowtail": "\u21A2", "LeftCeiling": "\u2308", "LeftDoubleBracket": "\u27E6", "LeftDownTeeVector": "\u2961", "LeftDownVectorBar": "\u2959", "LeftDownVector": "\u21C3", "LeftFloor": "\u230A", "leftharpoondown": "\u21BD", "leftharpoonup": "\u21BC", "leftleftarrows": "\u21C7", "leftrightarrow": "\u2194", "LeftRightArrow": "\u2194", "Leftrightarrow": "\u21D4", "leftrightarrows": "\u21C6", "leftrightharpoons": "\u21CB", "leftrightsquigarrow": "\u21AD", "LeftRightVector": "\u294E", "LeftTeeArrow": "\u21A4", "LeftTee": "\u22A3", "LeftTeeVector": "\u295A", "leftthreetimes": "\u22CB", "LeftTriangleBar": "\u29CF", "LeftTriangle": "\u22B2", "LeftTriangleEqual": "\u22B4", "LeftUpDownVector": "\u2951", "LeftUpTeeVector": "\u2960", "LeftUpVectorBar": "\u2958", "LeftUpVector": "\u21BF", "LeftVectorBar": "\u2952", "LeftVector": "\u21BC", "lEg": "\u2A8B", "leg": "\u22DA", "leq": "\u2264", "leqq": "\u2266", "leqslant": "\u2A7D", "lescc": "\u2AA8", "les": "\u2A7D", "lesdot": "\u2A7F", "lesdoto": "\u2A81", "lesdotor": "\u2A83", "lesg": "\u22DA\uFE00", "lesges": "\u2A93", "lessapprox": "\u2A85", "lessdot": "\u22D6", "lesseqgtr": "\u22DA", "lesseqqgtr": "\u2A8B", "LessEqualGreater": "\u22DA", "LessFullEqual": "\u2266", "LessGreater": "\u2276", "lessgtr": "\u2276", "LessLess": "\u2AA1", "lesssim": "\u2272", "LessSlantEqual": "\u2A7D", "LessTilde": "\u2272", "lfisht": "\u297C", "lfloor": "\u230A", "Lfr": "\uD835\uDD0F", "lfr": "\uD835\uDD29", "lg": "\u2276", "lgE": "\u2A91", "lHar": "\u2962", "lhard": "\u21BD", "lharu": "\u21BC", "lharul": "\u296A", "lhblk": "\u2584", "LJcy": "\u0409", "ljcy": "\u0459", "llarr": "\u21C7", "ll": "\u226A", "Ll": "\u22D8", "llcorner": "\u231E", "Lleftarrow": "\u21DA", "llhard": "\u296B", "lltri": "\u25FA", "Lmidot": "\u013F", "lmidot": "\u0140", "lmoustache": "\u23B0", "lmoust": "\u23B0", "lnap": "\u2A89", "lnapprox": "\u2A89", "lne": "\u2A87", "lnE": "\u2268", "lneq": "\u2A87", "lneqq": "\u2268", "lnsim": "\u22E6", "loang": "\u27EC", "loarr": "\u21FD", "lobrk": "\u27E6", "longleftarrow": "\u27F5", "LongLeftArrow": "\u27F5", "Longleftarrow": "\u27F8", "longleftrightarrow": "\u27F7", "LongLeftRightArrow": "\u27F7", "Longleftrightarrow": "\u27FA", "longmapsto": "\u27FC", "longrightarrow": "\u27F6", "LongRightArrow": "\u27F6", "Longrightarrow": "\u27F9", "looparrowleft": "\u21AB", "looparrowright": "\u21AC", "lopar": "\u2985", "Lopf": "\uD835\uDD43", "lopf": "\uD835\uDD5D", "loplus": "\u2A2D", "lotimes": "\u2A34", "lowast": "\u2217", "lowbar": "_", "LowerLeftArrow": "\u2199", "LowerRightArrow": "\u2198", "loz": "\u25CA", "lozenge": "\u25CA", "lozf": "\u29EB", "lpar": "(", "lparlt": "\u2993", "lrarr": "\u21C6", "lrcorner": "\u231F", "lrhar": "\u21CB", "lrhard": "\u296D", "lrm": "\u200E", "lrtri": "\u22BF", "lsaquo": "\u2039", "lscr": "\uD835\uDCC1", "Lscr": "\u2112", "lsh": "\u21B0", "Lsh": "\u21B0", "lsim": "\u2272", "lsime": "\u2A8D", "lsimg": "\u2A8F", "lsqb": "[", "lsquo": "\u2018", "lsquor": "\u201A", "Lstrok": "\u0141", "lstrok": "\u0142", "ltcc": "\u2AA6", "ltcir": "\u2A79", "lt": "<", "LT": "<", "Lt": "\u226A", "ltdot": "\u22D6", "lthree": "\u22CB", "ltimes": "\u22C9", "ltlarr": "\u2976", "ltquest": "\u2A7B", "ltri": "\u25C3", "ltrie": "\u22B4", "ltrif": "\u25C2", "ltrPar": "\u2996", "lurdshar": "\u294A", "luruhar": "\u2966", "lvertneqq": "\u2268\uFE00", "lvnE": "\u2268\uFE00", "macr": "\u00AF", "male": "\u2642", "malt": "\u2720", "maltese": "\u2720", "Map": "\u2905", "map": "\u21A6", "mapsto": "\u21A6", "mapstodown": "\u21A7", "mapstoleft": "\u21A4", "mapstoup": "\u21A5", "marker": "\u25AE", "mcomma": "\u2A29", "Mcy": "\u041C", "mcy": "\u043C", "mdash": "\u2014", "mDDot": "\u223A", "measuredangle": "\u2221", "MediumSpace": "\u205F", "Mellintrf": "\u2133", "Mfr": "\uD835\uDD10", "mfr": "\uD835\uDD2A", "mho": "\u2127", "micro": "\u00B5", "midast": "*", "midcir": "\u2AF0", "mid": "\u2223", "middot": "\u00B7", "minusb": "\u229F", "minus": "\u2212", "minusd": "\u2238", "minusdu": "\u2A2A", "MinusPlus": "\u2213", "mlcp": "\u2ADB", "mldr": "\u2026", "mnplus": "\u2213", "models": "\u22A7", "Mopf": "\uD835\uDD44", "mopf": "\uD835\uDD5E", "mp": "\u2213", "mscr": "\uD835\uDCC2", "Mscr": "\u2133", "mstpos": "\u223E", "Mu": "\u039C", "mu": "\u03BC", "multimap": "\u22B8", "mumap": "\u22B8", "nabla": "\u2207", "Nacute": "\u0143", "nacute": "\u0144", "nang": "\u2220\u20D2", "nap": "\u2249", "napE": "\u2A70\u0338", "napid": "\u224B\u0338", "napos": "\u0149", "napprox": "\u2249", "natural": "\u266E", "naturals": "\u2115", "natur": "\u266E", "nbsp": "\u00A0", "nbump": "\u224E\u0338", "nbumpe": "\u224F\u0338", "ncap": "\u2A43", "Ncaron": "\u0147", "ncaron": "\u0148", "Ncedil": "\u0145", "ncedil": "\u0146", "ncong": "\u2247", "ncongdot": "\u2A6D\u0338", "ncup": "\u2A42", "Ncy": "\u041D", "ncy": "\u043D", "ndash": "\u2013", "nearhk": "\u2924", "nearr": "\u2197", "neArr": "\u21D7", "nearrow": "\u2197", "ne": "\u2260", "nedot": "\u2250\u0338", "NegativeMediumSpace": "\u200B", "NegativeThickSpace": "\u200B", "NegativeThinSpace": "\u200B", "NegativeVeryThinSpace": "\u200B", "nequiv": "\u2262", "nesear": "\u2928", "nesim": "\u2242\u0338", "NestedGreaterGreater": "\u226B", "NestedLessLess": "\u226A", "NewLine": "\n", "nexist": "\u2204", "nexists": "\u2204", "Nfr": "\uD835\uDD11", "nfr": "\uD835\uDD2B", "ngE": "\u2267\u0338", "nge": "\u2271", "ngeq": "\u2271", "ngeqq": "\u2267\u0338", "ngeqslant": "\u2A7E\u0338", "nges": "\u2A7E\u0338", "nGg": "\u22D9\u0338", "ngsim": "\u2275", "nGt": "\u226B\u20D2", "ngt": "\u226F", "ngtr": "\u226F", "nGtv": "\u226B\u0338", "nharr": "\u21AE", "nhArr": "\u21CE", "nhpar": "\u2AF2", "ni": "\u220B", "nis": "\u22FC", "nisd": "\u22FA", "niv": "\u220B", "NJcy": "\u040A", "njcy": "\u045A", "nlarr": "\u219A", "nlArr": "\u21CD", "nldr": "\u2025", "nlE": "\u2266\u0338", "nle": "\u2270", "nleftarrow": "\u219A", "nLeftarrow": "\u21CD", "nleftrightarrow": "\u21AE", "nLeftrightarrow": "\u21CE", "nleq": "\u2270", "nleqq": "\u2266\u0338", "nleqslant": "\u2A7D\u0338", "nles": "\u2A7D\u0338", "nless": "\u226E", "nLl": "\u22D8\u0338", "nlsim": "\u2274", "nLt": "\u226A\u20D2", "nlt": "\u226E", "nltri": "\u22EA", "nltrie": "\u22EC", "nLtv": "\u226A\u0338", "nmid": "\u2224", "NoBreak": "\u2060", "NonBreakingSpace": "\u00A0", "nopf": "\uD835\uDD5F", "Nopf": "\u2115", "Not": "\u2AEC", "not": "\u00AC", "NotCongruent": "\u2262", "NotCupCap": "\u226D", "NotDoubleVerticalBar": "\u2226", "NotElement": "\u2209", "NotEqual": "\u2260", "NotEqualTilde": "\u2242\u0338", "NotExists": "\u2204", "NotGreater": "\u226F", "NotGreaterEqual": "\u2271", "NotGreaterFullEqual": "\u2267\u0338", "NotGreaterGreater": "\u226B\u0338", "NotGreaterLess": "\u2279", "NotGreaterSlantEqual": "\u2A7E\u0338", "NotGreaterTilde": "\u2275", "NotHumpDownHump": "\u224E\u0338", "NotHumpEqual": "\u224F\u0338", "notin": "\u2209", "notindot": "\u22F5\u0338", "notinE": "\u22F9\u0338", "notinva": "\u2209", "notinvb": "\u22F7", "notinvc": "\u22F6", "NotLeftTriangleBar": "\u29CF\u0338", "NotLeftTriangle": "\u22EA", "NotLeftTriangleEqual": "\u22EC", "NotLess": "\u226E", "NotLessEqual": "\u2270", "NotLessGreater": "\u2278", "NotLessLess": "\u226A\u0338", "NotLessSlantEqual": "\u2A7D\u0338", "NotLessTilde": "\u2274", "NotNestedGreaterGreater": "\u2AA2\u0338", "NotNestedLessLess": "\u2AA1\u0338", "notni": "\u220C", "notniva": "\u220C", "notnivb": "\u22FE", "notnivc": "\u22FD", "NotPrecedes": "\u2280", "NotPrecedesEqual": "\u2AAF\u0338", "NotPrecedesSlantEqual": "\u22E0", "NotReverseElement": "\u220C", "NotRightTriangleBar": "\u29D0\u0338", "NotRightTriangle": "\u22EB", "NotRightTriangleEqual": "\u22ED", "NotSquareSubset": "\u228F\u0338", "NotSquareSubsetEqual": "\u22E2", "NotSquareSuperset": "\u2290\u0338", "NotSquareSupersetEqual": "\u22E3", "NotSubset": "\u2282\u20D2", "NotSubsetEqual": "\u2288", "NotSucceeds": "\u2281", "NotSucceedsEqual": "\u2AB0\u0338", "NotSucceedsSlantEqual": "\u22E1", "NotSucceedsTilde": "\u227F\u0338", "NotSuperset": "\u2283\u20D2", "NotSupersetEqual": "\u2289", "NotTilde": "\u2241", "NotTildeEqual": "\u2244", "NotTildeFullEqual": "\u2247", "NotTildeTilde": "\u2249", "NotVerticalBar": "\u2224", "nparallel": "\u2226", "npar": "\u2226", "nparsl": "\u2AFD\u20E5", "npart": "\u2202\u0338", "npolint": "\u2A14", "npr": "\u2280", "nprcue": "\u22E0", "nprec": "\u2280", "npreceq": "\u2AAF\u0338", "npre": "\u2AAF\u0338", "nrarrc": "\u2933\u0338", "nrarr": "\u219B", "nrArr": "\u21CF", "nrarrw": "\u219D\u0338", "nrightarrow": "\u219B", "nRightarrow": "\u21CF", "nrtri": "\u22EB", "nrtrie": "\u22ED", "nsc": "\u2281", "nsccue": "\u22E1", "nsce": "\u2AB0\u0338", "Nscr": "\uD835\uDCA9", "nscr": "\uD835\uDCC3", "nshortmid": "\u2224", "nshortparallel": "\u2226", "nsim": "\u2241", "nsime": "\u2244", "nsimeq": "\u2244", "nsmid": "\u2224", "nspar": "\u2226", "nsqsube": "\u22E2", "nsqsupe": "\u22E3", "nsub": "\u2284", "nsubE": "\u2AC5\u0338", "nsube": "\u2288", "nsubset": "\u2282\u20D2", "nsubseteq": "\u2288", "nsubseteqq": "\u2AC5\u0338", "nsucc": "\u2281", "nsucceq": "\u2AB0\u0338", "nsup": "\u2285", "nsupE": "\u2AC6\u0338", "nsupe": "\u2289", "nsupset": "\u2283\u20D2", "nsupseteq": "\u2289", "nsupseteqq": "\u2AC6\u0338", "ntgl": "\u2279", "Ntilde": "\u00D1", "ntilde": "\u00F1", "ntlg": "\u2278", "ntriangleleft": "\u22EA", "ntrianglelefteq": "\u22EC", "ntriangleright": "\u22EB", "ntrianglerighteq": "\u22ED", "Nu": "\u039D", "nu": "\u03BD", "num": "#", "numero": "\u2116", "numsp": "\u2007", "nvap": "\u224D\u20D2", "nvdash": "\u22AC", "nvDash": "\u22AD", "nVdash": "\u22AE", "nVDash": "\u22AF", "nvge": "\u2265\u20D2", "nvgt": ">\u20D2", "nvHarr": "\u2904", "nvinfin": "\u29DE", "nvlArr": "\u2902", "nvle": "\u2264\u20D2", "nvlt": "<\u20D2", "nvltrie": "\u22B4\u20D2", "nvrArr": "\u2903", "nvrtrie": "\u22B5\u20D2", "nvsim": "\u223C\u20D2", "nwarhk": "\u2923", "nwarr": "\u2196", "nwArr": "\u21D6", "nwarrow": "\u2196", "nwnear": "\u2927", "Oacute": "\u00D3", "oacute": "\u00F3", "oast": "\u229B", "Ocirc": "\u00D4", "ocirc": "\u00F4", "ocir": "\u229A", "Ocy": "\u041E", "ocy": "\u043E", "odash": "\u229D", "Odblac": "\u0150", "odblac": "\u0151", "odiv": "\u2A38", "odot": "\u2299", "odsold": "\u29BC", "OElig": "\u0152", "oelig": "\u0153", "ofcir": "\u29BF", "Ofr": "\uD835\uDD12", "ofr": "\uD835\uDD2C", "ogon": "\u02DB", "Ograve": "\u00D2", "ograve": "\u00F2", "ogt": "\u29C1", "ohbar": "\u29B5", "ohm": "\u03A9", "oint": "\u222E", "olarr": "\u21BA", "olcir": "\u29BE", "olcross": "\u29BB", "oline": "\u203E", "olt": "\u29C0", "Omacr": "\u014C", "omacr": "\u014D", "Omega": "\u03A9", "omega": "\u03C9", "Omicron": "\u039F", "omicron": "\u03BF", "omid": "\u29B6", "ominus": "\u2296", "Oopf": "\uD835\uDD46", "oopf": "\uD835\uDD60", "opar": "\u29B7", "OpenCurlyDoubleQuote": "\u201C", "OpenCurlyQuote": "\u2018", "operp": "\u29B9", "oplus": "\u2295", "orarr": "\u21BB", "Or": "\u2A54", "or": "\u2228", "ord": "\u2A5D", "order": "\u2134", "orderof": "\u2134", "ordf": "\u00AA", "ordm": "\u00BA", "origof": "\u22B6", "oror": "\u2A56", "orslope": "\u2A57", "orv": "\u2A5B", "oS": "\u24C8", "Oscr": "\uD835\uDCAA", "oscr": "\u2134", "Oslash": "\u00D8", "oslash": "\u00F8", "osol": "\u2298", "Otilde": "\u00D5", "otilde": "\u00F5", "otimesas": "\u2A36", "Otimes": "\u2A37", "otimes": "\u2297", "Ouml": "\u00D6", "ouml": "\u00F6", "ovbar": "\u233D", "OverBar": "\u203E", "OverBrace": "\u23DE", "OverBracket": "\u23B4", "OverParenthesis": "\u23DC", "para": "\u00B6", "parallel": "\u2225", "par": "\u2225", "parsim": "\u2AF3", "parsl": "\u2AFD", "part": "\u2202", "PartialD": "\u2202", "Pcy": "\u041F", "pcy": "\u043F", "percnt": "%", "period": ".", "permil": "\u2030", "perp": "\u22A5", "pertenk": "\u2031", "Pfr": "\uD835\uDD13", "pfr": "\uD835\uDD2D", "Phi": "\u03A6", "phi": "\u03C6", "phiv": "\u03D5", "phmmat": "\u2133", "phone": "\u260E", "Pi": "\u03A0", "pi": "\u03C0", "pitchfork": "\u22D4", "piv": "\u03D6", "planck": "\u210F", "planckh": "\u210E", "plankv": "\u210F", "plusacir": "\u2A23", "plusb": "\u229E", "pluscir": "\u2A22", "plus": "+", "plusdo": "\u2214", "plusdu": "\u2A25", "pluse": "\u2A72", "PlusMinus": "\u00B1", "plusmn": "\u00B1", "plussim": "\u2A26", "plustwo": "\u2A27", "pm": "\u00B1", "Poincareplane": "\u210C", "pointint": "\u2A15", "popf": "\uD835\uDD61", "Popf": "\u2119", "pound": "\u00A3", "prap": "\u2AB7", "Pr": "\u2ABB", "pr": "\u227A", "prcue": "\u227C", "precapprox": "\u2AB7", "prec": "\u227A", "preccurlyeq": "\u227C", "Precedes": "\u227A", "PrecedesEqual": "\u2AAF", "PrecedesSlantEqual": "\u227C", "PrecedesTilde": "\u227E", "preceq": "\u2AAF", "precnapprox": "\u2AB9", "precneqq": "\u2AB5", "precnsim": "\u22E8", "pre": "\u2AAF", "prE": "\u2AB3", "precsim": "\u227E", "prime": "\u2032", "Prime": "\u2033", "primes": "\u2119", "prnap": "\u2AB9", "prnE": "\u2AB5", "prnsim": "\u22E8", "prod": "\u220F", "Product": "\u220F", "profalar": "\u232E", "profline": "\u2312", "profsurf": "\u2313", "prop": "\u221D", "Proportional": "\u221D", "Proportion": "\u2237", "propto": "\u221D", "prsim": "\u227E", "prurel": "\u22B0", "Pscr": "\uD835\uDCAB", "pscr": "\uD835\uDCC5", "Psi": "\u03A8", "psi": "\u03C8", "puncsp": "\u2008", "Qfr": "\uD835\uDD14", "qfr": "\uD835\uDD2E", "qint": "\u2A0C", "qopf": "\uD835\uDD62", "Qopf": "\u211A", "qprime": "\u2057", "Qscr": "\uD835\uDCAC", "qscr": "\uD835\uDCC6", "quaternions": "\u210D", "quatint": "\u2A16", "quest": "?", "questeq": "\u225F", "quot": "\"", "QUOT": "\"", "rAarr": "\u21DB", "race": "\u223D\u0331", "Racute": "\u0154", "racute": "\u0155", "radic": "\u221A", "raemptyv": "\u29B3", "rang": "\u27E9", "Rang": "\u27EB", "rangd": "\u2992", "range": "\u29A5", "rangle": "\u27E9", "raquo": "\u00BB", "rarrap": "\u2975", "rarrb": "\u21E5", "rarrbfs": "\u2920", "rarrc": "\u2933", "rarr": "\u2192", "Rarr": "\u21A0", "rArr": "\u21D2", "rarrfs": "\u291E", "rarrhk": "\u21AA", "rarrlp": "\u21AC", "rarrpl": "\u2945", "rarrsim": "\u2974", "Rarrtl": "\u2916", "rarrtl": "\u21A3", "rarrw": "\u219D", "ratail": "\u291A", "rAtail": "\u291C", "ratio": "\u2236", "rationals": "\u211A", "rbarr": "\u290D", "rBarr": "\u290F", "RBarr": "\u2910", "rbbrk": "\u2773", "rbrace": "}", "rbrack": "]", "rbrke": "\u298C", "rbrksld": "\u298E", "rbrkslu": "\u2990", "Rcaron": "\u0158", "rcaron": "\u0159", "Rcedil": "\u0156", "rcedil": "\u0157", "rceil": "\u2309", "rcub": "}", "Rcy": "\u0420", "rcy": "\u0440", "rdca": "\u2937", "rdldhar": "\u2969", "rdquo": "\u201D", "rdquor": "\u201D", "rdsh": "\u21B3", "real": "\u211C", "realine": "\u211B", "realpart": "\u211C", "reals": "\u211D", "Re": "\u211C", "rect": "\u25AD", "reg": "\u00AE", "REG": "\u00AE", "ReverseElement": "\u220B", "ReverseEquilibrium": "\u21CB", "ReverseUpEquilibrium": "\u296F", "rfisht": "\u297D", "rfloor": "\u230B", "rfr": "\uD835\uDD2F", "Rfr": "\u211C", "rHar": "\u2964", "rhard": "\u21C1", "rharu": "\u21C0", "rharul": "\u296C", "Rho": "\u03A1", "rho": "\u03C1", "rhov": "\u03F1", "RightAngleBracket": "\u27E9", "RightArrowBar": "\u21E5", "rightarrow": "\u2192", "RightArrow": "\u2192", "Rightarrow": "\u21D2", "RightArrowLeftArrow": "\u21C4", "rightarrowtail": "\u21A3", "RightCeiling": "\u2309", "RightDoubleBracket": "\u27E7", "RightDownTeeVector": "\u295D", "RightDownVectorBar": "\u2955", "RightDownVector": "\u21C2", "RightFloor": "\u230B", "rightharpoondown": "\u21C1", "rightharpoonup": "\u21C0", "rightleftarrows": "\u21C4", "rightleftharpoons": "\u21CC", "rightrightarrows": "\u21C9", "rightsquigarrow": "\u219D", "RightTeeArrow": "\u21A6", "RightTee": "\u22A2", "RightTeeVector": "\u295B", "rightthreetimes": "\u22CC", "RightTriangleBar": "\u29D0", "RightTriangle": "\u22B3", "RightTriangleEqual": "\u22B5", "RightUpDownVector": "\u294F", "RightUpTeeVector": "\u295C", "RightUpVectorBar": "\u2954", "RightUpVector": "\u21BE", "RightVectorBar": "\u2953", "RightVector": "\u21C0", "ring": "\u02DA", "risingdotseq": "\u2253", "rlarr": "\u21C4", "rlhar": "\u21CC", "rlm": "\u200F", "rmoustache": "\u23B1", "rmoust": "\u23B1", "rnmid": "\u2AEE", "roang": "\u27ED", "roarr": "\u21FE", "robrk": "\u27E7", "ropar": "\u2986", "ropf": "\uD835\uDD63", "Ropf": "\u211D", "roplus": "\u2A2E", "rotimes": "\u2A35", "RoundImplies": "\u2970", "rpar": ")", "rpargt": "\u2994", "rppolint": "\u2A12", "rrarr": "\u21C9", "Rrightarrow": "\u21DB", "rsaquo": "\u203A", "rscr": "\uD835\uDCC7", "Rscr": "\u211B", "rsh": "\u21B1", "Rsh": "\u21B1", "rsqb": "]", "rsquo": "\u2019", "rsquor": "\u2019", "rthree": "\u22CC", "rtimes": "\u22CA", "rtri": "\u25B9", "rtrie": "\u22B5", "rtrif": "\u25B8", "rtriltri": "\u29CE", "RuleDelayed": "\u29F4", "ruluhar": "\u2968", "rx": "\u211E", "Sacute": "\u015A", "sacute": "\u015B", "sbquo": "\u201A", "scap": "\u2AB8", "Scaron": "\u0160", "scaron": "\u0161", "Sc": "\u2ABC", "sc": "\u227B", "sccue": "\u227D", "sce": "\u2AB0", "scE": "\u2AB4", "Scedil": "\u015E", "scedil": "\u015F", "Scirc": "\u015C", "scirc": "\u015D", "scnap": "\u2ABA", "scnE": "\u2AB6", "scnsim": "\u22E9", "scpolint": "\u2A13", "scsim": "\u227F", "Scy": "\u0421", "scy": "\u0441", "sdotb": "\u22A1", "sdot": "\u22C5", "sdote": "\u2A66", "searhk": "\u2925", "searr": "\u2198", "seArr": "\u21D8", "searrow": "\u2198", "sect": "\u00A7", "semi": ";", "seswar": "\u2929", "setminus": "\u2216", "setmn": "\u2216", "sext": "\u2736", "Sfr": "\uD835\uDD16", "sfr": "\uD835\uDD30", "sfrown": "\u2322", "sharp": "\u266F", "SHCHcy": "\u0429", "shchcy": "\u0449", "SHcy": "\u0428", "shcy": "\u0448", "ShortDownArrow": "\u2193", "ShortLeftArrow": "\u2190", "shortmid": "\u2223", "shortparallel": "\u2225", "ShortRightArrow": "\u2192", "ShortUpArrow": "\u2191", "shy": "\u00AD", "Sigma": "\u03A3", "sigma": "\u03C3", "sigmaf": "\u03C2", "sigmav": "\u03C2", "sim": "\u223C", "simdot": "\u2A6A", "sime": "\u2243", "simeq": "\u2243", "simg": "\u2A9E", "simgE": "\u2AA0", "siml": "\u2A9D", "simlE": "\u2A9F", "simne": "\u2246", "simplus": "\u2A24", "simrarr": "\u2972", "slarr": "\u2190", "SmallCircle": "\u2218", "smallsetminus": "\u2216", "smashp": "\u2A33", "smeparsl": "\u29E4", "smid": "\u2223", "smile": "\u2323", "smt": "\u2AAA", "smte": "\u2AAC", "smtes": "\u2AAC\uFE00", "SOFTcy": "\u042C", "softcy": "\u044C", "solbar": "\u233F", "solb": "\u29C4", "sol": "/", "Sopf": "\uD835\uDD4A", "sopf": "\uD835\uDD64", "spades": "\u2660", "spadesuit": "\u2660", "spar": "\u2225", "sqcap": "\u2293", "sqcaps": "\u2293\uFE00", "sqcup": "\u2294", "sqcups": "\u2294\uFE00", "Sqrt": "\u221A", "sqsub": "\u228F", "sqsube": "\u2291", "sqsubset": "\u228F", "sqsubseteq": "\u2291", "sqsup": "\u2290", "sqsupe": "\u2292", "sqsupset": "\u2290", "sqsupseteq": "\u2292", "square": "\u25A1", "Square": "\u25A1", "SquareIntersection": "\u2293", "SquareSubset": "\u228F", "SquareSubsetEqual": "\u2291", "SquareSuperset": "\u2290", "SquareSupersetEqual": "\u2292", "SquareUnion": "\u2294", "squarf": "\u25AA", "squ": "\u25A1", "squf": "\u25AA", "srarr": "\u2192", "Sscr": "\uD835\uDCAE", "sscr": "\uD835\uDCC8", "ssetmn": "\u2216", "ssmile": "\u2323", "sstarf": "\u22C6", "Star": "\u22C6", "star": "\u2606", "starf": "\u2605", "straightepsilon": "\u03F5", "straightphi": "\u03D5", "strns": "\u00AF", "sub": "\u2282", "Sub": "\u22D0", "subdot": "\u2ABD", "subE": "\u2AC5", "sube": "\u2286", "subedot": "\u2AC3", "submult": "\u2AC1", "subnE": "\u2ACB", "subne": "\u228A", "subplus": "\u2ABF", "subrarr": "\u2979", "subset": "\u2282", "Subset": "\u22D0", "subseteq": "\u2286", "subseteqq": "\u2AC5", "SubsetEqual": "\u2286", "subsetneq": "\u228A", "subsetneqq": "\u2ACB", "subsim": "\u2AC7", "subsub": "\u2AD5", "subsup": "\u2AD3", "succapprox": "\u2AB8", "succ": "\u227B", "succcurlyeq": "\u227D", "Succeeds": "\u227B", "SucceedsEqual": "\u2AB0", "SucceedsSlantEqual": "\u227D", "SucceedsTilde": "\u227F", "succeq": "\u2AB0", "succnapprox": "\u2ABA", "succneqq": "\u2AB6", "succnsim": "\u22E9", "succsim": "\u227F", "SuchThat": "\u220B", "sum": "\u2211", "Sum": "\u2211", "sung": "\u266A", "sup1": "\u00B9", "sup2": "\u00B2", "sup3": "\u00B3", "sup": "\u2283", "Sup": "\u22D1", "supdot": "\u2ABE", "supdsub": "\u2AD8", "supE": "\u2AC6", "supe": "\u2287", "supedot": "\u2AC4", "Superset": "\u2283", "SupersetEqual": "\u2287", "suphsol": "\u27C9", "suphsub": "\u2AD7", "suplarr": "\u297B", "supmult": "\u2AC2", "supnE": "\u2ACC", "supne": "\u228B", "supplus": "\u2AC0", "supset": "\u2283", "Supset": "\u22D1", "supseteq": "\u2287", "supseteqq": "\u2AC6", "supsetneq": "\u228B", "supsetneqq": "\u2ACC", "supsim": "\u2AC8", "supsub": "\u2AD4", "supsup": "\u2AD6", "swarhk": "\u2926", "swarr": "\u2199", "swArr": "\u21D9", "swarrow": "\u2199", "swnwar": "\u292A", "szlig": "\u00DF", "Tab": "\t", "target": "\u2316", "Tau": "\u03A4", "tau": "\u03C4", "tbrk": "\u23B4", "Tcaron": "\u0164", "tcaron": "\u0165", "Tcedil": "\u0162", "tcedil": "\u0163", "Tcy": "\u0422", "tcy": "\u0442", "tdot": "\u20DB", "telrec": "\u2315", "Tfr": "\uD835\uDD17", "tfr": "\uD835\uDD31", "there4": "\u2234", "therefore": "\u2234", "Therefore": "\u2234", "Theta": "\u0398", "theta": "\u03B8", "thetasym": "\u03D1", "thetav": "\u03D1", "thickapprox": "\u2248", "thicksim": "\u223C", "ThickSpace": "\u205F\u200A", "ThinSpace": "\u2009", "thinsp": "\u2009", "thkap": "\u2248", "thksim": "\u223C", "THORN": "\u00DE", "thorn": "\u00FE", "tilde": "\u02DC", "Tilde": "\u223C", "TildeEqual": "\u2243", "TildeFullEqual": "\u2245", "TildeTilde": "\u2248", "timesbar": "\u2A31", "timesb": "\u22A0", "times": "\u00D7", "timesd": "\u2A30", "tint": "\u222D", "toea": "\u2928", "topbot": "\u2336", "topcir": "\u2AF1", "top": "\u22A4", "Topf": "\uD835\uDD4B", "topf": "\uD835\uDD65", "topfork": "\u2ADA", "tosa": "\u2929", "tprime": "\u2034", "trade": "\u2122", "TRADE": "\u2122", "triangle": "\u25B5", "triangledown": "\u25BF", "triangleleft": "\u25C3", "trianglelefteq": "\u22B4", "triangleq": "\u225C", "triangleright": "\u25B9", "trianglerighteq": "\u22B5", "tridot": "\u25EC", "trie": "\u225C", "triminus": "\u2A3A", "TripleDot": "\u20DB", "triplus": "\u2A39", "trisb": "\u29CD", "tritime": "\u2A3B", "trpezium": "\u23E2", "Tscr": "\uD835\uDCAF", "tscr": "\uD835\uDCC9", "TScy": "\u0426", "tscy": "\u0446", "TSHcy": "\u040B", "tshcy": "\u045B", "Tstrok": "\u0166", "tstrok": "\u0167", "twixt": "\u226C", "twoheadleftarrow": "\u219E", "twoheadrightarrow": "\u21A0", "Uacute": "\u00DA", "uacute": "\u00FA", "uarr": "\u2191", "Uarr": "\u219F", "uArr": "\u21D1", "Uarrocir": "\u2949", "Ubrcy": "\u040E", "ubrcy": "\u045E", "Ubreve": "\u016C", "ubreve": "\u016D", "Ucirc": "\u00DB", "ucirc": "\u00FB", "Ucy": "\u0423", "ucy": "\u0443", "udarr": "\u21C5", "Udblac": "\u0170", "udblac": "\u0171", "udhar": "\u296E", "ufisht": "\u297E", "Ufr": "\uD835\uDD18", "ufr": "\uD835\uDD32", "Ugrave": "\u00D9", "ugrave": "\u00F9", "uHar": "\u2963", "uharl": "\u21BF", "uharr": "\u21BE", "uhblk": "\u2580", "ulcorn": "\u231C", "ulcorner": "\u231C", "ulcrop": "\u230F", "ultri": "\u25F8", "Umacr": "\u016A", "umacr": "\u016B", "uml": "\u00A8", "UnderBar": "_", "UnderBrace": "\u23DF", "UnderBracket": "\u23B5", "UnderParenthesis": "\u23DD", "Union": "\u22C3", "UnionPlus": "\u228E", "Uogon": "\u0172", "uogon": "\u0173", "Uopf": "\uD835\uDD4C", "uopf": "\uD835\uDD66", "UpArrowBar": "\u2912", "uparrow": "\u2191", "UpArrow": "\u2191", "Uparrow": "\u21D1", "UpArrowDownArrow": "\u21C5", "updownarrow": "\u2195", "UpDownArrow": "\u2195", "Updownarrow": "\u21D5", "UpEquilibrium": "\u296E", "upharpoonleft": "\u21BF", "upharpoonright": "\u21BE", "uplus": "\u228E", "UpperLeftArrow": "\u2196", "UpperRightArrow": "\u2197", "upsi": "\u03C5", "Upsi": "\u03D2", "upsih": "\u03D2", "Upsilon": "\u03A5", "upsilon": "\u03C5", "UpTeeArrow": "\u21A5", "UpTee": "\u22A5", "upuparrows": "\u21C8", "urcorn": "\u231D", "urcorner": "\u231D", "urcrop": "\u230E", "Uring": "\u016E", "uring": "\u016F", "urtri": "\u25F9", "Uscr": "\uD835\uDCB0", "uscr": "\uD835\uDCCA", "utdot": "\u22F0", "Utilde": "\u0168", "utilde": "\u0169", "utri": "\u25B5", "utrif": "\u25B4", "uuarr": "\u21C8", "Uuml": "\u00DC", "uuml": "\u00FC", "uwangle": "\u29A7", "vangrt": "\u299C", "varepsilon": "\u03F5", "varkappa": "\u03F0", "varnothing": "\u2205", "varphi": "\u03D5", "varpi": "\u03D6", "varpropto": "\u221D", "varr": "\u2195", "vArr": "\u21D5", "varrho": "\u03F1", "varsigma": "\u03C2", "varsubsetneq": "\u228A\uFE00", "varsubsetneqq": "\u2ACB\uFE00", "varsupsetneq": "\u228B\uFE00", "varsupsetneqq": "\u2ACC\uFE00", "vartheta": "\u03D1", "vartriangleleft": "\u22B2", "vartriangleright": "\u22B3", "vBar": "\u2AE8", "Vbar": "\u2AEB", "vBarv": "\u2AE9", "Vcy": "\u0412", "vcy": "\u0432", "vdash": "\u22A2", "vDash": "\u22A8", "Vdash": "\u22A9", "VDash": "\u22AB", "Vdashl": "\u2AE6", "veebar": "\u22BB", "vee": "\u2228", "Vee": "\u22C1", "veeeq": "\u225A", "vellip": "\u22EE", "verbar": "|", "Verbar": "\u2016", "vert": "|", "Vert": "\u2016", "VerticalBar": "\u2223", "VerticalLine": "|", "VerticalSeparator": "\u2758", "VerticalTilde": "\u2240", "VeryThinSpace": "\u200A", "Vfr": "\uD835\uDD19", "vfr": "\uD835\uDD33", "vltri": "\u22B2", "vnsub": "\u2282\u20D2", "vnsup": "\u2283\u20D2", "Vopf": "\uD835\uDD4D", "vopf": "\uD835\uDD67", "vprop": "\u221D", "vrtri": "\u22B3", "Vscr": "\uD835\uDCB1", "vscr": "\uD835\uDCCB", "vsubnE": "\u2ACB\uFE00", "vsubne": "\u228A\uFE00", "vsupnE": "\u2ACC\uFE00", "vsupne": "\u228B\uFE00", "Vvdash": "\u22AA", "vzigzag": "\u299A", "Wcirc": "\u0174", "wcirc": "\u0175", "wedbar": "\u2A5F", "wedge": "\u2227", "Wedge": "\u22C0", "wedgeq": "\u2259", "weierp": "\u2118", "Wfr": "\uD835\uDD1A", "wfr": "\uD835\uDD34", "Wopf": "\uD835\uDD4E", "wopf": "\uD835\uDD68", "wp": "\u2118", "wr": "\u2240", "wreath": "\u2240", "Wscr": "\uD835\uDCB2", "wscr": "\uD835\uDCCC", "xcap": "\u22C2", "xcirc": "\u25EF", "xcup": "\u22C3", "xdtri": "\u25BD", "Xfr": "\uD835\uDD1B", "xfr": "\uD835\uDD35", "xharr": "\u27F7", "xhArr": "\u27FA", "Xi": "\u039E", "xi": "\u03BE", "xlarr": "\u27F5", "xlArr": "\u27F8", "xmap": "\u27FC", "xnis": "\u22FB", "xodot": "\u2A00", "Xopf": "\uD835\uDD4F", "xopf": "\uD835\uDD69", "xoplus": "\u2A01", "xotime": "\u2A02", "xrarr": "\u27F6", "xrArr": "\u27F9", "Xscr": "\uD835\uDCB3", "xscr": "\uD835\uDCCD", "xsqcup": "\u2A06", "xuplus": "\u2A04", "xutri": "\u25B3", "xvee": "\u22C1", "xwedge": "\u22C0", "Yacute": "\u00DD", "yacute": "\u00FD", "YAcy": "\u042F", "yacy": "\u044F", "Ycirc": "\u0176", "ycirc": "\u0177", "Ycy": "\u042B", "ycy": "\u044B", "yen": "\u00A5", "Yfr": "\uD835\uDD1C", "yfr": "\uD835\uDD36", "YIcy": "\u0407", "yicy": "\u0457", "Yopf": "\uD835\uDD50", "yopf": "\uD835\uDD6A", "Yscr": "\uD835\uDCB4", "yscr": "\uD835\uDCCE", "YUcy": "\u042E", "yucy": "\u044E", "yuml": "\u00FF", "Yuml": "\u0178", "Zacute": "\u0179", "zacute": "\u017A", "Zcaron": "\u017D", "zcaron": "\u017E", "Zcy": "\u0417", "zcy": "\u0437", "Zdot": "\u017B", "zdot": "\u017C", "zeetrf": "\u2128", "ZeroWidthSpace": "\u200B", "Zeta": "\u0396", "zeta": "\u03B6", "zfr": "\uD835\uDD37", "Zfr": "\u2128", "ZHcy": "\u0416", "zhcy": "\u0436", "zigrarr": "\u21DD", "zopf": "\uD835\uDD6B", "Zopf": "\u2124", "Zscr": "\uD835\uDCB5", "zscr": "\uD835\uDCCF", "zwj": "\u200D", "zwnj": "\u200C" }
 
-},{}],66:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 module.exports={ "Aacute": "\u00C1", "aacute": "\u00E1", "Acirc": "\u00C2", "acirc": "\u00E2", "acute": "\u00B4", "AElig": "\u00C6", "aelig": "\u00E6", "Agrave": "\u00C0", "agrave": "\u00E0", "amp": "&", "AMP": "&", "Aring": "\u00C5", "aring": "\u00E5", "Atilde": "\u00C3", "atilde": "\u00E3", "Auml": "\u00C4", "auml": "\u00E4", "brvbar": "\u00A6", "Ccedil": "\u00C7", "ccedil": "\u00E7", "cedil": "\u00B8", "cent": "\u00A2", "copy": "\u00A9", "COPY": "\u00A9", "curren": "\u00A4", "deg": "\u00B0", "divide": "\u00F7", "Eacute": "\u00C9", "eacute": "\u00E9", "Ecirc": "\u00CA", "ecirc": "\u00EA", "Egrave": "\u00C8", "egrave": "\u00E8", "ETH": "\u00D0", "eth": "\u00F0", "Euml": "\u00CB", "euml": "\u00EB", "frac12": "\u00BD", "frac14": "\u00BC", "frac34": "\u00BE", "gt": ">", "GT": ">", "Iacute": "\u00CD", "iacute": "\u00ED", "Icirc": "\u00CE", "icirc": "\u00EE", "iexcl": "\u00A1", "Igrave": "\u00CC", "igrave": "\u00EC", "iquest": "\u00BF", "Iuml": "\u00CF", "iuml": "\u00EF", "laquo": "\u00AB", "lt": "<", "LT": "<", "macr": "\u00AF", "micro": "\u00B5", "middot": "\u00B7", "nbsp": "\u00A0", "not": "\u00AC", "Ntilde": "\u00D1", "ntilde": "\u00F1", "Oacute": "\u00D3", "oacute": "\u00F3", "Ocirc": "\u00D4", "ocirc": "\u00F4", "Ograve": "\u00D2", "ograve": "\u00F2", "ordf": "\u00AA", "ordm": "\u00BA", "Oslash": "\u00D8", "oslash": "\u00F8", "Otilde": "\u00D5", "otilde": "\u00F5", "Ouml": "\u00D6", "ouml": "\u00F6", "para": "\u00B6", "plusmn": "\u00B1", "pound": "\u00A3", "quot": "\"", "QUOT": "\"", "raquo": "\u00BB", "reg": "\u00AE", "REG": "\u00AE", "sect": "\u00A7", "shy": "\u00AD", "sup1": "\u00B9", "sup2": "\u00B2", "sup3": "\u00B3", "szlig": "\u00DF", "THORN": "\u00DE", "thorn": "\u00FE", "times": "\u00D7", "Uacute": "\u00DA", "uacute": "\u00FA", "Ucirc": "\u00DB", "ucirc": "\u00FB", "Ugrave": "\u00D9", "ugrave": "\u00F9", "uml": "\u00A8", "Uuml": "\u00DC", "uuml": "\u00FC", "Yacute": "\u00DD", "yacute": "\u00FD", "yen": "\u00A5", "yuml": "\u00FF" }
 
-},{}],67:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module.exports={ "amp": "&", "apos": "'", "gt": ">", "lt": "<", "quot": "\"" }
 
-},{}],68:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 //Types of elements found in the DOM
 module.exports = {
 	Text: "text", //Text
@@ -11313,7 +11491,7 @@ module.exports = {
 	}
 };
 
-},{}],69:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 var ElementType = require("domelementtype");
 
 var re_whitespace = /\s+/g;
@@ -11497,7 +11675,7 @@ DomHandler.prototype.onprocessinginstruction = function(name, data){
 
 module.exports = DomHandler;
 
-},{"./lib/element":70,"./lib/node":71,"domelementtype":68}],70:[function(require,module,exports){
+},{"./lib/element":73,"./lib/node":74,"domelementtype":71}],73:[function(require,module,exports){
 // DOM-Level-1-compliant structure
 var NodePrototype = require('./node');
 var ElementPrototype = module.exports = Object.create(NodePrototype);
@@ -11519,7 +11697,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{"./node":71}],71:[function(require,module,exports){
+},{"./node":74}],74:[function(require,module,exports){
 // This object will be used as the prototype for Nodes when creating a
 // DOM-Level-1-compliant structure.
 var NodePrototype = module.exports = {
@@ -11565,7 +11743,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{}],72:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var DomUtils = module.exports;
 
 [
@@ -11581,7 +11759,7 @@ var DomUtils = module.exports;
 	});
 });
 
-},{"./lib/helpers":73,"./lib/legacy":74,"./lib/manipulation":75,"./lib/querying":76,"./lib/stringify":77,"./lib/traversal":78}],73:[function(require,module,exports){
+},{"./lib/helpers":76,"./lib/legacy":77,"./lib/manipulation":78,"./lib/querying":79,"./lib/stringify":80,"./lib/traversal":81}],76:[function(require,module,exports){
 // removeSubsets
 // Given an array of nodes, remove any member that is contained by another.
 exports.removeSubsets = function(nodes) {
@@ -11724,7 +11902,7 @@ exports.uniqueSort = function(nodes) {
 	return nodes;
 };
 
-},{}],74:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 var ElementType = require("domelementtype");
 var isTag = exports.isTag = ElementType.isTag;
 
@@ -11813,7 +11991,7 @@ exports.getElementsByTagType = function(type, element, recurse, limit){
 	return this.filter(Checks.tag_type(type), element, recurse, limit);
 };
 
-},{"domelementtype":68}],75:[function(require,module,exports){
+},{"domelementtype":71}],78:[function(require,module,exports){
 exports.removeElement = function(elem){
 	if(elem.prev) elem.prev.next = elem.next;
 	if(elem.next) elem.next.prev = elem.prev;
@@ -11892,7 +12070,7 @@ exports.prepend = function(elem, prev){
 
 
 
-},{}],76:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 var isTag = require("domelementtype").isTag;
 
 module.exports = {
@@ -11988,7 +12166,7 @@ function findAll(test, elems){
 	return result;
 }
 
-},{"domelementtype":68}],77:[function(require,module,exports){
+},{"domelementtype":71}],80:[function(require,module,exports){
 var ElementType = require("domelementtype"),
     getOuterHTML = require("dom-serializer"),
     isTag = ElementType.isTag;
@@ -12012,7 +12190,7 @@ function getText(elem){
 	return "";
 }
 
-},{"dom-serializer":58,"domelementtype":68}],78:[function(require,module,exports){
+},{"dom-serializer":61,"domelementtype":71}],81:[function(require,module,exports){
 var getChildren = exports.getChildren = function(elem){
 	return elem.children;
 };
@@ -12038,7 +12216,7 @@ exports.getName = function(elem){
 	return elem.name;
 };
 
-},{}],79:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var decodeMap = require("../maps/decode.json");
 
 module.exports = decodeCodePoint;
@@ -12066,16 +12244,16 @@ function decodeCodePoint(codePoint){
 	return output;
 }
 
-},{"../maps/decode.json":80}],80:[function(require,module,exports){
+},{"../maps/decode.json":83}],83:[function(require,module,exports){
 module.exports={"0":65533,"128":8364,"130":8218,"131":402,"132":8222,"133":8230,"134":8224,"135":8225,"136":710,"137":8240,"138":352,"139":8249,"140":338,"142":381,"145":8216,"146":8217,"147":8220,"148":8221,"149":8226,"150":8211,"151":8212,"152":732,"153":8482,"154":353,"155":8250,"156":339,"158":382,"159":376}
-},{}],81:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Abreve":"\u0102","abreve":"\u0103","ac":"\u223E","acd":"\u223F","acE":"\u223E\u0333","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","Acy":"\u0410","acy":"\u0430","AElig":"\u00C6","aelig":"\u00E6","af":"\u2061","Afr":"\uD835\uDD04","afr":"\uD835\uDD1E","Agrave":"\u00C0","agrave":"\u00E0","alefsym":"\u2135","aleph":"\u2135","Alpha":"\u0391","alpha":"\u03B1","Amacr":"\u0100","amacr":"\u0101","amalg":"\u2A3F","amp":"&","AMP":"&","andand":"\u2A55","And":"\u2A53","and":"\u2227","andd":"\u2A5C","andslope":"\u2A58","andv":"\u2A5A","ang":"\u2220","ange":"\u29A4","angle":"\u2220","angmsdaa":"\u29A8","angmsdab":"\u29A9","angmsdac":"\u29AA","angmsdad":"\u29AB","angmsdae":"\u29AC","angmsdaf":"\u29AD","angmsdag":"\u29AE","angmsdah":"\u29AF","angmsd":"\u2221","angrt":"\u221F","angrtvb":"\u22BE","angrtvbd":"\u299D","angsph":"\u2222","angst":"\u00C5","angzarr":"\u237C","Aogon":"\u0104","aogon":"\u0105","Aopf":"\uD835\uDD38","aopf":"\uD835\uDD52","apacir":"\u2A6F","ap":"\u2248","apE":"\u2A70","ape":"\u224A","apid":"\u224B","apos":"'","ApplyFunction":"\u2061","approx":"\u2248","approxeq":"\u224A","Aring":"\u00C5","aring":"\u00E5","Ascr":"\uD835\uDC9C","ascr":"\uD835\uDCB6","Assign":"\u2254","ast":"*","asymp":"\u2248","asympeq":"\u224D","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","awconint":"\u2233","awint":"\u2A11","backcong":"\u224C","backepsilon":"\u03F6","backprime":"\u2035","backsim":"\u223D","backsimeq":"\u22CD","Backslash":"\u2216","Barv":"\u2AE7","barvee":"\u22BD","barwed":"\u2305","Barwed":"\u2306","barwedge":"\u2305","bbrk":"\u23B5","bbrktbrk":"\u23B6","bcong":"\u224C","Bcy":"\u0411","bcy":"\u0431","bdquo":"\u201E","becaus":"\u2235","because":"\u2235","Because":"\u2235","bemptyv":"\u29B0","bepsi":"\u03F6","bernou":"\u212C","Bernoullis":"\u212C","Beta":"\u0392","beta":"\u03B2","beth":"\u2136","between":"\u226C","Bfr":"\uD835\uDD05","bfr":"\uD835\uDD1F","bigcap":"\u22C2","bigcirc":"\u25EF","bigcup":"\u22C3","bigodot":"\u2A00","bigoplus":"\u2A01","bigotimes":"\u2A02","bigsqcup":"\u2A06","bigstar":"\u2605","bigtriangledown":"\u25BD","bigtriangleup":"\u25B3","biguplus":"\u2A04","bigvee":"\u22C1","bigwedge":"\u22C0","bkarow":"\u290D","blacklozenge":"\u29EB","blacksquare":"\u25AA","blacktriangle":"\u25B4","blacktriangledown":"\u25BE","blacktriangleleft":"\u25C2","blacktriangleright":"\u25B8","blank":"\u2423","blk12":"\u2592","blk14":"\u2591","blk34":"\u2593","block":"\u2588","bne":"=\u20E5","bnequiv":"\u2261\u20E5","bNot":"\u2AED","bnot":"\u2310","Bopf":"\uD835\uDD39","bopf":"\uD835\uDD53","bot":"\u22A5","bottom":"\u22A5","bowtie":"\u22C8","boxbox":"\u29C9","boxdl":"\u2510","boxdL":"\u2555","boxDl":"\u2556","boxDL":"\u2557","boxdr":"\u250C","boxdR":"\u2552","boxDr":"\u2553","boxDR":"\u2554","boxh":"\u2500","boxH":"\u2550","boxhd":"\u252C","boxHd":"\u2564","boxhD":"\u2565","boxHD":"\u2566","boxhu":"\u2534","boxHu":"\u2567","boxhU":"\u2568","boxHU":"\u2569","boxminus":"\u229F","boxplus":"\u229E","boxtimes":"\u22A0","boxul":"\u2518","boxuL":"\u255B","boxUl":"\u255C","boxUL":"\u255D","boxur":"\u2514","boxuR":"\u2558","boxUr":"\u2559","boxUR":"\u255A","boxv":"\u2502","boxV":"\u2551","boxvh":"\u253C","boxvH":"\u256A","boxVh":"\u256B","boxVH":"\u256C","boxvl":"\u2524","boxvL":"\u2561","boxVl":"\u2562","boxVL":"\u2563","boxvr":"\u251C","boxvR":"\u255E","boxVr":"\u255F","boxVR":"\u2560","bprime":"\u2035","breve":"\u02D8","Breve":"\u02D8","brvbar":"\u00A6","bscr":"\uD835\uDCB7","Bscr":"\u212C","bsemi":"\u204F","bsim":"\u223D","bsime":"\u22CD","bsolb":"\u29C5","bsol":"\\","bsolhsub":"\u27C8","bull":"\u2022","bullet":"\u2022","bump":"\u224E","bumpE":"\u2AAE","bumpe":"\u224F","Bumpeq":"\u224E","bumpeq":"\u224F","Cacute":"\u0106","cacute":"\u0107","capand":"\u2A44","capbrcup":"\u2A49","capcap":"\u2A4B","cap":"\u2229","Cap":"\u22D2","capcup":"\u2A47","capdot":"\u2A40","CapitalDifferentialD":"\u2145","caps":"\u2229\uFE00","caret":"\u2041","caron":"\u02C7","Cayleys":"\u212D","ccaps":"\u2A4D","Ccaron":"\u010C","ccaron":"\u010D","Ccedil":"\u00C7","ccedil":"\u00E7","Ccirc":"\u0108","ccirc":"\u0109","Cconint":"\u2230","ccups":"\u2A4C","ccupssm":"\u2A50","Cdot":"\u010A","cdot":"\u010B","cedil":"\u00B8","Cedilla":"\u00B8","cemptyv":"\u29B2","cent":"\u00A2","centerdot":"\u00B7","CenterDot":"\u00B7","cfr":"\uD835\uDD20","Cfr":"\u212D","CHcy":"\u0427","chcy":"\u0447","check":"\u2713","checkmark":"\u2713","Chi":"\u03A7","chi":"\u03C7","circ":"\u02C6","circeq":"\u2257","circlearrowleft":"\u21BA","circlearrowright":"\u21BB","circledast":"\u229B","circledcirc":"\u229A","circleddash":"\u229D","CircleDot":"\u2299","circledR":"\u00AE","circledS":"\u24C8","CircleMinus":"\u2296","CirclePlus":"\u2295","CircleTimes":"\u2297","cir":"\u25CB","cirE":"\u29C3","cire":"\u2257","cirfnint":"\u2A10","cirmid":"\u2AEF","cirscir":"\u29C2","ClockwiseContourIntegral":"\u2232","CloseCurlyDoubleQuote":"\u201D","CloseCurlyQuote":"\u2019","clubs":"\u2663","clubsuit":"\u2663","colon":":","Colon":"\u2237","Colone":"\u2A74","colone":"\u2254","coloneq":"\u2254","comma":",","commat":"@","comp":"\u2201","compfn":"\u2218","complement":"\u2201","complexes":"\u2102","cong":"\u2245","congdot":"\u2A6D","Congruent":"\u2261","conint":"\u222E","Conint":"\u222F","ContourIntegral":"\u222E","copf":"\uD835\uDD54","Copf":"\u2102","coprod":"\u2210","Coproduct":"\u2210","copy":"\u00A9","COPY":"\u00A9","copysr":"\u2117","CounterClockwiseContourIntegral":"\u2233","crarr":"\u21B5","cross":"\u2717","Cross":"\u2A2F","Cscr":"\uD835\uDC9E","cscr":"\uD835\uDCB8","csub":"\u2ACF","csube":"\u2AD1","csup":"\u2AD0","csupe":"\u2AD2","ctdot":"\u22EF","cudarrl":"\u2938","cudarrr":"\u2935","cuepr":"\u22DE","cuesc":"\u22DF","cularr":"\u21B6","cularrp":"\u293D","cupbrcap":"\u2A48","cupcap":"\u2A46","CupCap":"\u224D","cup":"\u222A","Cup":"\u22D3","cupcup":"\u2A4A","cupdot":"\u228D","cupor":"\u2A45","cups":"\u222A\uFE00","curarr":"\u21B7","curarrm":"\u293C","curlyeqprec":"\u22DE","curlyeqsucc":"\u22DF","curlyvee":"\u22CE","curlywedge":"\u22CF","curren":"\u00A4","curvearrowleft":"\u21B6","curvearrowright":"\u21B7","cuvee":"\u22CE","cuwed":"\u22CF","cwconint":"\u2232","cwint":"\u2231","cylcty":"\u232D","dagger":"\u2020","Dagger":"\u2021","daleth":"\u2138","darr":"\u2193","Darr":"\u21A1","dArr":"\u21D3","dash":"\u2010","Dashv":"\u2AE4","dashv":"\u22A3","dbkarow":"\u290F","dblac":"\u02DD","Dcaron":"\u010E","dcaron":"\u010F","Dcy":"\u0414","dcy":"\u0434","ddagger":"\u2021","ddarr":"\u21CA","DD":"\u2145","dd":"\u2146","DDotrahd":"\u2911","ddotseq":"\u2A77","deg":"\u00B0","Del":"\u2207","Delta":"\u0394","delta":"\u03B4","demptyv":"\u29B1","dfisht":"\u297F","Dfr":"\uD835\uDD07","dfr":"\uD835\uDD21","dHar":"\u2965","dharl":"\u21C3","dharr":"\u21C2","DiacriticalAcute":"\u00B4","DiacriticalDot":"\u02D9","DiacriticalDoubleAcute":"\u02DD","DiacriticalGrave":"`","DiacriticalTilde":"\u02DC","diam":"\u22C4","diamond":"\u22C4","Diamond":"\u22C4","diamondsuit":"\u2666","diams":"\u2666","die":"\u00A8","DifferentialD":"\u2146","digamma":"\u03DD","disin":"\u22F2","div":"\u00F7","divide":"\u00F7","divideontimes":"\u22C7","divonx":"\u22C7","DJcy":"\u0402","djcy":"\u0452","dlcorn":"\u231E","dlcrop":"\u230D","dollar":"$","Dopf":"\uD835\uDD3B","dopf":"\uD835\uDD55","Dot":"\u00A8","dot":"\u02D9","DotDot":"\u20DC","doteq":"\u2250","doteqdot":"\u2251","DotEqual":"\u2250","dotminus":"\u2238","dotplus":"\u2214","dotsquare":"\u22A1","doublebarwedge":"\u2306","DoubleContourIntegral":"\u222F","DoubleDot":"\u00A8","DoubleDownArrow":"\u21D3","DoubleLeftArrow":"\u21D0","DoubleLeftRightArrow":"\u21D4","DoubleLeftTee":"\u2AE4","DoubleLongLeftArrow":"\u27F8","DoubleLongLeftRightArrow":"\u27FA","DoubleLongRightArrow":"\u27F9","DoubleRightArrow":"\u21D2","DoubleRightTee":"\u22A8","DoubleUpArrow":"\u21D1","DoubleUpDownArrow":"\u21D5","DoubleVerticalBar":"\u2225","DownArrowBar":"\u2913","downarrow":"\u2193","DownArrow":"\u2193","Downarrow":"\u21D3","DownArrowUpArrow":"\u21F5","DownBreve":"\u0311","downdownarrows":"\u21CA","downharpoonleft":"\u21C3","downharpoonright":"\u21C2","DownLeftRightVector":"\u2950","DownLeftTeeVector":"\u295E","DownLeftVectorBar":"\u2956","DownLeftVector":"\u21BD","DownRightTeeVector":"\u295F","DownRightVectorBar":"\u2957","DownRightVector":"\u21C1","DownTeeArrow":"\u21A7","DownTee":"\u22A4","drbkarow":"\u2910","drcorn":"\u231F","drcrop":"\u230C","Dscr":"\uD835\uDC9F","dscr":"\uD835\uDCB9","DScy":"\u0405","dscy":"\u0455","dsol":"\u29F6","Dstrok":"\u0110","dstrok":"\u0111","dtdot":"\u22F1","dtri":"\u25BF","dtrif":"\u25BE","duarr":"\u21F5","duhar":"\u296F","dwangle":"\u29A6","DZcy":"\u040F","dzcy":"\u045F","dzigrarr":"\u27FF","Eacute":"\u00C9","eacute":"\u00E9","easter":"\u2A6E","Ecaron":"\u011A","ecaron":"\u011B","Ecirc":"\u00CA","ecirc":"\u00EA","ecir":"\u2256","ecolon":"\u2255","Ecy":"\u042D","ecy":"\u044D","eDDot":"\u2A77","Edot":"\u0116","edot":"\u0117","eDot":"\u2251","ee":"\u2147","efDot":"\u2252","Efr":"\uD835\uDD08","efr":"\uD835\uDD22","eg":"\u2A9A","Egrave":"\u00C8","egrave":"\u00E8","egs":"\u2A96","egsdot":"\u2A98","el":"\u2A99","Element":"\u2208","elinters":"\u23E7","ell":"\u2113","els":"\u2A95","elsdot":"\u2A97","Emacr":"\u0112","emacr":"\u0113","empty":"\u2205","emptyset":"\u2205","EmptySmallSquare":"\u25FB","emptyv":"\u2205","EmptyVerySmallSquare":"\u25AB","emsp13":"\u2004","emsp14":"\u2005","emsp":"\u2003","ENG":"\u014A","eng":"\u014B","ensp":"\u2002","Eogon":"\u0118","eogon":"\u0119","Eopf":"\uD835\uDD3C","eopf":"\uD835\uDD56","epar":"\u22D5","eparsl":"\u29E3","eplus":"\u2A71","epsi":"\u03B5","Epsilon":"\u0395","epsilon":"\u03B5","epsiv":"\u03F5","eqcirc":"\u2256","eqcolon":"\u2255","eqsim":"\u2242","eqslantgtr":"\u2A96","eqslantless":"\u2A95","Equal":"\u2A75","equals":"=","EqualTilde":"\u2242","equest":"\u225F","Equilibrium":"\u21CC","equiv":"\u2261","equivDD":"\u2A78","eqvparsl":"\u29E5","erarr":"\u2971","erDot":"\u2253","escr":"\u212F","Escr":"\u2130","esdot":"\u2250","Esim":"\u2A73","esim":"\u2242","Eta":"\u0397","eta":"\u03B7","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","euro":"\u20AC","excl":"!","exist":"\u2203","Exists":"\u2203","expectation":"\u2130","exponentiale":"\u2147","ExponentialE":"\u2147","fallingdotseq":"\u2252","Fcy":"\u0424","fcy":"\u0444","female":"\u2640","ffilig":"\uFB03","fflig":"\uFB00","ffllig":"\uFB04","Ffr":"\uD835\uDD09","ffr":"\uD835\uDD23","filig":"\uFB01","FilledSmallSquare":"\u25FC","FilledVerySmallSquare":"\u25AA","fjlig":"fj","flat":"\u266D","fllig":"\uFB02","fltns":"\u25B1","fnof":"\u0192","Fopf":"\uD835\uDD3D","fopf":"\uD835\uDD57","forall":"\u2200","ForAll":"\u2200","fork":"\u22D4","forkv":"\u2AD9","Fouriertrf":"\u2131","fpartint":"\u2A0D","frac12":"\u00BD","frac13":"\u2153","frac14":"\u00BC","frac15":"\u2155","frac16":"\u2159","frac18":"\u215B","frac23":"\u2154","frac25":"\u2156","frac34":"\u00BE","frac35":"\u2157","frac38":"\u215C","frac45":"\u2158","frac56":"\u215A","frac58":"\u215D","frac78":"\u215E","frasl":"\u2044","frown":"\u2322","fscr":"\uD835\uDCBB","Fscr":"\u2131","gacute":"\u01F5","Gamma":"\u0393","gamma":"\u03B3","Gammad":"\u03DC","gammad":"\u03DD","gap":"\u2A86","Gbreve":"\u011E","gbreve":"\u011F","Gcedil":"\u0122","Gcirc":"\u011C","gcirc":"\u011D","Gcy":"\u0413","gcy":"\u0433","Gdot":"\u0120","gdot":"\u0121","ge":"\u2265","gE":"\u2267","gEl":"\u2A8C","gel":"\u22DB","geq":"\u2265","geqq":"\u2267","geqslant":"\u2A7E","gescc":"\u2AA9","ges":"\u2A7E","gesdot":"\u2A80","gesdoto":"\u2A82","gesdotol":"\u2A84","gesl":"\u22DB\uFE00","gesles":"\u2A94","Gfr":"\uD835\uDD0A","gfr":"\uD835\uDD24","gg":"\u226B","Gg":"\u22D9","ggg":"\u22D9","gimel":"\u2137","GJcy":"\u0403","gjcy":"\u0453","gla":"\u2AA5","gl":"\u2277","glE":"\u2A92","glj":"\u2AA4","gnap":"\u2A8A","gnapprox":"\u2A8A","gne":"\u2A88","gnE":"\u2269","gneq":"\u2A88","gneqq":"\u2269","gnsim":"\u22E7","Gopf":"\uD835\uDD3E","gopf":"\uD835\uDD58","grave":"`","GreaterEqual":"\u2265","GreaterEqualLess":"\u22DB","GreaterFullEqual":"\u2267","GreaterGreater":"\u2AA2","GreaterLess":"\u2277","GreaterSlantEqual":"\u2A7E","GreaterTilde":"\u2273","Gscr":"\uD835\uDCA2","gscr":"\u210A","gsim":"\u2273","gsime":"\u2A8E","gsiml":"\u2A90","gtcc":"\u2AA7","gtcir":"\u2A7A","gt":">","GT":">","Gt":"\u226B","gtdot":"\u22D7","gtlPar":"\u2995","gtquest":"\u2A7C","gtrapprox":"\u2A86","gtrarr":"\u2978","gtrdot":"\u22D7","gtreqless":"\u22DB","gtreqqless":"\u2A8C","gtrless":"\u2277","gtrsim":"\u2273","gvertneqq":"\u2269\uFE00","gvnE":"\u2269\uFE00","Hacek":"\u02C7","hairsp":"\u200A","half":"\u00BD","hamilt":"\u210B","HARDcy":"\u042A","hardcy":"\u044A","harrcir":"\u2948","harr":"\u2194","hArr":"\u21D4","harrw":"\u21AD","Hat":"^","hbar":"\u210F","Hcirc":"\u0124","hcirc":"\u0125","hearts":"\u2665","heartsuit":"\u2665","hellip":"\u2026","hercon":"\u22B9","hfr":"\uD835\uDD25","Hfr":"\u210C","HilbertSpace":"\u210B","hksearow":"\u2925","hkswarow":"\u2926","hoarr":"\u21FF","homtht":"\u223B","hookleftarrow":"\u21A9","hookrightarrow":"\u21AA","hopf":"\uD835\uDD59","Hopf":"\u210D","horbar":"\u2015","HorizontalLine":"\u2500","hscr":"\uD835\uDCBD","Hscr":"\u210B","hslash":"\u210F","Hstrok":"\u0126","hstrok":"\u0127","HumpDownHump":"\u224E","HumpEqual":"\u224F","hybull":"\u2043","hyphen":"\u2010","Iacute":"\u00CD","iacute":"\u00ED","ic":"\u2063","Icirc":"\u00CE","icirc":"\u00EE","Icy":"\u0418","icy":"\u0438","Idot":"\u0130","IEcy":"\u0415","iecy":"\u0435","iexcl":"\u00A1","iff":"\u21D4","ifr":"\uD835\uDD26","Ifr":"\u2111","Igrave":"\u00CC","igrave":"\u00EC","ii":"\u2148","iiiint":"\u2A0C","iiint":"\u222D","iinfin":"\u29DC","iiota":"\u2129","IJlig":"\u0132","ijlig":"\u0133","Imacr":"\u012A","imacr":"\u012B","image":"\u2111","ImaginaryI":"\u2148","imagline":"\u2110","imagpart":"\u2111","imath":"\u0131","Im":"\u2111","imof":"\u22B7","imped":"\u01B5","Implies":"\u21D2","incare":"\u2105","in":"\u2208","infin":"\u221E","infintie":"\u29DD","inodot":"\u0131","intcal":"\u22BA","int":"\u222B","Int":"\u222C","integers":"\u2124","Integral":"\u222B","intercal":"\u22BA","Intersection":"\u22C2","intlarhk":"\u2A17","intprod":"\u2A3C","InvisibleComma":"\u2063","InvisibleTimes":"\u2062","IOcy":"\u0401","iocy":"\u0451","Iogon":"\u012E","iogon":"\u012F","Iopf":"\uD835\uDD40","iopf":"\uD835\uDD5A","Iota":"\u0399","iota":"\u03B9","iprod":"\u2A3C","iquest":"\u00BF","iscr":"\uD835\uDCBE","Iscr":"\u2110","isin":"\u2208","isindot":"\u22F5","isinE":"\u22F9","isins":"\u22F4","isinsv":"\u22F3","isinv":"\u2208","it":"\u2062","Itilde":"\u0128","itilde":"\u0129","Iukcy":"\u0406","iukcy":"\u0456","Iuml":"\u00CF","iuml":"\u00EF","Jcirc":"\u0134","jcirc":"\u0135","Jcy":"\u0419","jcy":"\u0439","Jfr":"\uD835\uDD0D","jfr":"\uD835\uDD27","jmath":"\u0237","Jopf":"\uD835\uDD41","jopf":"\uD835\uDD5B","Jscr":"\uD835\uDCA5","jscr":"\uD835\uDCBF","Jsercy":"\u0408","jsercy":"\u0458","Jukcy":"\u0404","jukcy":"\u0454","Kappa":"\u039A","kappa":"\u03BA","kappav":"\u03F0","Kcedil":"\u0136","kcedil":"\u0137","Kcy":"\u041A","kcy":"\u043A","Kfr":"\uD835\uDD0E","kfr":"\uD835\uDD28","kgreen":"\u0138","KHcy":"\u0425","khcy":"\u0445","KJcy":"\u040C","kjcy":"\u045C","Kopf":"\uD835\uDD42","kopf":"\uD835\uDD5C","Kscr":"\uD835\uDCA6","kscr":"\uD835\uDCC0","lAarr":"\u21DA","Lacute":"\u0139","lacute":"\u013A","laemptyv":"\u29B4","lagran":"\u2112","Lambda":"\u039B","lambda":"\u03BB","lang":"\u27E8","Lang":"\u27EA","langd":"\u2991","langle":"\u27E8","lap":"\u2A85","Laplacetrf":"\u2112","laquo":"\u00AB","larrb":"\u21E4","larrbfs":"\u291F","larr":"\u2190","Larr":"\u219E","lArr":"\u21D0","larrfs":"\u291D","larrhk":"\u21A9","larrlp":"\u21AB","larrpl":"\u2939","larrsim":"\u2973","larrtl":"\u21A2","latail":"\u2919","lAtail":"\u291B","lat":"\u2AAB","late":"\u2AAD","lates":"\u2AAD\uFE00","lbarr":"\u290C","lBarr":"\u290E","lbbrk":"\u2772","lbrace":"{","lbrack":"[","lbrke":"\u298B","lbrksld":"\u298F","lbrkslu":"\u298D","Lcaron":"\u013D","lcaron":"\u013E","Lcedil":"\u013B","lcedil":"\u013C","lceil":"\u2308","lcub":"{","Lcy":"\u041B","lcy":"\u043B","ldca":"\u2936","ldquo":"\u201C","ldquor":"\u201E","ldrdhar":"\u2967","ldrushar":"\u294B","ldsh":"\u21B2","le":"\u2264","lE":"\u2266","LeftAngleBracket":"\u27E8","LeftArrowBar":"\u21E4","leftarrow":"\u2190","LeftArrow":"\u2190","Leftarrow":"\u21D0","LeftArrowRightArrow":"\u21C6","leftarrowtail":"\u21A2","LeftCeiling":"\u2308","LeftDoubleBracket":"\u27E6","LeftDownTeeVector":"\u2961","LeftDownVectorBar":"\u2959","LeftDownVector":"\u21C3","LeftFloor":"\u230A","leftharpoondown":"\u21BD","leftharpoonup":"\u21BC","leftleftarrows":"\u21C7","leftrightarrow":"\u2194","LeftRightArrow":"\u2194","Leftrightarrow":"\u21D4","leftrightarrows":"\u21C6","leftrightharpoons":"\u21CB","leftrightsquigarrow":"\u21AD","LeftRightVector":"\u294E","LeftTeeArrow":"\u21A4","LeftTee":"\u22A3","LeftTeeVector":"\u295A","leftthreetimes":"\u22CB","LeftTriangleBar":"\u29CF","LeftTriangle":"\u22B2","LeftTriangleEqual":"\u22B4","LeftUpDownVector":"\u2951","LeftUpTeeVector":"\u2960","LeftUpVectorBar":"\u2958","LeftUpVector":"\u21BF","LeftVectorBar":"\u2952","LeftVector":"\u21BC","lEg":"\u2A8B","leg":"\u22DA","leq":"\u2264","leqq":"\u2266","leqslant":"\u2A7D","lescc":"\u2AA8","les":"\u2A7D","lesdot":"\u2A7F","lesdoto":"\u2A81","lesdotor":"\u2A83","lesg":"\u22DA\uFE00","lesges":"\u2A93","lessapprox":"\u2A85","lessdot":"\u22D6","lesseqgtr":"\u22DA","lesseqqgtr":"\u2A8B","LessEqualGreater":"\u22DA","LessFullEqual":"\u2266","LessGreater":"\u2276","lessgtr":"\u2276","LessLess":"\u2AA1","lesssim":"\u2272","LessSlantEqual":"\u2A7D","LessTilde":"\u2272","lfisht":"\u297C","lfloor":"\u230A","Lfr":"\uD835\uDD0F","lfr":"\uD835\uDD29","lg":"\u2276","lgE":"\u2A91","lHar":"\u2962","lhard":"\u21BD","lharu":"\u21BC","lharul":"\u296A","lhblk":"\u2584","LJcy":"\u0409","ljcy":"\u0459","llarr":"\u21C7","ll":"\u226A","Ll":"\u22D8","llcorner":"\u231E","Lleftarrow":"\u21DA","llhard":"\u296B","lltri":"\u25FA","Lmidot":"\u013F","lmidot":"\u0140","lmoustache":"\u23B0","lmoust":"\u23B0","lnap":"\u2A89","lnapprox":"\u2A89","lne":"\u2A87","lnE":"\u2268","lneq":"\u2A87","lneqq":"\u2268","lnsim":"\u22E6","loang":"\u27EC","loarr":"\u21FD","lobrk":"\u27E6","longleftarrow":"\u27F5","LongLeftArrow":"\u27F5","Longleftarrow":"\u27F8","longleftrightarrow":"\u27F7","LongLeftRightArrow":"\u27F7","Longleftrightarrow":"\u27FA","longmapsto":"\u27FC","longrightarrow":"\u27F6","LongRightArrow":"\u27F6","Longrightarrow":"\u27F9","looparrowleft":"\u21AB","looparrowright":"\u21AC","lopar":"\u2985","Lopf":"\uD835\uDD43","lopf":"\uD835\uDD5D","loplus":"\u2A2D","lotimes":"\u2A34","lowast":"\u2217","lowbar":"_","LowerLeftArrow":"\u2199","LowerRightArrow":"\u2198","loz":"\u25CA","lozenge":"\u25CA","lozf":"\u29EB","lpar":"(","lparlt":"\u2993","lrarr":"\u21C6","lrcorner":"\u231F","lrhar":"\u21CB","lrhard":"\u296D","lrm":"\u200E","lrtri":"\u22BF","lsaquo":"\u2039","lscr":"\uD835\uDCC1","Lscr":"\u2112","lsh":"\u21B0","Lsh":"\u21B0","lsim":"\u2272","lsime":"\u2A8D","lsimg":"\u2A8F","lsqb":"[","lsquo":"\u2018","lsquor":"\u201A","Lstrok":"\u0141","lstrok":"\u0142","ltcc":"\u2AA6","ltcir":"\u2A79","lt":"<","LT":"<","Lt":"\u226A","ltdot":"\u22D6","lthree":"\u22CB","ltimes":"\u22C9","ltlarr":"\u2976","ltquest":"\u2A7B","ltri":"\u25C3","ltrie":"\u22B4","ltrif":"\u25C2","ltrPar":"\u2996","lurdshar":"\u294A","luruhar":"\u2966","lvertneqq":"\u2268\uFE00","lvnE":"\u2268\uFE00","macr":"\u00AF","male":"\u2642","malt":"\u2720","maltese":"\u2720","Map":"\u2905","map":"\u21A6","mapsto":"\u21A6","mapstodown":"\u21A7","mapstoleft":"\u21A4","mapstoup":"\u21A5","marker":"\u25AE","mcomma":"\u2A29","Mcy":"\u041C","mcy":"\u043C","mdash":"\u2014","mDDot":"\u223A","measuredangle":"\u2221","MediumSpace":"\u205F","Mellintrf":"\u2133","Mfr":"\uD835\uDD10","mfr":"\uD835\uDD2A","mho":"\u2127","micro":"\u00B5","midast":"*","midcir":"\u2AF0","mid":"\u2223","middot":"\u00B7","minusb":"\u229F","minus":"\u2212","minusd":"\u2238","minusdu":"\u2A2A","MinusPlus":"\u2213","mlcp":"\u2ADB","mldr":"\u2026","mnplus":"\u2213","models":"\u22A7","Mopf":"\uD835\uDD44","mopf":"\uD835\uDD5E","mp":"\u2213","mscr":"\uD835\uDCC2","Mscr":"\u2133","mstpos":"\u223E","Mu":"\u039C","mu":"\u03BC","multimap":"\u22B8","mumap":"\u22B8","nabla":"\u2207","Nacute":"\u0143","nacute":"\u0144","nang":"\u2220\u20D2","nap":"\u2249","napE":"\u2A70\u0338","napid":"\u224B\u0338","napos":"\u0149","napprox":"\u2249","natural":"\u266E","naturals":"\u2115","natur":"\u266E","nbsp":"\u00A0","nbump":"\u224E\u0338","nbumpe":"\u224F\u0338","ncap":"\u2A43","Ncaron":"\u0147","ncaron":"\u0148","Ncedil":"\u0145","ncedil":"\u0146","ncong":"\u2247","ncongdot":"\u2A6D\u0338","ncup":"\u2A42","Ncy":"\u041D","ncy":"\u043D","ndash":"\u2013","nearhk":"\u2924","nearr":"\u2197","neArr":"\u21D7","nearrow":"\u2197","ne":"\u2260","nedot":"\u2250\u0338","NegativeMediumSpace":"\u200B","NegativeThickSpace":"\u200B","NegativeThinSpace":"\u200B","NegativeVeryThinSpace":"\u200B","nequiv":"\u2262","nesear":"\u2928","nesim":"\u2242\u0338","NestedGreaterGreater":"\u226B","NestedLessLess":"\u226A","NewLine":"\n","nexist":"\u2204","nexists":"\u2204","Nfr":"\uD835\uDD11","nfr":"\uD835\uDD2B","ngE":"\u2267\u0338","nge":"\u2271","ngeq":"\u2271","ngeqq":"\u2267\u0338","ngeqslant":"\u2A7E\u0338","nges":"\u2A7E\u0338","nGg":"\u22D9\u0338","ngsim":"\u2275","nGt":"\u226B\u20D2","ngt":"\u226F","ngtr":"\u226F","nGtv":"\u226B\u0338","nharr":"\u21AE","nhArr":"\u21CE","nhpar":"\u2AF2","ni":"\u220B","nis":"\u22FC","nisd":"\u22FA","niv":"\u220B","NJcy":"\u040A","njcy":"\u045A","nlarr":"\u219A","nlArr":"\u21CD","nldr":"\u2025","nlE":"\u2266\u0338","nle":"\u2270","nleftarrow":"\u219A","nLeftarrow":"\u21CD","nleftrightarrow":"\u21AE","nLeftrightarrow":"\u21CE","nleq":"\u2270","nleqq":"\u2266\u0338","nleqslant":"\u2A7D\u0338","nles":"\u2A7D\u0338","nless":"\u226E","nLl":"\u22D8\u0338","nlsim":"\u2274","nLt":"\u226A\u20D2","nlt":"\u226E","nltri":"\u22EA","nltrie":"\u22EC","nLtv":"\u226A\u0338","nmid":"\u2224","NoBreak":"\u2060","NonBreakingSpace":"\u00A0","nopf":"\uD835\uDD5F","Nopf":"\u2115","Not":"\u2AEC","not":"\u00AC","NotCongruent":"\u2262","NotCupCap":"\u226D","NotDoubleVerticalBar":"\u2226","NotElement":"\u2209","NotEqual":"\u2260","NotEqualTilde":"\u2242\u0338","NotExists":"\u2204","NotGreater":"\u226F","NotGreaterEqual":"\u2271","NotGreaterFullEqual":"\u2267\u0338","NotGreaterGreater":"\u226B\u0338","NotGreaterLess":"\u2279","NotGreaterSlantEqual":"\u2A7E\u0338","NotGreaterTilde":"\u2275","NotHumpDownHump":"\u224E\u0338","NotHumpEqual":"\u224F\u0338","notin":"\u2209","notindot":"\u22F5\u0338","notinE":"\u22F9\u0338","notinva":"\u2209","notinvb":"\u22F7","notinvc":"\u22F6","NotLeftTriangleBar":"\u29CF\u0338","NotLeftTriangle":"\u22EA","NotLeftTriangleEqual":"\u22EC","NotLess":"\u226E","NotLessEqual":"\u2270","NotLessGreater":"\u2278","NotLessLess":"\u226A\u0338","NotLessSlantEqual":"\u2A7D\u0338","NotLessTilde":"\u2274","NotNestedGreaterGreater":"\u2AA2\u0338","NotNestedLessLess":"\u2AA1\u0338","notni":"\u220C","notniva":"\u220C","notnivb":"\u22FE","notnivc":"\u22FD","NotPrecedes":"\u2280","NotPrecedesEqual":"\u2AAF\u0338","NotPrecedesSlantEqual":"\u22E0","NotReverseElement":"\u220C","NotRightTriangleBar":"\u29D0\u0338","NotRightTriangle":"\u22EB","NotRightTriangleEqual":"\u22ED","NotSquareSubset":"\u228F\u0338","NotSquareSubsetEqual":"\u22E2","NotSquareSuperset":"\u2290\u0338","NotSquareSupersetEqual":"\u22E3","NotSubset":"\u2282\u20D2","NotSubsetEqual":"\u2288","NotSucceeds":"\u2281","NotSucceedsEqual":"\u2AB0\u0338","NotSucceedsSlantEqual":"\u22E1","NotSucceedsTilde":"\u227F\u0338","NotSuperset":"\u2283\u20D2","NotSupersetEqual":"\u2289","NotTilde":"\u2241","NotTildeEqual":"\u2244","NotTildeFullEqual":"\u2247","NotTildeTilde":"\u2249","NotVerticalBar":"\u2224","nparallel":"\u2226","npar":"\u2226","nparsl":"\u2AFD\u20E5","npart":"\u2202\u0338","npolint":"\u2A14","npr":"\u2280","nprcue":"\u22E0","nprec":"\u2280","npreceq":"\u2AAF\u0338","npre":"\u2AAF\u0338","nrarrc":"\u2933\u0338","nrarr":"\u219B","nrArr":"\u21CF","nrarrw":"\u219D\u0338","nrightarrow":"\u219B","nRightarrow":"\u21CF","nrtri":"\u22EB","nrtrie":"\u22ED","nsc":"\u2281","nsccue":"\u22E1","nsce":"\u2AB0\u0338","Nscr":"\uD835\uDCA9","nscr":"\uD835\uDCC3","nshortmid":"\u2224","nshortparallel":"\u2226","nsim":"\u2241","nsime":"\u2244","nsimeq":"\u2244","nsmid":"\u2224","nspar":"\u2226","nsqsube":"\u22E2","nsqsupe":"\u22E3","nsub":"\u2284","nsubE":"\u2AC5\u0338","nsube":"\u2288","nsubset":"\u2282\u20D2","nsubseteq":"\u2288","nsubseteqq":"\u2AC5\u0338","nsucc":"\u2281","nsucceq":"\u2AB0\u0338","nsup":"\u2285","nsupE":"\u2AC6\u0338","nsupe":"\u2289","nsupset":"\u2283\u20D2","nsupseteq":"\u2289","nsupseteqq":"\u2AC6\u0338","ntgl":"\u2279","Ntilde":"\u00D1","ntilde":"\u00F1","ntlg":"\u2278","ntriangleleft":"\u22EA","ntrianglelefteq":"\u22EC","ntriangleright":"\u22EB","ntrianglerighteq":"\u22ED","Nu":"\u039D","nu":"\u03BD","num":"#","numero":"\u2116","numsp":"\u2007","nvap":"\u224D\u20D2","nvdash":"\u22AC","nvDash":"\u22AD","nVdash":"\u22AE","nVDash":"\u22AF","nvge":"\u2265\u20D2","nvgt":">\u20D2","nvHarr":"\u2904","nvinfin":"\u29DE","nvlArr":"\u2902","nvle":"\u2264\u20D2","nvlt":"<\u20D2","nvltrie":"\u22B4\u20D2","nvrArr":"\u2903","nvrtrie":"\u22B5\u20D2","nvsim":"\u223C\u20D2","nwarhk":"\u2923","nwarr":"\u2196","nwArr":"\u21D6","nwarrow":"\u2196","nwnear":"\u2927","Oacute":"\u00D3","oacute":"\u00F3","oast":"\u229B","Ocirc":"\u00D4","ocirc":"\u00F4","ocir":"\u229A","Ocy":"\u041E","ocy":"\u043E","odash":"\u229D","Odblac":"\u0150","odblac":"\u0151","odiv":"\u2A38","odot":"\u2299","odsold":"\u29BC","OElig":"\u0152","oelig":"\u0153","ofcir":"\u29BF","Ofr":"\uD835\uDD12","ofr":"\uD835\uDD2C","ogon":"\u02DB","Ograve":"\u00D2","ograve":"\u00F2","ogt":"\u29C1","ohbar":"\u29B5","ohm":"\u03A9","oint":"\u222E","olarr":"\u21BA","olcir":"\u29BE","olcross":"\u29BB","oline":"\u203E","olt":"\u29C0","Omacr":"\u014C","omacr":"\u014D","Omega":"\u03A9","omega":"\u03C9","Omicron":"\u039F","omicron":"\u03BF","omid":"\u29B6","ominus":"\u2296","Oopf":"\uD835\uDD46","oopf":"\uD835\uDD60","opar":"\u29B7","OpenCurlyDoubleQuote":"\u201C","OpenCurlyQuote":"\u2018","operp":"\u29B9","oplus":"\u2295","orarr":"\u21BB","Or":"\u2A54","or":"\u2228","ord":"\u2A5D","order":"\u2134","orderof":"\u2134","ordf":"\u00AA","ordm":"\u00BA","origof":"\u22B6","oror":"\u2A56","orslope":"\u2A57","orv":"\u2A5B","oS":"\u24C8","Oscr":"\uD835\uDCAA","oscr":"\u2134","Oslash":"\u00D8","oslash":"\u00F8","osol":"\u2298","Otilde":"\u00D5","otilde":"\u00F5","otimesas":"\u2A36","Otimes":"\u2A37","otimes":"\u2297","Ouml":"\u00D6","ouml":"\u00F6","ovbar":"\u233D","OverBar":"\u203E","OverBrace":"\u23DE","OverBracket":"\u23B4","OverParenthesis":"\u23DC","para":"\u00B6","parallel":"\u2225","par":"\u2225","parsim":"\u2AF3","parsl":"\u2AFD","part":"\u2202","PartialD":"\u2202","Pcy":"\u041F","pcy":"\u043F","percnt":"%","period":".","permil":"\u2030","perp":"\u22A5","pertenk":"\u2031","Pfr":"\uD835\uDD13","pfr":"\uD835\uDD2D","Phi":"\u03A6","phi":"\u03C6","phiv":"\u03D5","phmmat":"\u2133","phone":"\u260E","Pi":"\u03A0","pi":"\u03C0","pitchfork":"\u22D4","piv":"\u03D6","planck":"\u210F","planckh":"\u210E","plankv":"\u210F","plusacir":"\u2A23","plusb":"\u229E","pluscir":"\u2A22","plus":"+","plusdo":"\u2214","plusdu":"\u2A25","pluse":"\u2A72","PlusMinus":"\u00B1","plusmn":"\u00B1","plussim":"\u2A26","plustwo":"\u2A27","pm":"\u00B1","Poincareplane":"\u210C","pointint":"\u2A15","popf":"\uD835\uDD61","Popf":"\u2119","pound":"\u00A3","prap":"\u2AB7","Pr":"\u2ABB","pr":"\u227A","prcue":"\u227C","precapprox":"\u2AB7","prec":"\u227A","preccurlyeq":"\u227C","Precedes":"\u227A","PrecedesEqual":"\u2AAF","PrecedesSlantEqual":"\u227C","PrecedesTilde":"\u227E","preceq":"\u2AAF","precnapprox":"\u2AB9","precneqq":"\u2AB5","precnsim":"\u22E8","pre":"\u2AAF","prE":"\u2AB3","precsim":"\u227E","prime":"\u2032","Prime":"\u2033","primes":"\u2119","prnap":"\u2AB9","prnE":"\u2AB5","prnsim":"\u22E8","prod":"\u220F","Product":"\u220F","profalar":"\u232E","profline":"\u2312","profsurf":"\u2313","prop":"\u221D","Proportional":"\u221D","Proportion":"\u2237","propto":"\u221D","prsim":"\u227E","prurel":"\u22B0","Pscr":"\uD835\uDCAB","pscr":"\uD835\uDCC5","Psi":"\u03A8","psi":"\u03C8","puncsp":"\u2008","Qfr":"\uD835\uDD14","qfr":"\uD835\uDD2E","qint":"\u2A0C","qopf":"\uD835\uDD62","Qopf":"\u211A","qprime":"\u2057","Qscr":"\uD835\uDCAC","qscr":"\uD835\uDCC6","quaternions":"\u210D","quatint":"\u2A16","quest":"?","questeq":"\u225F","quot":"\"","QUOT":"\"","rAarr":"\u21DB","race":"\u223D\u0331","Racute":"\u0154","racute":"\u0155","radic":"\u221A","raemptyv":"\u29B3","rang":"\u27E9","Rang":"\u27EB","rangd":"\u2992","range":"\u29A5","rangle":"\u27E9","raquo":"\u00BB","rarrap":"\u2975","rarrb":"\u21E5","rarrbfs":"\u2920","rarrc":"\u2933","rarr":"\u2192","Rarr":"\u21A0","rArr":"\u21D2","rarrfs":"\u291E","rarrhk":"\u21AA","rarrlp":"\u21AC","rarrpl":"\u2945","rarrsim":"\u2974","Rarrtl":"\u2916","rarrtl":"\u21A3","rarrw":"\u219D","ratail":"\u291A","rAtail":"\u291C","ratio":"\u2236","rationals":"\u211A","rbarr":"\u290D","rBarr":"\u290F","RBarr":"\u2910","rbbrk":"\u2773","rbrace":"}","rbrack":"]","rbrke":"\u298C","rbrksld":"\u298E","rbrkslu":"\u2990","Rcaron":"\u0158","rcaron":"\u0159","Rcedil":"\u0156","rcedil":"\u0157","rceil":"\u2309","rcub":"}","Rcy":"\u0420","rcy":"\u0440","rdca":"\u2937","rdldhar":"\u2969","rdquo":"\u201D","rdquor":"\u201D","rdsh":"\u21B3","real":"\u211C","realine":"\u211B","realpart":"\u211C","reals":"\u211D","Re":"\u211C","rect":"\u25AD","reg":"\u00AE","REG":"\u00AE","ReverseElement":"\u220B","ReverseEquilibrium":"\u21CB","ReverseUpEquilibrium":"\u296F","rfisht":"\u297D","rfloor":"\u230B","rfr":"\uD835\uDD2F","Rfr":"\u211C","rHar":"\u2964","rhard":"\u21C1","rharu":"\u21C0","rharul":"\u296C","Rho":"\u03A1","rho":"\u03C1","rhov":"\u03F1","RightAngleBracket":"\u27E9","RightArrowBar":"\u21E5","rightarrow":"\u2192","RightArrow":"\u2192","Rightarrow":"\u21D2","RightArrowLeftArrow":"\u21C4","rightarrowtail":"\u21A3","RightCeiling":"\u2309","RightDoubleBracket":"\u27E7","RightDownTeeVector":"\u295D","RightDownVectorBar":"\u2955","RightDownVector":"\u21C2","RightFloor":"\u230B","rightharpoondown":"\u21C1","rightharpoonup":"\u21C0","rightleftarrows":"\u21C4","rightleftharpoons":"\u21CC","rightrightarrows":"\u21C9","rightsquigarrow":"\u219D","RightTeeArrow":"\u21A6","RightTee":"\u22A2","RightTeeVector":"\u295B","rightthreetimes":"\u22CC","RightTriangleBar":"\u29D0","RightTriangle":"\u22B3","RightTriangleEqual":"\u22B5","RightUpDownVector":"\u294F","RightUpTeeVector":"\u295C","RightUpVectorBar":"\u2954","RightUpVector":"\u21BE","RightVectorBar":"\u2953","RightVector":"\u21C0","ring":"\u02DA","risingdotseq":"\u2253","rlarr":"\u21C4","rlhar":"\u21CC","rlm":"\u200F","rmoustache":"\u23B1","rmoust":"\u23B1","rnmid":"\u2AEE","roang":"\u27ED","roarr":"\u21FE","robrk":"\u27E7","ropar":"\u2986","ropf":"\uD835\uDD63","Ropf":"\u211D","roplus":"\u2A2E","rotimes":"\u2A35","RoundImplies":"\u2970","rpar":")","rpargt":"\u2994","rppolint":"\u2A12","rrarr":"\u21C9","Rrightarrow":"\u21DB","rsaquo":"\u203A","rscr":"\uD835\uDCC7","Rscr":"\u211B","rsh":"\u21B1","Rsh":"\u21B1","rsqb":"]","rsquo":"\u2019","rsquor":"\u2019","rthree":"\u22CC","rtimes":"\u22CA","rtri":"\u25B9","rtrie":"\u22B5","rtrif":"\u25B8","rtriltri":"\u29CE","RuleDelayed":"\u29F4","ruluhar":"\u2968","rx":"\u211E","Sacute":"\u015A","sacute":"\u015B","sbquo":"\u201A","scap":"\u2AB8","Scaron":"\u0160","scaron":"\u0161","Sc":"\u2ABC","sc":"\u227B","sccue":"\u227D","sce":"\u2AB0","scE":"\u2AB4","Scedil":"\u015E","scedil":"\u015F","Scirc":"\u015C","scirc":"\u015D","scnap":"\u2ABA","scnE":"\u2AB6","scnsim":"\u22E9","scpolint":"\u2A13","scsim":"\u227F","Scy":"\u0421","scy":"\u0441","sdotb":"\u22A1","sdot":"\u22C5","sdote":"\u2A66","searhk":"\u2925","searr":"\u2198","seArr":"\u21D8","searrow":"\u2198","sect":"\u00A7","semi":";","seswar":"\u2929","setminus":"\u2216","setmn":"\u2216","sext":"\u2736","Sfr":"\uD835\uDD16","sfr":"\uD835\uDD30","sfrown":"\u2322","sharp":"\u266F","SHCHcy":"\u0429","shchcy":"\u0449","SHcy":"\u0428","shcy":"\u0448","ShortDownArrow":"\u2193","ShortLeftArrow":"\u2190","shortmid":"\u2223","shortparallel":"\u2225","ShortRightArrow":"\u2192","ShortUpArrow":"\u2191","shy":"\u00AD","Sigma":"\u03A3","sigma":"\u03C3","sigmaf":"\u03C2","sigmav":"\u03C2","sim":"\u223C","simdot":"\u2A6A","sime":"\u2243","simeq":"\u2243","simg":"\u2A9E","simgE":"\u2AA0","siml":"\u2A9D","simlE":"\u2A9F","simne":"\u2246","simplus":"\u2A24","simrarr":"\u2972","slarr":"\u2190","SmallCircle":"\u2218","smallsetminus":"\u2216","smashp":"\u2A33","smeparsl":"\u29E4","smid":"\u2223","smile":"\u2323","smt":"\u2AAA","smte":"\u2AAC","smtes":"\u2AAC\uFE00","SOFTcy":"\u042C","softcy":"\u044C","solbar":"\u233F","solb":"\u29C4","sol":"/","Sopf":"\uD835\uDD4A","sopf":"\uD835\uDD64","spades":"\u2660","spadesuit":"\u2660","spar":"\u2225","sqcap":"\u2293","sqcaps":"\u2293\uFE00","sqcup":"\u2294","sqcups":"\u2294\uFE00","Sqrt":"\u221A","sqsub":"\u228F","sqsube":"\u2291","sqsubset":"\u228F","sqsubseteq":"\u2291","sqsup":"\u2290","sqsupe":"\u2292","sqsupset":"\u2290","sqsupseteq":"\u2292","square":"\u25A1","Square":"\u25A1","SquareIntersection":"\u2293","SquareSubset":"\u228F","SquareSubsetEqual":"\u2291","SquareSuperset":"\u2290","SquareSupersetEqual":"\u2292","SquareUnion":"\u2294","squarf":"\u25AA","squ":"\u25A1","squf":"\u25AA","srarr":"\u2192","Sscr":"\uD835\uDCAE","sscr":"\uD835\uDCC8","ssetmn":"\u2216","ssmile":"\u2323","sstarf":"\u22C6","Star":"\u22C6","star":"\u2606","starf":"\u2605","straightepsilon":"\u03F5","straightphi":"\u03D5","strns":"\u00AF","sub":"\u2282","Sub":"\u22D0","subdot":"\u2ABD","subE":"\u2AC5","sube":"\u2286","subedot":"\u2AC3","submult":"\u2AC1","subnE":"\u2ACB","subne":"\u228A","subplus":"\u2ABF","subrarr":"\u2979","subset":"\u2282","Subset":"\u22D0","subseteq":"\u2286","subseteqq":"\u2AC5","SubsetEqual":"\u2286","subsetneq":"\u228A","subsetneqq":"\u2ACB","subsim":"\u2AC7","subsub":"\u2AD5","subsup":"\u2AD3","succapprox":"\u2AB8","succ":"\u227B","succcurlyeq":"\u227D","Succeeds":"\u227B","SucceedsEqual":"\u2AB0","SucceedsSlantEqual":"\u227D","SucceedsTilde":"\u227F","succeq":"\u2AB0","succnapprox":"\u2ABA","succneqq":"\u2AB6","succnsim":"\u22E9","succsim":"\u227F","SuchThat":"\u220B","sum":"\u2211","Sum":"\u2211","sung":"\u266A","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","sup":"\u2283","Sup":"\u22D1","supdot":"\u2ABE","supdsub":"\u2AD8","supE":"\u2AC6","supe":"\u2287","supedot":"\u2AC4","Superset":"\u2283","SupersetEqual":"\u2287","suphsol":"\u27C9","suphsub":"\u2AD7","suplarr":"\u297B","supmult":"\u2AC2","supnE":"\u2ACC","supne":"\u228B","supplus":"\u2AC0","supset":"\u2283","Supset":"\u22D1","supseteq":"\u2287","supseteqq":"\u2AC6","supsetneq":"\u228B","supsetneqq":"\u2ACC","supsim":"\u2AC8","supsub":"\u2AD4","supsup":"\u2AD6","swarhk":"\u2926","swarr":"\u2199","swArr":"\u21D9","swarrow":"\u2199","swnwar":"\u292A","szlig":"\u00DF","Tab":"\t","target":"\u2316","Tau":"\u03A4","tau":"\u03C4","tbrk":"\u23B4","Tcaron":"\u0164","tcaron":"\u0165","Tcedil":"\u0162","tcedil":"\u0163","Tcy":"\u0422","tcy":"\u0442","tdot":"\u20DB","telrec":"\u2315","Tfr":"\uD835\uDD17","tfr":"\uD835\uDD31","there4":"\u2234","therefore":"\u2234","Therefore":"\u2234","Theta":"\u0398","theta":"\u03B8","thetasym":"\u03D1","thetav":"\u03D1","thickapprox":"\u2248","thicksim":"\u223C","ThickSpace":"\u205F\u200A","ThinSpace":"\u2009","thinsp":"\u2009","thkap":"\u2248","thksim":"\u223C","THORN":"\u00DE","thorn":"\u00FE","tilde":"\u02DC","Tilde":"\u223C","TildeEqual":"\u2243","TildeFullEqual":"\u2245","TildeTilde":"\u2248","timesbar":"\u2A31","timesb":"\u22A0","times":"\u00D7","timesd":"\u2A30","tint":"\u222D","toea":"\u2928","topbot":"\u2336","topcir":"\u2AF1","top":"\u22A4","Topf":"\uD835\uDD4B","topf":"\uD835\uDD65","topfork":"\u2ADA","tosa":"\u2929","tprime":"\u2034","trade":"\u2122","TRADE":"\u2122","triangle":"\u25B5","triangledown":"\u25BF","triangleleft":"\u25C3","trianglelefteq":"\u22B4","triangleq":"\u225C","triangleright":"\u25B9","trianglerighteq":"\u22B5","tridot":"\u25EC","trie":"\u225C","triminus":"\u2A3A","TripleDot":"\u20DB","triplus":"\u2A39","trisb":"\u29CD","tritime":"\u2A3B","trpezium":"\u23E2","Tscr":"\uD835\uDCAF","tscr":"\uD835\uDCC9","TScy":"\u0426","tscy":"\u0446","TSHcy":"\u040B","tshcy":"\u045B","Tstrok":"\u0166","tstrok":"\u0167","twixt":"\u226C","twoheadleftarrow":"\u219E","twoheadrightarrow":"\u21A0","Uacute":"\u00DA","uacute":"\u00FA","uarr":"\u2191","Uarr":"\u219F","uArr":"\u21D1","Uarrocir":"\u2949","Ubrcy":"\u040E","ubrcy":"\u045E","Ubreve":"\u016C","ubreve":"\u016D","Ucirc":"\u00DB","ucirc":"\u00FB","Ucy":"\u0423","ucy":"\u0443","udarr":"\u21C5","Udblac":"\u0170","udblac":"\u0171","udhar":"\u296E","ufisht":"\u297E","Ufr":"\uD835\uDD18","ufr":"\uD835\uDD32","Ugrave":"\u00D9","ugrave":"\u00F9","uHar":"\u2963","uharl":"\u21BF","uharr":"\u21BE","uhblk":"\u2580","ulcorn":"\u231C","ulcorner":"\u231C","ulcrop":"\u230F","ultri":"\u25F8","Umacr":"\u016A","umacr":"\u016B","uml":"\u00A8","UnderBar":"_","UnderBrace":"\u23DF","UnderBracket":"\u23B5","UnderParenthesis":"\u23DD","Union":"\u22C3","UnionPlus":"\u228E","Uogon":"\u0172","uogon":"\u0173","Uopf":"\uD835\uDD4C","uopf":"\uD835\uDD66","UpArrowBar":"\u2912","uparrow":"\u2191","UpArrow":"\u2191","Uparrow":"\u21D1","UpArrowDownArrow":"\u21C5","updownarrow":"\u2195","UpDownArrow":"\u2195","Updownarrow":"\u21D5","UpEquilibrium":"\u296E","upharpoonleft":"\u21BF","upharpoonright":"\u21BE","uplus":"\u228E","UpperLeftArrow":"\u2196","UpperRightArrow":"\u2197","upsi":"\u03C5","Upsi":"\u03D2","upsih":"\u03D2","Upsilon":"\u03A5","upsilon":"\u03C5","UpTeeArrow":"\u21A5","UpTee":"\u22A5","upuparrows":"\u21C8","urcorn":"\u231D","urcorner":"\u231D","urcrop":"\u230E","Uring":"\u016E","uring":"\u016F","urtri":"\u25F9","Uscr":"\uD835\uDCB0","uscr":"\uD835\uDCCA","utdot":"\u22F0","Utilde":"\u0168","utilde":"\u0169","utri":"\u25B5","utrif":"\u25B4","uuarr":"\u21C8","Uuml":"\u00DC","uuml":"\u00FC","uwangle":"\u29A7","vangrt":"\u299C","varepsilon":"\u03F5","varkappa":"\u03F0","varnothing":"\u2205","varphi":"\u03D5","varpi":"\u03D6","varpropto":"\u221D","varr":"\u2195","vArr":"\u21D5","varrho":"\u03F1","varsigma":"\u03C2","varsubsetneq":"\u228A\uFE00","varsubsetneqq":"\u2ACB\uFE00","varsupsetneq":"\u228B\uFE00","varsupsetneqq":"\u2ACC\uFE00","vartheta":"\u03D1","vartriangleleft":"\u22B2","vartriangleright":"\u22B3","vBar":"\u2AE8","Vbar":"\u2AEB","vBarv":"\u2AE9","Vcy":"\u0412","vcy":"\u0432","vdash":"\u22A2","vDash":"\u22A8","Vdash":"\u22A9","VDash":"\u22AB","Vdashl":"\u2AE6","veebar":"\u22BB","vee":"\u2228","Vee":"\u22C1","veeeq":"\u225A","vellip":"\u22EE","verbar":"|","Verbar":"\u2016","vert":"|","Vert":"\u2016","VerticalBar":"\u2223","VerticalLine":"|","VerticalSeparator":"\u2758","VerticalTilde":"\u2240","VeryThinSpace":"\u200A","Vfr":"\uD835\uDD19","vfr":"\uD835\uDD33","vltri":"\u22B2","vnsub":"\u2282\u20D2","vnsup":"\u2283\u20D2","Vopf":"\uD835\uDD4D","vopf":"\uD835\uDD67","vprop":"\u221D","vrtri":"\u22B3","Vscr":"\uD835\uDCB1","vscr":"\uD835\uDCCB","vsubnE":"\u2ACB\uFE00","vsubne":"\u228A\uFE00","vsupnE":"\u2ACC\uFE00","vsupne":"\u228B\uFE00","Vvdash":"\u22AA","vzigzag":"\u299A","Wcirc":"\u0174","wcirc":"\u0175","wedbar":"\u2A5F","wedge":"\u2227","Wedge":"\u22C0","wedgeq":"\u2259","weierp":"\u2118","Wfr":"\uD835\uDD1A","wfr":"\uD835\uDD34","Wopf":"\uD835\uDD4E","wopf":"\uD835\uDD68","wp":"\u2118","wr":"\u2240","wreath":"\u2240","Wscr":"\uD835\uDCB2","wscr":"\uD835\uDCCC","xcap":"\u22C2","xcirc":"\u25EF","xcup":"\u22C3","xdtri":"\u25BD","Xfr":"\uD835\uDD1B","xfr":"\uD835\uDD35","xharr":"\u27F7","xhArr":"\u27FA","Xi":"\u039E","xi":"\u03BE","xlarr":"\u27F5","xlArr":"\u27F8","xmap":"\u27FC","xnis":"\u22FB","xodot":"\u2A00","Xopf":"\uD835\uDD4F","xopf":"\uD835\uDD69","xoplus":"\u2A01","xotime":"\u2A02","xrarr":"\u27F6","xrArr":"\u27F9","Xscr":"\uD835\uDCB3","xscr":"\uD835\uDCCD","xsqcup":"\u2A06","xuplus":"\u2A04","xutri":"\u25B3","xvee":"\u22C1","xwedge":"\u22C0","Yacute":"\u00DD","yacute":"\u00FD","YAcy":"\u042F","yacy":"\u044F","Ycirc":"\u0176","ycirc":"\u0177","Ycy":"\u042B","ycy":"\u044B","yen":"\u00A5","Yfr":"\uD835\uDD1C","yfr":"\uD835\uDD36","YIcy":"\u0407","yicy":"\u0457","Yopf":"\uD835\uDD50","yopf":"\uD835\uDD6A","Yscr":"\uD835\uDCB4","yscr":"\uD835\uDCCE","YUcy":"\u042E","yucy":"\u044E","yuml":"\u00FF","Yuml":"\u0178","Zacute":"\u0179","zacute":"\u017A","Zcaron":"\u017D","zcaron":"\u017E","Zcy":"\u0417","zcy":"\u0437","Zdot":"\u017B","zdot":"\u017C","zeetrf":"\u2128","ZeroWidthSpace":"\u200B","Zeta":"\u0396","zeta":"\u03B6","zfr":"\uD835\uDD37","Zfr":"\u2128","ZHcy":"\u0416","zhcy":"\u0436","zigrarr":"\u21DD","zopf":"\uD835\uDD6B","Zopf":"\u2124","Zscr":"\uD835\uDCB5","zscr":"\uD835\uDCCF","zwj":"\u200D","zwnj":"\u200C"}
-},{}],82:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 module.exports={"Aacute":"\u00C1","aacute":"\u00E1","Acirc":"\u00C2","acirc":"\u00E2","acute":"\u00B4","AElig":"\u00C6","aelig":"\u00E6","Agrave":"\u00C0","agrave":"\u00E0","amp":"&","AMP":"&","Aring":"\u00C5","aring":"\u00E5","Atilde":"\u00C3","atilde":"\u00E3","Auml":"\u00C4","auml":"\u00E4","brvbar":"\u00A6","Ccedil":"\u00C7","ccedil":"\u00E7","cedil":"\u00B8","cent":"\u00A2","copy":"\u00A9","COPY":"\u00A9","curren":"\u00A4","deg":"\u00B0","divide":"\u00F7","Eacute":"\u00C9","eacute":"\u00E9","Ecirc":"\u00CA","ecirc":"\u00EA","Egrave":"\u00C8","egrave":"\u00E8","ETH":"\u00D0","eth":"\u00F0","Euml":"\u00CB","euml":"\u00EB","frac12":"\u00BD","frac14":"\u00BC","frac34":"\u00BE","gt":">","GT":">","Iacute":"\u00CD","iacute":"\u00ED","Icirc":"\u00CE","icirc":"\u00EE","iexcl":"\u00A1","Igrave":"\u00CC","igrave":"\u00EC","iquest":"\u00BF","Iuml":"\u00CF","iuml":"\u00EF","laquo":"\u00AB","lt":"<","LT":"<","macr":"\u00AF","micro":"\u00B5","middot":"\u00B7","nbsp":"\u00A0","not":"\u00AC","Ntilde":"\u00D1","ntilde":"\u00F1","Oacute":"\u00D3","oacute":"\u00F3","Ocirc":"\u00D4","ocirc":"\u00F4","Ograve":"\u00D2","ograve":"\u00F2","ordf":"\u00AA","ordm":"\u00BA","Oslash":"\u00D8","oslash":"\u00F8","Otilde":"\u00D5","otilde":"\u00F5","Ouml":"\u00D6","ouml":"\u00F6","para":"\u00B6","plusmn":"\u00B1","pound":"\u00A3","quot":"\"","QUOT":"\"","raquo":"\u00BB","reg":"\u00AE","REG":"\u00AE","sect":"\u00A7","shy":"\u00AD","sup1":"\u00B9","sup2":"\u00B2","sup3":"\u00B3","szlig":"\u00DF","THORN":"\u00DE","thorn":"\u00FE","times":"\u00D7","Uacute":"\u00DA","uacute":"\u00FA","Ucirc":"\u00DB","ucirc":"\u00FB","Ugrave":"\u00D9","ugrave":"\u00F9","uml":"\u00A8","Uuml":"\u00DC","uuml":"\u00FC","Yacute":"\u00DD","yacute":"\u00FD","yen":"\u00A5","yuml":"\u00FF"}
-},{}],83:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 module.exports={"amp":"&","apos":"'","gt":">","lt":"<","quot":"\""}
 
-},{}],84:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -12600,7 +12778,7 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}],85:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 'use strict';
 
 var isArray = Array.isArray;
@@ -12657,7 +12835,7 @@ module.exports = function equal(a, b) {
   return a!==a && b!==b;
 };
 
-},{}],86:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 'use strict';
 
 module.exports = function (data, opts) {
@@ -12718,7 +12896,7 @@ module.exports = function (data, opts) {
     })(data);
 };
 
-},{}],87:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 module.exports = CollectingHandler;
 
 function CollectingHandler(cbs){
@@ -12775,7 +12953,7 @@ CollectingHandler.prototype.restart = function(){
 	}
 };
 
-},{"./":94}],88:[function(require,module,exports){
+},{"./":97}],91:[function(require,module,exports){
 var index = require("./index.js"),
     DomHandler = index.DomHandler,
 	DomUtils = index.DomUtils;
@@ -12872,7 +13050,7 @@ FeedHandler.prototype.onend = function(){
 
 module.exports = FeedHandler;
 
-},{"./index.js":94,"util":244}],89:[function(require,module,exports){
+},{"./index.js":97,"util":202}],92:[function(require,module,exports){
 var Tokenizer = require("./Tokenizer.js");
 
 /*
@@ -13224,7 +13402,7 @@ Parser.prototype.done = Parser.prototype.end;
 
 module.exports = Parser;
 
-},{"./Tokenizer.js":92,"events":84,"util":244}],90:[function(require,module,exports){
+},{"./Tokenizer.js":95,"events":87,"util":202}],93:[function(require,module,exports){
 module.exports = ProxyHandler;
 
 function ProxyHandler(cbs){
@@ -13252,7 +13430,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments");
 	}
 });
-},{"./":94}],91:[function(require,module,exports){
+},{"./":97}],94:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./WritableStream.js");
@@ -13288,7 +13466,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments!");
 	}
 });
-},{"../":94,"./WritableStream.js":93,"util":244}],92:[function(require,module,exports){
+},{"../":97,"./WritableStream.js":96,"util":202}],95:[function(require,module,exports){
 module.exports = Tokenizer;
 
 var decodeCodePoint = require("entities/lib/decode_codepoint.js"),
@@ -14196,7 +14374,7 @@ Tokenizer.prototype._emitPartial = function(value){
 	}
 };
 
-},{"entities/lib/decode_codepoint.js":79,"entities/maps/entities.json":81,"entities/maps/legacy.json":82,"entities/maps/xml.json":83}],93:[function(require,module,exports){
+},{"entities/lib/decode_codepoint.js":82,"entities/maps/entities.json":84,"entities/maps/legacy.json":85,"entities/maps/xml.json":86}],96:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./Parser.js"),
@@ -14218,7 +14396,7 @@ WritableStream.prototype._write = function(chunk, encoding, cb){
 	this._parser.write(chunk);
 	cb();
 };
-},{"./Parser.js":89,"readable-stream":53,"stream":236,"util":244}],94:[function(require,module,exports){
+},{"./Parser.js":92,"readable-stream":56,"stream":194,"util":202}],97:[function(require,module,exports){
 var Parser = require("./Parser.js"),
     DomHandler = require("domhandler");
 
@@ -14288,7 +14466,7 @@ module.exports = {
 	}
 };
 
-},{"./CollectingHandler.js":87,"./FeedHandler.js":88,"./Parser.js":89,"./ProxyHandler.js":90,"./Stream.js":91,"./Tokenizer.js":92,"./WritableStream.js":93,"domelementtype":68,"domhandler":69,"domutils":72}],95:[function(require,module,exports){
+},{"./CollectingHandler.js":90,"./FeedHandler.js":91,"./Parser.js":92,"./ProxyHandler.js":93,"./Stream.js":94,"./Tokenizer.js":95,"./WritableStream.js":96,"domelementtype":71,"domhandler":72,"domutils":75}],98:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -14374,7 +14552,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],96:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -14399,7 +14577,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],97:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -14422,14 +14600,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],98:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],99:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 'use strict';
 
 
@@ -14438,7 +14616,7 @@ var yaml = require('./lib/js-yaml.js');
 
 module.exports = yaml;
 
-},{"./lib/js-yaml.js":100}],100:[function(require,module,exports){
+},{"./lib/js-yaml.js":103}],103:[function(require,module,exports){
 'use strict';
 
 
@@ -14479,7 +14657,7 @@ module.exports.parse          = deprecated('parse');
 module.exports.compose        = deprecated('compose');
 module.exports.addConstructor = deprecated('addConstructor');
 
-},{"./js-yaml/dumper":102,"./js-yaml/exception":103,"./js-yaml/loader":104,"./js-yaml/schema":106,"./js-yaml/schema/core":107,"./js-yaml/schema/default_full":108,"./js-yaml/schema/default_safe":109,"./js-yaml/schema/failsafe":110,"./js-yaml/schema/json":111,"./js-yaml/type":112}],101:[function(require,module,exports){
+},{"./js-yaml/dumper":105,"./js-yaml/exception":106,"./js-yaml/loader":107,"./js-yaml/schema":109,"./js-yaml/schema/core":110,"./js-yaml/schema/default_full":111,"./js-yaml/schema/default_safe":112,"./js-yaml/schema/failsafe":113,"./js-yaml/schema/json":114,"./js-yaml/type":115}],104:[function(require,module,exports){
 'use strict';
 
 
@@ -14540,7 +14718,7 @@ module.exports.repeat         = repeat;
 module.exports.isNegativeZero = isNegativeZero;
 module.exports.extend         = extend;
 
-},{}],102:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable no-use-before-define*/
@@ -15369,7 +15547,7 @@ function safeDump(input, options) {
 module.exports.dump     = dump;
 module.exports.safeDump = safeDump;
 
-},{"./common":101,"./exception":103,"./schema/default_full":108,"./schema/default_safe":109}],103:[function(require,module,exports){
+},{"./common":104,"./exception":106,"./schema/default_full":111,"./schema/default_safe":112}],106:[function(require,module,exports){
 // YAML error class. http://stackoverflow.com/questions/8458984
 //
 'use strict';
@@ -15414,7 +15592,7 @@ YAMLException.prototype.toString = function toString(compact) {
 
 module.exports = YAMLException;
 
-},{}],104:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable max-len,no-use-before-define*/
@@ -17041,7 +17219,7 @@ module.exports.load        = load;
 module.exports.safeLoadAll = safeLoadAll;
 module.exports.safeLoad    = safeLoad;
 
-},{"./common":101,"./exception":103,"./mark":105,"./schema/default_full":108,"./schema/default_safe":109}],105:[function(require,module,exports){
+},{"./common":104,"./exception":106,"./mark":108,"./schema/default_full":111,"./schema/default_safe":112}],108:[function(require,module,exports){
 'use strict';
 
 
@@ -17119,7 +17297,7 @@ Mark.prototype.toString = function toString(compact) {
 
 module.exports = Mark;
 
-},{"./common":101}],106:[function(require,module,exports){
+},{"./common":104}],109:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable max-len*/
@@ -17229,7 +17407,7 @@ Schema.create = function createSchema() {
 
 module.exports = Schema;
 
-},{"./common":101,"./exception":103,"./type":112}],107:[function(require,module,exports){
+},{"./common":104,"./exception":106,"./type":115}],110:[function(require,module,exports){
 // Standard YAML's Core schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2804923
 //
@@ -17249,7 +17427,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":106,"./json":111}],108:[function(require,module,exports){
+},{"../schema":109,"./json":114}],111:[function(require,module,exports){
 // JS-YAML's default schema for `load` function.
 // It is not described in the YAML specification.
 //
@@ -17276,7 +17454,7 @@ module.exports = Schema.DEFAULT = new Schema({
   ]
 });
 
-},{"../schema":106,"../type/js/function":117,"../type/js/regexp":118,"../type/js/undefined":119,"./default_safe":109}],109:[function(require,module,exports){
+},{"../schema":109,"../type/js/function":120,"../type/js/regexp":121,"../type/js/undefined":122,"./default_safe":112}],112:[function(require,module,exports){
 // JS-YAML's default schema for `safeLoad` function.
 // It is not described in the YAML specification.
 //
@@ -17306,7 +17484,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":106,"../type/binary":113,"../type/merge":121,"../type/omap":123,"../type/pairs":124,"../type/set":126,"../type/timestamp":128,"./core":107}],110:[function(require,module,exports){
+},{"../schema":109,"../type/binary":116,"../type/merge":124,"../type/omap":126,"../type/pairs":127,"../type/set":129,"../type/timestamp":131,"./core":110}],113:[function(require,module,exports){
 // Standard YAML's Failsafe schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2802346
 
@@ -17325,7 +17503,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":106,"../type/map":120,"../type/seq":125,"../type/str":127}],111:[function(require,module,exports){
+},{"../schema":109,"../type/map":123,"../type/seq":128,"../type/str":130}],114:[function(require,module,exports){
 // Standard YAML's JSON schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2803231
 //
@@ -17352,7 +17530,7 @@ module.exports = new Schema({
   ]
 });
 
-},{"../schema":106,"../type/bool":114,"../type/float":115,"../type/int":116,"../type/null":122,"./failsafe":110}],112:[function(require,module,exports){
+},{"../schema":109,"../type/bool":117,"../type/float":118,"../type/int":119,"../type/null":125,"./failsafe":113}],115:[function(require,module,exports){
 'use strict';
 
 var YAMLException = require('./exception');
@@ -17415,7 +17593,7 @@ function Type(tag, options) {
 
 module.exports = Type;
 
-},{"./exception":103}],113:[function(require,module,exports){
+},{"./exception":106}],116:[function(require,module,exports){
 'use strict';
 
 /*eslint-disable no-bitwise*/
@@ -17555,7 +17733,7 @@ module.exports = new Type('tag:yaml.org,2002:binary', {
   represent: representYamlBinary
 });
 
-},{"../type":112}],114:[function(require,module,exports){
+},{"../type":115}],117:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -17592,7 +17770,7 @@ module.exports = new Type('tag:yaml.org,2002:bool', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":112}],115:[function(require,module,exports){
+},{"../type":115}],118:[function(require,module,exports){
 'use strict';
 
 var common = require('../common');
@@ -17710,7 +17888,7 @@ module.exports = new Type('tag:yaml.org,2002:float', {
   defaultStyle: 'lowercase'
 });
 
-},{"../common":101,"../type":112}],116:[function(require,module,exports){
+},{"../common":104,"../type":115}],119:[function(require,module,exports){
 'use strict';
 
 var common = require('../common');
@@ -17885,7 +18063,7 @@ module.exports = new Type('tag:yaml.org,2002:int', {
   }
 });
 
-},{"../common":101,"../type":112}],117:[function(require,module,exports){
+},{"../common":104,"../type":115}],120:[function(require,module,exports){
 'use strict';
 
 var esprima;
@@ -17979,7 +18157,7 @@ module.exports = new Type('tag:yaml.org,2002:js/function', {
   represent: representJavascriptFunction
 });
 
-},{"../../type":112}],118:[function(require,module,exports){
+},{"../../type":115}],121:[function(require,module,exports){
 'use strict';
 
 var Type = require('../../type');
@@ -18041,7 +18219,7 @@ module.exports = new Type('tag:yaml.org,2002:js/regexp', {
   represent: representJavascriptRegExp
 });
 
-},{"../../type":112}],119:[function(require,module,exports){
+},{"../../type":115}],122:[function(require,module,exports){
 'use strict';
 
 var Type = require('../../type');
@@ -18071,7 +18249,7 @@ module.exports = new Type('tag:yaml.org,2002:js/undefined', {
   represent: representJavascriptUndefined
 });
 
-},{"../../type":112}],120:[function(require,module,exports){
+},{"../../type":115}],123:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18081,7 +18259,7 @@ module.exports = new Type('tag:yaml.org,2002:map', {
   construct: function (data) { return data !== null ? data : {}; }
 });
 
-},{"../type":112}],121:[function(require,module,exports){
+},{"../type":115}],124:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18095,7 +18273,7 @@ module.exports = new Type('tag:yaml.org,2002:merge', {
   resolve: resolveYamlMerge
 });
 
-},{"../type":112}],122:[function(require,module,exports){
+},{"../type":115}],125:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18131,7 +18309,7 @@ module.exports = new Type('tag:yaml.org,2002:null', {
   defaultStyle: 'lowercase'
 });
 
-},{"../type":112}],123:[function(require,module,exports){
+},{"../type":115}],126:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18177,7 +18355,7 @@ module.exports = new Type('tag:yaml.org,2002:omap', {
   construct: constructYamlOmap
 });
 
-},{"../type":112}],124:[function(require,module,exports){
+},{"../type":115}],127:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18232,7 +18410,7 @@ module.exports = new Type('tag:yaml.org,2002:pairs', {
   construct: constructYamlPairs
 });
 
-},{"../type":112}],125:[function(require,module,exports){
+},{"../type":115}],128:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18242,7 +18420,7 @@ module.exports = new Type('tag:yaml.org,2002:seq', {
   construct: function (data) { return data !== null ? data : []; }
 });
 
-},{"../type":112}],126:[function(require,module,exports){
+},{"../type":115}],129:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18273,7 +18451,7 @@ module.exports = new Type('tag:yaml.org,2002:set', {
   construct: constructYamlSet
 });
 
-},{"../type":112}],127:[function(require,module,exports){
+},{"../type":115}],130:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18283,7 +18461,7 @@ module.exports = new Type('tag:yaml.org,2002:str', {
   construct: function (data) { return data !== null ? data : ''; }
 });
 
-},{"../type":112}],128:[function(require,module,exports){
+},{"../type":115}],131:[function(require,module,exports){
 'use strict';
 
 var Type = require('../type');
@@ -18373,7 +18551,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
   represent: representYamlTimestamp
 });
 
-},{"../type":112}],129:[function(require,module,exports){
+},{"../type":115}],132:[function(require,module,exports){
 'use strict';
 
 var traverse = module.exports = function (schema, opts, cb) {
@@ -18464,7 +18642,7 @@ function escapeJsonPtr(str) {
   return str.replace(/~/g, '~0').replace(/\//g, '~1');
 }
 
-},{}],130:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for
  * iteratee shorthands.
@@ -18488,7 +18666,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],131:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 /**
  * A specialized version of `_.filter` for arrays without support for
  * iteratee shorthands.
@@ -18515,7 +18693,7 @@ function arrayFilter(array, predicate) {
 
 module.exports = arrayFilter;
 
-},{}],132:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 /**
  * A specialized version of `_.map` for arrays without support for iteratee
  * shorthands.
@@ -18538,7 +18716,7 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
-},{}],133:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -18649,7 +18827,7 @@ module.exports.invokeExtensions = invokeExtensions;
 module.exports.escape = escape;
 module.exports.unescape = unescape;
 
-},{"htmlparser2":94}],134:[function(require,module,exports){
+},{"htmlparser2":97}],137:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -19869,7 +20047,7 @@ Block.prototype = {
 
 module.exports.generate = generate;
 
-},{"./common":133,"marked":140}],135:[function(require,module,exports){
+},{"./common":136,"marked":143}],138:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -20095,7 +20273,7 @@ module.exports.generate = generate;
 module.exports.tocJSONadapter = tocJSONadapter;
 module.exports.tocXMLadapter = tocXMLadapter;
 
-},{"./htmlGenerator":134,"./tocJSONadapter":136,"./tocJSONgenerator":137,"./tocXMLadapter":138,"./tocXMLgenerator":139,"js-yaml":99}],136:[function(require,module,exports){
+},{"./htmlGenerator":137,"./tocJSONadapter":139,"./tocJSONgenerator":140,"./tocXMLadapter":141,"./tocXMLgenerator":142,"js-yaml":102}],139:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -20231,7 +20409,7 @@ tocJSONadapter.prototype = {
 
 module.exports = tocJSONadapter;
 
-},{"./common":133,"path":169}],137:[function(require,module,exports){
+},{"./common":136,"path":172}],140:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -20333,7 +20511,7 @@ module.exports = function(callbacks, urlPrefix, tocDepth) {
 
 })();
 
-},{"./common":133}],138:[function(require,module,exports){
+},{"./common":136}],141:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -20451,7 +20629,7 @@ tocXMLadapter.prototype = {
 
 module.exports = tocXMLadapter;
 
-},{"./common":133,"path":169,"pretty-data":170}],139:[function(require,module,exports){
+},{"./common":136,"path":172,"pretty-data":173}],142:[function(require,module,exports){
 /**
  * marked-it
  *
@@ -20550,7 +20728,7 @@ module.exports = function(callbacks, urlPrefix, tocDepth, xmlMode) {
 
 })();
 
-},{"./common":133}],140:[function(require,module,exports){
+},{"./common":136}],143:[function(require,module,exports){
 (function (global){
 /**
  * marked - a markdown parser
@@ -21869,12 +22047,12 @@ if (typeof module !== 'undefined' && typeof exports === 'object') {
 }());
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],141:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 "use strict";
 
 module.exports = btoa;
 
-},{}],142:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 'use strict';
 
 if (typeof window.fetch === 'function') {
@@ -21885,7 +22063,7 @@ if (typeof window.fetch === 'function') {
   };
 }
 
-},{}],143:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -22091,7 +22269,7 @@ var OctokatBase = function OctokatBase() {
 module.exports = OctokatBase;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./adapters/fetch-node":142,"./chainer":144,"./deprecate":145,"./grammar/tree-options":148,"./helpers/hypermedia":150,"./plugins/simple-verbs":163,"./plus":165,"./requester":166,"./verb-methods":167}],144:[function(require,module,exports){
+},{"./adapters/fetch-node":145,"./chainer":147,"./deprecate":148,"./grammar/tree-options":151,"./helpers/hypermedia":153,"./plugins/simple-verbs":166,"./plus":168,"./requester":169,"./verb-methods":170}],147:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -22164,7 +22342,7 @@ module.exports = function () {
   return Chainer;
 }();
 
-},{"./plus":165}],145:[function(require,module,exports){
+},{"./plus":168}],148:[function(require,module,exports){
 "use strict";
 
 module.exports = function (message) {
@@ -22173,7 +22351,7 @@ module.exports = function (message) {
   }
 };
 
-},{}],146:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 'use strict';
 
 // Generated by CoffeeScript 1.12.7
@@ -22191,7 +22369,7 @@ module.exports = function (message) {
 
 
 
-},{}],147:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 'use strict';
 
 // Generated by CoffeeScript 1.12.7
@@ -22207,7 +22385,7 @@ module.exports = function (message) {
 
 
 
-},{}],148:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 'use strict';
 
 var _module$exports;
@@ -22436,7 +22614,7 @@ module.exports = (_module$exports = {
   }
 }), _module$exports);
 
-},{}],149:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 "use strict";
 
 // Generated by CoffeeScript 1.12.7
@@ -22446,7 +22624,7 @@ module.exports = (_module$exports = {
 
 
 
-},{}],150:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 'use strict';
 
 var toQueryString = require('./querystring');
@@ -22536,7 +22714,7 @@ module.exports = function (url) {
   return url;
 };
 
-},{"../deprecate":145,"./querystring":151}],151:[function(require,module,exports){
+},{"../deprecate":148,"./querystring":154}],154:[function(require,module,exports){
 'use strict';
 
 // Converts a dictionary to a query string.
@@ -22568,7 +22746,7 @@ var toQueryString = function toQueryString(options, omitQuestionMark) {
 
 module.exports = toQueryString;
 
-},{}],152:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 'use strict';
 
 var deprecate = require('./deprecate');
@@ -22608,7 +22786,7 @@ var Octokat = function Octokat() {
 // module.exports = Octokat;
 module.exports = Octokat;
 
-},{"./base":143,"./deprecate":145,"./plugins/authorization":153,"./plugins/cache-handler":154,"./plugins/camel-case":155,"./plugins/fetch-all":156,"./plugins/hypermedia":157,"./plugins/object-chainer":158,"./plugins/pagination":159,"./plugins/path-validator":160,"./plugins/preview-apis":161,"./plugins/read-binary":162,"./plugins/simple-verbs":163,"./plugins/use-post-instead-of-patch":164}],153:[function(require,module,exports){
+},{"./base":146,"./deprecate":148,"./plugins/authorization":156,"./plugins/cache-handler":157,"./plugins/camel-case":158,"./plugins/fetch-all":159,"./plugins/hypermedia":160,"./plugins/object-chainer":161,"./plugins/pagination":162,"./plugins/path-validator":163,"./plugins/preview-apis":164,"./plugins/read-binary":165,"./plugins/simple-verbs":166,"./plugins/use-post-instead-of-patch":167}],156:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -22649,7 +22827,7 @@ module.exports = new (function () {
   return Authorization;
 }())();
 
-},{"../adapters/base64-node":141}],154:[function(require,module,exports){
+},{"../adapters/base64-node":144}],157:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -22753,7 +22931,7 @@ module.exports = new (function () {
   return CacheHandler;
 }())();
 
-},{}],155:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -22834,7 +23012,7 @@ module.exports = new (function () {
   return CamelCase;
 }())();
 
-},{"../plus":165}],156:[function(require,module,exports){
+},{"../plus":168}],159:[function(require,module,exports){
 'use strict';
 
 var toQueryString = require('../helpers/querystring');
@@ -22891,7 +23069,7 @@ module.exports = {
   }
 };
 
-},{"../helpers/querystring":151}],157:[function(require,module,exports){
+},{"../helpers/querystring":154}],160:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23009,7 +23187,7 @@ module.exports = new (function () {
   return HyperMedia;
 }())();
 
-},{"../deprecate":145}],158:[function(require,module,exports){
+},{"../deprecate":148}],161:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23084,7 +23262,7 @@ module.exports = new (function () {
   return ObjectChainer;
 }())();
 
-},{"../chainer":144,"../grammar/object-matcher":146,"../grammar/tree-options":148,"../verb-methods":167}],159:[function(require,module,exports){
+},{"../chainer":147,"../grammar/object-matcher":149,"../grammar/tree-options":151,"../verb-methods":170}],162:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -23140,7 +23318,7 @@ module.exports = new (function () {
   return Pagination;
 }())();
 
-},{}],160:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23170,7 +23348,7 @@ module.exports = new (function () {
   return PathValidator;
 }())();
 
-},{"../grammar/url-validator":149}],161:[function(require,module,exports){
+},{"../grammar/url-validator":152}],164:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23211,7 +23389,7 @@ module.exports = new (function () {
   return PreviewApis;
 }())();
 
-},{"../grammar/preview-headers":147}],162:[function(require,module,exports){
+},{"../grammar/preview-headers":150}],165:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23286,7 +23464,7 @@ function __range__(left, right, inclusive) {
   return range;
 }
 
-},{"../helpers/querystring":151}],163:[function(require,module,exports){
+},{"../helpers/querystring":154}],166:[function(require,module,exports){
 'use strict';
 
 var toQueryString = require('../helpers/querystring');
@@ -23326,7 +23504,7 @@ module.exports = {
   }
 };
 
-},{"../helpers/querystring":151}],164:[function(require,module,exports){
+},{"../helpers/querystring":154}],167:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23354,7 +23532,7 @@ module.exports = new (function () {
   return UsePostInsteadOfPatch;
 }())();
 
-},{}],165:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 'use strict';
 
 // Both of these internal methods are really small/simple and we are only
@@ -23424,7 +23602,7 @@ var plus = {
 
 module.exports = plus;
 
-},{"lodash/_arrayEach":130,"lodash/_arrayFilter":131,"lodash/_arrayMap":132}],166:[function(require,module,exports){
+},{"lodash/_arrayEach":133,"lodash/_arrayFilter":134,"lodash/_arrayMap":135}],169:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23664,7 +23842,7 @@ function __guardFunc__(func, transform) {
   return typeof func === 'function' ? transform(func) : undefined;
 }
 
-},{"./plus":165}],167:[function(require,module,exports){
+},{"./plus":168}],170:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23801,10 +23979,10 @@ var VerbMethods = function () {
 exports.VerbMethods = VerbMethods;
 exports.toPromise = toPromise;
 
-},{"./plus":165}],168:[function(require,module,exports){
+},{"./plus":168}],171:[function(require,module,exports){
 module.exports = require('./dist/node/octokat')
 
-},{"./dist/node/octokat":152}],169:[function(require,module,exports){
+},{"./dist/node/octokat":155}],172:[function(require,module,exports){
 (function (process){
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
@@ -24110,7 +24288,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":172}],170:[function(require,module,exports){
+},{"_process":175}],173:[function(require,module,exports){
 /**
 * pretty-data - nodejs plugin to pretty-print or minify data in XML, JSON and CSS formats.
 *  
@@ -24456,7 +24634,7 @@ exports.pd= new pp;
 
 
 
-},{}],171:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -24505,7 +24683,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":172}],172:[function(require,module,exports){
+},{"_process":175}],175:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -24691,7 +24869,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],173:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24777,7 +24955,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],174:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24864,16 +25042,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],175:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":173,"./encode":174}],176:[function(require,module,exports){
+},{"./decode":176,"./encode":177}],179:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":177}],177:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":180}],180:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25005,7 +25183,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":179,"./_stream_writable":181,"core-util-is":56,"inherits":96,"process-nextick-args":171}],178:[function(require,module,exports){
+},{"./_stream_readable":182,"./_stream_writable":184,"core-util-is":59,"inherits":99,"process-nextick-args":174}],181:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25053,7 +25231,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":180,"core-util-is":56,"inherits":96}],179:[function(require,module,exports){
+},{"./_stream_transform":183,"core-util-is":59,"inherits":99}],182:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -26075,7 +26253,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":177,"./internal/streams/BufferList":182,"./internal/streams/destroy":183,"./internal/streams/stream":184,"_process":172,"core-util-is":56,"events":84,"inherits":96,"isarray":98,"process-nextick-args":171,"safe-buffer":185,"string_decoder/":186,"util":53}],180:[function(require,module,exports){
+},{"./_stream_duplex":180,"./internal/streams/BufferList":185,"./internal/streams/destroy":186,"./internal/streams/stream":187,"_process":175,"core-util-is":59,"events":87,"inherits":99,"isarray":101,"process-nextick-args":174,"safe-buffer":188,"string_decoder/":189,"util":56}],183:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -26290,7 +26468,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":177,"core-util-is":56,"inherits":96}],181:[function(require,module,exports){
+},{"./_stream_duplex":180,"core-util-is":59,"inherits":99}],184:[function(require,module,exports){
 (function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -26980,7 +27158,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":177,"./internal/streams/destroy":183,"./internal/streams/stream":184,"_process":172,"core-util-is":56,"inherits":96,"process-nextick-args":171,"safe-buffer":185,"timers":237,"util-deprecate":242}],182:[function(require,module,exports){
+},{"./_stream_duplex":180,"./internal/streams/destroy":186,"./internal/streams/stream":187,"_process":175,"core-util-is":59,"inherits":99,"process-nextick-args":174,"safe-buffer":188,"timers":195,"util-deprecate":200}],185:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -27060,7 +27238,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":185,"util":53}],183:[function(require,module,exports){
+},{"safe-buffer":188,"util":56}],186:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -27135,10 +27313,10 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":171}],184:[function(require,module,exports){
+},{"process-nextick-args":174}],187:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":84}],185:[function(require,module,exports){
+},{"events":87}],188:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -27202,7 +27380,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":55}],186:[function(require,module,exports){
+},{"buffer":58}],189:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -27499,10 +27677,10 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":185}],187:[function(require,module,exports){
+},{"safe-buffer":188}],190:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":188}],188:[function(require,module,exports){
+},{"./readable":191}],191:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -27511,7089 +27689,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":177,"./lib/_stream_passthrough.js":178,"./lib/_stream_readable.js":179,"./lib/_stream_transform.js":180,"./lib/_stream_writable.js":181}],189:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":180,"./lib/_stream_passthrough.js":181,"./lib/_stream_readable.js":182,"./lib/_stream_transform.js":183,"./lib/_stream_writable.js":184}],192:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":188}],190:[function(require,module,exports){
+},{"./readable":191}],193:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":181}],191:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var compatTransforms = require('./transforms');
-var _transform = require('../transform');
-
-module.exports = {
-  /**
-   * Translates a regexp in new syntax to equivalent regexp in old syntax.
-   *
-   * @param string|RegExp|AST - regexp
-   * @param Array transformsWhitelist - names of the transforms to apply
-   */
-  transform: function transform(regexp) {
-    var transformsWhitelist = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-
-    var transformToApply = transformsWhitelist.length > 0 ? transformsWhitelist : Object.keys(compatTransforms);
-
-    var result = void 0;
-
-    // Collect extra data per transform.
-    var extra = {};
-
-    transformToApply.forEach(function (transformName) {
-
-      if (!compatTransforms.hasOwnProperty(transformName)) {
-        throw new Error('Unknown compat-transform: ' + transformName + '. ' + 'Available transforms are: ' + Object.keys(compatTransforms).join(', '));
-      }
-
-      var handler = compatTransforms[transformName];
-
-      result = _transform.transform(regexp, handler);
-      regexp = result.getAST();
-
-      // Collect `extra` transform result.
-      if (typeof handler.getExtra === 'function') {
-        extra[transformName] = handler.getExtra();
-      }
-    });
-
-    // Set the final extras for all transforms.
-    result.setExtra(extra);
-
-    return result;
-  }
-};
-},{"../transform":229,"./transforms":196}],192:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * The `RegExpTree` class provides runtime support for `compat-transpiler`
- * module from `regexp-tree`.
- *
- * E.g. it tracks names of the capturing groups, in order to access the
- * names on the matched result.
- *
- * It's a thin-wrapper on top of original regexp.
- */
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var RegExpTree = function () {
-  /**
-   * Initializes a `RegExpTree` instance.
-   *
-   * @param RegExp - a regular expression
-   *
-   * @param Object state:
-   *
-   *   An extra state which may store any related to transformation
-   *   data, for example, names of the groups.
-   *
-   *   - flags - original flags
-   *   - groups - names of the groups, and their indices
-   *   - source - original source
-   */
-  function RegExpTree(re, _ref) {
-    var flags = _ref.flags,
-        groups = _ref.groups,
-        source = _ref.source;
-
-    _classCallCheck(this, RegExpTree);
-
-    this._re = re;
-    this._groups = groups;
-
-    // Original props.
-    this.flags = flags;
-    this.source = source || re.source;
-    this.dotAll = flags.includes('s');
-
-    // Inherited directly from `re`.
-    this.global = re.global;
-    this.ignoreCase = re.ignoreCase;
-    this.multiline = re.multiline;
-    this.sticky = re.sticky;
-    this.unicode = re.unicode;
-  }
-
-  /**
-   * Facade wrapper for RegExp `test` method.
-   */
-
-
-  _createClass(RegExpTree, [{
-    key: 'test',
-    value: function test(string) {
-      return this._re.test(string);
-    }
-
-    /**
-     * Facade wrapper for RegExp `compile` method.
-     */
-
-  }, {
-    key: 'compile',
-    value: function compile(string) {
-      return this._re.compile(string);
-    }
-
-    /**
-     * Facade wrapper for RegExp `toString` method.
-     */
-
-  }, {
-    key: 'toString',
-    value: function toString() {
-      if (!this._toStringResult) {
-        this._toStringResult = '/' + this.source + '/' + this.flags;
-      }
-      return this._toStringResult;
-    }
-
-    /**
-     * Facade wrapper for RegExp `exec` method.
-     */
-
-  }, {
-    key: 'exec',
-    value: function exec(string) {
-      var result = this._re.exec(string);
-
-      if (!this._groups || !result) {
-        return result;
-      }
-
-      result.groups = {};
-
-      for (var group in this._groups) {
-        var groupNumber = this._groups[group];
-        result.groups[group] = result[groupNumber];
-      }
-
-      return result;
-    }
-  }]);
-
-  return RegExpTree;
-}();
-
-module.exports = {
-  RegExpTree: RegExpTree
-};
-},{}],193:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to translate `/./s` to `/[\0-\uFFFF]/`.
- */
-
-module.exports = {
-
-  // Whether `u` flag present. In which case we transform to
-  // \u{10FFFF} instead of \uFFFF.
-  _hasUFlag: false,
-
-  // Only run this plugin if we have `s` flag.
-  shouldRun: function shouldRun(ast) {
-    var shouldRun = ast.flags.includes('s');
-
-    if (!shouldRun) {
-      return false;
-    }
-
-    // Strip the `s` flag.
-    ast.flags = ast.flags.replace('s', '');
-
-    // Whether we have also `u`.
-    this._hasUFlag = ast.flags.includes('u');
-
-    return true;
-  },
-  Char: function Char(path) {
-    var node = path.node;
-
-
-    if (node.kind !== 'meta' || node.value !== '.') {
-      return;
-    }
-
-    var toValue = '\\uFFFF';
-    var toSymbol = '\uFFFF';
-
-    if (this._hasUFlag) {
-      toValue = '\\u{10FFFF}';
-      toSymbol = '\uDBFF\uDFFF';
-    }
-
-    path.replace({
-      type: 'CharacterClass',
-      expressions: [{
-        type: 'ClassRange',
-        from: {
-          type: 'Char',
-          value: '\\0',
-          kind: 'decimal',
-          symbol: '\0'
-        },
-        to: {
-          type: 'Char',
-          value: toValue,
-          kind: 'unicode',
-          symbol: toSymbol
-        }
-      }]
-    });
-  }
-};
-},{}],194:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to translate `/(?<name>a)\k<name>/` to `/(a)\1/`.
- */
-
-module.exports = {
-
-  // To track the names of the groups, and return them
-  // in the transform result state.
-  //
-  // A map from name to number: {foo: 2, bar: 4}
-  _groupNames: {},
-
-  /**
-   * Initialises the trasnform.
-   */
-  init: function init() {
-    this._groupNames = {};
-  },
-
-
-  /**
-   * Returns extra state, which eventually is returned to
-   */
-  getExtra: function getExtra() {
-    return this._groupNames;
-  },
-  Group: function Group(path) {
-    var node = path.node;
-
-
-    if (!node.name) {
-      return;
-    }
-
-    // Record group name.
-    this._groupNames[node.name] = node.number;
-
-    delete node.name;
-  },
-  Backreference: function Backreference(path) {
-    var node = path.node;
-
-
-    if (node.kind !== 'name') {
-      return;
-    }
-
-    node.kind = 'number';
-    node.reference = node.number;
-  }
-};
-},{}],195:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to remove `x` flag `/foo/x` to `/foo/`.
- *
- * Note: other features of `x` flags (whitespace, comments) are
- * already removed at parsing stage.
- */
-
-module.exports = {
-  RegExp: function RegExp(_ref) {
-    var node = _ref.node;
-
-    if (node.flags.includes('x')) {
-      node.flags = node.flags.replace('x', '');
-    }
-  }
-};
-},{}],196:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-module.exports = {
-  // "dotAll" `s` flag
-  dotAll: require('./compat-dotall-s-transform'),
-
-  // Named capturing groups.
-  namedCapturingGroups: require('./compat-named-capturing-groups-transform'),
-
-  // `x` flag
-  xFlag: require('./compat-x-flag-transform')
-};
-},{"./compat-dotall-s-transform":193,"./compat-named-capturing-groups-transform":194,"./compat-x-flag-transform":195}],197:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * Helper `gen` function calls node type handler.
- */
-
-function gen(node) {
-  return node ? generator[node.type](node) : '';
-}
-
-/**
- * AST handler.
- */
-var generator = {
-  RegExp: function RegExp(node) {
-    return '/' + gen(node.body) + '/' + node.flags;
-  },
-  Alternative: function Alternative(node) {
-    return (node.expressions || []).map(gen).join('');
-  },
-  Disjunction: function Disjunction(node) {
-    return gen(node.left) + '|' + gen(node.right);
-  },
-  Group: function Group(node) {
-    var expression = gen(node.expression);
-
-    if (node.capturing) {
-      // A named group.
-      if (node.name) {
-        return '(?<' + node.name + '>' + expression + ')';
-      }
-
-      return '(' + expression + ')';
-    }
-
-    return '(?:' + expression + ')';
-  },
-  Backreference: function Backreference(node) {
-    switch (node.kind) {
-      case 'number':
-        return '\\' + node.reference;
-      case 'name':
-        return '\\k<' + node.reference + '>';
-      default:
-        throw new TypeError('Unknown Backreference kind: ' + node.kind);
-    }
-  },
-  Assertion: function Assertion(node) {
-    switch (node.kind) {
-      case '^':
-      case '$':
-      case '\\b':
-      case '\\B':
-        return node.kind;
-
-      case 'Lookahead':
-        {
-          var assertion = gen(node.assertion);
-
-          if (node.negative) {
-            return '(?!' + assertion + ')';
-          }
-
-          return '(?=' + assertion + ')';
-        }
-
-      case 'Lookbehind':
-        {
-          var _assertion = gen(node.assertion);
-
-          if (node.negative) {
-            return '(?<!' + _assertion + ')';
-          }
-
-          return '(?<=' + _assertion + ')';
-        }
-
-      default:
-        throw new TypeError('Unknown Assertion kind: ' + node.kind);
-    }
-  },
-  CharacterClass: function CharacterClass(node) {
-    var expressions = node.expressions.map(gen).join('');
-
-    if (node.negative) {
-      return '[^' + expressions + ']';
-    }
-
-    return '[' + expressions + ']';
-  },
-  ClassRange: function ClassRange(node) {
-    return gen(node.from) + '-' + gen(node.to);
-  },
-  Repetition: function Repetition(node) {
-    return '' + gen(node.expression) + gen(node.quantifier);
-  },
-  Quantifier: function Quantifier(node) {
-    var quantifier = void 0;
-    var greedy = node.greedy ? '' : '?';
-
-    switch (node.kind) {
-      case '+':
-      case '?':
-      case '*':
-        quantifier = node.kind;
-        break;
-      case 'Range':
-        // Exact: {1}
-        if (node.from === node.to) {
-          quantifier = '{' + node.from + '}';
-        }
-        // Open: {1,}
-        else if (!node.to) {
-            quantifier = '{' + node.from + ',}';
-          }
-          // Closed: {1,3}
-          else {
-              quantifier = '{' + node.from + ',' + node.to + '}';
-            }
-        break;
-      default:
-        throw new TypeError('Unknown Quantifier kind: ' + node.kind);
-    }
-
-    return '' + quantifier + greedy;
-  },
-  Char: function Char(node) {
-    var value = node.value;
-
-    switch (node.kind) {
-      case 'simple':
-        {
-          if (node.escaped) {
-            return '\\' + value;
-          }
-          return value;
-        }
-
-      case 'hex':
-      case 'unicode':
-      case 'oct':
-      case 'decimal':
-      case 'control':
-      case 'meta':
-        return value;
-
-      default:
-        throw new TypeError('Unknown Char kind: ' + node.kind);
-    }
-  },
-  UnicodeProperty: function UnicodeProperty(node) {
-    var escapeChar = node.negative ? 'P' : 'p';
-    var namePart = void 0;
-
-    if (!node.shorthand && !node.binary) {
-      namePart = node.name + '=';
-    } else {
-      namePart = '';
-    }
-
-    return '\\' + escapeChar + '{' + namePart + node.value + '}';
-  }
-};
-
-module.exports = {
-  /**
-   * Generates a regexp string from an AST.
-   *
-   * @param Object ast - an AST node
-   */
-  generate: gen
-};
-},{}],198:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-// DFA minization.
-
-/**
- * Map from state to current set it goes.
- */
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var currentTransitionMap = null;
-
-/**
- * Takes a DFA, and returns a minimized version of it
- * compressing some states to groups (using standard, 0-, 1-,
- * 2-, ... N-equivalence algorithm).
- */
-function minimize(dfa) {
-  var table = dfa.getTransitionTable();
-  var allStates = Object.keys(table);
-  var alphabet = dfa.getAlphabet();
-  var accepting = dfa.getAcceptingStateNumbers();
-
-  currentTransitionMap = {};
-
-  var nonAccepting = new Set();
-
-  allStates.forEach(function (state) {
-    state = Number(state);
-    var isAccepting = accepting.has(state);
-
-    if (isAccepting) {
-      currentTransitionMap[state] = accepting;
-    } else {
-      nonAccepting.add(state);
-      currentTransitionMap[state] = nonAccepting;
-    }
-  });
-
-  // ---------------------------------------------------------------------------
-  // Step 1: build equivalent sets.
-
-  // All [1..N] equivalent sets.
-  var all = [
-  // 0-equivalent sets.
-  [nonAccepting, accepting].filter(function (set) {
-    return set.size > 0;
-  })];
-
-  var current = void 0;
-  var previous = void 0;
-
-  // Top of the stack is the current list of sets to analyze.
-  current = all[all.length - 1];
-
-  // Previous set (to check whether we need to stop).
-  previous = all[all.length - 2];
-
-  // Until we'll not have the same N and N-1 equivalent rows.
-
-  var _loop = function _loop() {
-    var newTransitionMap = {};
-
-    var _iteratorNormalCompletion3 = true;
-    var _didIteratorError3 = false;
-    var _iteratorError3 = undefined;
-
-    try {
-      for (var _iterator3 = current[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-        var _set = _step3.value;
-
-        // Handled states for this set.
-        var handledStates = {};
-
-        var _set2 = _toArray(_set),
-            first = _set2[0],
-            rest = _set2.slice(1);
-
-        handledStates[first] = new Set([first]);
-
-        // Have to compare each from the rest states with
-        // the already handled states, and see if they are equivalent.
-        var _iteratorNormalCompletion4 = true;
-        var _didIteratorError4 = false;
-        var _iteratorError4 = undefined;
-
-        try {
-          restSets: for (var _iterator4 = rest[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var state = _step4.value;
-            var _iteratorNormalCompletion5 = true;
-            var _didIteratorError5 = false;
-            var _iteratorError5 = undefined;
-
-            try {
-              for (var _iterator5 = Object.keys(handledStates)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                var handledState = _step5.value;
-
-                // This and some previously handled state are equivalent --
-                // just append this state to the same set.
-                if (areEquivalent(state, handledState, table, alphabet)) {
-                  handledStates[handledState].add(state);
-                  handledStates[state] = handledStates[handledState];
-                  continue restSets;
-                }
-              }
-              // Else, this state is not equivalent to any of the
-              // handled states -- allocate a new set for it.
-            } catch (err) {
-              _didIteratorError5 = true;
-              _iteratorError5 = err;
-            } finally {
-              try {
-                if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                  _iterator5.return();
-                }
-              } finally {
-                if (_didIteratorError5) {
-                  throw _iteratorError5;
-                }
-              }
-            }
-
-            handledStates[state] = new Set([state]);
-          }
-        } catch (err) {
-          _didIteratorError4 = true;
-          _iteratorError4 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion4 && _iterator4.return) {
-              _iterator4.return();
-            }
-          } finally {
-            if (_didIteratorError4) {
-              throw _iteratorError4;
-            }
-          }
-        }
-
-        // Add these handled states to all states map.
-
-
-        Object.assign(newTransitionMap, handledStates);
-      }
-
-      // Update current transition map for the handled row.
-    } catch (err) {
-      _didIteratorError3 = true;
-      _iteratorError3 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion3 && _iterator3.return) {
-          _iterator3.return();
-        }
-      } finally {
-        if (_didIteratorError3) {
-          throw _iteratorError3;
-        }
-      }
-    }
-
-    currentTransitionMap = newTransitionMap;
-
-    var newSets = new Set(Object.keys(newTransitionMap).map(function (state) {
-      return newTransitionMap[state];
-    }));
-
-    all.push([].concat(_toConsumableArray(newSets)));
-
-    // Top of the stack is the current.
-    current = all[all.length - 1];
-
-    // Previous set.
-    previous = all[all.length - 2];
-  };
-
-  while (!sameRow(current, previous)) {
-    _loop();
-  }
-
-  // ---------------------------------------------------------------------------
-  // Step 2: build minimized table from the equivalent sets.
-
-  // Remap state numbers from sets to index-based.
-  var remaped = new Map();
-  var idx = 1;
-  current.forEach(function (set) {
-    return remaped.set(set, idx++);
-  });
-
-  // Build the minimized table from the calculated equivalent sets.
-  var minimizedTable = {};
-
-  var minimizedAcceptingStates = new Set();
-
-  var updateAcceptingStates = function updateAcceptingStates(set, idx) {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var state = _step.value;
-
-        if (accepting.has(state)) {
-          minimizedAcceptingStates.add(idx);
-        }
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-  };
-
-  var _iteratorNormalCompletion2 = true;
-  var _didIteratorError2 = false;
-  var _iteratorError2 = undefined;
-
-  try {
-    for (var _iterator2 = remaped.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-      var _ref = _step2.value;
-
-      var _ref2 = _slicedToArray(_ref, 2);
-
-      var set = _ref2[0];
-      var _idx = _ref2[1];
-
-      minimizedTable[_idx] = {};
-      var _iteratorNormalCompletion6 = true;
-      var _didIteratorError6 = false;
-      var _iteratorError6 = undefined;
-
-      try {
-        for (var _iterator6 = alphabet[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-          var symbol = _step6.value;
-
-          updateAcceptingStates(set, _idx);
-
-          // Determine original transition for this symbol from the set.
-          var originalTransition = void 0;
-          var _iteratorNormalCompletion7 = true;
-          var _didIteratorError7 = false;
-          var _iteratorError7 = undefined;
-
-          try {
-            for (var _iterator7 = set[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-              var originalState = _step7.value;
-
-              originalTransition = table[originalState][symbol];
-              if (originalTransition) {
-                break;
-              }
-            }
-          } catch (err) {
-            _didIteratorError7 = true;
-            _iteratorError7 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                _iterator7.return();
-              }
-            } finally {
-              if (_didIteratorError7) {
-                throw _iteratorError7;
-              }
-            }
-          }
-
-          if (originalTransition) {
-            minimizedTable[_idx][symbol] = remaped.get(currentTransitionMap[originalTransition]);
-          }
-        }
-      } catch (err) {
-        _didIteratorError6 = true;
-        _iteratorError6 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion6 && _iterator6.return) {
-            _iterator6.return();
-          }
-        } finally {
-          if (_didIteratorError6) {
-            throw _iteratorError6;
-          }
-        }
-      }
-    }
-
-    // Update the table, and accepting states on the original DFA.
-  } catch (err) {
-    _didIteratorError2 = true;
-    _iteratorError2 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion2 && _iterator2.return) {
-        _iterator2.return();
-      }
-    } finally {
-      if (_didIteratorError2) {
-        throw _iteratorError2;
-      }
-    }
-  }
-
-  dfa.setTransitionTable(minimizedTable);
-  dfa.setAcceptingStateNumbers(minimizedAcceptingStates);
-
-  return dfa;
-}
-
-function sameRow(r1, r2) {
-  if (!r2) {
-    return false;
-  }
-
-  if (r1.length !== r2.length) {
-    return false;
-  }
-
-  for (var i = 0; i < r1.length; i++) {
-    var s1 = r1[i];
-    var s2 = r2[i];
-
-    if (s1.size !== s2.size) {
-      return false;
-    }
-
-    if ([].concat(_toConsumableArray(s1)).sort().join(',') !== [].concat(_toConsumableArray(s2)).sort().join(',')) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Checks whether two states are N-equivalent, i.e. whether they go
- * to the same set on a symbol.
- */
-function areEquivalent(s1, s2, table, alphabet) {
-  var _iteratorNormalCompletion8 = true;
-  var _didIteratorError8 = false;
-  var _iteratorError8 = undefined;
-
-  try {
-    for (var _iterator8 = alphabet[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-      var symbol = _step8.value;
-
-      if (!goToSameSet(s1, s2, table, symbol)) {
-        return false;
-      }
-    }
-  } catch (err) {
-    _didIteratorError8 = true;
-    _iteratorError8 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion8 && _iterator8.return) {
-        _iterator8.return();
-      }
-    } finally {
-      if (_didIteratorError8) {
-        throw _iteratorError8;
-      }
-    }
-  }
-
-  return true;
-}
-
-/**
- * Checks whether states go to the same set.
- */
-function goToSameSet(s1, s2, table, symbol) {
-  if (!currentTransitionMap[s1] || !currentTransitionMap[s2]) {
-    return false;
-  }
-
-  var originalTransitionS1 = table[s1][symbol];
-  var originalTransitionS2 = table[s2][symbol];
-
-  // If no actual transition on this symbol, treat it as positive.
-  if (!originalTransitionS1 && !originalTransitionS2) {
-    return true;
-  }
-
-  // Otherwise, check if they are in the same sets.
-  return currentTransitionMap[s1].has(originalTransitionS1) && currentTransitionMap[s2].has(originalTransitionS2);
-}
-
-module.exports = {
-  minimize: minimize
-};
-},{}],199:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var DFAMinimizer = require('./dfa-minimizer');
-
-var _require = require('../special-symbols'),
-    EPSILON_CLOSURE = _require.EPSILON_CLOSURE;
-
-/**
- * DFA is build by converting from NFA (subset construction).
- */
-
-
-var DFA = function () {
-  function DFA(nfa) {
-    _classCallCheck(this, DFA);
-
-    this._nfa = nfa;
-  }
-
-  /**
-   * Minimizes DFA.
-   */
-
-
-  _createClass(DFA, [{
-    key: 'minimize',
-    value: function minimize() {
-      this.getTransitionTable();
-
-      this._originalAcceptingStateNumbers = this._acceptingStateNumbers;
-      this._originalTransitionTable = this._transitionTable;
-
-      DFAMinimizer.minimize(this);
-    }
-
-    /**
-     * Returns alphabet for this DFA.
-     */
-
-  }, {
-    key: 'getAlphabet',
-    value: function getAlphabet() {
-      return this._nfa.getAlphabet();
-    }
-
-    /**
-     * Returns accepting states.
-     */
-
-  }, {
-    key: 'getAcceptingStateNumbers',
-    value: function getAcceptingStateNumbers() {
-      if (!this._acceptingStateNumbers) {
-        // Accepting states are determined during table construction.
-        this.getTransitionTable();
-      }
-
-      return this._acceptingStateNumbers;
-    }
-
-    /**
-     * Returns original accepting states.
-     */
-
-  }, {
-    key: 'getOriginaAcceptingStateNumbers',
-    value: function getOriginaAcceptingStateNumbers() {
-      if (!this._originalAcceptingStateNumbers) {
-        // Accepting states are determined during table construction.
-        this.getTransitionTable();
-      }
-
-      return this._originalAcceptingStateNumbers;
-    }
-
-    /**
-     * Sets transition table.
-     */
-
-  }, {
-    key: 'setTransitionTable',
-    value: function setTransitionTable(table) {
-      this._transitionTable = table;
-    }
-
-    /**
-     * Sets accepting states.
-     */
-
-  }, {
-    key: 'setAcceptingStateNumbers',
-    value: function setAcceptingStateNumbers(stateNumbers) {
-      this._acceptingStateNumbers = stateNumbers;
-    }
-
-    /**
-     * DFA transition table is built from NFA table.
-     */
-
-  }, {
-    key: 'getTransitionTable',
-    value: function getTransitionTable() {
-      var _this = this;
-
-      if (this._transitionTable) {
-        return this._transitionTable;
-      }
-
-      // Calculate from NFA transition table.
-      var nfaTable = this._nfa.getTransitionTable();
-      var nfaStates = Object.keys(nfaTable);
-
-      this._acceptingStateNumbers = new Set();
-
-      // Start state of DFA is E(S[nfa])
-      var startState = nfaTable[nfaStates[0]][EPSILON_CLOSURE];
-
-      // Init the worklist (states which should be in the DFA).
-      var worklist = [startState];
-
-      var alphabet = this.getAlphabet();
-      var nfaAcceptingStates = this._nfa.getAcceptingStateNumbers();
-
-      var dfaTable = {};
-
-      // Determine whether the combined DFA state is accepting.
-      var updateAcceptingStates = function updateAcceptingStates(states) {
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = nfaAcceptingStates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var nfaAcceptingState = _step.value;
-
-            // If any of the states from NFA is accepting, DFA's
-            // state is accepting as well.
-            if (states.indexOf(nfaAcceptingState) !== -1) {
-              _this._acceptingStateNumbers.add(states.join(','));
-              break;
-            }
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-      };
-
-      while (worklist.length > 0) {
-        var states = worklist.shift();
-        var dfaStateLabel = states.join(',');
-        dfaTable[dfaStateLabel] = {};
-
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
-
-        try {
-          for (var _iterator2 = alphabet[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var symbol = _step2.value;
-
-            var onSymbol = [];
-
-            // Determine whether the combined state is accepting.
-            updateAcceptingStates(states);
-
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
-
-            try {
-              for (var _iterator3 = states[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                var state = _step3.value;
-
-                var nfaStatesOnSymbol = nfaTable[state][symbol];
-                if (!nfaStatesOnSymbol) {
-                  continue;
-                }
-
-                var _iteratorNormalCompletion4 = true;
-                var _didIteratorError4 = false;
-                var _iteratorError4 = undefined;
-
-                try {
-                  for (var _iterator4 = nfaStatesOnSymbol[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                    var nfaStateOnSymbol = _step4.value;
-
-                    if (!nfaTable[nfaStateOnSymbol]) {
-                      continue;
-                    }
-                    onSymbol.push.apply(onSymbol, _toConsumableArray(nfaTable[nfaStateOnSymbol][EPSILON_CLOSURE]));
-                  }
-                } catch (err) {
-                  _didIteratorError4 = true;
-                  _iteratorError4 = err;
-                } finally {
-                  try {
-                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                      _iterator4.return();
-                    }
-                  } finally {
-                    if (_didIteratorError4) {
-                      throw _iteratorError4;
-                    }
-                  }
-                }
-              }
-            } catch (err) {
-              _didIteratorError3 = true;
-              _iteratorError3 = err;
-            } finally {
-              try {
-                if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                  _iterator3.return();
-                }
-              } finally {
-                if (_didIteratorError3) {
-                  throw _iteratorError3;
-                }
-              }
-            }
-
-            var dfaStatesOnSymbolSet = new Set(onSymbol);
-            var dfaStatesOnSymbol = [].concat(_toConsumableArray(dfaStatesOnSymbolSet));
-
-            if (dfaStatesOnSymbol.length > 0) {
-              var dfaOnSymbolStr = dfaStatesOnSymbol.join(',');
-
-              dfaTable[dfaStateLabel][symbol] = dfaOnSymbolStr;
-
-              if (!dfaTable.hasOwnProperty(dfaOnSymbolStr)) {
-                worklist.unshift(dfaStatesOnSymbol);
-              }
-            }
-          }
-        } catch (err) {
-          _didIteratorError2 = true;
-          _iteratorError2 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-              _iterator2.return();
-            }
-          } finally {
-            if (_didIteratorError2) {
-              throw _iteratorError2;
-            }
-          }
-        }
-      }
-
-      return this._transitionTable = this._remapStateNumbers(dfaTable);
-    }
-
-    /**
-     * Remaps state numbers in the resulting table:
-     * combined states '1,2,3' -> 1, '3,4' -> 2, etc.
-     */
-
-  }, {
-    key: '_remapStateNumbers',
-    value: function _remapStateNumbers(calculatedDFATable) {
-      var newStatesMap = {};
-
-      this._originalTransitionTable = calculatedDFATable;
-      var transitionTable = {};
-
-      Object.keys(calculatedDFATable).forEach(function (originalNumber, newNumber) {
-        newStatesMap[originalNumber] = newNumber + 1;
-      });
-
-      for (var originalNumber in calculatedDFATable) {
-        var originalRow = calculatedDFATable[originalNumber];
-        var row = {};
-
-        for (var symbol in originalRow) {
-          row[symbol] = newStatesMap[originalRow[symbol]];
-        }
-
-        transitionTable[newStatesMap[originalNumber]] = row;
-      }
-
-      // Remap accepting states.
-      this._originalAcceptingStateNumbers = this._acceptingStateNumbers;
-      this._acceptingStateNumbers = new Set();
-
-      var _iteratorNormalCompletion5 = true;
-      var _didIteratorError5 = false;
-      var _iteratorError5 = undefined;
-
-      try {
-        for (var _iterator5 = this._originalAcceptingStateNumbers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-          var _originalNumber = _step5.value;
-
-          this._acceptingStateNumbers.add(newStatesMap[_originalNumber]);
-        }
-      } catch (err) {
-        _didIteratorError5 = true;
-        _iteratorError5 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-            _iterator5.return();
-          }
-        } finally {
-          if (_didIteratorError5) {
-            throw _iteratorError5;
-          }
-        }
-      }
-
-      return transitionTable;
-    }
-
-    /**
-     * Returns original DFA table, where state numbers
-     * are combined numbers from NFA.
-     */
-
-  }, {
-    key: 'getOriginalTransitionTable',
-    value: function getOriginalTransitionTable() {
-      if (!this._originalTransitionTable) {
-        // Original table is determined during table construction.
-        this.getTransitionTable();
-      }
-      return this._originalTransitionTable;
-    }
-
-    /**
-     * Checks whether this DFA accepts a string.
-     */
-
-  }, {
-    key: 'matches',
-    value: function matches(string) {
-      var state = 1;
-      var i = 0;
-      var table = this.getTransitionTable();
-
-      while (string[i]) {
-        state = table[state][string[i++]];
-        if (!state) {
-          return false;
-        }
-      }
-
-      if (!this.getAcceptingStateNumbers().has(state)) {
-        return false;
-      }
-
-      return true;
-    }
-  }]);
-
-  return DFA;
-}();
-
-module.exports = DFA;
-},{"../special-symbols":205,"./dfa-minimizer":198}],200:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var NFA = require('./nfa/nfa');
-var DFA = require('./dfa/dfa');
-
-var nfaFromRegExp = require('./nfa/nfa-from-regexp');
-var builders = require('./nfa/builders');
-
-module.exports = {
-
-  /**
-   * Export NFA and DFA classes.
-   */
-  NFA: NFA,
-  DFA: DFA,
-
-  /**
-   * Expose builders.
-   */
-  builders: builders,
-
-  /**
-   * Builds an NFA for the passed regexp.
-   *
-   * @param string | AST | RegExp:
-   *
-   *   a regular expression in different representations: a string,
-   *   a RegExp object, or an AST.
-   */
-  toNFA: function toNFA(regexp) {
-    return nfaFromRegExp.build(regexp);
-  },
-
-
-  /**
-   * Builds DFA for the passed regexp.
-   *
-   * @param string | AST | RegExp:
-   *
-   *   a regular expression in different representations: a string,
-   *   a RegExp object, or an AST.
-   */
-  toDFA: function toDFA(regexp) {
-    return new DFA(this.toNFA(regexp));
-  },
-
-
-  /**
-   * Returns true if regexp accepts the string.
-   */
-  test: function test(regexp, string) {
-    return this.toDFA(regexp).matches(string);
-  }
-};
-},{"./dfa/dfa":199,"./nfa/builders":201,"./nfa/nfa":204,"./nfa/nfa-from-regexp":202}],201:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var NFA = require('./nfa');
-var NFAState = require('./nfa-state');
-
-var _require = require('../special-symbols'),
-    EPSILON = _require.EPSILON;
-
-// -----------------------------------------------------------------------------
-// Char NFA fragment: `c`
-
-/**
- * Char factory.
- *
- * Creates an NFA fragment for a single char.
- *
- * [in] --c--> [out]
- */
-
-
-function char(c) {
-  var inState = new NFAState();
-  var outState = new NFAState({
-    accepting: true
-  });
-
-  return new NFA(inState.addTransition(c, outState), outState);
-}
-
-// -----------------------------------------------------------------------------
-// Epsilon NFA fragment
-
-/**
- * Epsilon factory.
- *
- * Creates an NFA fragment for ε (recognizes an empty string).
- *
- * [in] --ε--> [out]
- */
-function e() {
-  return char(EPSILON);
-}
-
-// -----------------------------------------------------------------------------
-// Alteration NFA fragment: `abc`
-
-/**
- * Creates a connection between two NFA fragments on epsilon transition.
- *
- * [in-a] --a--> [out-a] --ε--> [in-b] --b--> [out-b]
- */
-function altPair(first, second) {
-  first.out.accepting = false;
-  second.out.accepting = true;
-
-  first.out.addTransition(EPSILON, second.in);
-
-  return new NFA(first.in, second.out);
-}
-
-/**
- * Alteration factory.
- *
- * Creates a alteration NFA for (at least) two NFA-fragments.
- */
-function alt(first) {
-  for (var _len = arguments.length, fragments = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    fragments[_key - 1] = arguments[_key];
-  }
-
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = fragments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var fragment = _step.value;
-
-      first = altPair(first, fragment);
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  return first;
-}
-
-// -----------------------------------------------------------------------------
-// Disjunction NFA fragment: `a|b`
-
-/**
- * Creates a disjunction choice between two fragments.
- */
-function orPair(first, second) {
-  var inState = new NFAState();
-  var outState = new NFAState();
-
-  inState.addTransition(EPSILON, first.in);
-  inState.addTransition(EPSILON, second.in);
-
-  outState.accepting = true;
-  first.out.accepting = false;
-  second.out.accepting = false;
-
-  first.out.addTransition(EPSILON, outState);
-  second.out.addTransition(EPSILON, outState);
-
-  return new NFA(inState, outState);
-}
-
-/**
- * Disjunction factory.
- *
- * Creates a disjunction NFA for (at least) two NFA-fragments.
- */
-function or(first) {
-  for (var _len2 = arguments.length, fragments = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-    fragments[_key2 - 1] = arguments[_key2];
-  }
-
-  var _iteratorNormalCompletion2 = true;
-  var _didIteratorError2 = false;
-  var _iteratorError2 = undefined;
-
-  try {
-    for (var _iterator2 = fragments[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-      var fragment = _step2.value;
-
-      first = orPair(first, fragment);
-    }
-  } catch (err) {
-    _didIteratorError2 = true;
-    _iteratorError2 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion2 && _iterator2.return) {
-        _iterator2.return();
-      }
-    } finally {
-      if (_didIteratorError2) {
-        throw _iteratorError2;
-      }
-    }
-  }
-
-  return first;
-}
-
-// -----------------------------------------------------------------------------
-// Kleene-closure
-
-/**
- * Kleene star/closure.
- *
- * a*
- */
-function repExplicit(fragment) {
-  var inState = new NFAState();
-  var outState = new NFAState({
-    accepting: true
-  });
-
-  // 0 or more.
-  inState.addTransition(EPSILON, fragment.in);
-  inState.addTransition(EPSILON, outState);
-
-  fragment.out.accepting = false;
-  fragment.out.addTransition(EPSILON, outState);
-  outState.addTransition(EPSILON, fragment.in);
-
-  return new NFA(inState, outState);
-}
-
-/**
- * Optimized Kleene-star: just adds ε-transitions from
- * input to the output, and back.
- */
-function rep(fragment) {
-  fragment.in.addTransition(EPSILON, fragment.out);
-  fragment.out.addTransition(EPSILON, fragment.in);
-  return fragment;
-}
-
-/**
- * Optimized Plus: just adds ε-transitions from
- * the output to the input.
- */
-function plusRep(fragment) {
-  fragment.out.addTransition(EPSILON, fragment.in);
-  return fragment;
-}
-
-/**
- * Optimized ? repetition: just adds ε-transitions from
- * the input to the output.
- */
-function questionRep(fragment) {
-  fragment.in.addTransition(EPSILON, fragment.out);
-  return fragment;
-}
-
-module.exports = {
-  alt: alt,
-  char: char,
-  e: e,
-  or: or,
-  rep: rep,
-  repExplicit: repExplicit,
-  plusRep: plusRep,
-  questionRep: questionRep
-};
-},{"../special-symbols":205,"./nfa":204,"./nfa-state":203}],202:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var parser = require('../../../parser');
-
-var _require = require('./builders'),
-    alt = _require.alt,
-    char = _require.char,
-    or = _require.or,
-    rep = _require.rep,
-    plusRep = _require.plusRep,
-    questionRep = _require.questionRep;
-
-/**
- * Helper `gen` function calls node type handler.
- */
-
-
-function gen(node) {
-  if (node && !generator[node.type]) {
-    throw new Error(node.type + ' is not supported in NFA/DFA interpreter.');
-  }
-
-  return node ? generator[node.type](node) : '';
-}
-
-/**
- * AST handler.
- */
-var generator = {
-  RegExp: function RegExp(node) {
-    if (node.flags !== '') {
-      throw new Error('NFA/DFA: Flags are not supported yet.');
-    }
-
-    return gen(node.body);
-  },
-  Alternative: function Alternative(node) {
-    var fragments = (node.expressions || []).map(gen);
-    return alt.apply(undefined, _toConsumableArray(fragments));
-  },
-  Disjunction: function Disjunction(node) {
-    return or(gen(node.left), gen(node.right));
-  },
-  Repetition: function Repetition(node) {
-    switch (node.quantifier.kind) {
-      case '*':
-        return rep(gen(node.expression));
-      case '+':
-        return plusRep(gen(node.expression));
-      case '?':
-        return questionRep(gen(node.expression));
-      default:
-        throw new Error('Unknown repeatition: ' + node.quantifier.kind + '.');
-    }
-  },
-  Char: function Char(node) {
-    if (node.kind !== 'simple') {
-      throw new Error('NFA/DFA: Only simple chars are supported yet.');
-    }
-
-    return char(node.value);
-  },
-  Group: function Group(node) {
-    return gen(node.expression);
-  }
-};
-
-module.exports = {
-  /**
-   * Builds an NFA from the passed regexp.
-   */
-  build: function build(regexp) {
-    var ast = regexp;
-
-    if (regexp instanceof RegExp) {
-      regexp = '' + regexp;
-    }
-
-    if (typeof regexp === 'string') {
-      ast = parser.parse(regexp, {
-        captureLocations: true
-      });
-    }
-
-    return gen(ast);
-  }
-};
-},{"../../../parser":226,"./builders":201}],203:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var State = require('../state');
-
-var _require = require('../special-symbols'),
-    EPSILON = _require.EPSILON;
-
-/**
- * NFA state.
- *
- * Allows nondeterministic transitions to several states on the
- * same symbol, and also epsilon-transitions.
- */
-
-
-var NFAState = function (_State) {
-  _inherits(NFAState, _State);
-
-  function NFAState() {
-    _classCallCheck(this, NFAState);
-
-    return _possibleConstructorReturn(this, (NFAState.__proto__ || Object.getPrototypeOf(NFAState)).apply(this, arguments));
-  }
-
-  _createClass(NFAState, [{
-    key: 'matches',
-
-
-    /**
-     * Whether this state matches a string.
-     *
-     * We maintain set of visited epsilon-states to avoid infinite loops
-     * when an epsilon-transition goes eventually to itself.
-     *
-     * NOTE: this function is rather "educational", since we use DFA for strings
-     * matching. DFA is built on top of NFA, and uses fast transition table.
-     */
-    value: function matches(string) {
-      var visited = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Set();
-
-      // An epsilon-state has been visited, stop to avoid infinite loop.
-      if (visited.has(this)) {
-        return false;
-      }
-
-      visited.add(this);
-
-      // No symbols left..
-      if (string.length === 0) {
-        // .. and we're in the accepting state.
-        if (this.accepting) {
-          return true;
-        }
-
-        // Check if we can reach any accepting state from
-        // on the epsilon transitions.
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.getTransitionsOnSymbol(EPSILON)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var nextState = _step.value;
-
-            if (nextState.matches('', visited)) {
-              return true;
-            }
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-
-        return false;
-      }
-
-      // Else, we get some symbols.
-      var symbol = string[0];
-      var rest = string.slice(1);
-
-      var symbolTransitions = this.getTransitionsOnSymbol(symbol);
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = symbolTransitions[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var _nextState = _step2.value;
-
-          if (_nextState.matches(rest)) {
-            return true;
-          }
-        }
-
-        // If we couldn't match on symbol, check still epsilon-transitions
-        // without consuming the symbol (i.e. continue from `string`, not `rest`).
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
-
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
-
-      try {
-        for (var _iterator3 = this.getTransitionsOnSymbol(EPSILON)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var _nextState2 = _step3.value;
-
-          if (_nextState2.matches(string, visited)) {
-            return true;
-          }
-        }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
-          }
-        } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
-          }
-        }
-      }
-
-      return false;
-    }
-
-    /**
-     * Returns an ε-closure for this state:
-     * self + all states following ε-transitions.
-     */
-
-  }, {
-    key: 'getEpsilonClosure',
-    value: function getEpsilonClosure() {
-      var _this2 = this;
-
-      if (!this._epsilonClosure) {
-        (function () {
-          var epsilonTransitions = _this2.getTransitionsOnSymbol(EPSILON);
-          var closure = _this2._epsilonClosure = new Set();
-          closure.add(_this2);
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
-
-          try {
-            for (var _iterator4 = epsilonTransitions[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var nextState = _step4.value;
-
-              if (!closure.has(nextState)) {
-                closure.add(nextState);
-                var nextClosure = nextState.getEpsilonClosure();
-                nextClosure.forEach(function (state) {
-                  return closure.add(state);
-                });
-              }
-            }
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                _iterator4.return();
-              }
-            } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
-              }
-            }
-          }
-        })();
-      }
-
-      return this._epsilonClosure;
-    }
-  }]);
-
-  return NFAState;
-}(State);
-
-module.exports = NFAState;
-},{"../special-symbols":205,"../state":206}],204:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var _require = require('../special-symbols'),
-    EPSILON = _require.EPSILON,
-    EPSILON_CLOSURE = _require.EPSILON_CLOSURE;
-
-/**
- * NFA fragment.
- *
- * NFA sub-fragments can be combined to a larger NFAs building
- * the resulting machine. Combining the fragments is done by patching
- * edges of the in- and out-states.
- *
- * 2-states implementation, `in`, and `out`. Eventually all transitions
- * go to the same `out`, which can further be connected via ε-transition
- * with other fragment.
- */
-
-
-var NFA = function () {
-  function NFA(inState, outState) {
-    _classCallCheck(this, NFA);
-
-    this.in = inState;
-    this.out = outState;
-  }
-
-  /**
-   * Tries to recognize a string based on this NFA fragment.
-   */
-
-
-  _createClass(NFA, [{
-    key: 'matches',
-    value: function matches(string) {
-      return this.in.matches(string);
-    }
-
-    /**
-     * Returns an alphabet for this NFA.
-     */
-
-  }, {
-    key: 'getAlphabet',
-    value: function getAlphabet() {
-      if (!this._alphabet) {
-        this._alphabet = new Set();
-        var table = this.getTransitionTable();
-        for (var state in table) {
-          var transitions = table[state];
-          for (var symbol in transitions) {
-            if (symbol !== EPSILON_CLOSURE) {
-              this._alphabet.add(symbol);
-            }
-          }
-        }
-      }
-      return this._alphabet;
-    }
-
-    /**
-     * Returns set of accepting states.
-     */
-
-  }, {
-    key: 'getAcceptingStates',
-    value: function getAcceptingStates() {
-      if (!this._acceptingStates) {
-        // States are determined during table construction.
-        this.getTransitionTable();
-      }
-      return this._acceptingStates;
-    }
-
-    /**
-     * Returns accepting state numbers.
-     */
-
-  }, {
-    key: 'getAcceptingStateNumbers',
-    value: function getAcceptingStateNumbers() {
-      if (!this._acceptingStateNumbers) {
-        this._acceptingStateNumbers = new Set();
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.getAcceptingStates()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var acceptingState = _step.value;
-
-            this._acceptingStateNumbers.add(acceptingState.number);
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-      }
-      return this._acceptingStateNumbers;
-    }
-
-    /**
-     * Builds and returns transition table.
-     */
-
-  }, {
-    key: 'getTransitionTable',
-    value: function getTransitionTable() {
-      var _this = this;
-
-      if (!this._transitionTable) {
-        this._transitionTable = {};
-        this._acceptingStates = new Set();
-
-        var visited = new Set();
-        var symbols = new Set();
-
-        var visitState = function visitState(state) {
-          if (visited.has(state)) {
-            return;
-          }
-
-          visited.add(state);
-          state.number = visited.size;
-          _this._transitionTable[state.number] = {};
-
-          if (state.accepting) {
-            _this._acceptingStates.add(state);
-          }
-
-          var transitions = state.getTransitions();
-
-          var _iteratorNormalCompletion2 = true;
-          var _didIteratorError2 = false;
-          var _iteratorError2 = undefined;
-
-          try {
-            for (var _iterator2 = transitions[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              var _ref = _step2.value;
-
-              var _ref2 = _slicedToArray(_ref, 2);
-
-              var symbol = _ref2[0];
-              var symbolTransitions = _ref2[1];
-
-              var combinedState = [];
-              symbols.add(symbol);
-              var _iteratorNormalCompletion3 = true;
-              var _didIteratorError3 = false;
-              var _iteratorError3 = undefined;
-
-              try {
-                for (var _iterator3 = symbolTransitions[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                  var nextState = _step3.value;
-
-                  visitState(nextState);
-                  combinedState.push(nextState.number);
-                }
-              } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
-              } finally {
-                try {
-                  if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                    _iterator3.return();
-                  }
-                } finally {
-                  if (_didIteratorError3) {
-                    throw _iteratorError3;
-                  }
-                }
-              }
-
-              _this._transitionTable[state.number][symbol] = combinedState;
-            }
-          } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                _iterator2.return();
-              }
-            } finally {
-              if (_didIteratorError2) {
-                throw _iteratorError2;
-              }
-            }
-          }
-        };
-
-        // Traverse the graph starting from the `in`.
-        visitState(this.in);
-
-        // Append epsilon-closure column.
-        visited.forEach(function (state) {
-          delete _this._transitionTable[state.number][EPSILON];
-          _this._transitionTable[state.number][EPSILON_CLOSURE] = [].concat(_toConsumableArray(state.getEpsilonClosure())).map(function (s) {
-            return s.number;
-          });
-        });
-      }
-
-      return this._transitionTable;
-    }
-  }]);
-
-  return NFA;
-}();
-
-module.exports = NFA;
-},{"../special-symbols":205}],205:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * Epsilon, the empty string.
- */
-
-var EPSILON = 'ε';
-
-/**
- * Epsilon-closure.
- */
-var EPSILON_CLOSURE = EPSILON + '*';
-
-module.exports = {
-  EPSILON: EPSILON,
-  EPSILON_CLOSURE: EPSILON_CLOSURE
-};
-},{}],206:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A generic FA State class (base for NFA and DFA).
- *
- * Maintains the transition map, and the flag whether
- * the state is accepting.
- */
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var State = function () {
-  function State() {
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$accepting = _ref.accepting,
-        accepting = _ref$accepting === undefined ? false : _ref$accepting;
-
-    _classCallCheck(this, State);
-
-    /**
-     * Outgoing transitions to other states.
-     */
-    this._transitions = new Map();
-
-    /**
-     * Whether the state is accepting.
-     */
-    this.accepting = accepting;
-  }
-
-  /**
-   * Returns transitions for this state.
-   */
-
-
-  _createClass(State, [{
-    key: 'getTransitions',
-    value: function getTransitions() {
-      return this._transitions;
-    }
-
-    /**
-     * Creates a transition on symbol.
-     */
-
-  }, {
-    key: 'addTransition',
-    value: function addTransition(symbol, toState) {
-      this.getTransitionsOnSymbol(symbol).add(toState);
-      return this;
-    }
-
-    /**
-     * Returns transitions set on symbol.
-     */
-
-  }, {
-    key: 'getTransitionsOnSymbol',
-    value: function getTransitionsOnSymbol(symbol) {
-      var transitions = this._transitions.get(symbol);
-
-      if (!transitions) {
-        transitions = new Set();
-        this._transitions.set(symbol, transitions);
-      }
-
-      return transitions;
-    }
-  }]);
-
-  return State;
-}();
-
-module.exports = State;
-},{}],207:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var clone = require('../utils/clone');
-var parser = require('../parser');
-var transform = require('../transform');
-var optimizationTransforms = require('./transforms');
-
-module.exports = {
-  /**
-   * Optimizer transforms a regular expression into an optimized version,
-   * replacing some sub-expressions with their idiomatic patterns.
-   *
-   * @param string | RegExp | AST - a regexp to optimize.
-   *
-   * @return TransformResult - an optimized regexp.
-   *
-   * Example:
-   *
-   *   /[a-zA-Z_0-9][a-zA-Z_0-9]*\e{1,}/
-   *
-   * Optimized to:
-   *
-   *   /\w+e+/
-   */
-  optimize: function optimize(regexp) {
-    var transformsWhitelist = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-
-    var transformToApply = transformsWhitelist.length > 0 ? transformsWhitelist : Object.keys(optimizationTransforms);
-
-    var ast = regexp;
-    if (regexp instanceof RegExp) {
-      regexp = '' + regexp;
-    }
-
-    if (typeof regexp === 'string') {
-      ast = parser.parse(regexp);
-    }
-
-    var result = new transform.TransformResult(ast);
-    var prevResultString = void 0;
-
-    do {
-      // Get a copy of the current state here so
-      // we can compare it with the state at the
-      // end of the loop.
-      prevResultString = result.toString();
-      ast = clone(result.getAST());
-
-      transformToApply.forEach(function (transformName) {
-        if (!optimizationTransforms.hasOwnProperty(transformName)) {
-          throw new Error('Unknown optimization-transform: ' + transformName + '. ' + 'Available transforms are: ' + Object.keys(optimizationTransforms).join(', '));
-        }
-
-        var transformer = optimizationTransforms[transformName];
-
-        // Don't override result just yet since we
-        // might want to rollback the transform
-        var newResult = transform.transform(ast, transformer);
-
-        if (newResult.toString() !== result.toString()) {
-          if (newResult.toString().length <= result.toString().length) {
-            result = newResult;
-          } else {
-            // Result has changed but is not shorter:
-            // restore ast to its previous state.
-
-            ast = clone(result.getAST());
-          }
-        }
-      });
-
-      // Keep running the optimizer until it stops
-      // making any change to the regexp.
-    } while (result.toString() !== prevResultString);
-
-    return result;
-  }
-};
-},{"../parser":226,"../transform":229,"../utils/clone":233,"./transforms":220}],208:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var UPPER_A_CP = 'A'.codePointAt(0);
-var UPPER_Z_CP = 'Z'.codePointAt(0);
-/**
- * Transforms case-insensitive regexp to lowercase
- *
- * /AaBbÏ/i -> /aabbï/i
- */
-module.exports = {
-  _AZClassRanges: null,
-  _hasUFlag: false,
-  init: function init(ast) {
-    this._AZClassRanges = new Set();
-    this._hasUFlag = ast.flags.includes('u');
-  },
-  shouldRun: function shouldRun(ast) {
-    return ast.flags.includes('i');
-  },
-  Char: function Char(path) {
-    var node = path.node,
-        parent = path.parent;
-
-    if (isNaN(node.codePoint)) {
-      return;
-    }
-
-    // Engine support for case-insensitive matching without the u flag
-    // for characters above \u1000 does not seem reliable.
-    if (!this._hasUFlag && node.codePoint >= 0x1000) {
-      return;
-    }
-
-    if (parent.type === 'ClassRange') {
-      // The only class ranges we handle must be inside A-Z.
-      // After the `from` char is processed, the isAZClassRange test
-      // will be false, so we use a Set to keep track of parents and
-      // process the `to` char.
-      if (!this._AZClassRanges.has(parent) && !isAZClassRange(parent)) {
-        return;
-      }
-      this._AZClassRanges.add(parent);
-    }
-
-    var lower = node.symbol.toLowerCase();
-    if (lower !== node.symbol) {
-      node.value = displaySymbolAsValue(lower, node);
-      node.symbol = lower;
-      node.codePoint = lower.codePointAt(0);
-    }
-  }
-};
-
-function isAZClassRange(classRange) {
-  var from = classRange.from,
-      to = classRange.to;
-  // A-Z
-
-  return from.codePoint >= UPPER_A_CP && from.codePoint <= UPPER_Z_CP && to.codePoint >= UPPER_A_CP && to.codePoint <= UPPER_Z_CP;
-}
-
-function displaySymbolAsValue(symbol, node) {
-  var codePoint = symbol.codePointAt(0);
-  if (node.kind === 'decimal') {
-    return '\\' + codePoint;
-  }
-  if (node.kind === 'oct') {
-    return '\\0' + codePoint.toString(8);
-  }
-  if (node.kind === 'hex') {
-    return '\\x' + codePoint.toString(16);
-  }
-  if (node.kind === 'unicode') {
-    if (node.isSurrogatePair) {
-      var _getSurrogatePairFrom = getSurrogatePairFromCodePoint(codePoint),
-          lead = _getSurrogatePairFrom.lead,
-          trail = _getSurrogatePairFrom.trail;
-
-      return '\\u' + '0'.repeat(4 - lead.length) + lead + '\\u' + '0'.repeat(4 - trail.length) + trail;
-    } else if (node.value.includes('{')) {
-      return '\\u{' + codePoint.toString(16) + '}';
-    } else {
-      var code = codePoint.toString(16);
-      return '\\u' + '0'.repeat(4 - code.length) + code;
-    }
-  }
-  // simple
-  return symbol;
-}
-
-/**
- * Converts a code point to a surrogate pair.
- * Conversion algorithm is taken from The Unicode Standard 3.0 Section 3.7
- * (https://www.unicode.org/versions/Unicode3.0.0/ch03.pdf)
- * @param {number} codePoint - Between 0x10000 and 0x10ffff
- * @returns {{lead: string, trail: string}}
- */
-function getSurrogatePairFromCodePoint(codePoint) {
-  var lead = Math.floor((codePoint - 0x10000) / 0x400) + 0xd800;
-  var trail = (codePoint - 0x10000) % 0x400 + 0xdc00;
-  return {
-    lead: lead.toString(16),
-    trail: trail.toString(16)
-  };
-}
-},{}],209:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to merge class ranges.
- *
- * [a-ec] -> [a-e]
- * [a-ec-e] -> [a-e]
- * [\w\da-f] -> [\w]
- * [abcdef] -> [a-f]
- */
-
-module.exports = {
-  _hasIUFlags: false,
-  init: function init(ast) {
-    this._hasIUFlags = ast.flags.includes('i') && ast.flags.includes('u');
-  },
-  CharacterClass: function CharacterClass(path) {
-    var node = path.node;
-
-    var expressions = node.expressions;
-
-    var metas = [];
-    // Extract metas
-    expressions.forEach(function (expression) {
-      if (isMeta(expression)) {
-        metas.push(expression.value);
-      }
-    });
-
-    expressions.sort(sortCharClass);
-
-    for (var i = 0; i < expressions.length; i++) {
-      var expression = expressions[i];
-      if (fitsInMetas(expression, metas, this._hasIUFlags) || combinesWithPrecedingClassRange(expression, expressions[i - 1]) || combinesWithFollowingClassRange(expression, expressions[i + 1])) {
-        expressions.splice(i, 1);
-        i--;
-      } else {
-        var nbMergedChars = charCombinesWithPrecedingChars(expression, i, expressions);
-        expressions.splice(i - nbMergedChars + 1, nbMergedChars);
-        i -= nbMergedChars;
-      }
-    }
-  }
-};
-
-/**
- * Sorts expressions in char class in the following order:
- * - meta chars, ordered alphabetically by value
- * - chars (except `control` kind) and class ranges, ordered alphabetically (`from` char is used for class ranges)
- * - if ambiguous, class range comes before char
- * - if ambiguous between two class ranges, orders alphabetically by `to` char
- * - control chars, ordered alphabetically by value
- * @param {Object} a - Left Char or ClassRange node
- * @param {Object} b - Right Char or ClassRange node
- * @returns {number}
- */
-function sortCharClass(a, b) {
-  var aValue = getSortValue(a);
-  var bValue = getSortValue(b);
-
-  if (aValue === bValue) {
-    // We want ClassRange before Char
-    // [bb-d] -> [b-db]
-    if (a.type === 'ClassRange' && b.type !== 'ClassRange') {
-      return -1;
-    }
-    if (b.type === 'ClassRange' && a.type !== 'ClassRange') {
-      return 1;
-    }
-    if (a.type === 'ClassRange' && b.type === 'ClassRange') {
-      return getSortValue(a.to) - getSortValue(b.to);
-    }
-    if (isMeta(a) && isMeta(b) || isControl(a) && isControl(b)) {
-      return a.value < b.value ? -1 : 1;
-    }
-  }
-  return aValue - bValue;
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @returns {number}
- */
-function getSortValue(expression) {
-  if (expression.type === 'Char') {
-    if (expression.kind === 'control') {
-      return Infinity;
-    }
-    if (expression.kind === 'meta' && isNaN(expression.codePoint)) {
-      return -1;
-    }
-    return expression.codePoint;
-  }
-  // ClassRange
-  return expression.from.codePoint;
-}
-
-/**
- * Checks if a node is a meta char from the set \d\w\s\D\W\S
- * @param {Object} expression - Char or ClassRange node
- * @param {?string} value
- * @returns {boolean}
- */
-function isMeta(expression) {
-  var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-  return expression.type === 'Char' && expression.kind === 'meta' && (value ? expression.value === value : /^\\[dws]$/i.test(expression.value));
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @returns {boolean}
- */
-function isControl(expression) {
-  return expression.type === 'Char' && expression.kind === 'control';
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @param {string[]} metas - Array of meta chars, e.g. ["\\w", "\\s"]
- * @param {boolean} hasIUFlags
- * @returns {boolean}
- */
-function fitsInMetas(expression, metas, hasIUFlags) {
-  for (var i = 0; i < metas.length; i++) {
-    if (fitsInMeta(expression, metas[i], hasIUFlags)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @param {string} meta - e.g. "\\w"
- * @param {boolean} hasIUFlags
- * @returns {boolean}
- */
-function fitsInMeta(expression, meta, hasIUFlags) {
-  if (expression.type === 'ClassRange') {
-    return fitsInMeta(expression.from, meta, hasIUFlags) && fitsInMeta(expression.to, meta, hasIUFlags);
-  }
-
-  // Special cases:
-  // \S contains \w and \d
-  if (meta === '\\S' && (isMeta(expression, '\\w') || isMeta(expression, '\\d'))) {
-    return true;
-  }
-  // \D contains \W and \s
-  if (meta === '\\D' && (isMeta(expression, '\\W') || isMeta(expression, '\\s'))) {
-    return true;
-  }
-  // \w contains \d
-  if (meta === '\\w' && isMeta(expression, '\\d')) {
-    return true;
-  }
-  // \W contains \s
-  if (meta === '\\W' && isMeta(expression, '\\s')) {
-    return true;
-  }
-
-  if (expression.type !== 'Char' || isNaN(expression.codePoint)) {
-    return false;
-  }
-
-  if (meta === '\\s') {
-    return fitsInMetaS(expression);
-  }
-  if (meta === '\\S') {
-    return !fitsInMetaS(expression);
-  }
-  if (meta === '\\d') {
-    return fitsInMetaD(expression);
-  }
-  if (meta === '\\D') {
-    return !fitsInMetaD(expression);
-  }
-  if (meta === '\\w') {
-    return fitsInMetaW(expression, hasIUFlags);
-  }
-  if (meta === '\\W') {
-    return !fitsInMetaW(expression, hasIUFlags);
-  }
-  return false;
-}
-
-/**
- * @param {Object} expression - Char node with codePoint
- * @returns {boolean}
- */
-function fitsInMetaS(expression) {
-  return expression.codePoint === 0x0009 || // \t
-  expression.codePoint === 0x000a || // \n
-  expression.codePoint === 0x000b || // \v
-  expression.codePoint === 0x000c || // \f
-  expression.codePoint === 0x000d || // \r
-  expression.codePoint === 0x0020 || // space
-  expression.codePoint === 0x00a0 || // nbsp
-  expression.codePoint === 0x1680 || // part of Zs
-  expression.codePoint >= 0x2000 && expression.codePoint <= 0x200a || // part of Zs
-  expression.codePoint === 0x2028 || // line separator
-  expression.codePoint === 0x2029 || // paragraph separator
-  expression.codePoint === 0x202f || // part of Zs
-  expression.codePoint === 0x205f || // part of Zs
-  expression.codePoint === 0x3000 || // part of Zs
-  expression.codePoint === 0xfeff; // zwnbsp
-}
-
-/**
- * @param {Object} expression - Char node with codePoint
- * @returns {boolean}
- */
-function fitsInMetaD(expression) {
-  return expression.codePoint >= 0x30 && expression.codePoint <= 0x39; // 0-9
-}
-
-/**
- * @param {Object} expression - Char node with codePoint
- * @param {boolean} hasIUFlags
- * @returns {boolean}
- */
-function fitsInMetaW(expression, hasIUFlags) {
-  return fitsInMetaD(expression) || expression.codePoint >= 0x41 && expression.codePoint <= 0x5a || // A-Z
-  expression.codePoint >= 0x61 && expression.codePoint <= 0x7a || // a-z
-  expression.value === '_' || hasIUFlags && (expression.codePoint === 0x017f || expression.codePoint === 0x212a);
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @param {Object} classRange - Char or ClassRange node
- * @returns {boolean}
- */
-function combinesWithPrecedingClassRange(expression, classRange) {
-  if (classRange && classRange.type === 'ClassRange') {
-
-    if (fitsInClassRange(expression, classRange)) {
-      // [a-gc] -> [a-g]
-      // [a-gc-e] -> [a-g]
-      return true;
-    } else if (
-    // We only want \w chars or char codes to keep readability
-    isMetaWCharOrCode(expression) && classRange.to.codePoint === expression.codePoint - 1) {
-      // [a-de] -> [a-e]
-      classRange.to = expression;
-      return true;
-    } else if (expression.type === 'ClassRange' && expression.from.codePoint <= classRange.to.codePoint + 1 && expression.to.codePoint >= classRange.from.codePoint - 1) {
-      // [a-db-f] -> [a-f]
-      // [b-fa-d] -> [a-f]
-      // [a-cd-f] -> [a-f]
-      if (expression.from.codePoint < classRange.from.codePoint) {
-        classRange.from = expression.from;
-      }
-      if (expression.to.codePoint > classRange.to.codePoint) {
-        classRange.to = expression.to;
-      }
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @param {Object} classRange - Char or ClassRange node
- * @returns {boolean}
- */
-function combinesWithFollowingClassRange(expression, classRange) {
-  if (classRange && classRange.type === 'ClassRange') {
-    // Considering the elements were ordered alphabetically,
-    // there is only one case to handle
-    // [ab-e] -> [a-e]
-    if (
-    // We only want \w chars or char codes to keep readability
-    isMetaWCharOrCode(expression) && classRange.from.codePoint === expression.codePoint + 1) {
-      classRange.from = expression;
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @param {Object} classRange - ClassRange node
- * @returns {boolean}
- */
-function fitsInClassRange(expression, classRange) {
-  if (expression.type === 'Char' && isNaN(expression.codePoint)) {
-    return false;
-  }
-  if (expression.type === 'ClassRange') {
-    return fitsInClassRange(expression.from, classRange) && fitsInClassRange(expression.to, classRange);
-  }
-  return expression.codePoint >= classRange.from.codePoint && expression.codePoint <= classRange.to.codePoint;
-}
-
-/**
- * @param {Object} expression - Char or ClassRange node
- * @param {Number} index
- * @param {Object[]} expressions - expressions in CharClass
- * @returns {number} - Number of characters combined with expression
- */
-function charCombinesWithPrecedingChars(expression, index, expressions) {
-  // We only want \w chars or char codes to keep readability
-  if (!isMetaWCharOrCode(expression)) {
-    return 0;
-  }
-  var nbMergedChars = 0;
-  while (index > 0) {
-    var currentExpression = expressions[index];
-    var precedingExpresion = expressions[index - 1];
-    if (isMetaWCharOrCode(precedingExpresion) && precedingExpresion.codePoint === currentExpression.codePoint - 1) {
-      nbMergedChars++;
-      index--;
-    } else {
-      break;
-    }
-  }
-
-  if (nbMergedChars > 1) {
-    expressions[index] = {
-      type: 'ClassRange',
-      from: expressions[index],
-      to: expression
-    };
-    return nbMergedChars;
-  }
-  return 0;
-}
-
-function isMetaWCharOrCode(expression) {
-  return expression && expression.type === 'Char' && !isNaN(expression.codePoint) && (fitsInMetaW(expression, false) || expression.kind === 'unicode' || expression.kind === 'hex' || expression.kind === 'oct' || expression.kind === 'decimal');
-}
-},{}],210:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to simplify character classes
- * spanning only one or two chars.
- *
- * [a-a] -> [a]
- * [a-b] -> [ab]
- */
-
-module.exports = {
-  ClassRange: function ClassRange(path) {
-    var node = path.node;
-
-
-    if (node.from.codePoint === node.to.codePoint) {
-
-      path.replace(node.from);
-    } else if (node.from.codePoint === node.to.codePoint - 1) {
-
-      path.getParent().insertChildAt(node.to, path.index + 1);
-      path.replace(node.from);
-    }
-  }
-};
-},{}],211:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to remove duplicates from character classes.
- */
-
-module.exports = {
-  CharacterClass: function CharacterClass(path) {
-    var node = path.node;
-
-    var sources = {};
-
-    for (var i = 0; i < node.expressions.length; i++) {
-      var childPath = path.getChild(i);
-      var source = childPath.jsonEncode();
-
-      if (sources.hasOwnProperty(source)) {
-        childPath.remove();
-
-        // Since we remove the current node.
-        // TODO: make it simpler for users with a method.
-        i--;
-      }
-
-      sources[source] = true;
-    }
-  }
-};
-},{}],212:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to replace standard character classes with
- * their meta symbols equivalents.
- */
-
-module.exports = {
-  _hasIFlag: false,
-  _hasUFlag: false,
-  init: function init(ast) {
-    this._hasIFlag = ast.flags.includes('i');
-    this._hasUFlag = ast.flags.includes('u');
-  },
-  CharacterClass: function CharacterClass(path) {
-
-    // [0-9] -> \d
-    rewriteNumberRanges(path);
-
-    // [a-zA-Z_0-9] -> \w
-    rewriteWordRanges(path, this._hasIFlag, this._hasUFlag);
-
-    // [ \t\r\n\f] -> \s
-    rewriteWhitespaceRanges(path);
-  }
-};
-
-/**
- * Rewrites number ranges: [0-9] -> \d
- */
-function rewriteNumberRanges(path) {
-  var node = path.node;
-
-
-  node.expressions.forEach(function (expression, i) {
-    if (isFullNumberRange(expression)) {
-      path.getChild(i).replace({
-        type: 'Char',
-        value: '\\d',
-        kind: 'meta'
-      });
-    }
-  });
-}
-
-/**
- * Rewrites word ranges: [a-zA-Z_0-9] -> \w
- * Thus, the ranges may go in any order, and other symbols/ranges
- * are kept untouched, e.g. [a-z_\dA-Z$] -> [\w$]
- */
-function rewriteWordRanges(path, hasIFlag, hasUFlag) {
-  var node = path.node;
-
-
-  var numberPath = null;
-  var lowerCasePath = null;
-  var upperCasePath = null;
-  var underscorePath = null;
-  var u017fPath = null;
-  var u212aPath = null;
-
-  node.expressions.forEach(function (expression, i) {
-
-    // \d
-    if (isMetaChar(expression, '\\d')) {
-      numberPath = path.getChild(i);
-    }
-
-    // a-z
-    else if (isLowerCaseRange(expression)) {
-        lowerCasePath = path.getChild(i);
-      }
-
-      // A-Z
-      else if (isUpperCaseRange(expression)) {
-          upperCasePath = path.getChild(i);
-        }
-
-        // _
-        else if (isUnderscore(expression)) {
-            underscorePath = path.getChild(i);
-          } else if (hasIFlag && hasUFlag && isU017fPath(expression)) {
-            u017fPath = path.getChild(i);
-          } else if (hasIFlag && hasUFlag && isU212aPath(expression)) {
-            u212aPath = path.getChild(i);
-          }
-  });
-
-  // If we found the whole pattern, replace it.
-  if (numberPath && (lowerCasePath && upperCasePath || hasIFlag && (lowerCasePath || upperCasePath)) && underscorePath && (!hasUFlag || !hasIFlag || u017fPath && u212aPath)) {
-
-    // Put \w in place of \d.
-    numberPath.replace({
-      type: 'Char',
-      value: '\\w',
-      kind: 'meta'
-    });
-
-    // Other paths are removed.
-    if (lowerCasePath) {
-      lowerCasePath.remove();
-    }
-    if (upperCasePath) {
-      upperCasePath.remove();
-    }
-    underscorePath.remove();
-    if (u017fPath) {
-      u017fPath.remove();
-    }
-    if (u212aPath) {
-      u212aPath.remove();
-    }
-  }
-}
-
-/**
- * Rewrites whitespace ranges: [ \t\r\n\f] -> \s.
- */
-function rewriteWhitespaceRanges(path) {
-  var node = path.node;
-
-
-  var spacePath = null;
-  var tPath = null;
-  var nPath = null;
-  var rPath = null;
-  var fPath = null;
-
-  node.expressions.forEach(function (expression, i) {
-
-    // Space
-    if (isChar(expression, ' ')) {
-      spacePath = path.getChild(i);
-    }
-
-    // \t
-    else if (isMetaChar(expression, '\\t')) {
-        tPath = path.getChild(i);
-      }
-
-      // \n
-      else if (isMetaChar(expression, '\\n')) {
-          nPath = path.getChild(i);
-        }
-
-        // \r
-        else if (isMetaChar(expression, '\\r')) {
-            rPath = path.getChild(i);
-          }
-
-          // \f
-          else if (isMetaChar(expression, '\\f')) {
-              fPath = path.getChild(i);
-            }
-  });
-
-  // If we found the whole pattern, replace it.
-  // Make \f optional.
-  if (spacePath && tPath && nPath && rPath) {
-
-    // Put \s in place of \n.
-    nPath.node.value = '\\s';
-
-    // Other paths are removed.
-    spacePath.remove();
-    tPath.remove();
-    rPath.remove();
-
-    if (fPath) {
-      fPath.remove();
-    }
-  }
-}
-
-function isFullNumberRange(node) {
-  return node.type === 'ClassRange' && node.from.value === '0' && node.to.value === '9';
-}
-
-function isChar(node, value) {
-  var kind = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'simple';
-
-  return node.type === 'Char' && node.value === value && node.kind === kind;
-}
-
-function isMetaChar(node, value) {
-  return isChar(node, value, 'meta');
-}
-
-function isLowerCaseRange(node) {
-  return node.type === 'ClassRange' && node.from.value === 'a' && node.to.value === 'z';
-}
-
-function isUpperCaseRange(node) {
-  return node.type === 'ClassRange' && node.from.value === 'A' && node.to.value === 'Z';
-}
-
-function isUnderscore(node) {
-  return node.type === 'Char' && node.value === '_' && node.kind === 'simple';
-}
-
-function isU017fPath(node) {
-  return node.type === 'Char' && node.kind === 'unicode' && node.codePoint === 0x017f;
-}
-function isU212aPath(node) {
-  return node.type === 'Char' && node.kind === 'unicode' && node.codePoint === 0x212a;
-}
-},{}],213:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to replace single char character classes with
- * just that character.
- *
- * [\d] -> \d, [^\w] -> \W
- */
-
-module.exports = {
-  CharacterClass: function CharacterClass(path) {
-    var node = path.node;
-
-
-    if (node.expressions.length !== 1 || !isAppropriateChar(node.expressions[0])) {
-      return;
-    }
-
-    var _node$expressions$ = node.expressions[0],
-        value = _node$expressions$.value,
-        kind = _node$expressions$.kind,
-        escaped = _node$expressions$.escaped;
-
-
-    if (node.negative) {
-      // For negative can extract only meta chars like [^\w] -> \W
-      // cannot do for [^a] -> a (wrong).
-      if (!isMeta(value)) {
-        return;
-      }
-
-      value = getInverseMeta(value);
-    }
-
-    path.replace({
-      type: 'Char',
-      value: value,
-      kind: kind,
-      escaped: escaped || shouldEscape(value)
-    });
-  }
-};
-
-function isAppropriateChar(node) {
-  return node.type === 'Char' &&
-  // We don't extract [\b] (backspace) since \b has different
-  // semantics (word boundary).
-  node.value !== '\\b';
-}
-
-function isMeta(value) {
-  return (/^\\[dwsDWS]$/.test(value)
-  );
-}
-
-function getInverseMeta(value) {
-  return (/[dws]/.test(value) ? value.toUpperCase() : value.toLowerCase()
-  );
-}
-
-// Note: \{ and \} are always preserved to avoid `a[{]2[}]` turning
-// into `a{2}`.
-function shouldEscape(value) {
-  return (/[*[()+?$./{}|]/.test(value)
-  );
-}
-},{}],214:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var UPPER_A_CP = 'A'.codePointAt(0);
-var UPPER_Z_CP = 'Z'.codePointAt(0);
-var LOWER_A_CP = 'a'.codePointAt(0);
-var LOWER_Z_CP = 'z'.codePointAt(0);
-var DIGIT_0_CP = '0'.codePointAt(0);
-var DIGIT_9_CP = '9'.codePointAt(0);
-
-/**
- * A regexp-tree plugin to transform coded chars into simple chars.
- *
- * \u0061 -> a
- */
-module.exports = {
-  Char: function Char(path) {
-    var node = path.node,
-        parent = path.parent;
-
-    if (isNaN(node.codePoint) || node.kind === 'simple') {
-      return;
-    }
-
-    if (parent.type === 'ClassRange') {
-      if (!isSimpleRange(parent)) {
-        return;
-      }
-    }
-
-    if (!isPrintableASCIIChar(node.codePoint)) {
-      return;
-    }
-
-    var symbol = String.fromCodePoint(node.codePoint);
-    var newChar = {
-      type: 'Char',
-      kind: 'simple',
-      value: symbol,
-      symbol: symbol,
-      codePoint: node.codePoint
-    };
-    if (needsEscape(symbol, parent.type)) {
-      newChar.escaped = true;
-    }
-    path.replace(newChar);
-  }
-};
-
-/**
- * Checks if a range is included either in 0-9, a-z or A-Z
- * @param classRange
- * @returns {boolean}
- */
-function isSimpleRange(classRange) {
-  var from = classRange.from,
-      to = classRange.to;
-
-  return from.codePoint >= DIGIT_0_CP && from.codePoint <= DIGIT_9_CP && to.codePoint >= DIGIT_0_CP && to.codePoint <= DIGIT_9_CP || from.codePoint >= UPPER_A_CP && from.codePoint <= UPPER_Z_CP && to.codePoint >= UPPER_A_CP && to.codePoint <= UPPER_Z_CP || from.codePoint >= LOWER_A_CP && from.codePoint <= LOWER_Z_CP && to.codePoint >= LOWER_A_CP && to.codePoint <= LOWER_Z_CP;
-}
-
-/**
- * Checks if a code point in the range of printable ASCII chars
- * (DEL char excluded)
- * @param codePoint
- * @returns {boolean}
- */
-function isPrintableASCIIChar(codePoint) {
-  return codePoint >= 0x20 && codePoint <= 0x7e;
-}
-
-function needsEscape(symbol, parentType) {
-  if (parentType === 'ClassRange' || parentType === 'CharacterClass') {
-    return (/[\]\\^-]/.test(symbol)
-    );
-  }
-
-  return (/[*[()+?^$./\\|{}]/.test(symbol)
-  );
-}
-},{}],215:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to remove unnecessary escape.
- *
- * \e -> e
- *
- * [\(] -> [(]
- */
-
-module.exports = {
-  _hasXFlag: false,
-  init: function init(ast) {
-    this._hasXFlag = ast.flags.includes('x');
-  },
-  Char: function Char(path) {
-    var node = path.node;
-
-
-    if (!node.escaped) {
-      return;
-    }
-
-    if (shouldUnescape(path, this._hasXFlag)) {
-      delete node.escaped;
-    }
-  }
-};
-
-function shouldUnescape(path, hasXFlag) {
-  var value = path.node.value,
-      index = path.index,
-      parent = path.parent;
-
-  // In char class (, etc are allowed.
-
-  if (parent.type !== 'CharacterClass' && parent.type !== 'ClassRange') {
-    return !preservesEscape(value, index, parent, hasXFlag);
-  }
-
-  return !preservesInCharClass(value, index, parent);
-}
-
-/**
- * \], \\, \^, \-
- */
-function preservesInCharClass(value, index, parent) {
-  if (value === '^') {
-    // Avoid [\^a] turning into [^a]
-    return index === 0 && !parent.negative;
-  }
-  if (value === '-') {
-    // Avoid [a\-z] turning into [a-z]
-    return index !== 0 && index !== parent.expressions.length - 1;
-  }
-  return (/[\]\\]/.test(value)
-  );
-}
-
-function preservesEscape(value, index, parent, hasXFlag) {
-  if (value === '{') {
-    return preservesOpeningCurlyBraceEscape(index, parent);
-  }
-
-  if (value === '}') {
-    return preservesClosingCurlyBraceEscape(index, parent);
-  }
-
-  if (hasXFlag && /[ #]/.test(value)) {
-    return true;
-  }
-
-  return (/[*[()+?^$./\\|]/.test(value)
-  );
-}
-
-function consumeNumbers(startIndex, parent, rtl) {
-  var i = startIndex;
-  var siblingNode = (rtl ? i >= 0 : i < parent.expressions.length) && parent.expressions[i];
-
-  while (siblingNode && siblingNode.type === 'Char' && siblingNode.kind === 'simple' && !siblingNode.escaped && /\d/.test(siblingNode.value)) {
-    rtl ? i-- : i++;
-    siblingNode = (rtl ? i >= 0 : i < parent.expressions.length) && parent.expressions[i];
-  }
-
-  return Math.abs(startIndex - i);
-}
-
-function isSimpleChar(node, value) {
-  return node && node.type === 'Char' && node.kind === 'simple' && !node.escaped && node.value === value;
-}
-
-function preservesOpeningCurlyBraceEscape(index, parent) {
-  var nbFollowingNumbers = consumeNumbers(index + 1, parent);
-  var i = index + nbFollowingNumbers + 1;
-  var nextSiblingNode = i < parent.expressions.length && parent.expressions[i];
-
-  if (nbFollowingNumbers) {
-
-    // Avoid \{3} turning into {3}
-    if (isSimpleChar(nextSiblingNode, '}')) {
-      return true;
-    }
-
-    if (isSimpleChar(nextSiblingNode, ',')) {
-
-      nbFollowingNumbers = consumeNumbers(i + 1, parent);
-      i = i + nbFollowingNumbers + 1;
-      nextSiblingNode = i < parent.expressions.length && parent.expressions[i];
-
-      // Avoid \{3,} turning into {3,}
-      return isSimpleChar(nextSiblingNode, '}');
-    }
-  }
-  return false;
-}
-
-function preservesClosingCurlyBraceEscape(index, parent) {
-  var nbPrecedingNumbers = consumeNumbers(index - 1, parent, true);
-  var i = index - nbPrecedingNumbers - 1;
-  var previousSiblingNode = i >= 0 && parent.expressions[i];
-
-  // Avoid {3\} turning into {3}
-  if (nbPrecedingNumbers && isSimpleChar(previousSiblingNode, '{')) {
-    return true;
-  }
-
-  if (isSimpleChar(previousSiblingNode, ',')) {
-
-    nbPrecedingNumbers = consumeNumbers(i - 1, parent, true);
-    i = i - nbPrecedingNumbers - 1;
-    previousSiblingNode = i < parent.expressions.length && parent.expressions[i];
-
-    // Avoid {3,\} turning into {3,}
-    return nbPrecedingNumbers && isSimpleChar(previousSiblingNode, '{');
-  }
-  return false;
-}
-},{}],216:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to transform surrogate pairs into single unicode code point
- *
- * \ud83d\ude80 -> \u{1f680}
- */
-
-module.exports = {
-  shouldRun: function shouldRun(ast) {
-    return ast.flags.includes('u');
-  },
-  Char: function Char(path) {
-    var node = path.node;
-
-    if (node.kind !== 'unicode' || !node.isSurrogatePair || isNaN(node.codePoint)) {
-      return;
-    }
-    node.value = '\\u{' + node.codePoint.toString(16) + '}';
-    delete node.isSurrogatePair;
-  }
-};
-},{}],217:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var NodePath = require('../../traverse/node-path');
-
-var _require = require('../../transform/utils'),
-    increaseQuantifierByOne = _require.increaseQuantifierByOne;
-
-/**
- * A regexp-tree plugin to combine repeating patterns.
- *
- * /^abcabcabc/ -> /^abc{3}/
- * /^(?:abc){2}abc/ -> /^(?:abc){3}/
- * /^abc(?:abc){2}/ -> /^(?:abc){3}/
- */
-
-module.exports = {
-  Alternative: function Alternative(path) {
-    var node = path.node;
-
-    // We can skip the first child
-
-    var index = 1;
-    while (index < node.expressions.length) {
-      var child = path.getChild(index);
-      index = Math.max(1, combineRepeatingPatternLeft(path, child, index));
-
-      if (index >= node.expressions.length) {
-        break;
-      }
-
-      child = path.getChild(index);
-      index = Math.max(1, combineWithPreviousRepetition(path, child, index));
-
-      if (index >= node.expressions.length) {
-        break;
-      }
-
-      child = path.getChild(index);
-      index = Math.max(1, combineRepetitionWithPrevious(path, child, index));
-
-      index++;
-    }
-  }
-};
-
-// abcabc -> (?:abc){2}
-function combineRepeatingPatternLeft(alternative, child, index) {
-  var node = alternative.node;
-
-
-  var nbPossibleLengths = Math.ceil(index / 2);
-  var i = 0;
-
-  while (i < nbPossibleLengths) {
-    var startIndex = index - 2 * i - 1;
-    var right = void 0,
-        left = void 0;
-
-    if (i === 0) {
-      right = child;
-      left = alternative.getChild(startIndex);
-    } else {
-      right = NodePath.getForNode({
-        type: 'Alternative',
-        expressions: [].concat(_toConsumableArray(node.expressions.slice(index - i, index)), [child.node])
-      });
-
-      left = NodePath.getForNode({
-        type: 'Alternative',
-        expressions: [].concat(_toConsumableArray(node.expressions.slice(startIndex, index - i)))
-      });
-    }
-
-    if (right.hasEqualSource(left)) {
-      for (var j = 0; j < 2 * i + 1; j++) {
-        alternative.getChild(startIndex).remove();
-      }
-
-      child.replace({
-        type: 'Repetition',
-        expression: i === 0 ? right.node : {
-          type: 'Group',
-          capturing: false,
-          expression: right.node
-        },
-        quantifier: {
-          type: 'Quantifier',
-          kind: 'Range',
-          from: 2,
-          to: 2,
-          greedy: true
-        }
-      });
-      return startIndex;
-    }
-
-    i++;
-  }
-
-  return index;
-}
-
-// (?:abc){2}abc -> (?:abc){3}
-function combineWithPreviousRepetition(alternative, child, index) {
-  var node = alternative.node;
-
-
-  var i = 0;
-  while (i < index) {
-    var previousChild = alternative.getChild(i);
-
-    if (previousChild.node.type === 'Repetition' && previousChild.node.quantifier.greedy) {
-      var left = previousChild.getChild();
-      var right = void 0;
-
-      if (left.node.type === 'Group' && !left.node.capturing) {
-        left = left.getChild();
-      }
-
-      if (i + 1 === index) {
-        right = child;
-        if (right.node.type === 'Group' && !right.node.capturing) {
-          right = right.getChild();
-        }
-      } else {
-        right = NodePath.getForNode({
-          type: 'Alternative',
-          expressions: [].concat(_toConsumableArray(node.expressions.slice(i + 1, index + 1)))
-        });
-      }
-
-      if (left.hasEqualSource(right)) {
-
-        for (var j = i; j < index; j++) {
-          alternative.getChild(i + 1).remove();
-        }
-
-        increaseQuantifierByOne(previousChild.node.quantifier);
-
-        return i;
-      }
-    }
-
-    i++;
-  }
-  return index;
-}
-
-// abc(?:abc){2} -> (?:abc){3}
-function combineRepetitionWithPrevious(alternative, child, index) {
-  var node = alternative.node;
-
-
-  if (child.node.type === 'Repetition' && child.node.quantifier.greedy) {
-    var right = child.getChild();
-    var left = void 0;
-
-    if (right.node.type === 'Group' && !right.node.capturing) {
-      right = right.getChild();
-    }
-
-    var rightLength = void 0;
-    if (right.node.type === 'Alternative') {
-      rightLength = right.node.expressions.length;
-      left = NodePath.getForNode({
-        type: 'Alternative',
-        expressions: [].concat(_toConsumableArray(node.expressions.slice(index - rightLength, index)))
-      });
-    } else {
-      rightLength = 1;
-      left = alternative.getChild(index - 1);
-      if (left.node.type === 'Group' && !left.node.capturing) {
-        left = left.getChild();
-      }
-    }
-
-    if (left.hasEqualSource(right)) {
-      for (var j = index - rightLength; j < index; j++) {
-        alternative.getChild(index - rightLength).remove();
-      }
-
-      increaseQuantifierByOne(child.node.quantifier);
-
-      return index - rightLength;
-    }
-  }
-  return index;
-}
-},{"../../transform/utils":230,"../../traverse/node-path":232}],218:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var NodePath = require('../../traverse/node-path');
-
-var _require = require('../../transform/utils'),
-    disjunctionToList = _require.disjunctionToList,
-    listToDisjunction = _require.listToDisjunction;
-
-/**
- * Removes duplicates from a disjunction sequence:
- *
- * /(ab|bc|ab)+(xy|xy)+/ -> /(ab|bc)+(xy)+/
- */
-
-
-module.exports = {
-  Disjunction: function Disjunction(path) {
-    var node = path.node;
-
-    // Make unique nodes.
-
-    var uniqueNodesMap = {};
-
-    var parts = disjunctionToList(node).filter(function (part) {
-      var encoded = part ? NodePath.getForNode(part).jsonEncode() : 'null';
-
-      // Already recorded this part, filter out.
-      if (uniqueNodesMap.hasOwnProperty(encoded)) {
-        return false;
-      }
-
-      uniqueNodesMap[encoded] = part;
-      return true;
-    });
-
-    // Replace with the optimized disjunction.
-    path.replace(listToDisjunction(parts));
-  }
-};
-},{"../../transform/utils":230,"../../traverse/node-path":232}],219:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to replace single char group disjunction to char group
- *
- * a|b|c -> [abc]
- * [12]|3|4 -> [1234]
- * (a|b|c) -> ([abc])
- * (?:a|b|c) -> [abc]
- */
-
-module.exports = {
-  Disjunction: function Disjunction(path) {
-    var node = path.node,
-        parent = path.parent;
-
-
-    if (!handlers[parent.type]) {
-      return;
-    }
-
-    var charset = new Map();
-
-    if (!shouldProcess(node, charset) || !charset.size) {
-      return;
-    }
-
-    var characterClass = {
-      type: 'CharacterClass',
-      expressions: Array.from(charset.keys()).sort().map(function (key) {
-        return charset.get(key);
-      })
-    };
-
-    handlers[parent.type](path.getParent(), characterClass);
-  }
-};
-
-var handlers = {
-  RegExp: function RegExp(path, characterClass) {
-    var node = path.node;
-
-
-    node.body = characterClass;
-  },
-  Group: function Group(path, characterClass) {
-    var node = path.node;
-
-
-    if (node.capturing) {
-      node.expression = characterClass;
-    } else {
-      path.replace(characterClass);
-    }
-  }
-};
-
-function shouldProcess(expression, charset) {
-  if (!expression) {
-    // Abort on empty disjunction part
-    return false;
-  }
-
-  var type = expression.type;
-
-
-  if (type === 'Disjunction') {
-    var left = expression.left,
-        right = expression.right;
-
-
-    return shouldProcess(left, charset) && shouldProcess(right, charset);
-  } else if (type === 'Char') {
-    var value = expression.value;
-
-
-    charset.set(value, expression);
-
-    return true;
-  } else if (type === 'CharacterClass') {
-    return expression.expressions.every(function (expression) {
-      return shouldProcess(expression, charset);
-    });
-  }
-
-  return false;
-}
-},{}],220:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-module.exports = {
-  // \ud83d\ude80 -> \u{1f680}
-  'charSurrogatePairToSingleUnicode': require('./char-surrogate-pair-to-single-unicode-transform'),
-
-  // \u0061 -> a
-  'charCodeToSimpleChar': require('./char-code-to-simple-char-transform'),
-
-  // /Aa/i -> /aa/i
-  'charCaseInsensitiveLowerCaseTransform': require('./char-case-insensitive-lowercase-transform'),
-
-  // [\d\d] -> [\d]
-  'charClassRemoveDuplicates': require('./char-class-remove-duplicates-transform'),
-
-  // a{1,2}a{2,3} -> a{3,5}
-  'quantifiersMerge': require('./quantifiers-merge-transform'),
-
-  // a{1,} -> a+, a{3,3} -> a{3}, a{1} -> a
-  'quantifierRangeToSymbol': require('./quantifier-range-to-symbol-transform'),
-
-  // [a-a] -> [a], [a-b] -> [ab]
-  'charClassClassrangesToChars': require('./char-class-classranges-to-chars-transform'),
-
-  // [a-de-f] -> [a-f]
-  'charClassClassrangesMerge': require('./char-class-classranges-merge-transform'),
-
-  // [0-9] -> [\d]
-  'charClassToMeta': require('./char-class-to-meta-transform'),
-
-  // [\d] -> \d, [^\w] -> \W
-  'charClassToSingleChar': require('./char-class-to-single-char-transform'),
-
-  // \e -> e
-  'charEscapeUnescape': require('./char-escape-unescape-transform'),
-
-  // (ab|ab) -> (ab)
-  'disjunctionRemoveDuplicates': require('./disjunction-remove-duplicates-transform'),
-
-  // (a|b|c) -> [abc]
-  'groupSingleCharsToCharClass': require('./group-single-chars-to-char-class'),
-
-  // (?:)a -> a
-  'removeEmptyGroup': require('./remove-empty-group-transform'),
-
-  // (?:a) -> a
-  'ungroup': require('./ungroup-transform'),
-
-  // abcabcabc -> (?:abc){3}
-  'combineRepeatingPatterns': require('./combine-repeating-patterns-transform')
-};
-},{"./char-case-insensitive-lowercase-transform":208,"./char-class-classranges-merge-transform":209,"./char-class-classranges-to-chars-transform":210,"./char-class-remove-duplicates-transform":211,"./char-class-to-meta-transform":212,"./char-class-to-single-char-transform":213,"./char-code-to-simple-char-transform":214,"./char-escape-unescape-transform":215,"./char-surrogate-pair-to-single-unicode-transform":216,"./combine-repeating-patterns-transform":217,"./disjunction-remove-duplicates-transform":218,"./group-single-chars-to-char-class":219,"./quantifier-range-to-symbol-transform":221,"./quantifiers-merge-transform":222,"./remove-empty-group-transform":223,"./ungroup-transform":224}],221:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to replace different range-based quantifiers
- * with their symbol equivalents.
- *
- * a{0,} -> a*
- * a{1,} -> a+
- * a{1} -> a
- *
- * NOTE: the following is automatically handled in the generator:
- *
- * a{3,3} -> a{3}
- */
-
-module.exports = {
-  Quantifier: function Quantifier(path) {
-    var node = path.node;
-
-
-    if (node.kind !== 'Range') {
-      return;
-    }
-
-    // a{0,} -> a*
-    rewriteOpenZero(path);
-
-    // a{1,} -> a+
-    rewriteOpenOne(path);
-
-    // a{1} -> a
-    rewriteExactOne(path);
-  }
-};
-
-function rewriteOpenZero(path) {
-  var node = path.node;
-
-
-  if (node.from !== 0 || node.to) {
-    return;
-  }
-
-  node.kind = '*';
-  delete node.from;
-}
-
-function rewriteOpenOne(path) {
-  var node = path.node;
-
-
-  if (node.from !== 1 || node.to) {
-    return;
-  }
-
-  node.kind = '+';
-  delete node.from;
-}
-
-function rewriteExactOne(path) {
-  var node = path.node;
-
-
-  if (node.from !== 1 || node.to !== 1) {
-    return;
-  }
-
-  path.parentPath.replace(path.parentPath.node.expression);
-}
-},{}],222:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var _require = require('../../transform/utils'),
-    increaseQuantifierByOne = _require.increaseQuantifierByOne;
-
-/**
- * A regexp-tree plugin to merge quantifiers
- *
- * a+a+ -> a{2,}
- * a{2}a{3} -> a{5}
- * a{1,2}a{2,3} -> a{3,5}
- */
-
-
-module.exports = {
-  Repetition: function Repetition(path) {
-    var node = path.node,
-        parent = path.parent;
-
-
-    if (parent.type !== 'Alternative' || !path.index) {
-      return;
-    }
-
-    var previousSibling = path.getPreviousSibling();
-
-    if (!previousSibling) {
-      return;
-    }
-
-    if (previousSibling.node.type === 'Repetition') {
-      if (!previousSibling.getChild().hasEqualSource(path.getChild())) {
-        return;
-      }
-
-      var _extractFromTo = extractFromTo(previousSibling.node.quantifier),
-          previousSiblingFrom = _extractFromTo.from,
-          previousSiblingTo = _extractFromTo.to;
-
-      var _extractFromTo2 = extractFromTo(node.quantifier),
-          nodeFrom = _extractFromTo2.from,
-          nodeTo = _extractFromTo2.to;
-
-      // It's does not seem reliable to merge quantifiers with different greediness
-      // when none of both is a greedy open range
-
-
-      if (previousSibling.node.quantifier.greedy !== node.quantifier.greedy && !isGreedyOpenRange(previousSibling.node.quantifier) && !isGreedyOpenRange(node.quantifier)) {
-        return;
-      }
-
-      // a*a* -> a*
-      // a*a+ -> a+
-      // a+a+ -> a{2,}
-      // a{2}a{4} -> a{6}
-      // a{1,2}a{2,3} -> a{3,5}
-      // a{1,}a{2,} -> a{3,}
-      // a+a{2,} -> a{3,}
-
-      // a??a{2,} -> a{2,}
-      // a*?a{2,} -> a{2,}
-      // a+?a{2,} -> a{3,}
-
-      node.quantifier.kind = 'Range';
-      node.quantifier.from = previousSiblingFrom + nodeFrom;
-      if (previousSiblingTo && nodeTo) {
-        node.quantifier.to = previousSiblingTo + nodeTo;
-      } else {
-        delete node.quantifier.to;
-      }
-      if (isGreedyOpenRange(previousSibling.node.quantifier) || isGreedyOpenRange(node.quantifier)) {
-        node.quantifier.greedy = true;
-      }
-
-      previousSibling.remove();
-    } else {
-      if (!previousSibling.hasEqualSource(path.getChild())) {
-        return;
-      }
-
-      increaseQuantifierByOne(node.quantifier);
-      previousSibling.remove();
-    }
-  }
-};
-
-function isGreedyOpenRange(quantifier) {
-  return quantifier.greedy && (quantifier.kind === '+' || quantifier.kind === '*' || quantifier.kind === 'Range' && !quantifier.to);
-}
-
-function extractFromTo(quantifier) {
-  var from = void 0,
-      to = void 0;
-  if (quantifier.kind === '*') {
-    from = 0;
-  } else if (quantifier.kind === '+') {
-    from = 1;
-  } else if (quantifier.kind === '?') {
-    from = 0;
-    to = 1;
-  } else {
-    from = quantifier.from;
-    if (quantifier.to) {
-      to = quantifier.to;
-    }
-  }
-  return { from: from, to: to };
-}
-},{"../../transform/utils":230}],223:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to remove non-capturing empty groups.
- *
- * /(?:)a/ -> /a/
- * /a|(?:)/ -> /a|/
- */
-
-module.exports = {
-  Group: function Group(path) {
-    var node = path.node,
-        parent = path.parent;
-
-    var childPath = path.getChild();
-
-    if (node.capturing || childPath) {
-      return;
-    }
-
-    if (parent.type === 'Repetition') {
-
-      path.getParent().replace(node);
-    } else if (parent.type !== 'RegExp') {
-
-      path.remove();
-    }
-  }
-};
-},{}],224:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * A regexp-tree plugin to remove unnecessary groups.
- *
- * /(?:a)/ -> /a/
- */
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-module.exports = {
-  Group: function Group(path) {
-    var node = path.node,
-        parent = path.parent;
-
-    var childPath = path.getChild();
-
-    if (node.capturing || !childPath) {
-      return;
-    }
-
-    // Don't optimize /a(?:b|c)/ to /ab|c/
-    // but /(?:b|c)/ to /b|c/ is ok
-    if (childPath.node.type === 'Disjunction' && parent.type !== 'RegExp') {
-      return;
-    }
-
-    // Don't optimize /(?:ab)+/ to /ab+/
-    // but /(?:a)+/ to /a+/ is ok
-    // and /(?:[a-d])+/ to /[a-d]+/ is ok too
-    if (parent.type === 'Repetition' && childPath.node.type !== 'Char' && childPath.node.type !== 'CharacterClass') {
-      return;
-    }
-
-    if (childPath.node.type === 'Alternative') {
-      var parentPath = path.getParent();
-      if (parentPath.node.type === 'Alternative') {
-
-        // /abc(?:def)ghi/ When (?:def) is ungrouped its content must be merged with parent alternative
-
-        parentPath.replace({
-          type: 'Alternative',
-          expressions: [].concat(_toConsumableArray(parent.expressions.slice(0, path.index)), _toConsumableArray(childPath.node.expressions), _toConsumableArray(parent.expressions.slice(path.index + 1)))
-        });
-      }
-    } else {
-      path.replace(childPath.node);
-    }
-  }
-};
-},{}],225:[function(require,module,exports){
-/**
- * LR parser generated by the Syntax tool.
- *
- * https://www.npmjs.com/package/syntax-cli
- *
- *   npm install -g syntax-cli
- *
- *   syntax-cli --help
- *
- * To regenerate run:
- *
- *   syntax-cli \
- *     --grammar ~/path-to-grammar-file \
- *     --mode <parsing-mode> \
- *     --output ~/path-to-output-parser-file.js
- */
-
-'use strict';
-
-/**
- * Matched token text.
- */
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var yytext = void 0;
-
-/**
- * Length of the matched token text.
- */
-var yyleng = void 0;
-
-/**
- * Storage object.
- */
-var yy = {};
-
-/**
- * Result of semantic action.
- */
-var __ = void 0;
-
-/**
- * Result location object.
- */
-var __loc = void 0;
-
-function yyloc(start, end) {
-  if (!yy.options.captureLocations) {
-    return null;
-  }
-
-  // Epsilon doesn't produce location.
-  if (!start || !end) {
-    return start || end;
-  }
-
-  return {
-    startOffset: start.startOffset,
-    endOffset: end.endOffset,
-    startLine: start.startLine,
-    endLine: end.endLine,
-    startColumn: start.startColumn,
-    endColumn: end.endColumn
-  };
-}
-
-var EOF = '$';
-
-/**
- * List of productions (generated by Syntax tool).
- */
-var productions = [[-1, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [0, 4, function (_1, _2, _3, _4, _1loc, _2loc, _3loc, _4loc) {
-  __loc = yyloc(_1loc, _4loc);
-  __ = Node({
-    type: 'RegExp',
-    body: _2,
-    flags: checkFlags(_4)
-  }, loc(_1loc, _4loc || _3loc));
-}], [1, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [1, 0, function () {
-  __loc = null;__ = '';
-}], [2, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [2, 2, function (_1, _2, _1loc, _2loc) {
-  __loc = yyloc(_1loc, _2loc);__ = _1 + _2;
-}], [3, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [4, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [4, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  // Location for empty disjunction: /|/
-  var _loc = null;
-
-  if (_2loc) {
-    _loc = loc(_1loc || _2loc, _3loc || _2loc);
-  };
-
-  __ = Node({
-    type: 'Disjunction',
-    left: _1,
-    right: _3
-  }, _loc);
-}], [5, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);
-  if (_1.length === 0) {
-    __ = null;
-    return;
-  }
-
-  if (_1.length === 1) {
-    __ = Node(_1[0], __loc);
-  } else {
-    __ = Node({
-      type: 'Alternative',
-      expressions: _1
-    }, __loc);
-  }
-}], [6, 0, function () {
-  __loc = null;__ = [];
-}], [6, 2, function (_1, _2, _1loc, _2loc) {
-  __loc = yyloc(_1loc, _2loc);__ = _1.concat(_2);
-}], [7, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Node(Object.assign({ type: 'Assertion' }, _1), __loc);
-}], [7, 2, function (_1, _2, _1loc, _2loc) {
-  __loc = yyloc(_1loc, _2loc);
-  __ = _1;
-
-  if (_2) {
-    __ = Node({
-      type: 'Repetition',
-      expression: _1,
-      quantifier: _2
-    }, __loc);
-  }
-}], [8, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = { kind: '^' };
-}], [8, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = { kind: '$' };
-}], [8, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = { kind: '\\b' };
-}], [8, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = { kind: '\\B' };
-}], [8, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = {
-    kind: 'Lookahead',
-    assertion: _2
-  };
-}], [8, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = {
-    kind: 'Lookahead',
-    negative: true,
-    assertion: _2
-  };
-}], [8, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = {
-    kind: 'Lookbehind',
-    assertion: _2
-  };
-}], [8, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = {
-    kind: 'Lookbehind',
-    negative: true,
-    assertion: _2
-  };
-}], [9, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [9, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [9, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'simple', __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1.slice(1), 'simple', __loc);__.escaped = true;
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'unicode', __loc);__.isSurrogatePair = true;
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'unicode', __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = UnicodeProperty(_1, __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'control', __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'hex', __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'oct', __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = GroupRefOrDecChar(_1, __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'meta', __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'meta', __loc);
-}], [10, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = NamedGroupRefOrChars(_1, _1loc);
-}], [11, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [11, 0], [12, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [12, 2, function (_1, _2, _1loc, _2loc) {
-  __loc = yyloc(_1loc, _2loc);
-  _1.greedy = false;
-  __ = _1;
-}], [13, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);
-  __ = Node({
-    type: 'Quantifier',
-    kind: _1,
-    greedy: true
-  }, __loc);
-}], [13, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);
-  __ = Node({
-    type: 'Quantifier',
-    kind: _1,
-    greedy: true
-  }, __loc);
-}], [13, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);
-  __ = Node({
-    type: 'Quantifier',
-    kind: _1,
-    greedy: true
-  }, __loc);
-}], [13, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);
-  var range = getRange(_1);
-  __ = Node({
-    type: 'Quantifier',
-    kind: 'Range',
-    from: range[0],
-    to: range[0],
-    greedy: true
-  }, __loc);
-}], [13, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);
-  __ = Node({
-    type: 'Quantifier',
-    kind: 'Range',
-    from: getRange(_1)[0],
-    greedy: true
-  }, __loc);
-}], [13, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);
-  var range = getRange(_1);
-  __ = Node({
-    type: 'Quantifier',
-    kind: 'Range',
-    from: range[0],
-    to: range[1],
-    greedy: true
-  }, __loc);
-}], [14, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [14, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [15, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  if (namedGroups.hasOwnProperty(_1)) {
-    throw new SyntaxError('Duplicate of the named group "' + _1 + '".');
-  }
-
-  var name = String(_1);
-
-  namedGroups[name] = _1.groupNumber;
-
-  __ = Node({
-    type: 'Group',
-    capturing: true,
-    name: name,
-    number: _1.groupNumber,
-    expression: _2
-  }, __loc);
-}], [15, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = Node({
-    type: 'Group',
-    capturing: true,
-    number: _1.groupNumber,
-    expression: _2
-  }, __loc);
-}], [16, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = Node({
-    type: 'Group',
-    capturing: false,
-    expression: _2
-  }, __loc);
-}], [17, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = Node({
-    type: 'CharacterClass',
-    negative: true,
-    expressions: _2
-  }, __loc);
-}], [17, 3, function (_1, _2, _3, _1loc, _2loc, _3loc) {
-  __loc = yyloc(_1loc, _3loc);
-  __ = Node({
-    type: 'CharacterClass',
-    expressions: _2
-  }, __loc);
-}], [18, 0, function () {
-  __loc = null;__ = [];
-}], [18, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [19, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = [_1];
-}], [19, 2, function (_1, _2, _1loc, _2loc) {
-  __loc = yyloc(_1loc, _2loc);__ = [_1].concat(_2);
-}], [19, 4, function (_1, _2, _3, _4, _1loc, _2loc, _3loc, _4loc) {
-  __loc = yyloc(_1loc, _4loc);
-  checkClassRange(_1, _3);
-
-  __ = [Node({
-    type: 'ClassRange',
-    from: _1,
-    to: _3
-  }, loc(_1loc, _3loc))];
-
-  if (_4) {
-    __ = __.concat(_4);
-  }
-}], [20, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [20, 2, function (_1, _2, _1loc, _2loc) {
-  __loc = yyloc(_1loc, _2loc);__ = [_1].concat(_2);
-}], [20, 4, function (_1, _2, _3, _4, _1loc, _2loc, _3loc, _4loc) {
-  __loc = yyloc(_1loc, _4loc);
-  checkClassRange(_1, _3);
-
-  __ = [Node({
-    type: 'ClassRange',
-    from: _1,
-    to: _3
-  }, loc(_1loc, _3loc))];
-
-  if (_4) {
-    __ = __.concat(_4);
-  }
-}], [21, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'simple', __loc);
-}], [21, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [22, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = _1;
-}], [22, 1, function (_1, _1loc) {
-  __loc = yyloc(_1loc, _1loc);__ = Char(_1, 'meta', __loc);
-}]];
-
-/**
- * Encoded tokens map.
- */
-var tokens = { "SLASH": "23", "CHAR": "24", "BAR": "25", "BOS": "26", "EOS": "27", "ESC_b": "28", "ESC_B": "29", "POS_LA_ASSERT": "30", "R_PAREN": "31", "NEG_LA_ASSERT": "32", "POS_LB_ASSERT": "33", "NEG_LB_ASSERT": "34", "ESC_CHAR": "35", "U_CODE_SURROGATE": "36", "U_CODE": "37", "U_PROP_VALUE_EXP": "38", "CTRL_CH": "39", "HEX_CODE": "40", "OCT_CODE": "41", "DEC_CODE": "42", "META_CHAR": "43", "ANY": "44", "NAMED_GROUP_REF": "45", "Q_MARK": "46", "STAR": "47", "PLUS": "48", "RANGE_EXACT": "49", "RANGE_OPEN": "50", "RANGE_CLOSED": "51", "NAMED_CAPTURE_GROUP": "52", "L_PAREN": "53", "NON_CAPTURE_GROUP": "54", "NEG_CLASS": "55", "R_BRACKET": "56", "L_BRACKET": "57", "DASH": "58", "$": "59" };
-
-/**
- * Parsing table (generated by Syntax tool).
- */
-var table = [{ "0": 1, "23": "s2" }, { "59": "acc" }, { "3": 3, "4": 4, "5": 5, "6": 6, "23": "r10", "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "23": "s7" }, { "23": "r6", "25": "s12" }, { "23": "r7", "25": "r7", "31": "r7" }, { "7": 14, "8": 15, "9": 16, "10": 25, "14": 27, "15": 42, "16": 43, "17": 26, "23": "r9", "24": "s28", "25": "r9", "26": "s17", "27": "s18", "28": "s19", "29": "s20", "30": "s21", "31": "r9", "32": "s22", "33": "s23", "34": "s24", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "52": "s44", "53": "s45", "54": "s46", "55": "s40", "57": "s41" }, { "1": 8, "2": 9, "24": "s10", "59": "r3" }, { "59": "r1" }, { "24": "s11", "59": "r2" }, { "24": "r4", "59": "r4" }, { "24": "r5", "59": "r5" }, { "5": 13, "6": 6, "23": "r10", "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "23": "r8", "25": "r8", "31": "r8" }, { "23": "r11", "24": "r11", "25": "r11", "26": "r11", "27": "r11", "28": "r11", "29": "r11", "30": "r11", "31": "r11", "32": "r11", "33": "r11", "34": "r11", "35": "r11", "36": "r11", "37": "r11", "38": "r11", "39": "r11", "40": "r11", "41": "r11", "42": "r11", "43": "r11", "44": "r11", "45": "r11", "52": "r11", "53": "r11", "54": "r11", "55": "r11", "57": "r11" }, { "23": "r12", "24": "r12", "25": "r12", "26": "r12", "27": "r12", "28": "r12", "29": "r12", "30": "r12", "31": "r12", "32": "r12", "33": "r12", "34": "r12", "35": "r12", "36": "r12", "37": "r12", "38": "r12", "39": "r12", "40": "r12", "41": "r12", "42": "r12", "43": "r12", "44": "r12", "45": "r12", "52": "r12", "53": "r12", "54": "r12", "55": "r12", "57": "r12" }, { "11": 47, "12": 48, "13": 49, "23": "r38", "24": "r38", "25": "r38", "26": "r38", "27": "r38", "28": "r38", "29": "r38", "30": "r38", "31": "r38", "32": "r38", "33": "r38", "34": "r38", "35": "r38", "36": "r38", "37": "r38", "38": "r38", "39": "r38", "40": "r38", "41": "r38", "42": "r38", "43": "r38", "44": "r38", "45": "r38", "46": "s52", "47": "s50", "48": "s51", "49": "s53", "50": "s54", "51": "s55", "52": "r38", "53": "r38", "54": "r38", "55": "r38", "57": "r38" }, { "23": "r14", "24": "r14", "25": "r14", "26": "r14", "27": "r14", "28": "r14", "29": "r14", "30": "r14", "31": "r14", "32": "r14", "33": "r14", "34": "r14", "35": "r14", "36": "r14", "37": "r14", "38": "r14", "39": "r14", "40": "r14", "41": "r14", "42": "r14", "43": "r14", "44": "r14", "45": "r14", "52": "r14", "53": "r14", "54": "r14", "55": "r14", "57": "r14" }, { "23": "r15", "24": "r15", "25": "r15", "26": "r15", "27": "r15", "28": "r15", "29": "r15", "30": "r15", "31": "r15", "32": "r15", "33": "r15", "34": "r15", "35": "r15", "36": "r15", "37": "r15", "38": "r15", "39": "r15", "40": "r15", "41": "r15", "42": "r15", "43": "r15", "44": "r15", "45": "r15", "52": "r15", "53": "r15", "54": "r15", "55": "r15", "57": "r15" }, { "23": "r16", "24": "r16", "25": "r16", "26": "r16", "27": "r16", "28": "r16", "29": "r16", "30": "r16", "31": "r16", "32": "r16", "33": "r16", "34": "r16", "35": "r16", "36": "r16", "37": "r16", "38": "r16", "39": "r16", "40": "r16", "41": "r16", "42": "r16", "43": "r16", "44": "r16", "45": "r16", "52": "r16", "53": "r16", "54": "r16", "55": "r16", "57": "r16" }, { "23": "r17", "24": "r17", "25": "r17", "26": "r17", "27": "r17", "28": "r17", "29": "r17", "30": "r17", "31": "r17", "32": "r17", "33": "r17", "34": "r17", "35": "r17", "36": "r17", "37": "r17", "38": "r17", "39": "r17", "40": "r17", "41": "r17", "42": "r17", "43": "r17", "44": "r17", "45": "r17", "52": "r17", "53": "r17", "54": "r17", "55": "r17", "57": "r17" }, { "4": 57, "5": 5, "6": 6, "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "4": 59, "5": 5, "6": 6, "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "4": 61, "5": 5, "6": 6, "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "4": 63, "5": 5, "6": 6, "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "23": "r22", "24": "r22", "25": "r22", "26": "r22", "27": "r22", "28": "r22", "29": "r22", "30": "r22", "31": "r22", "32": "r22", "33": "r22", "34": "r22", "35": "r22", "36": "r22", "37": "r22", "38": "r22", "39": "r22", "40": "r22", "41": "r22", "42": "r22", "43": "r22", "44": "r22", "45": "r22", "46": "r22", "47": "r22", "48": "r22", "49": "r22", "50": "r22", "51": "r22", "52": "r22", "53": "r22", "54": "r22", "55": "r22", "57": "r22" }, { "23": "r23", "24": "r23", "25": "r23", "26": "r23", "27": "r23", "28": "r23", "29": "r23", "30": "r23", "31": "r23", "32": "r23", "33": "r23", "34": "r23", "35": "r23", "36": "r23", "37": "r23", "38": "r23", "39": "r23", "40": "r23", "41": "r23", "42": "r23", "43": "r23", "44": "r23", "45": "r23", "46": "r23", "47": "r23", "48": "r23", "49": "r23", "50": "r23", "51": "r23", "52": "r23", "53": "r23", "54": "r23", "55": "r23", "57": "r23" }, { "23": "r24", "24": "r24", "25": "r24", "26": "r24", "27": "r24", "28": "r24", "29": "r24", "30": "r24", "31": "r24", "32": "r24", "33": "r24", "34": "r24", "35": "r24", "36": "r24", "37": "r24", "38": "r24", "39": "r24", "40": "r24", "41": "r24", "42": "r24", "43": "r24", "44": "r24", "45": "r24", "46": "r24", "47": "r24", "48": "r24", "49": "r24", "50": "r24", "51": "r24", "52": "r24", "53": "r24", "54": "r24", "55": "r24", "57": "r24" }, { "23": "r25", "24": "r25", "25": "r25", "26": "r25", "27": "r25", "28": "r25", "29": "r25", "30": "r25", "31": "r25", "32": "r25", "33": "r25", "34": "r25", "35": "r25", "36": "r25", "37": "r25", "38": "r25", "39": "r25", "40": "r25", "41": "r25", "42": "r25", "43": "r25", "44": "r25", "45": "r25", "46": "r25", "47": "r25", "48": "r25", "49": "r25", "50": "r25", "51": "r25", "52": "r25", "53": "r25", "54": "r25", "55": "r25", "56": "r25", "57": "r25", "58": "r25" }, { "23": "r26", "24": "r26", "25": "r26", "26": "r26", "27": "r26", "28": "r26", "29": "r26", "30": "r26", "31": "r26", "32": "r26", "33": "r26", "34": "r26", "35": "r26", "36": "r26", "37": "r26", "38": "r26", "39": "r26", "40": "r26", "41": "r26", "42": "r26", "43": "r26", "44": "r26", "45": "r26", "46": "r26", "47": "r26", "48": "r26", "49": "r26", "50": "r26", "51": "r26", "52": "r26", "53": "r26", "54": "r26", "55": "r26", "56": "r26", "57": "r26", "58": "r26" }, { "23": "r27", "24": "r27", "25": "r27", "26": "r27", "27": "r27", "28": "r27", "29": "r27", "30": "r27", "31": "r27", "32": "r27", "33": "r27", "34": "r27", "35": "r27", "36": "r27", "37": "r27", "38": "r27", "39": "r27", "40": "r27", "41": "r27", "42": "r27", "43": "r27", "44": "r27", "45": "r27", "46": "r27", "47": "r27", "48": "r27", "49": "r27", "50": "r27", "51": "r27", "52": "r27", "53": "r27", "54": "r27", "55": "r27", "56": "r27", "57": "r27", "58": "r27" }, { "23": "r28", "24": "r28", "25": "r28", "26": "r28", "27": "r28", "28": "r28", "29": "r28", "30": "r28", "31": "r28", "32": "r28", "33": "r28", "34": "r28", "35": "r28", "36": "r28", "37": "r28", "38": "r28", "39": "r28", "40": "r28", "41": "r28", "42": "r28", "43": "r28", "44": "r28", "45": "r28", "46": "r28", "47": "r28", "48": "r28", "49": "r28", "50": "r28", "51": "r28", "52": "r28", "53": "r28", "54": "r28", "55": "r28", "56": "r28", "57": "r28", "58": "r28" }, { "23": "r29", "24": "r29", "25": "r29", "26": "r29", "27": "r29", "28": "r29", "29": "r29", "30": "r29", "31": "r29", "32": "r29", "33": "r29", "34": "r29", "35": "r29", "36": "r29", "37": "r29", "38": "r29", "39": "r29", "40": "r29", "41": "r29", "42": "r29", "43": "r29", "44": "r29", "45": "r29", "46": "r29", "47": "r29", "48": "r29", "49": "r29", "50": "r29", "51": "r29", "52": "r29", "53": "r29", "54": "r29", "55": "r29", "56": "r29", "57": "r29", "58": "r29" }, { "23": "r30", "24": "r30", "25": "r30", "26": "r30", "27": "r30", "28": "r30", "29": "r30", "30": "r30", "31": "r30", "32": "r30", "33": "r30", "34": "r30", "35": "r30", "36": "r30", "37": "r30", "38": "r30", "39": "r30", "40": "r30", "41": "r30", "42": "r30", "43": "r30", "44": "r30", "45": "r30", "46": "r30", "47": "r30", "48": "r30", "49": "r30", "50": "r30", "51": "r30", "52": "r30", "53": "r30", "54": "r30", "55": "r30", "56": "r30", "57": "r30", "58": "r30" }, { "23": "r31", "24": "r31", "25": "r31", "26": "r31", "27": "r31", "28": "r31", "29": "r31", "30": "r31", "31": "r31", "32": "r31", "33": "r31", "34": "r31", "35": "r31", "36": "r31", "37": "r31", "38": "r31", "39": "r31", "40": "r31", "41": "r31", "42": "r31", "43": "r31", "44": "r31", "45": "r31", "46": "r31", "47": "r31", "48": "r31", "49": "r31", "50": "r31", "51": "r31", "52": "r31", "53": "r31", "54": "r31", "55": "r31", "56": "r31", "57": "r31", "58": "r31" }, { "23": "r32", "24": "r32", "25": "r32", "26": "r32", "27": "r32", "28": "r32", "29": "r32", "30": "r32", "31": "r32", "32": "r32", "33": "r32", "34": "r32", "35": "r32", "36": "r32", "37": "r32", "38": "r32", "39": "r32", "40": "r32", "41": "r32", "42": "r32", "43": "r32", "44": "r32", "45": "r32", "46": "r32", "47": "r32", "48": "r32", "49": "r32", "50": "r32", "51": "r32", "52": "r32", "53": "r32", "54": "r32", "55": "r32", "56": "r32", "57": "r32", "58": "r32" }, { "23": "r33", "24": "r33", "25": "r33", "26": "r33", "27": "r33", "28": "r33", "29": "r33", "30": "r33", "31": "r33", "32": "r33", "33": "r33", "34": "r33", "35": "r33", "36": "r33", "37": "r33", "38": "r33", "39": "r33", "40": "r33", "41": "r33", "42": "r33", "43": "r33", "44": "r33", "45": "r33", "46": "r33", "47": "r33", "48": "r33", "49": "r33", "50": "r33", "51": "r33", "52": "r33", "53": "r33", "54": "r33", "55": "r33", "56": "r33", "57": "r33", "58": "r33" }, { "23": "r34", "24": "r34", "25": "r34", "26": "r34", "27": "r34", "28": "r34", "29": "r34", "30": "r34", "31": "r34", "32": "r34", "33": "r34", "34": "r34", "35": "r34", "36": "r34", "37": "r34", "38": "r34", "39": "r34", "40": "r34", "41": "r34", "42": "r34", "43": "r34", "44": "r34", "45": "r34", "46": "r34", "47": "r34", "48": "r34", "49": "r34", "50": "r34", "51": "r34", "52": "r34", "53": "r34", "54": "r34", "55": "r34", "56": "r34", "57": "r34", "58": "r34" }, { "23": "r35", "24": "r35", "25": "r35", "26": "r35", "27": "r35", "28": "r35", "29": "r35", "30": "r35", "31": "r35", "32": "r35", "33": "r35", "34": "r35", "35": "r35", "36": "r35", "37": "r35", "38": "r35", "39": "r35", "40": "r35", "41": "r35", "42": "r35", "43": "r35", "44": "r35", "45": "r35", "46": "r35", "47": "r35", "48": "r35", "49": "r35", "50": "r35", "51": "r35", "52": "r35", "53": "r35", "54": "r35", "55": "r35", "56": "r35", "57": "r35", "58": "r35" }, { "23": "r36", "24": "r36", "25": "r36", "26": "r36", "27": "r36", "28": "r36", "29": "r36", "30": "r36", "31": "r36", "32": "r36", "33": "r36", "34": "r36", "35": "r36", "36": "r36", "37": "r36", "38": "r36", "39": "r36", "40": "r36", "41": "r36", "42": "r36", "43": "r36", "44": "r36", "45": "r36", "46": "r36", "47": "r36", "48": "r36", "49": "r36", "50": "r36", "51": "r36", "52": "r36", "53": "r36", "54": "r36", "55": "r36", "56": "r36", "57": "r36", "58": "r36" }, { "10": 70, "18": 65, "19": 66, "21": 67, "22": 69, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r54", "58": "s68" }, { "10": 70, "18": 83, "19": 66, "21": 67, "22": 69, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r54", "58": "s68" }, { "23": "r47", "24": "r47", "25": "r47", "26": "r47", "27": "r47", "28": "r47", "29": "r47", "30": "r47", "31": "r47", "32": "r47", "33": "r47", "34": "r47", "35": "r47", "36": "r47", "37": "r47", "38": "r47", "39": "r47", "40": "r47", "41": "r47", "42": "r47", "43": "r47", "44": "r47", "45": "r47", "46": "r47", "47": "r47", "48": "r47", "49": "r47", "50": "r47", "51": "r47", "52": "r47", "53": "r47", "54": "r47", "55": "r47", "57": "r47" }, { "23": "r48", "24": "r48", "25": "r48", "26": "r48", "27": "r48", "28": "r48", "29": "r48", "30": "r48", "31": "r48", "32": "r48", "33": "r48", "34": "r48", "35": "r48", "36": "r48", "37": "r48", "38": "r48", "39": "r48", "40": "r48", "41": "r48", "42": "r48", "43": "r48", "44": "r48", "45": "r48", "46": "r48", "47": "r48", "48": "r48", "49": "r48", "50": "r48", "51": "r48", "52": "r48", "53": "r48", "54": "r48", "55": "r48", "57": "r48" }, { "4": 85, "5": 5, "6": 6, "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "4": 87, "5": 5, "6": 6, "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "4": 89, "5": 5, "6": 6, "24": "r10", "25": "r10", "26": "r10", "27": "r10", "28": "r10", "29": "r10", "30": "r10", "31": "r10", "32": "r10", "33": "r10", "34": "r10", "35": "r10", "36": "r10", "37": "r10", "38": "r10", "39": "r10", "40": "r10", "41": "r10", "42": "r10", "43": "r10", "44": "r10", "45": "r10", "52": "r10", "53": "r10", "54": "r10", "55": "r10", "57": "r10" }, { "23": "r13", "24": "r13", "25": "r13", "26": "r13", "27": "r13", "28": "r13", "29": "r13", "30": "r13", "31": "r13", "32": "r13", "33": "r13", "34": "r13", "35": "r13", "36": "r13", "37": "r13", "38": "r13", "39": "r13", "40": "r13", "41": "r13", "42": "r13", "43": "r13", "44": "r13", "45": "r13", "52": "r13", "53": "r13", "54": "r13", "55": "r13", "57": "r13" }, { "23": "r37", "24": "r37", "25": "r37", "26": "r37", "27": "r37", "28": "r37", "29": "r37", "30": "r37", "31": "r37", "32": "r37", "33": "r37", "34": "r37", "35": "r37", "36": "r37", "37": "r37", "38": "r37", "39": "r37", "40": "r37", "41": "r37", "42": "r37", "43": "r37", "44": "r37", "45": "r37", "52": "r37", "53": "r37", "54": "r37", "55": "r37", "57": "r37" }, { "23": "r39", "24": "r39", "25": "r39", "26": "r39", "27": "r39", "28": "r39", "29": "r39", "30": "r39", "31": "r39", "32": "r39", "33": "r39", "34": "r39", "35": "r39", "36": "r39", "37": "r39", "38": "r39", "39": "r39", "40": "r39", "41": "r39", "42": "r39", "43": "r39", "44": "r39", "45": "r39", "46": "s56", "52": "r39", "53": "r39", "54": "r39", "55": "r39", "57": "r39" }, { "23": "r41", "24": "r41", "25": "r41", "26": "r41", "27": "r41", "28": "r41", "29": "r41", "30": "r41", "31": "r41", "32": "r41", "33": "r41", "34": "r41", "35": "r41", "36": "r41", "37": "r41", "38": "r41", "39": "r41", "40": "r41", "41": "r41", "42": "r41", "43": "r41", "44": "r41", "45": "r41", "46": "r41", "52": "r41", "53": "r41", "54": "r41", "55": "r41", "57": "r41" }, { "23": "r42", "24": "r42", "25": "r42", "26": "r42", "27": "r42", "28": "r42", "29": "r42", "30": "r42", "31": "r42", "32": "r42", "33": "r42", "34": "r42", "35": "r42", "36": "r42", "37": "r42", "38": "r42", "39": "r42", "40": "r42", "41": "r42", "42": "r42", "43": "r42", "44": "r42", "45": "r42", "46": "r42", "52": "r42", "53": "r42", "54": "r42", "55": "r42", "57": "r42" }, { "23": "r43", "24": "r43", "25": "r43", "26": "r43", "27": "r43", "28": "r43", "29": "r43", "30": "r43", "31": "r43", "32": "r43", "33": "r43", "34": "r43", "35": "r43", "36": "r43", "37": "r43", "38": "r43", "39": "r43", "40": "r43", "41": "r43", "42": "r43", "43": "r43", "44": "r43", "45": "r43", "46": "r43", "52": "r43", "53": "r43", "54": "r43", "55": "r43", "57": "r43" }, { "23": "r44", "24": "r44", "25": "r44", "26": "r44", "27": "r44", "28": "r44", "29": "r44", "30": "r44", "31": "r44", "32": "r44", "33": "r44", "34": "r44", "35": "r44", "36": "r44", "37": "r44", "38": "r44", "39": "r44", "40": "r44", "41": "r44", "42": "r44", "43": "r44", "44": "r44", "45": "r44", "46": "r44", "52": "r44", "53": "r44", "54": "r44", "55": "r44", "57": "r44" }, { "23": "r45", "24": "r45", "25": "r45", "26": "r45", "27": "r45", "28": "r45", "29": "r45", "30": "r45", "31": "r45", "32": "r45", "33": "r45", "34": "r45", "35": "r45", "36": "r45", "37": "r45", "38": "r45", "39": "r45", "40": "r45", "41": "r45", "42": "r45", "43": "r45", "44": "r45", "45": "r45", "46": "r45", "52": "r45", "53": "r45", "54": "r45", "55": "r45", "57": "r45" }, { "23": "r46", "24": "r46", "25": "r46", "26": "r46", "27": "r46", "28": "r46", "29": "r46", "30": "r46", "31": "r46", "32": "r46", "33": "r46", "34": "r46", "35": "r46", "36": "r46", "37": "r46", "38": "r46", "39": "r46", "40": "r46", "41": "r46", "42": "r46", "43": "r46", "44": "r46", "45": "r46", "46": "r46", "52": "r46", "53": "r46", "54": "r46", "55": "r46", "57": "r46" }, { "23": "r40", "24": "r40", "25": "r40", "26": "r40", "27": "r40", "28": "r40", "29": "r40", "30": "r40", "31": "r40", "32": "r40", "33": "r40", "34": "r40", "35": "r40", "36": "r40", "37": "r40", "38": "r40", "39": "r40", "40": "r40", "41": "r40", "42": "r40", "43": "r40", "44": "r40", "45": "r40", "52": "r40", "53": "r40", "54": "r40", "55": "r40", "57": "r40" }, { "25": "s12", "31": "s58" }, { "23": "r18", "24": "r18", "25": "r18", "26": "r18", "27": "r18", "28": "r18", "29": "r18", "30": "r18", "31": "r18", "32": "r18", "33": "r18", "34": "r18", "35": "r18", "36": "r18", "37": "r18", "38": "r18", "39": "r18", "40": "r18", "41": "r18", "42": "r18", "43": "r18", "44": "r18", "45": "r18", "52": "r18", "53": "r18", "54": "r18", "55": "r18", "57": "r18" }, { "25": "s12", "31": "s60" }, { "23": "r19", "24": "r19", "25": "r19", "26": "r19", "27": "r19", "28": "r19", "29": "r19", "30": "r19", "31": "r19", "32": "r19", "33": "r19", "34": "r19", "35": "r19", "36": "r19", "37": "r19", "38": "r19", "39": "r19", "40": "r19", "41": "r19", "42": "r19", "43": "r19", "44": "r19", "45": "r19", "52": "r19", "53": "r19", "54": "r19", "55": "r19", "57": "r19" }, { "25": "s12", "31": "s62" }, { "23": "r20", "24": "r20", "25": "r20", "26": "r20", "27": "r20", "28": "r20", "29": "r20", "30": "r20", "31": "r20", "32": "r20", "33": "r20", "34": "r20", "35": "r20", "36": "r20", "37": "r20", "38": "r20", "39": "r20", "40": "r20", "41": "r20", "42": "r20", "43": "r20", "44": "r20", "45": "r20", "52": "r20", "53": "r20", "54": "r20", "55": "r20", "57": "r20" }, { "25": "s12", "31": "s64" }, { "23": "r21", "24": "r21", "25": "r21", "26": "r21", "27": "r21", "28": "r21", "29": "r21", "30": "r21", "31": "r21", "32": "r21", "33": "r21", "34": "r21", "35": "r21", "36": "r21", "37": "r21", "38": "r21", "39": "r21", "40": "r21", "41": "r21", "42": "r21", "43": "r21", "44": "r21", "45": "r21", "52": "r21", "53": "r21", "54": "r21", "55": "r21", "57": "r21" }, { "56": "s72" }, { "56": "r55" }, { "10": 70, "20": 73, "21": 75, "22": 76, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r56", "58": "s74" }, { "24": "r62", "28": "r62", "35": "r62", "36": "r62", "37": "r62", "38": "r62", "39": "r62", "40": "r62", "41": "r62", "42": "r62", "43": "r62", "44": "r62", "45": "r62", "56": "r62", "58": "r62" }, { "24": "r63", "28": "r63", "35": "r63", "36": "r63", "37": "r63", "38": "r63", "39": "r63", "40": "r63", "41": "r63", "42": "r63", "43": "r63", "44": "r63", "45": "r63", "56": "r63", "58": "r63" }, { "24": "r64", "28": "r64", "35": "r64", "36": "r64", "37": "r64", "38": "r64", "39": "r64", "40": "r64", "41": "r64", "42": "r64", "43": "r64", "44": "r64", "45": "r64", "56": "r64", "58": "r64" }, { "24": "r65", "28": "r65", "35": "r65", "36": "r65", "37": "r65", "38": "r65", "39": "r65", "40": "r65", "41": "r65", "42": "r65", "43": "r65", "44": "r65", "45": "r65", "56": "r65", "58": "r65" }, { "23": "r52", "24": "r52", "25": "r52", "26": "r52", "27": "r52", "28": "r52", "29": "r52", "30": "r52", "31": "r52", "32": "r52", "33": "r52", "34": "r52", "35": "r52", "36": "r52", "37": "r52", "38": "r52", "39": "r52", "40": "r52", "41": "r52", "42": "r52", "43": "r52", "44": "r52", "45": "r52", "46": "r52", "47": "r52", "48": "r52", "49": "r52", "50": "r52", "51": "r52", "52": "r52", "53": "r52", "54": "r52", "55": "r52", "57": "r52" }, { "56": "r57" }, { "10": 70, "21": 77, "22": 69, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r62", "58": "s68" }, { "56": "r59" }, { "10": 70, "20": 79, "21": 75, "22": 76, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r63", "58": "s80" }, { "10": 70, "18": 78, "19": 66, "21": 67, "22": 69, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r54", "58": "s68" }, { "56": "r58" }, { "56": "r60" }, { "10": 70, "21": 81, "22": 69, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r62", "58": "s68" }, { "10": 70, "18": 82, "19": 66, "21": 67, "22": 69, "24": "s28", "28": "s71", "35": "s29", "36": "s30", "37": "s31", "38": "s32", "39": "s33", "40": "s34", "41": "s35", "42": "s36", "43": "s37", "44": "s38", "45": "s39", "56": "r54", "58": "s68" }, { "56": "r61" }, { "56": "s84" }, { "23": "r53", "24": "r53", "25": "r53", "26": "r53", "27": "r53", "28": "r53", "29": "r53", "30": "r53", "31": "r53", "32": "r53", "33": "r53", "34": "r53", "35": "r53", "36": "r53", "37": "r53", "38": "r53", "39": "r53", "40": "r53", "41": "r53", "42": "r53", "43": "r53", "44": "r53", "45": "r53", "46": "r53", "47": "r53", "48": "r53", "49": "r53", "50": "r53", "51": "r53", "52": "r53", "53": "r53", "54": "r53", "55": "r53", "57": "r53" }, { "25": "s12", "31": "s86" }, { "23": "r49", "24": "r49", "25": "r49", "26": "r49", "27": "r49", "28": "r49", "29": "r49", "30": "r49", "31": "r49", "32": "r49", "33": "r49", "34": "r49", "35": "r49", "36": "r49", "37": "r49", "38": "r49", "39": "r49", "40": "r49", "41": "r49", "42": "r49", "43": "r49", "44": "r49", "45": "r49", "46": "r49", "47": "r49", "48": "r49", "49": "r49", "50": "r49", "51": "r49", "52": "r49", "53": "r49", "54": "r49", "55": "r49", "57": "r49" }, { "25": "s12", "31": "s88" }, { "23": "r50", "24": "r50", "25": "r50", "26": "r50", "27": "r50", "28": "r50", "29": "r50", "30": "r50", "31": "r50", "32": "r50", "33": "r50", "34": "r50", "35": "r50", "36": "r50", "37": "r50", "38": "r50", "39": "r50", "40": "r50", "41": "r50", "42": "r50", "43": "r50", "44": "r50", "45": "r50", "46": "r50", "47": "r50", "48": "r50", "49": "r50", "50": "r50", "51": "r50", "52": "r50", "53": "r50", "54": "r50", "55": "r50", "57": "r50" }, { "25": "s12", "31": "s90" }, { "23": "r51", "24": "r51", "25": "r51", "26": "r51", "27": "r51", "28": "r51", "29": "r51", "30": "r51", "31": "r51", "32": "r51", "33": "r51", "34": "r51", "35": "r51", "36": "r51", "37": "r51", "38": "r51", "39": "r51", "40": "r51", "41": "r51", "42": "r51", "43": "r51", "44": "r51", "45": "r51", "46": "r51", "47": "r51", "48": "r51", "49": "r51", "50": "r51", "51": "r51", "52": "r51", "53": "r51", "54": "r51", "55": "r51", "57": "r51" }];
-
-/**
- * Parsing stack.
- */
-var stack = [];
-
-/**
- * Tokenizer instance.
- */
-var tokenizer = void 0;
-/**
- * Generic tokenizer used by the parser in the Syntax tool.
- *
- * https://www.npmjs.com/package/syntax-cli
- *
- * See `--custom-tokinzer` to skip this generation, and use a custom one.
- */
-
-var lexRules = [[/^#[^\n]+/, function () {/* skip comments */}], [/^\s+/, function () {/* skip whitespace */}], [/^\\-/, function () {
-  return 'ESC_CHAR';
-}], [/^-/, function () {
-  return 'DASH';
-}], [/^\//, function () {
-  return 'CHAR';
-}], [/^#/, function () {
-  return 'CHAR';
-}], [/^\|/, function () {
-  return 'CHAR';
-}], [/^\./, function () {
-  return 'CHAR';
-}], [/^\{/, function () {
-  return 'CHAR';
-}], [/^\{\d+\}/, function () {
-  return 'RANGE_EXACT';
-}], [/^\{\d+,\}/, function () {
-  return 'RANGE_OPEN';
-}], [/^\{\d+,\d+\}/, function () {
-  return 'RANGE_CLOSED';
-}], [/^\\k<([\w$]|\\u[0-9a-fA-F]{4}|\\u\{[0-9a-fA-F]{1,}\})+>/, function () {
-  var groupName = yytext.slice(3, -1);
-  validateUnicodeGroupName(groupName, this.getCurrentState());
-  return 'NAMED_GROUP_REF';
-}], [/^\\b/, function () {
-  return 'ESC_b';
-}], [/^\\B/, function () {
-  return 'ESC_B';
-}], [/^\\c[a-zA-Z]/, function () {
-  return 'CTRL_CH';
-}], [/^\\0\d{1,2}/, function () {
-  return 'OCT_CODE';
-}], [/^\\0/, function () {
-  return 'DEC_CODE';
-}], [/^\\\d{1,3}/, function () {
-  return 'DEC_CODE';
-}], [/^\\u[dD][89abAB][0-9a-fA-F]{2}\\u[dD][c-fC-F][0-9a-fA-F]{2}/, function () {
-  return 'U_CODE_SURROGATE';
-}], [/^\\u\{[0-9a-fA-F]{1,}\}/, function () {
-  return 'U_CODE';
-}], [/^\\u[0-9a-fA-F]{4}/, function () {
-  return 'U_CODE';
-}], [/^\\[pP]\{\w+(?:=\w+)?\}/, function () {
-  return 'U_PROP_VALUE_EXP';
-}], [/^\\x[0-9a-fA-F]{2}/, function () {
-  return 'HEX_CODE';
-}], [/^\\[tnrdDsSwWvf]/, function () {
-  return 'META_CHAR';
-}], [/^\\\//, function () {
-  return 'ESC_CHAR';
-}], [/^\\[ #]/, function () {
-  return 'ESC_CHAR';
-}], [/^\\[^*?+\[()\\|]/, function () {
-  var s = this.getCurrentState();
-  if (s === 'u' || s === 'xu' || s === 'u_class') {
-    throw new SyntaxError('invalid Unicode escape ' + yytext);
-  }
-  return 'ESC_CHAR';
-}], [/^\\[*?+\[()\\|]/, function () {
-  return 'ESC_CHAR';
-}], [/^\(/, function () {
-  return 'CHAR';
-}], [/^\)/, function () {
-  return 'CHAR';
-}], [/^\(\?=/, function () {
-  return 'POS_LA_ASSERT';
-}], [/^\(\?!/, function () {
-  return 'NEG_LA_ASSERT';
-}], [/^\(\?<=/, function () {
-  return 'POS_LB_ASSERT';
-}], [/^\(\?<!/, function () {
-  return 'NEG_LB_ASSERT';
-}], [/^\(\?:/, function () {
-  return 'NON_CAPTURE_GROUP';
-}], [/^\(\?<([\w$]|\\u[0-9a-fA-F]{4}|\\u\{[0-9a-fA-F]{1,}\})+>/, function () {
-  yytext = yytext.slice(3, -1);
-  validateUnicodeGroupName(yytext, this.getCurrentState());
-  return 'NAMED_CAPTURE_GROUP';
-}], [/^\(/, function () {
-  return 'L_PAREN';
-}], [/^\)/, function () {
-  return 'R_PAREN';
-}], [/^[*?+[^$]/, function () {
-  return 'CHAR';
-}], [/^\\\]/, function () {
-  return 'ESC_CHAR';
-}], [/^\]/, function () {
-  this.popState();return 'R_BRACKET';
-}], [/^\^/, function () {
-  return 'BOS';
-}], [/^\$/, function () {
-  return 'EOS';
-}], [/^\*/, function () {
-  return 'STAR';
-}], [/^\?/, function () {
-  return 'Q_MARK';
-}], [/^\+/, function () {
-  return 'PLUS';
-}], [/^\|/, function () {
-  return 'BAR';
-}], [/^\./, function () {
-  return 'ANY';
-}], [/^\//, function () {
-  return 'SLASH';
-}], [/^[^*?+\[()\\|]/, function () {
-  return 'CHAR';
-}], [/^\[\^/, function () {
-  var s = this.getCurrentState();this.pushState(s === 'u' || s === 'xu' ? 'u_class' : 'class');return 'NEG_CLASS';
-}], [/^\[/, function () {
-  var s = this.getCurrentState();this.pushState(s === 'u' || s === 'xu' ? 'u_class' : 'class');return 'L_BRACKET';
-}]];
-var lexRulesByConditions = { "INITIAL": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], "u": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], "xu": [0, 1, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], "x": [0, 1, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], "u_class": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], "class": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52] };
-
-var EOF_TOKEN = {
-  type: EOF,
-  value: ''
-};
-
-tokenizer = {
-  initString: function initString(string) {
-    this._string = string;
-    this._cursor = 0;
-
-    this._states = ['INITIAL'];
-    this._tokensQueue = [];
-
-    this._currentLine = 1;
-    this._currentColumn = 0;
-    this._currentLineBeginOffset = 0;
-
-    /**
-     * Matched token location data.
-     */
-    this._tokenStartOffset = 0;
-    this._tokenEndOffset = 0;
-    this._tokenStartLine = 1;
-    this._tokenEndLine = 1;
-    this._tokenStartColumn = 0;
-    this._tokenEndColumn = 0;
-
-    return this;
-  },
-
-
-  /**
-   * Returns tokenizer states.
-   */
-  getStates: function getStates() {
-    return this._states;
-  },
-  getCurrentState: function getCurrentState() {
-    return this._states[this._states.length - 1];
-  },
-  pushState: function pushState(state) {
-    this._states.push(state);
-  },
-  begin: function begin(state) {
-    this.pushState(state);
-  },
-  popState: function popState() {
-    if (this._states.length > 1) {
-      return this._states.pop();
-    }
-    return this._states[0];
-  },
-  getNextToken: function getNextToken() {
-    // Something was queued, return it.
-    if (this._tokensQueue.length > 0) {
-      return this.onToken(this._toToken(this._tokensQueue.shift()));
-    }
-
-    if (!this.hasMoreTokens()) {
-      return this.onToken(EOF_TOKEN);
-    }
-
-    var string = this._string.slice(this._cursor);
-    var lexRulesForState = lexRulesByConditions[this.getCurrentState()];
-
-    for (var i = 0; i < lexRulesForState.length; i++) {
-      var lexRuleIndex = lexRulesForState[i];
-      var lexRule = lexRules[lexRuleIndex];
-
-      var matched = this._match(string, lexRule[0]);
-
-      // Manual handling of EOF token (the end of string). Return it
-      // as `EOF` symbol.
-      if (string === '' && matched === '') {
-        this._cursor++;
-      }
-
-      if (matched !== null) {
-        yytext = matched;
-        yyleng = yytext.length;
-        var token = lexRule[1].call(this);
-
-        if (!token) {
-          return this.getNextToken();
-        }
-
-        // If multiple tokens are returned, save them to return
-        // on next `getNextToken` call.
-
-        if (Array.isArray(token)) {
-          var tokensToQueue = token.slice(1);
-          token = token[0];
-          if (tokensToQueue.length > 0) {
-            var _tokensQueue;
-
-            (_tokensQueue = this._tokensQueue).unshift.apply(_tokensQueue, _toConsumableArray(tokensToQueue));
-          }
-        }
-
-        return this.onToken(this._toToken(token, yytext));
-      }
-    }
-
-    if (this.isEOF()) {
-      this._cursor++;
-      return EOF_TOKEN;
-    }
-
-    this.throwUnexpectedToken(string[0], this._currentLine, this._currentColumn);
-  },
-
-
-  /**
-   * Throws default "Unexpected token" exception, showing the actual
-   * line from the source, pointing with the ^ marker to the bad token.
-   * In addition, shows `line:column` location.
-   */
-  throwUnexpectedToken: function throwUnexpectedToken(symbol, line, column) {
-    var lineSource = this._string.split('\n')[line - 1];
-    var lineData = '';
-
-    if (lineSource) {
-      var pad = ' '.repeat(column);
-      lineData = '\n\n' + lineSource + '\n' + pad + '^\n';
-    }
-
-    throw new SyntaxError(lineData + 'Unexpected token: "' + symbol + '" ' + ('at ' + line + ':' + column + '.'));
-  },
-  getCursor: function getCursor() {
-    return this._cursor;
-  },
-  getCurrentLine: function getCurrentLine() {
-    return this._currentLine;
-  },
-  getCurrentColumn: function getCurrentColumn() {
-    return this._currentColumn;
-  },
-  _captureLocation: function _captureLocation(matched) {
-    var nlRe = /\n/g;
-
-    // Absolute offsets.
-    this._tokenStartOffset = this._cursor;
-
-    // Line-based locations, start.
-    this._tokenStartLine = this._currentLine;
-    this._tokenStartColumn = this._tokenStartOffset - this._currentLineBeginOffset;
-
-    // Extract `\n` in the matched token.
-    var nlMatch = void 0;
-    while ((nlMatch = nlRe.exec(matched)) !== null) {
-      this._currentLine++;
-      this._currentLineBeginOffset = this._tokenStartOffset + nlMatch.index + 1;
-    }
-
-    this._tokenEndOffset = this._cursor + matched.length;
-
-    // Line-based locations, end.
-    this._tokenEndLine = this._currentLine;
-    this._tokenEndColumn = this._currentColumn = this._tokenEndOffset - this._currentLineBeginOffset;
-  },
-  _toToken: function _toToken(tokenType) {
-    var yytext = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-
-    return {
-      // Basic data.
-      type: tokenType,
-      value: yytext,
-
-      // Location data.
-      startOffset: this._tokenStartOffset,
-      endOffset: this._tokenEndOffset,
-      startLine: this._tokenStartLine,
-      endLine: this._tokenEndLine,
-      startColumn: this._tokenStartColumn,
-      endColumn: this._tokenEndColumn
-    };
-  },
-  isEOF: function isEOF() {
-    return this._cursor === this._string.length;
-  },
-  hasMoreTokens: function hasMoreTokens() {
-    return this._cursor <= this._string.length;
-  },
-  _match: function _match(string, regexp) {
-    var matched = string.match(regexp);
-    if (matched) {
-      // Handle `\n` in the matched token to track line numbers.
-      this._captureLocation(matched[0]);
-      this._cursor += matched[0].length;
-      return matched[0];
-    }
-    return null;
-  },
-
-
-  /**
-   * Allows analyzing, and transforming token. Default implementation
-   * just passes the token through.
-   */
-  onToken: function onToken(token) {
-    return token;
-  }
-};
-
-/**
- * Expose tokenizer so it can be accessed in semantic actions.
- */
-yy.lexer = tokenizer;
-yy.tokenizer = tokenizer;
-
-/**
- * Global parsing options. Some options can be shadowed per
- * each `parse` call, if the optations are passed.
- *
- * Initalized to the `captureLocations` which is passed
- * from the generator. Other options can be added at runtime.
- */
-yy.options = {
-  captureLocations: true
-};
-
-/**
- * Parsing module.
- */
-var yyparse = {
-  /**
-   * Sets global parsing options.
-   */
-  setOptions: function setOptions(options) {
-    yy.options = options;
-    return this;
-  },
-
-
-  /**
-   * Returns parsing options.
-   */
-  getOptions: function getOptions() {
-    return yy.options;
-  },
-
-
-  /**
-   * Parses a string.
-   */
-  parse: function parse(string, parseOptions) {
-    if (!tokenizer) {
-      throw new Error('Tokenizer instance wasn\'t specified.');
-    }
-
-    tokenizer.initString(string);
-
-    /**
-     * If parse options are passed, override global parse options for
-     * this call, and later restore global options.
-     */
-    var globalOptions = yy.options;
-    if (parseOptions) {
-      yy.options = Object.assign({}, yy.options, parseOptions);
-    }
-
-    /**
-     * Allow callers to do setup work based on the
-     * parsing string, and passed options.
-     */
-    yyparse.onParseBegin(string, tokenizer, yy.options);
-
-    stack.length = 0;
-    stack.push(0);
-
-    var token = tokenizer.getNextToken();
-    var shiftedToken = null;
-
-    do {
-      if (!token) {
-        // Restore options.
-        yy.options = globalOptions;
-        unexpectedEndOfInput();
-      }
-
-      var state = stack[stack.length - 1];
-      var column = tokens[token.type];
-
-      if (!table[state].hasOwnProperty(column)) {
-        yy.options = globalOptions;
-        unexpectedToken(token);
-      }
-
-      var entry = table[state][column];
-
-      // Shift action.
-      if (entry[0] === 's') {
-        var _loc2 = null;
-
-        if (yy.options.captureLocations) {
-          _loc2 = {
-            startOffset: token.startOffset,
-            endOffset: token.endOffset,
-            startLine: token.startLine,
-            endLine: token.endLine,
-            startColumn: token.startColumn,
-            endColumn: token.endColumn
-          };
-        }
-
-        shiftedToken = this.onShift(token);
-
-        stack.push({ symbol: tokens[shiftedToken.type], semanticValue: shiftedToken.value, loc: _loc2 }, Number(entry.slice(1)));
-
-        token = tokenizer.getNextToken();
-      }
-
-      // Reduce action.
-      else if (entry[0] === 'r') {
-          var productionNumber = entry.slice(1);
-          var production = productions[productionNumber];
-          var hasSemanticAction = typeof production[2] === 'function';
-          var semanticValueArgs = hasSemanticAction ? [] : null;
-
-          var locationArgs = hasSemanticAction && yy.options.captureLocations ? [] : null;
-
-          if (production[1] !== 0) {
-            var rhsLength = production[1];
-            while (rhsLength-- > 0) {
-              stack.pop();
-              var stackEntry = stack.pop();
-
-              if (hasSemanticAction) {
-                semanticValueArgs.unshift(stackEntry.semanticValue);
-
-                if (locationArgs) {
-                  locationArgs.unshift(stackEntry.loc);
-                }
-              }
-            }
-          }
-
-          var reduceStackEntry = { symbol: production[0] };
-
-          if (hasSemanticAction) {
-            yytext = shiftedToken ? shiftedToken.value : null;
-            yyleng = shiftedToken ? shiftedToken.value.length : null;
-
-            var semanticActionArgs = locationArgs !== null ? semanticValueArgs.concat(locationArgs) : semanticValueArgs;
-
-            production[2].apply(production, _toConsumableArray(semanticActionArgs));
-
-            reduceStackEntry.semanticValue = __;
-
-            if (locationArgs) {
-              reduceStackEntry.loc = __loc;
-            }
-          }
-
-          var nextState = stack[stack.length - 1];
-          var symbolToReduceWith = production[0];
-
-          stack.push(reduceStackEntry, table[nextState][symbolToReduceWith]);
-        }
-
-        // Accept.
-        else if (entry === 'acc') {
-            stack.pop();
-            var parsed = stack.pop();
-
-            if (stack.length !== 1 || stack[0] !== 0 || tokenizer.hasMoreTokens()) {
-              // Restore options.
-              yy.options = globalOptions;
-              unexpectedToken(token);
-            }
-
-            if (parsed.hasOwnProperty('semanticValue')) {
-              yy.options = globalOptions;
-              yyparse.onParseEnd(parsed.semanticValue);
-              return parsed.semanticValue;
-            }
-
-            yyparse.onParseEnd();
-
-            // Restore options.
-            yy.options = globalOptions;
-            return true;
-          }
-    } while (tokenizer.hasMoreTokens() || stack.length > 1);
-  },
-  setTokenizer: function setTokenizer(customTokenizer) {
-    tokenizer = customTokenizer;
-    return yyparse;
-  },
-  getTokenizer: function getTokenizer() {
-    return tokenizer;
-  },
-  onParseBegin: function onParseBegin(string, tokenizer, options) {},
-  onParseEnd: function onParseEnd(parsed) {},
-
-
-  /**
-   * Allows analyzing, and transforming shifted token. Default implementation
-   * just passes the token through.
-   */
-  onShift: function onShift(token) {
-    return token;
-  }
-};
-
-/**
- * Tracks capturing groups.
- */
-var capturingGroupsCount = 0;
-
-/**
- * Tracks named groups.
- */
-var namedGroups = {};
-
-/**
- * Parsing string.
- */
-var parsingString = '';
-
-yyparse.onParseBegin = function (string, lexer) {
-  parsingString = string;
-  capturingGroupsCount = 0;
-  namedGroups = {};
-
-  var lastSlash = string.lastIndexOf('/');
-  var flags = string.slice(lastSlash);
-
-  if (flags.includes('x') && flags.includes('u')) {
-    lexer.pushState('xu');
-  } else {
-    if (flags.includes('x')) {
-      lexer.pushState('x');
-    }
-    if (flags.includes('u')) {
-      lexer.pushState('u');
-    }
-  }
-};
-
-/**
- * On shifting `(` remember its number to used on reduce.
- */
-yyparse.onShift = function (token) {
-  if (token.type === 'L_PAREN' || token.type === 'NAMED_CAPTURE_GROUP') {
-    token.value = new String(token.value);
-    token.value.groupNumber = ++capturingGroupsCount;
-  }
-  return token;
-};
-
-/**
- * Extracts ranges from the range string.
- */
-function getRange(text) {
-  var range = text.match(/\d+/g).map(Number);
-
-  if (Number.isFinite(range[1]) && range[1] < range[0]) {
-    throw new SyntaxError('Numbers out of order in ' + text + ' quantifier');
-  }
-
-  return range;
-}
-
-/**
- * Checks class range
- */
-function checkClassRange(from, to) {
-  if (from.kind === 'control' || to.kind === 'control' || !isNaN(from.codePoint) && !isNaN(to.codePoint) && from.codePoint > to.codePoint) {
-    throw new SyntaxError('Range ' + from.value + '-' + to.value + ' out of order in character class');
-  }
-}
-
-// ---------------------- Unicode property -------------------------------------------
-
-var unicodeProperties = require('../unicode/parser-unicode-properties.js');
-
-/**
- * Unicode property.
- */
-function UnicodeProperty(matched, loc) {
-  var negative = matched[1] === 'P';
-  var separatorIdx = matched.indexOf('=');
-
-  var name = matched.slice(3, separatorIdx !== -1 ? separatorIdx : -1);
-  var value = void 0;
-
-  // General_Category allows using only value as a shorthand.
-  var isShorthand = separatorIdx === -1 && unicodeProperties.isGeneralCategoryValue(name);
-
-  // Binary propery name.
-  var isBinaryProperty = separatorIdx === -1 && unicodeProperties.isBinaryPropertyName(name);
-
-  if (isShorthand) {
-    value = name;
-    name = 'General_Category';
-  } else if (isBinaryProperty) {
-    value = name;
-  } else {
-    if (!unicodeProperties.isValidName(name)) {
-      throw new SyntaxError('Invalid unicode property name: ' + name + '.');
-    }
-
-    value = matched.slice(separatorIdx + 1, -1);
-
-    if (!unicodeProperties.isValidValue(name, value)) {
-      throw new SyntaxError('Invalid ' + name + ' unicode property value: ' + value + '.');
-    }
-  }
-
-  return Node({
-    type: 'UnicodeProperty',
-    name: name,
-    value: value,
-    negative: negative,
-    shorthand: isShorthand,
-    binary: isBinaryProperty,
-    canonicalName: unicodeProperties.getCanonicalName(name) || name,
-    canonicalValue: unicodeProperties.getCanonicalValue(value) || value
-  }, loc);
-}
-
-// ----------------------------------------------------------------------------------
-
-
-/**
- * Creates a character node.
- */
-function Char(value, kind, loc) {
-  var symbol = void 0;
-  var codePoint = void 0;
-
-  switch (kind) {
-    case 'decimal':
-      {
-        codePoint = Number(value.slice(1));
-        symbol = String.fromCodePoint(codePoint);
-        break;
-      }
-    case 'oct':
-      {
-        codePoint = parseInt(value.slice(1), 8);
-        symbol = String.fromCodePoint(codePoint);
-        break;
-      }
-    case 'hex':
-    case 'unicode':
-      {
-        if (value.lastIndexOf('\\u') > 0) {
-          var _value$split$slice = value.split('\\u').slice(1),
-              _value$split$slice2 = _slicedToArray(_value$split$slice, 2),
-              lead = _value$split$slice2[0],
-              trail = _value$split$slice2[1];
-
-          lead = parseInt(lead, 16);
-          trail = parseInt(trail, 16);
-          codePoint = (lead - 0xd800) * 0x400 + (trail - 0xdc00) + 0x10000;
-
-          symbol = String.fromCodePoint(codePoint);
-        } else {
-          var hex = value.slice(2).replace('{', '');
-          codePoint = parseInt(hex, 16);
-          if (codePoint > 0x10ffff) {
-            throw new SyntaxError('Bad character escape sequence: ' + value);
-          }
-
-          symbol = String.fromCodePoint(codePoint);
-        }
-        break;
-      }
-    case 'meta':
-      {
-        switch (value) {
-          case '\\t':
-            symbol = '\t';
-            codePoint = symbol.codePointAt(0);
-            break;
-          case '\\n':
-            symbol = '\n';
-            codePoint = symbol.codePointAt(0);
-            break;
-          case '\\r':
-            symbol = '\r';
-            codePoint = symbol.codePointAt(0);
-            break;
-          case '\\v':
-            symbol = '\v';
-            codePoint = symbol.codePointAt(0);
-            break;
-          case '\\f':
-            symbol = '\f';
-            codePoint = symbol.codePointAt(0);
-            break;
-          case '\\b':
-            symbol = '\b';
-            codePoint = symbol.codePointAt(0);
-          case '\\0':
-            symbol = '\0';
-            codePoint = 0;
-          case '.':
-            symbol = '.';
-            codePoint = NaN;
-            break;
-          default:
-            codePoint = NaN;
-        }
-        break;
-      }
-    case 'simple':
-      {
-        symbol = value;
-        codePoint = symbol.codePointAt(0);
-        break;
-      }
-  }
-
-  return Node({
-    type: 'Char',
-    value: value,
-    kind: kind,
-    symbol: symbol,
-    codePoint: codePoint
-  }, loc);
-}
-
-/**
- * Valid flags per current ECMAScript spec and
- * stage 3+ proposals.
- */
-var validFlags = 'gimsuxy';
-
-/**
- * Checks the flags are valid, and that
- * we don't duplicate flags.
- */
-function checkFlags(flags) {
-  var seen = new Set();
-
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = flags[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var flag = _step.value;
-
-      if (seen.has(flag) || !validFlags.includes(flag)) {
-        throw new SyntaxError('Invalid flags: ' + flags);
-      }
-      seen.add(flag);
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  return flags.split('').sort().join('');
-}
-
-/**
- * Parses patterns like \1, \2, etc. either as a backreference
- * to a group, or a deciaml char code.
- */
-function GroupRefOrDecChar(text, textLoc) {
-  var reference = Number(text.slice(1));
-
-  if (reference > 0 && reference <= capturingGroupsCount) {
-    return Node({
-      type: 'Backreference',
-      kind: 'number',
-      number: reference,
-      reference: reference
-    }, textLoc);
-  }
-
-  return Char(text, 'decimal', textLoc);
-}
-
-/**
- * Unicode names.
- */
-var uRe = /^\\u[0-9a-fA-F]{4}/;
-var ucpRe = /^\\u\{[0-9a-fA-F]{1,}\}/;
-
-/**
- * Validates Unicode group name.
- */
-function validateUnicodeGroupName(name, state) {
-  var isUnicodeName = uRe.test(name) || ucpRe.test(name);
-  var isUnicodeState = state === 'u' || state === 'xu' || state === 'u_class';
-
-  if (isUnicodeName && !isUnicodeState) {
-    throw new SyntaxError('invalid group Unicode name "' + name + '", use `u` flag.');
-  }
-}
-
-/**
- * Extracts from `\k<foo>` pattern either a backreference
- * to a named capturing group (if it presents), or parses it
- * as a list of char: `\k`, `<`, `f`, etc.
- */
-function NamedGroupRefOrChars(text, textLoc) {
-  var groupName = text.slice(3, -1);
-
-  if (namedGroups.hasOwnProperty(groupName)) {
-    return Node({
-      type: 'Backreference',
-      kind: 'name',
-      number: namedGroups[groupName],
-      reference: groupName
-    }, textLoc);
-  }
-
-  // Else `\k<foo>` should be parsed as a list of `Char`s.
-  // This is really a 0.01% edge case, but we should handle it.
-
-  var startOffset = null;
-  var startLine = null;
-  var endLine = null;
-  var startColumn = null;
-
-  if (textLoc) {
-    startOffset = textLoc.startOffset;
-    startLine = textLoc.startLine;
-    endLine = textLoc.endLine;
-    startColumn = textLoc.startColumn;
-  }
-
-  var charRe = /^[\w$<>]/;
-  var loc = void 0;
-
-  var chars = [
-  // Init to first \k, taking 2 symbols.
-  Char(text.slice(1, 2), 'simple', startOffset ? {
-    startLine: startLine,
-    endLine: endLine,
-    startColumn: startColumn,
-    startOffset: startOffset,
-    endOffset: startOffset += 2,
-    endColumn: startColumn += 2
-  } : null)];
-
-  // For \k
-  chars[0].escaped = true;
-
-  // Other symbols.
-  text = text.slice(2);
-
-  while (text.length > 0) {
-    var matched = null;
-
-    // Unicode, \u003B or \u{003B}
-    if ((matched = text.match(uRe)) || (matched = text.match(ucpRe))) {
-      if (startOffset) {
-        loc = {
-          startLine: startLine,
-          endLine: endLine,
-          startColumn: startColumn,
-          startOffset: startOffset,
-          endOffset: startOffset += matched[0].length,
-          endColumn: startColumn += matched[0].length
-        };
-      }
-      chars.push(Char(matched[0], 'unicode', loc));
-      text = text.slice(matched[0].length);
-    }
-
-    // Simple char.
-    else if (matched = text.match(charRe)) {
-        if (startOffset) {
-          loc = {
-            startLine: startLine,
-            endLine: endLine,
-            startColumn: startColumn,
-            startOffset: startOffset,
-            endOffset: ++startOffset,
-            endColumn: ++startColumn
-          };
-        }
-        chars.push(Char(matched[0], 'simple', loc));
-        text = text.slice(1);
-      }
-  }
-
-  return chars;
-}
-
-/**
- * Creates an AST node with a location.
- */
-function Node(node, loc) {
-  if (yy.options.captureLocations) {
-    node.loc = {
-      source: parsingString.slice(loc.startOffset, loc.endOffset),
-      start: {
-        line: loc.startLine,
-        column: loc.startColumn,
-        offset: loc.startOffset
-      },
-      end: {
-        line: loc.endLine,
-        column: loc.endColumn,
-        offset: loc.endOffset
-      }
-    };
-  }
-  return node;
-}
-
-/**
- * Creates location node.
- */
-function loc(start, end) {
-  if (!yy.options.captureLocations) {
-    return null;
-  }
-
-  return {
-    startOffset: start.startOffset,
-    endOffset: end.endOffset,
-    startLine: start.startLine,
-    endLine: end.endLine,
-    startColumn: start.startColumn,
-    endColumn: end.endColumn
-  };
-}
-
-function unexpectedToken(token) {
-  if (token.type === EOF) {
-    unexpectedEndOfInput();
-  }
-
-  tokenizer.throwUnexpectedToken(token.value, token.startLine, token.startColumn);
-}
-
-function unexpectedEndOfInput() {
-  parseError('Unexpected end of input.');
-}
-
-function parseError(message) {
-  throw new SyntaxError(message);
-}
-
-module.exports = yyparse;
-},{"../unicode/parser-unicode-properties.js":227}],226:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var regexpTreeParser = require('./generated/regexp-tree');
-
-/**
- * Original parse function.
- */
-var generatedParseFn = regexpTreeParser.parse.bind(regexpTreeParser);
-
-/**
- * Parses a regular expression.
- *
- * Override original `regexpTreeParser.parse` to convert a value to a string,
- * since in regexp-tree we may pass strings, and RegExp instance.
- */
-regexpTreeParser.parse = function (regexp, options) {
-  return generatedParseFn('' + regexp, options);
-};
-
-// By default do not capture locations; callers may override.
-regexpTreeParser.setOptions({ captureLocations: false });
-
-module.exports = regexpTreeParser;
-},{"./generated/regexp-tree":225}],227:[function(require,module,exports){
-'use strict';
-
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-var NON_BINARY_PROP_NAMES_TO_ALIASES = {
-  General_Category: 'gc',
-  Script: 'sc',
-  Script_Extensions: 'scx'
-};
-
-var NON_BINARY_ALIASES_TO_PROP_NAMES = inverseMap(NON_BINARY_PROP_NAMES_TO_ALIASES);
-
-var BINARY_PROP_NAMES_TO_ALIASES = {
-  ASCII: 'ASCII',
-  ASCII_Hex_Digit: 'AHex',
-  Alphabetic: 'Alpha',
-  Any: 'Any',
-  Assigned: 'Assigned',
-  Bidi_Control: 'Bidi_C',
-  Bidi_Mirrored: 'Bidi_M',
-  Case_Ignorable: 'CI',
-  Cased: 'Cased',
-  Changes_When_Casefolded: 'CWCF',
-  Changes_When_Casemapped: 'CWCM',
-  Changes_When_Lowercased: 'CWL',
-  Changes_When_NFKC_Casefolded: 'CWKCF',
-  Changes_When_Titlecased: 'CWT',
-  Changes_When_Uppercased: 'CWU',
-  Dash: 'Dash',
-  Default_Ignorable_Code_Point: 'DI',
-  Deprecated: 'Dep',
-  Diacritic: 'Dia',
-  Emoji: 'Emoji',
-  Emoji_Component: 'Emoji_Component',
-  Emoji_Modifier: 'Emoji_Modifier',
-  Emoji_Modifier_Base: 'Emoji_Modifier_Base',
-  Emoji_Presentation: 'Emoji_Presentation',
-  Extended_Pictographic: 'Extended_Pictographic',
-  Extender: 'Ext',
-  Grapheme_Base: 'Gr_Base',
-  Grapheme_Extend: 'Gr_Ext',
-  Hex_Digit: 'Hex',
-  IDS_Binary_Operator: 'IDSB',
-  IDS_Trinary_Operator: 'IDST',
-  ID_Continue: 'IDC',
-  ID_Start: 'IDS',
-  Ideographic: 'Ideo',
-  Join_Control: 'Join_C',
-  Logical_Order_Exception: 'LOE',
-  Lowercase: 'Lower',
-  Math: 'Math',
-  Noncharacter_Code_Point: 'NChar',
-  Pattern_Syntax: 'Pat_Syn',
-  Pattern_White_Space: 'Pat_WS',
-  Quotation_Mark: 'QMark',
-  Radical: 'Radical',
-  Regional_Indicator: 'RI',
-  Sentence_Terminal: 'STerm',
-  Soft_Dotted: 'SD',
-  Terminal_Punctuation: 'Term',
-  Unified_Ideograph: 'UIdeo',
-  Uppercase: 'Upper',
-  Variation_Selector: 'VS',
-  White_Space: 'space',
-  XID_Continue: 'XIDC',
-  XID_Start: 'XIDS'
-};
-
-var BINARY_ALIASES_TO_PROP_NAMES = inverseMap(BINARY_PROP_NAMES_TO_ALIASES);
-
-var GENERAL_CATEGORY_VALUE_TO_ALIASES = {
-  Cased_Letter: 'LC',
-  Close_Punctuation: 'Pe',
-  Connector_Punctuation: 'Pc',
-  Control: ['Cc', 'cntrl'],
-  Currency_Symbol: 'Sc',
-  Dash_Punctuation: 'Pd',
-  Decimal_Number: ['Nd', 'digit'],
-  Enclosing_Mark: 'Me',
-  Final_Punctuation: 'Pf',
-  Format: 'Cf',
-  Initial_Punctuation: 'Pi',
-  Letter: 'L',
-  Letter_Number: 'Nl',
-  Line_Separator: 'Zl',
-  Lowercase_Letter: 'Ll',
-  Mark: ['M', 'Combining_Mark'],
-  Math_Symbol: 'Sm',
-  Modifier_Letter: 'Lm',
-  Modifier_Symbol: 'Sk',
-  Nonspacing_Mark: 'Mn',
-  Number: 'N',
-  Open_Punctuation: 'Ps',
-  Other: 'C',
-  Other_Letter: 'Lo',
-  Other_Number: 'No',
-  Other_Punctuation: 'Po',
-  Other_Symbol: 'So',
-  Paragraph_Separator: 'Zp',
-  Private_Use: 'Co',
-  Punctuation: ['P', 'punct'],
-  Separator: 'Z',
-  Space_Separator: 'Zs',
-  Spacing_Mark: 'Mc',
-  Surrogate: 'Cs',
-  Symbol: 'S',
-  Titlecase_Letter: 'Lt',
-  Unassigned: 'Cn',
-  Uppercase_Letter: 'Lu'
-};
-
-var GENERAL_CATEGORY_VALUE_ALIASES_TO_VALUES = inverseMap(GENERAL_CATEGORY_VALUE_TO_ALIASES);
-
-var SCRIPT_VALUE_TO_ALIASES = {
-  Adlam: 'Adlm',
-  Ahom: 'Ahom',
-  Anatolian_Hieroglyphs: 'Hluw',
-  Arabic: 'Arab',
-  Armenian: 'Armn',
-  Avestan: 'Avst',
-  Balinese: 'Bali',
-  Bamum: 'Bamu',
-  Bassa_Vah: 'Bass',
-  Batak: 'Batk',
-  Bengali: 'Beng',
-  Bhaiksuki: 'Bhks',
-  Bopomofo: 'Bopo',
-  Brahmi: 'Brah',
-  Braille: 'Brai',
-  Buginese: 'Bugi',
-  Buhid: 'Buhd',
-  Canadian_Aboriginal: 'Cans',
-  Carian: 'Cari',
-  Caucasian_Albanian: 'Aghb',
-  Chakma: 'Cakm',
-  Cham: 'Cham',
-  Cherokee: 'Cher',
-  Common: 'Zyyy',
-  Coptic: ['Copt', 'Qaac'],
-  Cuneiform: 'Xsux',
-  Cypriot: 'Cprt',
-  Cyrillic: 'Cyrl',
-  Deseret: 'Dsrt',
-  Devanagari: 'Deva',
-  Dogra: 'Dogr',
-  Duployan: 'Dupl',
-  Egyptian_Hieroglyphs: 'Egyp',
-  Elbasan: 'Elba',
-  Ethiopic: 'Ethi',
-  Georgian: 'Geor',
-  Glagolitic: 'Glag',
-  Gothic: 'Goth',
-  Grantha: 'Gran',
-  Greek: 'Grek',
-  Gujarati: 'Gujr',
-  Gunjala_Gondi: 'Gong',
-  Gurmukhi: 'Guru',
-  Han: 'Hani',
-  Hangul: 'Hang',
-  Hanifi_Rohingya: 'Rohg',
-  Hanunoo: 'Hano',
-  Hatran: 'Hatr',
-  Hebrew: 'Hebr',
-  Hiragana: 'Hira',
-  Imperial_Aramaic: 'Armi',
-  Inherited: ['Zinh', 'Qaai'],
-  Inscriptional_Pahlavi: 'Phli',
-  Inscriptional_Parthian: 'Prti',
-  Javanese: 'Java',
-  Kaithi: 'Kthi',
-  Kannada: 'Knda',
-  Katakana: 'Kana',
-  Kayah_Li: 'Kali',
-  Kharoshthi: 'Khar',
-  Khmer: 'Khmr',
-  Khojki: 'Khoj',
-  Khudawadi: 'Sind',
-  Lao: 'Laoo',
-  Latin: 'Latn',
-  Lepcha: 'Lepc',
-  Limbu: 'Limb',
-  Linear_A: 'Lina',
-  Linear_B: 'Linb',
-  Lisu: 'Lisu',
-  Lycian: 'Lyci',
-  Lydian: 'Lydi',
-  Mahajani: 'Mahj',
-  Makasar: 'Maka',
-  Malayalam: 'Mlym',
-  Mandaic: 'Mand',
-  Manichaean: 'Mani',
-  Marchen: 'Marc',
-  Medefaidrin: 'Medf',
-  Masaram_Gondi: 'Gonm',
-  Meetei_Mayek: 'Mtei',
-  Mende_Kikakui: 'Mend',
-  Meroitic_Cursive: 'Merc',
-  Meroitic_Hieroglyphs: 'Mero',
-  Miao: 'Plrd',
-  Modi: 'Modi',
-  Mongolian: 'Mong',
-  Mro: 'Mroo',
-  Multani: 'Mult',
-  Myanmar: 'Mymr',
-  Nabataean: 'Nbat',
-  New_Tai_Lue: 'Talu',
-  Newa: 'Newa',
-  Nko: 'Nkoo',
-  Nushu: 'Nshu',
-  Ogham: 'Ogam',
-  Ol_Chiki: 'Olck',
-  Old_Hungarian: 'Hung',
-  Old_Italic: 'Ital',
-  Old_North_Arabian: 'Narb',
-  Old_Permic: 'Perm',
-  Old_Persian: 'Xpeo',
-  Old_Sogdian: 'Sogo',
-  Old_South_Arabian: 'Sarb',
-  Old_Turkic: 'Orkh',
-  Oriya: 'Orya',
-  Osage: 'Osge',
-  Osmanya: 'Osma',
-  Pahawh_Hmong: 'Hmng',
-  Palmyrene: 'Palm',
-  Pau_Cin_Hau: 'Pauc',
-  Phags_Pa: 'Phag',
-  Phoenician: 'Phnx',
-  Psalter_Pahlavi: 'Phlp',
-  Rejang: 'Rjng',
-  Runic: 'Runr',
-  Samaritan: 'Samr',
-  Saurashtra: 'Saur',
-  Sharada: 'Shrd',
-  Shavian: 'Shaw',
-  Siddham: 'Sidd',
-  SignWriting: 'Sgnw',
-  Sinhala: 'Sinh',
-  Sogdian: 'Sogd',
-  Sora_Sompeng: 'Sora',
-  Soyombo: 'Soyo',
-  Sundanese: 'Sund',
-  Syloti_Nagri: 'Sylo',
-  Syriac: 'Syrc',
-  Tagalog: 'Tglg',
-  Tagbanwa: 'Tagb',
-  Tai_Le: 'Tale',
-  Tai_Tham: 'Lana',
-  Tai_Viet: 'Tavt',
-  Takri: 'Takr',
-  Tamil: 'Taml',
-  Tangut: 'Tang',
-  Telugu: 'Telu',
-  Thaana: 'Thaa',
-  Thai: 'Thai',
-  Tibetan: 'Tibt',
-  Tifinagh: 'Tfng',
-  Tirhuta: 'Tirh',
-  Ugaritic: 'Ugar',
-  Vai: 'Vaii',
-  Warang_Citi: 'Wara',
-  Yi: 'Yiii',
-  Zanabazar_Square: 'Zanb'
-};
-
-var SCRIPT_VALUE_ALIASES_TO_VALUE = inverseMap(SCRIPT_VALUE_TO_ALIASES);
-
-function inverseMap(data) {
-  var inverse = {};
-
-  for (var name in data) {
-    if (!data.hasOwnProperty(name)) {
-      continue;
-    }
-    var value = data[name];
-    if (Array.isArray(value)) {
-      for (var i = 0; i < value.length; i++) {
-        inverse[value[i]] = name;
-      }
-    } else {
-      inverse[value] = name;
-    }
-  }
-
-  return inverse;
-}
-
-function isValidName(name) {
-  return NON_BINARY_PROP_NAMES_TO_ALIASES.hasOwnProperty(name) || NON_BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(name) || BINARY_PROP_NAMES_TO_ALIASES.hasOwnProperty(name) || BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(name);
-}
-
-function isValidValue(name, value) {
-  if (isGeneralCategoryName(name)) {
-    return isGeneralCategoryValue(value);
-  }
-
-  if (isScriptCategoryName(name)) {
-    return isScriptCategoryValue(value);
-  }
-
-  return false;
-}
-
-function isAlias(name) {
-  return NON_BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(name) || BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(name);
-}
-
-function isGeneralCategoryName(name) {
-  return name === 'General_Category' || name == 'gc';
-}
-
-function isScriptCategoryName(name) {
-  return name === 'Script' || name === 'Script_Extensions' || name === 'sc' || name === 'scx';
-}
-
-function isGeneralCategoryValue(value) {
-  return GENERAL_CATEGORY_VALUE_TO_ALIASES.hasOwnProperty(value) || GENERAL_CATEGORY_VALUE_ALIASES_TO_VALUES.hasOwnProperty(value);
-}
-
-function isScriptCategoryValue(value) {
-  return SCRIPT_VALUE_TO_ALIASES.hasOwnProperty(value) || SCRIPT_VALUE_ALIASES_TO_VALUE.hasOwnProperty(value);
-}
-
-function isBinaryPropertyName(name) {
-  return BINARY_PROP_NAMES_TO_ALIASES.hasOwnProperty(name) || BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(name);
-}
-
-function getCanonicalName(name) {
-  if (NON_BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(name)) {
-    return NON_BINARY_ALIASES_TO_PROP_NAMES[name];
-  }
-
-  if (BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(name)) {
-    return BINARY_ALIASES_TO_PROP_NAMES[name];
-  }
-
-  return null;
-}
-
-function getCanonicalValue(value) {
-  if (GENERAL_CATEGORY_VALUE_ALIASES_TO_VALUES.hasOwnProperty(value)) {
-    return GENERAL_CATEGORY_VALUE_ALIASES_TO_VALUES[value];
-  }
-
-  if (SCRIPT_VALUE_ALIASES_TO_VALUE.hasOwnProperty(value)) {
-    return SCRIPT_VALUE_ALIASES_TO_VALUE[value];
-  }
-
-  if (BINARY_ALIASES_TO_PROP_NAMES.hasOwnProperty(value)) {
-    return BINARY_ALIASES_TO_PROP_NAMES[value];
-  }
-
-  return null;
-}
-
-module.exports = {
-  isAlias: isAlias,
-  isValidName: isValidName,
-  isValidValue: isValidValue,
-  isGeneralCategoryValue: isGeneralCategoryValue,
-  isScriptCategoryValue: isScriptCategoryValue,
-  isBinaryPropertyName: isBinaryPropertyName,
-  getCanonicalName: getCanonicalName,
-  getCanonicalValue: getCanonicalValue,
-
-  NON_BINARY_PROP_NAMES_TO_ALIASES: NON_BINARY_PROP_NAMES_TO_ALIASES,
-  NON_BINARY_ALIASES_TO_PROP_NAMES: NON_BINARY_ALIASES_TO_PROP_NAMES,
-
-  BINARY_PROP_NAMES_TO_ALIASES: BINARY_PROP_NAMES_TO_ALIASES,
-  BINARY_ALIASES_TO_PROP_NAMES: BINARY_ALIASES_TO_PROP_NAMES,
-
-  GENERAL_CATEGORY_VALUE_TO_ALIASES: GENERAL_CATEGORY_VALUE_TO_ALIASES,
-  GENERAL_CATEGORY_VALUE_ALIASES_TO_VALUES: GENERAL_CATEGORY_VALUE_ALIASES_TO_VALUES,
-
-  SCRIPT_VALUE_TO_ALIASES: SCRIPT_VALUE_TO_ALIASES,
-  SCRIPT_VALUE_ALIASES_TO_VALUE: SCRIPT_VALUE_ALIASES_TO_VALUE
-};
-},{}],228:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var compatTranspiler = require('./compat-transpiler');
-var generator = require('./generator');
-var optimizer = require('./optimizer');
-var parser = require('./parser');
-var _transform = require('./transform');
-var _traverse = require('./traverse');
-var fa = require('./interpreter/finite-automaton');
-
-var _require = require('./compat-transpiler/runtime'),
-    RegExpTree = _require.RegExpTree;
-
-/**
- * An API object for RegExp processing (parsing/transform/generation).
- */
-
-
-var regexpTree = {
-  /**
-   * Parser module exposed.
-   */
-  parser: parser,
-
-  /**
-   * Expose finite-automaton module.
-   */
-  fa: fa,
-
-  /**
-   * `TransformResult` exposed.
-   */
-  TransformResult: _transform.TransformResult,
-
-  /**
-   * Parses a regexp string, producing an AST.
-   *
-   * @param string regexp
-   *
-   *   a regular expression in different formats: string, AST, RegExp.
-   *
-   * @param Object options
-   *
-   *   parsing options for this parse call. Default are:
-   *
-   *     - captureLocations: boolean
-   *     - any other custom options
-   *
-   * @return Object AST
-   */
-  parse: function parse(regexp, options) {
-    return parser.parse('' + regexp, options);
-  },
-
-
-  /**
-   * Traverses a RegExp AST.
-   *
-   * @param Object ast
-   * @param Object | Array<Object> handlers
-   *
-   * Each `handler` is an object containing handler function for needed
-   * node types. Example:
-   *
-   *   regexpTree.traverse(ast, {
-   *     onChar(node) {
-   *       ...
-   *     },
-   *   });
-  *
-  * The value for a node type may also be an object with functions pre and post.
-  * This enables more context-aware analyses, e.g. measuring star height.
-   */
-  traverse: function traverse(ast, handlers, options) {
-    return _traverse.traverse(ast, handlers, options);
-  },
-
-
-  /**
-   * Transforms a regular expression.
-   *
-   * A regexp can be passed in different formats (string, regexp or AST),
-   * applying a set of transformations. It is a convenient wrapper
-   * on top of "parse-traverse-generate" tool chain.
-   *
-   * @param string | AST | RegExp regexp - a regular expression;
-   * @param Object | Array<Object> handlers - a list of handlers.
-   *
-   * @return TransformResult - a transformation result.
-   */
-  transform: function transform(regexp, handlers) {
-    return _transform.transform(regexp, handlers);
-  },
-
-
-  /**
-   * Generates a RegExp string from an AST.
-   *
-   * @param Object ast
-   *
-   * Invariant:
-   *
-   *   regexpTree.generate(regexpTree.parse('/[a-z]+/i')); // '/[a-z]+/i'
-   */
-  generate: function generate(ast) {
-    return generator.generate(ast);
-  },
-
-
-  /**
-   * Creates a RegExp object from a regexp string.
-   *
-   * @param string regexp
-   */
-  toRegExp: function toRegExp(regexp) {
-    var compat = this.compatTranspile(regexp);
-    return new RegExp(compat.getSource(), compat.getFlags());
-  },
-
-
-  /**
-   * Optimizes a regular expression by replacing some
-   * sub-expressions with their idiomatic patterns.
-   *
-   * @param string regexp
-   *
-   * @return TransformResult object
-   */
-  optimize: function optimize(regexp, whitelist) {
-    return optimizer.optimize(regexp, whitelist);
-  },
-
-
-  /**
-   * Translates a regular expression in new syntax or in new format
-   * into equivalent expressions in old syntax.
-   *
-   * @param string regexp
-   *
-   * @return TransformResult object
-   */
-  compatTranspile: function compatTranspile(regexp, whitelist) {
-    return compatTranspiler.transform(regexp, whitelist);
-  },
-
-
-  /**
-   * Executes a regular expression on a string.
-   *
-   * @param RegExp|string re - a regular expression.
-   * @param string string - a testing string.
-   */
-  exec: function exec(re, string) {
-    if (typeof re === 'string') {
-      var compat = this.compatTranspile(re);
-      var extra = compat.getExtra();
-
-      if (extra.namedCapturingGroups) {
-        re = new RegExpTree(compat.toRegExp(), {
-          flags: compat.getFlags(),
-          source: compat.getSource(),
-          groups: extra.namedCapturingGroups
-        });
-      } else {
-        re = compat.toRegExp();
-      }
-    }
-
-    return re.exec(string);
-  }
-};
-
-module.exports = regexpTree;
-},{"./compat-transpiler":191,"./compat-transpiler/runtime":192,"./generator":197,"./interpreter/finite-automaton":200,"./optimizer":207,"./parser":226,"./transform":229,"./traverse":231}],229:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var generator = require('../generator');
-var parser = require('../parser');
-var traverse = require('../traverse');
-
-/**
- * Transform result.
- */
-
-var TransformResult = function () {
-  /**
-   * Initializes a transform result for an AST.
-   *
-   * @param Object ast - an AST node
-   * @param mixed extra - any extra data a transform may return
-   */
-  function TransformResult(ast) {
-    var extra = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-    _classCallCheck(this, TransformResult);
-
-    this._ast = ast;
-    this._source = null;
-    this._string = null;
-    this._regexp = null;
-    this._extra = extra;
-  }
-
-  _createClass(TransformResult, [{
-    key: 'getAST',
-    value: function getAST() {
-      return this._ast;
-    }
-  }, {
-    key: 'setExtra',
-    value: function setExtra(extra) {
-      this._extra = extra;
-    }
-  }, {
-    key: 'getExtra',
-    value: function getExtra() {
-      return this._extra;
-    }
-  }, {
-    key: 'toRegExp',
-    value: function toRegExp() {
-      if (!this._regexp) {
-        this._regexp = new RegExp(this.getSource(), this._ast.flags);
-      }
-      return this._regexp;
-    }
-  }, {
-    key: 'getSource',
-    value: function getSource() {
-      if (!this._source) {
-        this._source = generator.generate(this._ast.body);
-      }
-      return this._source;
-    }
-  }, {
-    key: 'getFlags',
-    value: function getFlags() {
-      return this._ast.flags;
-    }
-  }, {
-    key: 'toString',
-    value: function toString() {
-      if (!this._string) {
-        this._string = generator.generate(this._ast);
-      }
-      return this._string;
-    }
-  }]);
-
-  return TransformResult;
-}();
-
-module.exports = {
-  /**
-   * Expose `TransformResult`.
-   */
-  TransformResult: TransformResult,
-
-  /**
-   * Transforms a regular expression applying a set of
-   * transformation handlers.
-   *
-   * @param string | AST | RegExp:
-   *
-   *   a regular expression in different representations: a string,
-   *   a RegExp object, or an AST.
-   *
-   * @param Object | Array<Object>:
-   *
-   *   a handler (or a list of handlers) from `traverse` API.
-   *
-   * @return TransformResult instance.
-   *
-   * Example:
-   *
-   *   transform(/[a-z]/i, {
-   *     onChar(path) {
-   *       const {node} = path;
-   *
-   *       if (...) {
-   *         path.remove();
-   *       }
-   *     }
-   *   });
-   */
-  transform: function transform(regexp, handlers) {
-    var ast = regexp;
-
-    if (regexp instanceof RegExp) {
-      regexp = '' + regexp;
-    }
-
-    if (typeof regexp === 'string') {
-      ast = parser.parse(regexp, {
-        captureLocations: true
-      });
-    }
-
-    traverse.traverse(ast, handlers);
-
-    return new TransformResult(ast);
-  }
-};
-},{"../generator":197,"../parser":226,"../traverse":231}],230:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * Flattens a nested disjunction node to a list.
- *
- * /a|b|c|d/
- *
- * {{{a, b}, c}, d} -> [a, b, c, d]
- */
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function disjunctionToList(node) {
-  if (node.type !== 'Disjunction') {
-    throw new TypeError('Expected "Disjunction" node, got "' + node.type + '"');
-  }
-
-  var list = [];
-
-  if (node.left && node.left.type === 'Disjunction') {
-    list.push.apply(list, _toConsumableArray(disjunctionToList(node.left)).concat([node.right]));
-  } else {
-    list.push(node.left, node.right);
-  }
-
-  return list;
-}
-
-/**
- * Builds a nested disjunction node from a list.
- *
- * /a|b|c|d/
- *
- * [a, b, c, d] -> {{{a, b}, c}, d}
- */
-function listToDisjunction(list) {
-  return list.reduce(function (left, right) {
-    return {
-      type: 'Disjunction',
-      left: left,
-      right: right
-    };
-  });
-}
-
-/**
- * Increases a quantifier by one.
- * Does not change greediness.
- * * -> +
- * + -> {2,}
- * ? -> {1,2}
- * {2} -> {3}
- * {2,} -> {3,}
- * {2,3} -> {3,4}
- */
-function increaseQuantifierByOne(quantifier) {
-  if (quantifier.kind === '*') {
-
-    quantifier.kind = '+';
-  } else if (quantifier.kind === '+') {
-
-    quantifier.kind = 'Range';
-    quantifier.from = 2;
-    delete quantifier.to;
-  } else if (quantifier.kind === '?') {
-
-    quantifier.kind = 'Range';
-    quantifier.from = 1;
-    quantifier.to = 2;
-  } else if (quantifier.kind === 'Range') {
-
-    quantifier.from += 1;
-    if (quantifier.to) {
-      quantifier.to += 1;
-    }
-  }
-}
-
-module.exports = {
-  disjunctionToList: disjunctionToList,
-  listToDisjunction: listToDisjunction,
-  increaseQuantifierByOne: increaseQuantifierByOne
-};
-},{}],231:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var NodePath = require('./node-path');
-
-/**
- * Does an actual AST traversal, using visitor pattern,
- * and calling set of callbacks.
- *
- * Based on https://github.com/olov/ast-traverse
- *
- * Expects AST in Mozilla Parser API: nodes which are supposed to be
- * handled should have `type` property.
- *
- * @param Object root - a root node to start traversal from.
- *
- * @param Object options - an object with set of callbacks:
- *
- *   - `pre(node, parent, prop, index)` - a hook called on node enter
- *   - `post`(node, parent, prop, index) - a hook called on node exit
- *   - `skipProperty(prop)` - a predicated whether a property should be skipped
- */
-function astTraverse(root) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  var pre = options.pre;
-  var post = options.post;
-  var skipProperty = options.skipProperty;
-
-  function visit(node, parent, prop, idx) {
-    if (!node || typeof node.type !== 'string') {
-      return;
-    }
-
-    var res = undefined;
-    if (pre) {
-      res = pre(node, parent, prop, idx);
-    }
-
-    if (res !== false) {
-
-      // A node can be replaced during traversal, so we have to
-      // recalculate it from the parent, to avoid traversing "dead" nodes.
-      if (parent && parent[prop]) {
-        if (!isNaN(idx)) {
-          node = parent[prop][idx];
-        } else {
-          node = parent[prop];
-        }
-      }
-
-      for (var _prop in node) {
-        if (node.hasOwnProperty(_prop)) {
-          if (skipProperty ? skipProperty(_prop, node) : _prop[0] === '$') {
-            continue;
-          }
-
-          var child = node[_prop];
-
-          // Collection node.
-          //
-          // NOTE: a node (or several nodes) can be removed or inserted
-          // during traversal.
-          //
-          // Current traversing index is stored on top of the
-          // `NodePath.traversingIndexStack`. The stack is used to support
-          // recursive nature of the traversal.
-          //
-          // In this case `NodePath.traversingIndex` (which we use here) is
-          // updated in the NodePath remove/insert methods.
-          //
-          if (Array.isArray(child)) {
-            var index = 0;
-            NodePath.traversingIndexStack.push(index);
-            while (index < child.length) {
-              visit(child[index], node, _prop, index);
-              index = NodePath.updateTraversingIndex(+1);
-            }
-            NodePath.traversingIndexStack.pop();
-          }
-
-          // Simple node.
-          else {
-              visit(child, node, _prop);
-            }
-        }
-      }
-    }
-
-    if (post) {
-      post(node, parent, prop, idx);
-    }
-  }
-
-  visit(root, null);
-}
-
-module.exports = {
-  /**
-   * Traverses an AST.
-   *
-   * @param Object ast - an AST node
-   *
-   * @param Object | Array<Object> handlers:
-   *
-   *   an object (or an array of objects)
-   *
-   *   Each such object contains a handler function per node.
-   *   In case of an array of handlers, they are applied in order.
-   *   A handler may return a transformed node (or a different type).
-   *
-   *   The per-node function may instead be an object with functions pre and post.
-   *   pre is called before visiting the node, post after.
-   *   If a handler is a function, it is treated as the pre function, with an empty post.
-   *
-   * @param Object options:
-   *
-   *   a config object, specifying traversal options:
-   *
-   *   `asNodes`: boolean - whether handlers should receives raw AST nodes
-   *   (false by default), instead of a `NodePath` wrapper. Note, by default
-   *   `NodePath` wrapper provides a set of convenient method to manipulate
-   *   a traversing AST, and also has access to all parents list. A raw
-   *   nodes traversal should be used in rare cases, when no `NodePath`
-   *   features are needed.
-   *
-   * Special hooks:
-   *
-   *   - `shouldRun(ast)` - a predicate determining whether the handler
-   *                        should be applied.
-   *
-   * NOTE: Multiple handlers are used as an optimization of applying all of
-   * them in one AST traversal pass.
-   */
-  traverse: function traverse(ast, handlers) {
-    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { asNodes: false };
-
-
-    if (!Array.isArray(handlers)) {
-      handlers = [handlers];
-    }
-
-    // Filter out handlers by result of `shouldRun`, if the method is present.
-    handlers = handlers.filter(function (handler) {
-      if (typeof handler.shouldRun !== 'function') {
-        return true;
-      }
-      return handler.shouldRun(ast);
-    });
-
-    NodePath.initRegistry();
-
-    // Allow handlers to initializer themselves.
-    handlers.forEach(function (handler) {
-      if (typeof handler.init === 'function') {
-        handler.init(ast);
-      }
-    });
-
-    function getPathFor(node, parent, prop, index) {
-      var parentPath = NodePath.getForNode(parent);
-      var nodePath = NodePath.getForNode(node, parentPath, prop, index);
-
-      return nodePath;
-    }
-
-    // Handle actual nodes.
-    astTraverse(ast, {
-      /**
-       * Handler on node enter.
-       */
-      pre: function pre(node, parent, prop, index) {
-        var nodePath = void 0;
-        if (!options.asNodes) {
-          nodePath = getPathFor(node, parent, prop, index);
-        }
-
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = handlers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var handler = _step.value;
-
-            // "Catch-all" `*` handler.
-            if (typeof handler['*'] === 'function') {
-              if (nodePath) {
-                // A path/node can be removed by some previous handler.
-                if (!nodePath.isRemoved()) {
-                  var handlerResult = handler['*'](nodePath);
-                  // Explicitly stop traversal.
-                  if (handlerResult === false) {
-                    return false;
-                  }
-                }
-              } else {
-                handler['*'](node, parent, prop, index);
-              }
-            }
-
-            // Per-node handler.
-            var handlerFuncPre = void 0;
-            if (typeof handler[node.type] === 'function') {
-              handlerFuncPre = handler[node.type];
-            } else if (typeof handler[node.type] === 'object' && typeof handler[node.type].pre === 'function') {
-              handlerFuncPre = handler[node.type].pre;
-            }
-
-            if (handlerFuncPre) {
-              if (nodePath) {
-                // A path/node can be removed by some previous handler.
-                if (!nodePath.isRemoved()) {
-                  var _handlerResult = handlerFuncPre.call(handler, nodePath);
-                  // Explicitly stop traversal.
-                  if (_handlerResult === false) {
-                    return false;
-                  }
-                }
-              } else {
-                handlerFuncPre.call(handler, node, parent, prop, index);
-              }
-            }
-          } // Loop over handlers
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-      },
-      // pre func
-
-      /**
-       * Handler on node exit.
-       */
-      post: function post(node, parent, prop, index) {
-        if (!node) {
-          return;
-        }
-
-        var nodePath = void 0;
-        if (!options.asNodes) {
-          nodePath = getPathFor(node, parent, prop, index);
-        }
-
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
-
-        try {
-          for (var _iterator2 = handlers[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var handler = _step2.value;
-
-            // Per-node handler.
-            var handlerFuncPost = void 0;
-            if (typeof handler[node.type] === 'object' && typeof handler[node.type].post === 'function') {
-              handlerFuncPost = handler[node.type].post;
-            }
-
-            if (handlerFuncPost) {
-              if (nodePath) {
-                // A path/node can be removed by some previous handler.
-                if (!nodePath.isRemoved()) {
-                  var handlerResult = handlerFuncPost.call(handler, nodePath);
-                  // Explicitly stop traversal.
-                  if (handlerResult === false) {
-                    return false;
-                  }
-                }
-              } else {
-                handlerFuncPost.call(handler, node, parent, prop, index);
-              }
-            }
-          } // Loop over handlers
-        } catch (err) {
-          _didIteratorError2 = true;
-          _iteratorError2 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-              _iterator2.return();
-            }
-          } finally {
-            if (_didIteratorError2) {
-              throw _iteratorError2;
-            }
-          }
-        }
-      },
-      // post func
-
-      /**
-       * Skip locations by default.
-       */
-      skipProperty: function skipProperty(prop) {
-        return prop === 'loc';
-      }
-    });
-  }
-};
-},{"./node-path":232}],232:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var DEFAULT_COLLECTION_PROP = 'expressions';
-var DEFAULT_SINGLE_PROP = 'expression';
-
-/**
- * NodePath class encapsulates a traversing node,
- * its parent node, property name in the parent node, and
- * an index (in case if a node is part of a collection).
- * It also provides set of methods for AST manipulation.
- */
-
-var NodePath = function () {
-  /**
-   * NodePath constructor.
-   *
-   * @param Object node - an AST node
-   * @param NodePath parentPath - a nullable parent path
-   * @param string property - property name of the node in the parent
-   * @param number index - index of the node in a collection.
-   */
-  function NodePath(node) {
-    var parentPath = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var property = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var index = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-
-    _classCallCheck(this, NodePath);
-
-    this.node = node;
-    this.parentPath = parentPath;
-    this.parent = parentPath ? parentPath.node : null;
-    this.property = property;
-    this.index = index;
-  }
-
-  _createClass(NodePath, [{
-    key: '_enforceProp',
-    value: function _enforceProp(property) {
-      if (!this.node.hasOwnProperty(property)) {
-        throw new Error('Node of type ' + this.node.type + ' doesn\'t have "' + property + '" collection.');
-      }
-    }
-
-    /**
-     * Sets a node into a children collection or the single child.
-     * By default child nodes are supposed to be under `expressions` property.
-     * An explicit property can be passed.
-     *
-     * @param Object node - a node to set into a collection or as single child
-     * @param number index - index at which to set
-     * @param string property - name of the collection or single property
-     */
-
-  }, {
-    key: 'setChild',
-    value: function setChild(node) {
-      var index = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var property = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-
-      var childPath = void 0;
-      if (index != null) {
-        if (!property) {
-          property = DEFAULT_COLLECTION_PROP;
-        }
-        this._enforceProp(property);
-        this.node[property][index] = node;
-        childPath = NodePath.getForNode(node, this, property, index);
-      } else {
-        if (!property) {
-          property = DEFAULT_SINGLE_PROP;
-        }
-        this._enforceProp(property);
-        this.node[property] = node;
-        childPath = NodePath.getForNode(node, this, property, null);
-      }
-      return childPath;
-    }
-
-    /**
-     * Appends a node to a children collection.
-     * By default child nodes are supposed to be under `expressions` property.
-     * An explicit property can be passed.
-     *
-     * @param Object node - a node to set into a collection or as single child
-     * @param string property - name of the collection or single property
-     */
-
-  }, {
-    key: 'appendChild',
-    value: function appendChild(node) {
-      var property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-
-      if (!property) {
-        property = DEFAULT_COLLECTION_PROP;
-      }
-      this._enforceProp(property);
-      var end = this.node[property].length;
-      return this.setChild(node, end, property);
-    }
-
-    /**
-     * Inserts a node into a collection.
-     * By default child nodes are supposed to be under `expressions` property.
-     * An explicit property can be passed.
-     *
-     * @param Object node - a node to insert into a collection
-     * @param number index - index at which to insert
-     * @param string property - name of the collection property
-     */
-
-  }, {
-    key: 'insertChildAt',
-    value: function insertChildAt(node, index) {
-      var property = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_COLLECTION_PROP;
-
-      this._enforceProp(property);
-
-      this.node[property].splice(index, 0, node);
-
-      // If we inserted a node before the traversing index,
-      // we should increase the later.
-      if (index <= NodePath.getTraversingIndex()) {
-        NodePath.updateTraversingIndex(+1);
-      }
-
-      this._rebuildIndex(this.node, property);
-    }
-
-    /**
-     * Removes a node.
-     */
-
-  }, {
-    key: 'remove',
-    value: function remove() {
-      if (this.isRemoved()) {
-        return;
-      }
-      NodePath.registry.delete(this.node);
-
-      this.node = null;
-
-      if (!this.parent) {
-        return;
-      }
-
-      // A node is in a collection.
-      if (this.index !== null) {
-        this.parent[this.property].splice(this.index, 1);
-
-        // If we remove a node before the traversing index,
-        // we should increase the later.
-        if (this.index <= NodePath.getTraversingIndex()) {
-          NodePath.updateTraversingIndex(-1);
-        }
-
-        // Rebuild index.
-        this._rebuildIndex(this.parent, this.property);
-
-        this.index = null;
-        this.property = null;
-
-        return;
-      }
-
-      // A simple node.
-      delete this.parent[this.property];
-      this.property = null;
-    }
-
-    /**
-     * Rebuilds child nodes index (used on remove/insert).
-     */
-
-  }, {
-    key: '_rebuildIndex',
-    value: function _rebuildIndex(parent, property) {
-      var parentPath = NodePath.getForNode(parent);
-
-      for (var i = 0; i < parent[property].length; i++) {
-        var path = NodePath.getForNode(parent[property][i], parentPath, property, i);
-        path.index = i;
-      }
-    }
-
-    /**
-     * Whether the path was removed.
-     */
-
-  }, {
-    key: 'isRemoved',
-    value: function isRemoved() {
-      return this.node === null;
-    }
-
-    /**
-     * Replaces a node with the passed one.
-     */
-
-  }, {
-    key: 'replace',
-    value: function replace(newNode) {
-      NodePath.registry.delete(this.node);
-
-      this.node = newNode;
-
-      if (!this.parent) {
-        return null;
-      }
-
-      // A node is in a collection.
-      if (this.index !== null) {
-        this.parent[this.property][this.index] = newNode;
-      }
-
-      // A simple node.
-      else {
-          this.parent[this.property] = newNode;
-        }
-
-      // Rebuild the node path for the new node.
-      return NodePath.getForNode(newNode, this.parentPath, this.property, this.index);
-    }
-
-    /**
-     * Updates a node inline.
-     */
-
-  }, {
-    key: 'update',
-    value: function update(nodeProps) {
-      Object.assign(this.node, nodeProps);
-    }
-
-    /**
-     * Returns parent.
-     */
-
-  }, {
-    key: 'getParent',
-    value: function getParent() {
-      return this.parentPath;
-    }
-
-    /**
-     * Returns nth child.
-     */
-
-  }, {
-    key: 'getChild',
-    value: function getChild() {
-      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-      if (this.node.expressions) {
-        return NodePath.getForNode(this.node.expressions[n], this, DEFAULT_COLLECTION_PROP, n);
-      } else if (this.node.expression && n == 0) {
-        return NodePath.getForNode(this.node.expression, this, DEFAULT_SINGLE_PROP);
-      }
-      return null;
-    }
-
-    /**
-     * Whether a path node is syntactically equal to the passed one.
-     *
-     * NOTE: we don't rely on `source` property from the `loc` data
-     * (which would be the fastest comparison), since it might be unsync
-     * after several modifications. We use here simple `JSON.stringify`
-     * excluding the `loc` data.
-     *
-     * @param NodePath other - path to compare to.
-     * @return boolean
-     */
-
-  }, {
-    key: 'hasEqualSource',
-    value: function hasEqualSource(path) {
-      return JSON.stringify(this.node, jsonSkipLoc) === JSON.stringify(path.node, jsonSkipLoc);
-    }
-
-    /**
-     * JSON-encodes a node skipping location.
-     */
-
-  }, {
-    key: 'jsonEncode',
-    value: function jsonEncode() {
-      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          format = _ref.format,
-          useLoc = _ref.useLoc;
-
-      return JSON.stringify(this.node, useLoc ? null : jsonSkipLoc, format);
-    }
-
-    /**
-     * Returns previous sibling.
-     */
-
-  }, {
-    key: 'getPreviousSibling',
-    value: function getPreviousSibling() {
-      if (!this.parent || this.index == null) {
-        return null;
-      }
-      return NodePath.getForNode(this.parent[this.property][this.index - 1], NodePath.getForNode(this.parent), this.property, this.index - 1);
-    }
-
-    /**
-     * Returns next sibling.
-     */
-
-  }, {
-    key: 'getNextSibling',
-    value: function getNextSibling() {
-      if (!this.parent || this.index == null) {
-        return null;
-      }
-      return NodePath.getForNode(this.parent[this.property][this.index + 1], NodePath.getForNode(this.parent), this.property, this.index + 1);
-    }
-
-    /**
-     * Returns a NodePath instance for a node.
-     *
-     * The same NodePath can be reused in several places, e.g.
-     * a parent node passed for all its children.
-     */
-
-  }], [{
-    key: 'getForNode',
-    value: function getForNode(node) {
-      var parentPath = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var prop = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var index = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : -1;
-
-      if (!node) {
-        return null;
-      }
-
-      if (!NodePath.registry.has(node)) {
-        NodePath.registry.set(node, new NodePath(node, parentPath, prop, index == -1 ? null : index));
-      }
-
-      var path = NodePath.registry.get(node);
-
-      if (parentPath !== null) {
-        path.parentPath = parentPath;
-        path.parent = path.parentPath.node;
-      }
-
-      if (prop !== null) {
-        path.property = prop;
-      }
-
-      if (index >= 0) {
-        path.index = index;
-      }
-
-      return path;
-    }
-
-    /**
-     * Initializes the NodePath registry. The registry is a map from
-     * a node to its NodePath instance.
-     */
-
-  }, {
-    key: 'initRegistry',
-    value: function initRegistry() {
-      if (!NodePath.registry) {
-        NodePath.registry = new Map();
-      }
-      NodePath.registry.clear();
-    }
-
-    /**
-     * Updates index of a currently traversing collection.
-     */
-
-  }, {
-    key: 'updateTraversingIndex',
-    value: function updateTraversingIndex(dx) {
-      return NodePath.traversingIndexStack[NodePath.traversingIndexStack.length - 1] += dx;
-    }
-
-    /**
-     * Returns current traversing index.
-     */
-
-  }, {
-    key: 'getTraversingIndex',
-    value: function getTraversingIndex() {
-      return NodePath.traversingIndexStack[NodePath.traversingIndexStack.length - 1];
-    }
-  }]);
-
-  return NodePath;
-}();
-
-NodePath.initRegistry();
-
-/**
- * Index of a currently traversing collection is stored on top of the
- * `NodePath.traversingIndexStack`. Remove/insert methods can adjust
- * this index.
- */
-NodePath.traversingIndexStack = [];
-
-// Helper function used to skip `loc` in JSON operations.
-function jsonSkipLoc(prop, value) {
-  if (prop === 'loc') {
-    return undefined;
-  }
-  return value;
-}
-
-module.exports = NodePath;
-},{}],233:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-/**
- * Performs a deep copy of an simple object.
- * Only handles scalar values, arrays and objects.
- *
- * @param obj Object
- */
-
-module.exports = function clone(obj) {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-  var res = void 0;
-  if (Array.isArray(obj)) {
-    res = [];
-  } else {
-    res = {};
-  }
-  for (var i in obj) {
-    res[i] = clone(obj[i]);
-  }
-  return res;
-};
-},{}],234:[function(require,module,exports){
-/**
- * The MIT License (MIT)
- * Copyright (c) 2017-present Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
- */
-
-'use strict';
-
-module.exports = require('./dist/regexp-tree');
-},{"./dist/regexp-tree":228}],235:[function(require,module,exports){
-const regexpTree = require('regexp-tree');
-
-module.exports = function (re, opts) {
-  if (!opts) opts = {};
-  const replimit = opts.limit === undefined ? 25 : opts.limit;
-
-  // Build an AST
-  let myRegExp = null;
-  let ast = null;
-  try {
-    // Construct a RegExp object
-    if (re instanceof RegExp) {
-      myRegExp = re;
-    } else if (typeof re === 'string') {
-      myRegExp = new RegExp(re);
-    } else {
-      myRegExp = new RegExp(String(re));
-    }
-
-    // Build an AST
-    ast = regexpTree.parse(myRegExp);
-  } catch (err) {
-    // Invalid or unparseable input
-    return false;
-  }
-
-  let currentStarHeight = 0;
-  let maxObservedStarHeight = 0;
-
-  let repetitionCount = 0;
-
-  regexpTree.traverse(ast, {
-    'Repetition': {
-      pre ({node}) {
-        repetitionCount++;
-
-        currentStarHeight++;
-        if (maxObservedStarHeight < currentStarHeight) {
-          maxObservedStarHeight = currentStarHeight;
-        }
-      },
-
-      post ({node}) {
-        currentStarHeight--;
-      }
-    }
-  });
-
-  return (maxObservedStarHeight <= 1) && (repetitionCount <= replimit);
-};
-
-},{"regexp-tree":234}],236:[function(require,module,exports){
+},{"./lib/_stream_writable.js":184}],194:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -34722,7 +27824,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":84,"inherits":96,"readable-stream/duplex.js":176,"readable-stream/passthrough.js":187,"readable-stream/readable.js":188,"readable-stream/transform.js":189,"readable-stream/writable.js":190}],237:[function(require,module,exports){
+},{"events":87,"inherits":99,"readable-stream/duplex.js":179,"readable-stream/passthrough.js":190,"readable-stream/readable.js":191,"readable-stream/transform.js":192,"readable-stream/writable.js":193}],195:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -34801,7 +27903,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":172,"timers":237}],238:[function(require,module,exports){
+},{"process/browser.js":175,"timers":195}],196:[function(require,module,exports){
 (function (global){
 //     Underscore.js 1.9.1
 //     http://underscorejs.org
@@ -36497,7 +29599,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
 }());
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],239:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 /** @license URI.js v4.2.1 (c) 2011 Gary Court. License: http://github.com/garycourt/uri-js */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -37888,7 +30990,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 })));
 
 
-},{}],240:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -38622,7 +31724,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":241,"punycode":54,"querystring":175}],241:[function(require,module,exports){
+},{"./util":199,"punycode":57,"querystring":178}],199:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -38640,7 +31742,7 @@ module.exports = {
   }
 };
 
-},{}],242:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 (function (global){
 
 /**
@@ -38711,14 +31813,14 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],243:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],244:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -39308,7 +32410,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":243,"_process":172,"inherits":96}],245:[function(require,module,exports){
+},{"./support/isBuffer":201,"_process":175,"inherits":99}],203:[function(require,module,exports){
 (function(module) {
     'use strict';
 
@@ -39463,7 +32565,7 @@ function hasOwnProperty(obj, prop) {
 
 })(module);
 
-},{}],246:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 module.exports={
     "title": "Schema for scribejs nickname files",
     "description": "Nicknames for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",

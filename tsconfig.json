@@ -1,0 +1,51 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "alwaysStrict": true,
+        "baseUrl": ".",
+        "esModuleInterop": false,
+        "lib": ["ES2019", "dom"],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noEmitHelpers": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": false,
+        "outDir": ".",
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        },
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "target": "ES2019",
+    },
+    "typesRoots": [
+        "../node_modules/@types"
+    ],
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "lib/**/*"
+    ],
+    "typedocOptions" : {
+        "mode": "module",
+        "includeDeclarations": true,
+        "excludeExternals": true,
+        "excludePrivate" : true,
+        "excludeProtected" : false,
+        "stripInternal" : true,
+        "ignoreCompilerErrors": true,
+        "out" : "BrowserView/docs",
+        "theme": "default",
+        "includeVersion": true,
+        "categorizeByGroup": true,
+        "gitRemote": "origin",
+        "hideGenerator": true,
+        "disableOutputCheck": false,
+        "listInvalidSymbolLinks": true,
+        "name" : "Converter of RSSAgent IRC logs into minutes in markdown"
+    }
+}

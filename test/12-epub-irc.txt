@@ -42,6 +42,8 @@
 00:13:18 <dauwhe> Proposal: deprecate `rendition:align-x-center`
 00:13:31 <Nellie> +1
 00:13:32 <MattChan> +1
+00:13:32 <MattChan> scribejs, set nami Másik János
+00:13:32 <MattChan> present+ nami
 00:14:04 <jyoshii_> 0
 00:14:28 <rkuroda> 0
 00:14:30 <toshiakikoike> +1
@@ -52,7 +54,8 @@
 00:14:56 <Daihei> +1
 00:16:04 <dauwhe> Resolved: deprecate `rendition:align-x-center` pending confirmation on NA call
 00:16:46 <dauwhe> q+
-00:16:51 <dauwhe> topic: CSS Writing Modes reference @issue 1389
+00:16:51 <dauwhe> topic: CSS Writing Modes reference @issue 1389,1390
+00:16:51 <dauwhe> scribejs, issue 1391
 00:17:48 <shiestyle> ack dauwhe
 00:18:16 <florian> q+
 00:19:12 <shiestyle> ack florian
@@ -146,15 +149,15 @@
 00:58:04 <tzviya> tzviya has joined #epub
 00:58:18 <dauwhe> ... should we issue an info only for epub prefixes?
 00:58:31 <dauwhe> florian: my opinion is that it is low priority
-00:58:46 <dauwhe> ... when we know what unprefixed property should be used
+00:58:46 <dauwhe> ... when we know what unprefixed property should be used ?
 00:58:49 <dauwhe> q+
 00:59:32 <shiestyle> ack dauwhe
 01:00:41 <duga> duga has joined #epub
 01:00:59 <duga> present+
+01:00:59 <ivan> s/?/question/
 01:01:09 <dauwhe> dauwhe: we're not sure how much we want to enforce restrictions on CSS
 01:01:39 <dauwhe> shiestyle: in conclusion, we will continue to discuss unsupported features. I will file a GitHub issue.
 01:01:46 <dauwhe> ... and we can continue the discussion there.
-01:02:48 <dauwhe> Zakim, end meeting
 01:02:48 <Zakim> As of this point the attendees have been florian, MasakazuKitahara, MattChan, toshiakikoike, shiestyle, jyoshii_, naomi, Daihei, `1, duga
 01:02:50 <Zakim> RRSAgent, please draft minutes
 01:02:50 <RRSAgent> I have made the request to generate https://www.w3.org/2020/11/12-epub-minutes.html Zakim

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-alert */
 /* eslint-env browser */
 
@@ -66,7 +67,7 @@ async function bridge(form) {
 
     const irc_log  = form.elements.text.value;
     // undefined for testing...
-    return convert.to_markdown(irc_log, config, theActions);
+    return new convert.Converter(config, theActions).convert_to_markdown(irc_log);
 }
 
 function emptyNode(n) {

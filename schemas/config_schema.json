@@ -34,7 +34,7 @@
             "type": "boolean"
         },
         "auto": {
-            "title": "hether the draft label is to be generated automatically into the minutes via a separate script.",
+            "title": "Whether the draft label is to be generated automatically into the minutes via a separate script.",
             "type": "boolean"
         },
         "torepo": {
