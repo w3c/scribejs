@@ -2009,11 +2009,13 @@ function handle_scribejs(line_object, config) {
  * The function takes care of a frequent scribe error: the continuation line (starting with a '...' or an '…')
  * is sometimes preceded by a ':'. This is taken care of by returning the full line without the ':'.
  *
+ * Another frequent error is to put a space after the label but before the ':' character. This is also taken care of.
+ *
  * @param {string} line - one line of text
  * @returns {object} - {label, content}, containing the (possibly null) label, separated from the rest
  */
 function get_label(line) {
-    const reg = line.trim().match(/^(\w+):(.*)$/);
+    const reg = line.trim().match(/^(\w+)[ ]{0,2}:(.*)$/);
     if (reg === null) {
         return {
             label: null,
@@ -2621,7 +2623,7 @@ function add_links(line) {
                 return list_of_words;
             }
             else {
-                const new_link_word = [`[${rest.slice(0, link_index).join(' ')}](${rest[link_index]})`];
+                const new_link_word = [`See [${rest.slice(0, link_index).join(' ')}](${rest[link_index]})`];
                 const so_far = [...preamble, ...new_link_word];
                 if (link_index === rest.length) {
                     return so_far;
