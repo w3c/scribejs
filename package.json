@@ -40,10 +40,8 @@
     "js-yaml": ">=3.13.1",
     "marked": ">=0.3.18",
     "marked-it-core": "^0.14.1",
-    "moment": "^2.24.0",
     "node-fetch": "^2.6.1",
     "octokat": "^0.10.0",
-    "safe-regex": "^2.1.1",
     "terser": "^3.17.0",
     "underscore": "^1.8.3",
     "valid-url": "^1.0.9"
@@ -53,10 +51,8 @@
     "@types/commander": "^2.12.2",
     "@types/js-yaml": "^3.12.5",
     "@types/marked": "^1.2.0",
-    "@types/moment": "^2.13.0",
     "@types/node": "^14.14.10",
     "@types/node-fetch": "^2.5.7",
-    "@types/safe-regex": "^1.1.2",
     "@types/terser": "^3.12.0",
     "@types/underscore": "^1.10.24",
     "@types/valid-url": "^1.0.3",
@@ -72,7 +68,7 @@
   },
   "scripts": {
     "docs": "./node_modules/typedoc/bin/typedoc",
-    "dist" : "tsc",
+    "dist": "tsc",
     "build": "tsc && browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
     "lint": "eslint src/*",
     "serve": "http-server BrowserView/"
