@@ -7,6 +7,8 @@
 */
 
 import { Configuration, Header } from './types';
+import { Constants }             from './types';
+import { Action, Actions } from './actions';
 
 
 /**
@@ -14,9 +16,11 @@ import { Configuration, Header } from './types';
  *
  * @param header - the structure used by the converter to generate the header entries into the minutes
  * @param config - the general configuration file for the scribejs run
+ * @param action_list - the list of Actions accumulated from the minutes
  * @returns the JSON-LD encoded schema.org metadata of the minutes
  */
-export function schema_data(header: Header, config: Configuration): string {
+// eslint-disable-next-line max-lines-per-function
+function schema_data(header: Header, config: Configuration, action_list: Actions): string {
     // eslint-disable-next-line max-len
     const url_pattern = (pattern: string): string => pattern.replace(/%YEAR%/g, year).replace(/%MONTH%/g, month).replace(/%DAY%/g, day).replace(/%DATE%/g, header.date);
 
@@ -87,7 +91,60 @@ export function schema_data(header: Header, config: Configuration): string {
             })),
         ],
     };
+
+    if (action_list.valid && action_list.actions.length > 0) {
+        schema_metadata.recordedAt.potentialAction = action_list.actions.map((action: Action): any => {
+            return {
+                "@type"    : "Action",
+                "location" : {
+                    "@type"      : "VirtualLocation",
+                    "name"       : `GitHub repository`,
+                    "identifier" : action_list.repo_name,
+                },
+                "identifier" : action.gh_action_id,
+                "object"     : action.body,
+                "title"      : action.title,
+                "agent"      : {
+                    "@type" : "Person",
+                    "name"  : action.assignee,
+                },
+            }
+        })
+    }
+
     // Care should be taken to properly indent the data, otherwise jekyll ignores this
     return JSON.stringify(schema_metadata, null, 4).replace(/\n/g, '\n    ').replace(/^{/, '    {');
 }
 
+
+export function generate_front_matter(headers: Header, config: Configuration, action_list: Actions): string {
+    const json_ld = schema_data(headers, config, action_list);
+
+    let front_matter: string;
+
+    if (config.jekyll !== Constants.JEKYLL_NONE) {
+        front_matter = `---
+layout: minutes
+date: ${headers.date}
+title: ${headers.meeting} — ${headers.date}
+json-ld: |
+${json_ld}
+---
+`
+    } else if (config.pandoc) {
+        front_matter = `% ${headers.meeting} — ${headers.date}
+
+![W3C Logo](https://www.w3.org/Icons/w3c_home)
+
+`;
+    } else {
+        front_matter = `<!---
+${json_ld}
+-->
+
+![W3C Logo](https://www.w3.org/Icons/w3c_home)
+`
+    }
+
+    return front_matter
+}
