@@ -8,7 +8,7 @@
 
 import { Configuration, Header } from './types';
 import { Constants }             from './types';
-import { Action, Actions } from './actions';
+import { Action, Actions }       from './actions';
 
 
 /**
@@ -103,7 +103,7 @@ function schema_data(header: Header, config: Configuration, action_list: Actions
                 },
                 "identifier" : action.gh_action_id,
                 "object"     : action.body,
-                "title"      : action.title,
+                "name"       : action.title,
                 "agent"      : {
                     "@type" : "Person",
                     "name"  : action.assignee,
