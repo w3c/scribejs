@@ -64,6 +64,9 @@ export interface Configuration {
     /** Whether the output should be adapted to a Github+Jekyll combination. Values may be 'none', 'md', or 'kd' */
     jekyll?:        string;
 
+    /** Whether the output front matter should also include the schema.org metadata in schema.org */
+    schema?:        boolean;
+
     /**
      * Whether the input is of the log format of a particular IRC client.
      *
