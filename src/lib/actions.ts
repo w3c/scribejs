@@ -4,15 +4,13 @@
  * @packageDocumentation
 */
 
-import { Configuration }    from './types';
-import { GitHub }           from './js/githubapi';
+import { Configuration } from './types';
 
 /**
  * Data necessary to raise an action issue. The data is stored in the JSON-LD metadata of the minutes
  * and can be processed by a separate post-processing step to raise the issues.
  */
 export interface Action {
-    gh_action_id: string;
     title: string;
     body: string;
     assignee: string;
@@ -86,7 +84,6 @@ export class Actions {
             const short_message = `${message} (${name})`;
             const full_message = this.url ? `${short_message} ([see details](${this.url}#${id}))` : short_message;
             this.actions.push({
-                gh_action_id,
                 title : `${gh_action_id}: ${short_message}`,
                 body  : `${full_message}\n\nCc: @${assignee}`,
                 assignee,

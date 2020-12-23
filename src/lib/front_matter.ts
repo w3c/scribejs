@@ -101,10 +101,9 @@ function schema_data(header: Header, config: Configuration, action_list: Actions
                     "name"       : `GitHub repository`,
                     "identifier" : action_list.repo_name,
                 },
-                "identifier" : action.gh_action_id,
-                "object"     : action.body,
-                "name"       : action.title,
-                "agent"      : {
+                "object" : action.body,
+                "name"   : action.title,
+                "agent"  : {
                     "@type" : "Person",
                     "name"  : action.assignee,
                 },
