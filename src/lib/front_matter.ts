@@ -7,7 +7,7 @@
 */
 
 import { Global, Header }  from './types';
-import { Constants }       from './types';
+import { Constants, Resolution }       from './types';
 import { Action, Actions } from './actions';
 
 
@@ -15,7 +15,7 @@ import { Action, Actions } from './actions';
  * Generating a json-ld header to the minutes using schema.org vocabulary items.
  *
  * @param header - the structure used by the converter to generate the header entries into the minutes
- * @param global - the general configuration file for the scribejs run
+ * @param global - the general global data for the scribejs run
  * @returns the JSON-LD encoded schema.org metadata of the minutes
  */
 // eslint-disable-next-line max-lines-per-function
@@ -35,10 +35,25 @@ function schema_data(header: Header, global: Global): string {
     });
 
     // Build up the structures that is then returned as a JSON string
-    const schema_metadata: any = {
-        '@context' : 'https://schema.org/',
-        '@type'    : 'CreativeWork',
-    };
+    const schema_metadata: any = {};
+    if (global.resolution_list.length === 0) {
+        schema_metadata['@context'] = 'https://schema.org';
+    } else {
+        const resolution_context = JSON.parse(`{
+            "resolution" : {
+                "@id": "https://w3c.github.io/scribejs/vocab/resolution",
+                "@context" : {
+                    "@vocab": "https://w3c.github.io/scribejs/vocab/"
+                }
+            }
+        }`);
+        schema_metadata['@context'] = [
+            'https://schema.org',
+            resolution_context,
+        ]
+    }
+
+    schema_metadata['@type'] = 'CreativeWork';
 
     if (global.acurlpattern) {
         schema_metadata.url = url_pattern(global.acurlpattern);
@@ -106,6 +121,16 @@ function schema_data(header: Header, global: Global): string {
                     "@type" : "Person",
                     "name"  : action.assignee,
                 },
+            }
+        })
+    }
+
+    if (global.resolution_list.length > 0) {
+        schema_metadata.resolution = global.resolution_list.map((resolution: Resolution): any => {
+            return {
+                '@type'           : "Resolution",
+                resolution_number : resolution.resolution_number,
+                resolution_text   : resolution.resolution_text,
             }
         })
     }

@@ -127,29 +127,35 @@ export interface Global extends Configuration {
      * Message to be used if the script uploads the minutes directly to Github. This is a fixed text
      * at the moment, generated with the right date and generation time.
      */
-    ghmessage?:     string;
+    ghmessage?:       string;
 
     /**
      * Original URL for the IRC log, stored run-time
      */
-    orig_irc_log?:  string;
+    orig_irc_log?:    string;
 
     /**
      * List of actions, collected while the conversion is done
      */
-    action_list?:   Actions;
+    action_list?:     Actions;
+
+    /**
+     * List of resolutions, collected while the conversion is done
+     */
+    resolution_list?: Resolution[];
+
 
     /**
      * List of all the nicknames as retrieved from the nickname file.
      *
      * Note: this variable is set run-time, not via the configuration file
      */
-    nicks?:         PersonWithNickname[];
+    nicks?:           PersonWithNickname[];
 
     /**
      * Mapping from names to a Nickname structure
      */
-    nick_mappings?: NicknameMapping;
+    nick_mappings?:   NicknameMapping;
 }
 
 
@@ -242,4 +248,13 @@ export interface IssueReference {
 
     /** The issue reference directives to be added the final minutes */
     issue_reference: string;
+}
+
+/**
+ * Used to structure the resolution data stored in the JSON-LD header
+ */
+export interface Resolution {
+    /** The number of the resolution */
+    resolution_number: number,
+    resolution_text: string
 }

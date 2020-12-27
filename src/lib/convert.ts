@@ -30,6 +30,7 @@ export class Converter {
     constructor(config: Global) {
         this.global = config;
         this.global.action_list = new Actions(config);
+        this.global.resolution_list = [];
         this.kramdown = config.jekyll === Constants.JEKYLL_KRAMDOWN;
     }
 
@@ -287,6 +288,10 @@ ${no_toc}
                 // GFM and CommonMark do not support anchor creation...so we can't link to the resolutions :-(
                 resolutions = resolutions.concat(`\n* Resolution #${rcounter}: ${content}`);
             }
+            this.global.resolution_list.push({
+                resolution_number : rcounter,
+                resolution_text   : content,
+            });
             rcounter += 1;
             return retval;
         };
