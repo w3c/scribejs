@@ -6,21 +6,20 @@
  * @packageDocumentation
 */
 
-import { Configuration, Header } from './types';
-import { Constants }             from './types';
-import { Action, Actions }       from './actions';
+import { Global, Header }  from './types';
+import { Constants }       from './types';
+import { Action, Actions } from './actions';
 
 
 /**
  * Generating a json-ld header to the minutes using schema.org vocabulary items.
  *
  * @param header - the structure used by the converter to generate the header entries into the minutes
- * @param config - the general configuration file for the scribejs run
- * @param action_list - the list of Actions accumulated from the minutes
+ * @param global - the general configuration file for the scribejs run
  * @returns the JSON-LD encoded schema.org metadata of the minutes
  */
 // eslint-disable-next-line max-lines-per-function
-function schema_data(header: Header, config: Configuration, action_list: Actions): string {
+function schema_data(header: Header, global: Global): string {
     // eslint-disable-next-line max-len
     const url_pattern = (pattern: string): string => pattern.replace(/%YEAR%/g, year).replace(/%MONTH%/g, month).replace(/%DAY%/g, day).replace(/%DATE%/g, header.date);
 
@@ -41,8 +40,8 @@ function schema_data(header: Header, config: Configuration, action_list: Actions
         '@type'    : 'CreativeWork',
     };
 
-    if (config.acurlpattern) {
-        schema_metadata.url = url_pattern(config.acurlpattern);
+    if (global.acurlpattern) {
+        schema_metadata.url = url_pattern(global.acurlpattern);
     }
 
     schema_metadata.name = `${header.meeting} — Minutes`;
@@ -92,14 +91,14 @@ function schema_data(header: Header, config: Configuration, action_list: Actions
         ],
     };
 
-    if (action_list.valid && action_list.actions.length > 0) {
-        schema_metadata.recordedAt.potentialAction = action_list.actions.map((action: Action): any => {
+    if (global.action_list.valid && global.action_list.actions.length > 0) {
+        schema_metadata.recordedAt.potentialAction = global.action_list.actions.map((action: Action): any => {
             return {
                 "@type"    : "Action",
                 "location" : {
                     "@type"      : "VirtualLocation",
                     "name"       : `GitHub repository`,
-                    "identifier" : action_list.repo_name,
+                    "identifier" : global.action_list.repo_name,
                 },
                 "object" : action.body,
                 "name"   : action.title,
@@ -127,17 +126,16 @@ function schema_data(header: Header, config: Configuration, action_list: Actions
  *
  *
  * @param header - the structure used by the converter to generate the header entries into the minutes
- * @param config - the general configuration file for the scribejs run
- * @param action_list - the list of Actions accumulated from the minutes
+ * @param global - the general configuration file for the scribejs run
  * @returns the full front matter
  */
 
-export function generate_front_matter(headers: Header, config: Configuration, action_list: Actions): string {
-    const json_ld = config.schema ? schema_data(headers, config, action_list) : '';
+export function generate_front_matter(headers: Header, global: Global): string {
+    const json_ld = global.schema ? schema_data(headers, global) : '';
 
     let front_matter: string;
 
-    if (config.jekyll !== Constants.JEKYLL_NONE) {
+    if (global.jekyll !== Constants.JEKYLL_NONE) {
         front_matter = `---
 layout: minutes
 date: ${headers.date}
@@ -152,7 +150,7 @@ ${json_ld}
         front_matter += `
 ---
 `
-    } else if (config.pandoc) {
+    } else if (global.pandoc) {
         front_matter = `% ${headers.meeting} — ${headers.date}
 
 ![W3C Logo](https://www.w3.org/Icons/w3c_home)

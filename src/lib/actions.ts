@@ -49,12 +49,10 @@ export class Actions {
         }
     }
 
-    // ------------------------ "Public" methods ----------------------------------------
-
     /**
      * Set the date of all actions. This method is called by the minute generator once the
      * date has been established (e.g., from a 'date' line in the IRC log). Based on the date, this method
-     * also sets the value of `this.url`, replacing the patterns in `acurlpattern`, if necessary.
+     * sets the value of `this.url`, replacing the patterns in `acurlpattern`, if necessary.
      *
      * @param date - date of the minutes
      */

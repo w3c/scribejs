@@ -18,10 +18,7 @@ import { Actions }                              from './actions';
  */
 export class Converter {
     /** The global data for all things done; an extension of the user configuration with some run-time data */
-    private config: Global;
-
-    /** List of actions, collected while the conversion is done */
-    private action_list: Actions;
+    private global: Global;
 
     /** Whether kramdown (as opposed to vanilla markdown) is used for output */
     private kramdown: boolean;
@@ -31,8 +28,8 @@ export class Converter {
      * @param config - the global data. Some of the fields are only placeholders and are filled in while processing
      */
     constructor(config: Global) {
-        this.config = config;
-        this.action_list = new Actions(config);
+        this.global = config;
+        this.global.action_list = new Actions(config);
         this.kramdown = config.jekyll === Constants.JEKYLL_KRAMDOWN;
     }
 
@@ -60,7 +57,7 @@ export class Converter {
          */
         const nick_mapping = (the_nick: string) => {
             try {
-                const retval = this.config.nicks.find((ns: PersonWithNickname): boolean => ns.nick.includes(the_nick));
+                const retval = this.global.nicks.find((ns: PersonWithNickname): boolean => ns.nick.includes(the_nick));
                 return retval || null;
             } catch (e) {
                 return null;
@@ -73,12 +70,12 @@ export class Converter {
         const clean_nick = utils.canonical_nick(nick);
 
         // if this nickname has been used before, just return it
-        if (this.config.nick_mappings[clean_nick]) {
-            return this.config.nick_mappings[clean_nick];
+        if (this.global.nick_mappings[clean_nick]) {
+            return this.global.nick_mappings[clean_nick];
         } else {
             const person: PersonWithNickname = nick_mapping(clean_nick);
             if (person) {
-                this.config.nick_mappings[clean_nick] = person;
+                this.global.nick_mappings[clean_nick] = person;
                 return person;
             } else {
                 // As a minimal measure, remove the '_' characters from the name
@@ -149,7 +146,7 @@ export class Converter {
     private generate_preamble(headers: Header): string {
         let header_class = '';
         if (this.kramdown) {
-            header_class = (this.config.final === true || this.config.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
+            header_class = (this.global.final === true || this.global.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
         } else {
             header_class = '';
         }
@@ -158,12 +155,12 @@ export class Converter {
         const core_header = `
 # ${headers.meeting} — Minutes
 ${header_class}
-${this.config.final === true || this.config.auto === true ? '' : '***– DRAFT Minutes –***'}
-${(this.config.final === true || this.config.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
+${this.global.final === true || this.global.auto === true ? '' : '***– DRAFT Minutes –***'}
+${(this.global.final === true || this.global.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
 
 **Date:** ${headers.date}
 
-See also the [Agenda](${headers.agenda}) and the [IRC Log](${this.config.orig_irc_log})
+See also the [Agenda](${headers.agenda}) and the [IRC Log](${this.global.orig_irc_log})
 
 ## Attendees
 ${no_toc}
@@ -324,9 +321,7 @@ ${no_toc}
                 // ------
                 // Store the actions, if the separate action list handler is available
                 // add_action(name, action, id)
-                if (this.action_list !== undefined) {
-                    this.action_list.add_action(`${id}`, message, name, ghname);
-                }
+                this.global.action_list.add_action(`${id}`, message, name, ghname);
             } else {
                 console.log(`Warning: incorrect action syntax used: ${words}`);
             }
@@ -377,7 +372,7 @@ ${no_toc}
             if (label !== null && label.toLowerCase() === 'topic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure: IssueReference = issues.titles(this.config, content);
+                const title_structure: IssueReference = issues.titles(this.global, content);
                 final_minutes += add_to_toc(title_structure.title_text, 1);
                 if (title_structure.issue_reference !== '') {
                     final_minutes += title_structure.issue_reference;
@@ -389,7 +384,7 @@ ${no_toc}
             } else if (label !== null && label.toLowerCase() === 'subtopic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure: IssueReference = issues.titles(this.config, content);
+                const title_structure: IssueReference = issues.titles(this.global, content);
                 final_minutes += add_to_toc(title_structure.title_text, 2);
                 if (title_structure.issue_reference !== '') {
                     final_minutes += title_structure.issue_reference;
@@ -427,7 +422,7 @@ ${no_toc}
                 within_scribed_content = false;
                 const directive        = issue_match[2];
                 const issue_references = issue_match[3];
-                final_minutes += issues.issue_directives(this.config, directive, issue_references);
+                final_minutes += issues.issue_directives(this.global, directive, issue_references);
 
             // The 'scribed' line, ie, the lines whose 'nick' is one of the registered scribes.
             } else if (scribes.includes(utils.canonical_nick(line_object.nick))) {
@@ -541,11 +536,11 @@ ${no_toc}
         // 1. cleanup the content, ie, remove the bot commands and the like
         // The lines of text are also converted to LineObject-s on the fly, ie
         // in an array of {nick, content} structures
-        const irc_log: LineObject[] = utils.cleanup(split_body, this.config);
+        const irc_log: LineObject[] = utils.cleanup(split_body, this.global);
 
         // 2. separate the header information
         // eslint-disable-next-line prefer-const
-        let { headers, lines } = utils.separate_header(irc_log, this.config.date as string);
+        let { headers, lines } = utils.separate_header(irc_log, this.global.date as string);
 
         // 3. Perform changes, ie, execute on requests of the "i/.../..." and "s/.../.../" forms in the log:
         lines = utils.perform_insert_requests(lines);
@@ -553,9 +548,7 @@ ${no_toc}
 
         // 4. Store the actions' date, if the separate action list handler is available.
         // (the list of actions is created on the fly...)
-        if (this.action_list !== undefined) {
-            this.action_list.set_date(headers.date);
-        }
+        this.global.action_list.set_date(headers.date);
 
         // 5. Clean up the header by using the real names rather then the nicknames
         headers = this.cleanup_names_in_header(headers);
@@ -570,7 +563,7 @@ ${no_toc}
         // 9. Generate the front matter part of the minutes (e.g., whatever is necessary for jekyll to work).
         //    The order is important: the front matter includes the JSON-LD metadata, and that relies on the final
         //    content (e.g., list of actions)
-        const front_matter = generate_front_matter(headers, this.config, this.action_list);
+        const front_matter = generate_front_matter(headers, this.global);
 
         // 10. Return the concatenation of all constituent parts.
         return front_matter + preamble + content;

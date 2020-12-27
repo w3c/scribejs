@@ -5,6 +5,8 @@
  * @packageDocumentation
 */
 
+import { Actions }  from './actions';
+
 export const debug = false;
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -131,6 +133,11 @@ export interface Global extends Configuration {
      * Original URL for the IRC log, stored run-time
      */
     orig_irc_log?:  string;
+
+    /**
+     * List of actions, collected while the conversion is done
+     */
+    action_list?:   Actions;
 
     /**
      * List of all the nicknames as retrieved from the nickname file.
