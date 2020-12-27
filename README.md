@@ -2,7 +2,7 @@
 
 # RSSAgent IRC Logs Into Minutes in Markdown
 
-This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary]([features.md](https://w3c.github.io/scribejs/features.html)) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
+This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary](https://w3c.github.io/scribejs/features.html) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
 
 The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. The current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members. As an extra bonus, if the group’s Web site is also on github, the minutes can become integral part of that Web Site (including the look-and-feel).
 
@@ -45,7 +45,6 @@ scribejs [options] [filename]
 ```
 
 Some notes:
-
 
 - On the usage of the `--final` and `--auto` flags: by default, the script considers the minutes as drafts, and adds a "DRAFT" notice right after the title. This is in line with the practice that minutes are to be reviewed before the subsequent call before being considered as final. If the `--final` flag is used, this notice is not added to the final minutes; this is useful for minutes taken at a task force meeting, for example. The `--auto` flag provides an alternative to the explicit notice: instead of an explicit notice that title element (in the final HTML) a `class` value of `draft_notice_needed` is added to the title elements. Client side scripts may be used to control the appearance of a "Draft" notice, depending on, e.g., the date of the minutes.
 
@@ -154,7 +153,7 @@ If the generated minutes are in kramdown format then a number of sections/paragr
 
 ### Schema.org data in JSON-LD
 
-The generated minutes may contain schema.org metadata, encoded in JSON-LD as part of the page header. Various client-side scripts can make use of that.
+The generated minutes may contain schema.org metadata like URL, dates, participants, scribes, etc., encoded in JSON-LD as part of the page header. The metadata also includes the list of resolutions and actions, when applicable. Client-side scripts can make use of that data.
 
 ## Installation
 

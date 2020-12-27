@@ -17,7 +17,7 @@ import { Actions }                              from './actions';
  * The "top level" class to perform the conversion.
  */
 export class Converter {
-    /** The global data for all things done; an extension of the user configuration with some run-time data */
+    /** The global data for all things done; an extension of the user configuration with most of the run-time data */
     private global: Global;
 
     /** Whether kramdown (as opposed to vanilla markdown) is used for output */
