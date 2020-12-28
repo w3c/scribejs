@@ -6,9 +6,9 @@
  * @packageDocumentation
 */
 
-import { Global, Header }  from './types';
-import { Constants, Resolution }       from './types';
-import { Action, Actions } from './actions';
+import { Global, Header }         from './types';
+import { Constants, Resolution }  from './types';
+import { Action }                 from './actions';
 
 
 /**
@@ -36,22 +36,21 @@ function schema_data(header: Header, global: Global): string {
 
     // Build up the structures that is then returned as a JSON string
     const schema_metadata: any = {};
-    if (global.resolution_list.length === 0) {
-        schema_metadata['@context'] = 'https://schema.org';
-    } else {
-        const resolution_context = JSON.parse(`{
-            "resolution" : {
-                "@id": "https://w3c.github.io/scribejs/vocab/resolution",
-                "@context" : {
-                    "@vocab": "https://w3c.github.io/scribejs/vocab/"
-                }
+    const resolution_context = JSON.parse(`{
+        "resolution" : {
+            "@id": "https://w3c.github.io/scribejs/vocab/resolution",
+            "@context" : {
+                "@vocab": "https://w3c.github.io/scribejs/vocab/"
             }
-        }`);
-        schema_metadata['@context'] = [
-            'https://schema.org',
-            resolution_context,
-        ]
-    }
+        },
+        "irc" : {
+            "@id": "https://w3c.github.io/scribejs/vocab/irc"
+        }
+    }`);
+    schema_metadata['@context'] = [
+        'https://schema.org',
+        resolution_context,
+    ]
 
     schema_metadata['@type'] = 'CreativeWork';
 
@@ -62,6 +61,7 @@ function schema_data(header: Header, global: Global): string {
     schema_metadata.name = `${header.meeting} — Minutes`;
     schema_metadata.about = header.meeting;
     schema_metadata.dateCreated = header.date;
+    schema_metadata.irc = global.group;
     schema_metadata.datePublished = (new Date()).toISOString().split('T')[0];
     schema_metadata.genre = 'Meeting Minutes';
     schema_metadata.accessMode = 'textual';

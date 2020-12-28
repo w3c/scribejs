@@ -6,3 +6,4 @@ This is the (minimal) namespace document for predicates defined for, and used by
 * `https://w3c.github.io/scribejs/vocab/resolution`: a property referring to a resolution object; domain is `https://schema.org/CreativeWork`, range is `https://w3c.github.io/scribjes/vocab/Resolution`.
 * `https://w3c.github.io/scribejs/vocab/resolution_number`: a property referring to the number identifier of a resolution object; domain is `https://w3c.github.io/scribjes/vocab/Resolution`, range is an integer literal.
 * `https://w3c.github.io/scribejs/vocab/resolution_text`: a property referring to the text of the resolution; domain is `https://w3c.github.io/scribjes/vocab/Resolution`, range is a (string) literal.
+* `https://w3c.github.io/scribejs/vocab/irc`: a property referring to the irc channel used for the minutes; domain is `https://schema.org/CreativeWork`, range is a (string) literal.

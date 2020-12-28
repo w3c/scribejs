@@ -155,6 +155,12 @@ If the generated minutes are in kramdown format then a number of sections/paragr
 
 The generated minutes may contain schema.org metadata like URL, dates, participants, scribes, etc., encoded in JSON-LD as part of the page header. The metadata also includes the list of resolutions and actions, when applicable. Client-side scripts can make use of that data.
 
+At the moment, a [companion post-processing script](https://iherman.github.io/scribejs-postprocessing/) performs the following post-processing actions:
+
+* extracts the resolutions into a separate JSON file that can be used to display the resolutions client-side
+* extracts the actions recorded during the call to raise special issues on a group-specific GitHub repository
+* extracts parts of the minutes assigned to specific issues and adds a comment to those with the relevant portion of the minutes for cross-reference
+
 ## Installation
 
 Setup the project locally and install Node.js dependencies:
