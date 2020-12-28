@@ -256,5 +256,7 @@ export interface IssueReference {
 export interface Resolution {
     /** The number of the resolution */
     resolution_number: number,
+
+    /** The text of the resolution */
     resolution_text: string
 }
