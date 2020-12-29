@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Person | Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</title>
+	<title>Resolution | Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</title>
 	<meta name="description" content="Documentation for Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -57,26 +57,28 @@
 					<a href="../modules/_src_lib_types_.html">&quot;src/lib/types&quot;</a>
 				</li>
 				<li>
-					<a href="_src_lib_types_.person.html">Person</a>
+					<a href="_src_lib_types_.resolution.html">Resolution</a>
 				</li>
 			</ul>
-			<h1>Interface Person</h1>
+			<h1>Interface Resolution</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Used to structure the resolution data stored in the JSON-LD header</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">Person</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<a href="_src_lib_types_.personwithnickname.html" class="tsd-signature-type">PersonWithNickname</a>
-							</li>
-						</ul>
+						<span class="target">Resolution</span>
 					</li>
 				</ul>
 			</section>
@@ -87,10 +89,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_types_.person.html#github" class="tsd-kind-icon">github</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_types_.person.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_types_.person.html#role" class="tsd-kind-icon">role</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_types_.person.html#url" class="tsd-kind-icon">url</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_types_.resolution.html#resolution_number" class="tsd-kind-icon">resolution_<wbr>number</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_types_.resolution.html#resolution_text" class="tsd-kind-icon">resolution_<wbr>text</a></li>
 							</ul>
 						</section>
 					</div>
@@ -99,63 +99,32 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="github" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> github</h3>
-					<div class="tsd-signature tsd-kind-icon">github<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="resolution_number" class="tsd-anchor"></a>
+					<h3>resolution_<wbr>number</h3>
+					<div class="tsd-signature tsd-kind-icon">resolution_<wbr>number<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/282f896/src/lib/types.ts#L171">src/lib/types.ts:171</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/282f896/src/lib/types.ts#L258">src/lib/types.ts:258</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Github ID of the person.</p>
-						</div>
-						<p>Currently not really used, could be used later to add links to the minutes.</p>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="name" class="tsd-anchor"></a>
-					<h3>name</h3>
-					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/282f896/src/lib/types.ts#L164">src/lib/types.ts:164</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The full name</p>
+							<p>The number of the resolution</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="role" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> role</h3>
-					<div class="tsd-signature tsd-kind-icon">role<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="resolution_text" class="tsd-anchor"></a>
+					<h3>resolution_<wbr>text</h3>
+					<div class="tsd-signature tsd-kind-icon">resolution_<wbr>text<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/282f896/src/lib/types.ts#L174">src/lib/types.ts:174</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/282f896/src/lib/types.ts#L261">src/lib/types.ts:261</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Particular role of the person: chair, staff contact, editor. (Currently not used, maybe in a future version)</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="url" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> url</h3>
-					<div class="tsd-signature tsd-kind-icon">url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/282f896/src/lib/types.ts#L177">src/lib/types.ts:177</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>URL of the person (currently not used, maybe in a future version)</p>
+							<p>The text of the resolution</p>
 						</div>
 					</div>
 				</section>
@@ -230,33 +199,27 @@
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="_src_lib_types_.nicknamemapping.html" class="tsd-kind-icon">Nickname<wbr>Mapping</a>
 					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_src_lib_types_.person.html" class="tsd-kind-icon">Person</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_src_lib_types_.personwithnickname.html" class="tsd-kind-icon">Person<wbr>With<wbr>Nickname</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="_src_lib_types_.person.html" class="tsd-kind-icon">Person</a>
+						<a href="_src_lib_types_.resolution.html" class="tsd-kind-icon">Resolution</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_src_lib_types_.person.html#github" class="tsd-kind-icon">github</a>
+								<a href="_src_lib_types_.resolution.html#resolution_number" class="tsd-kind-icon">resolution_<wbr>number</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_src_lib_types_.person.html#name" class="tsd-kind-icon">name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_src_lib_types_.person.html#role" class="tsd-kind-icon">role</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_src_lib_types_.person.html#url" class="tsd-kind-icon">url</a>
+								<a href="_src_lib_types_.resolution.html#resolution_text" class="tsd-kind-icon">resolution_<wbr>text</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="_src_lib_types_.personwithnickname.html" class="tsd-kind-icon">Person<wbr>With<wbr>Nickname</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="_src_lib_types_.resolution.html" class="tsd-kind-icon">Resolution</a>
-					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-module">
 						<a href="../modules/_src_lib_types_.html#debug" class="tsd-kind-icon">debug</a>
 					</li>

@@ -14,7 +14,6 @@ const io = require("./lib/io");
 const convert = require("./lib/convert");
 const conf = require("./lib/conf");
 const schemas = require("./lib/schemas");
-const actions_1 = require("./lib/actions");
 /* This is just the overall driver of the script... */
 /**
  * Entry point for the package: read the configuration files, get the IRC logs from the command line, convert and output the result in Markdown.
@@ -38,14 +37,10 @@ async function main() {
             console.warn('(nicknames ignored)');
             config.nicks = [];
         }
-        // Set up the action handling
-        const actions = new actions_1.Actions(config);
         // Get the IRC log itself
         const irc_log = await io.get_irc_log(config);
-        const minutes = new convert.Converter(config, actions).convert_to_markdown(irc_log);
-        // eslint-disable-next-line no-unused-vars
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [message, dummy] = await Promise.all([io.output_minutes(minutes, config), actions.raise_action_issues()]);
+        const minutes = new convert.Converter(config).convert_to_markdown(irc_log);
+        const message = await io.output_minutes(minutes, config);
         // That is it, folks!
         console.log(message);
     }
