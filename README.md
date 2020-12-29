@@ -171,14 +171,13 @@ cd scribejs
 npm install
 ```
 
-The code itself is in Typescript. The sources are in the `src` directory in the repository. If you do any change, run
+The code itself is in TypeScript. The sources are in the `src` directory in the repository. If you do any change, run
 
 ```bash
 tsc
 ```
 
 to generate the javascript files. All instructions below refer to the generated javascript versions.
-
 
 Follow specific instructions based on your needs/interests below.
 
@@ -212,9 +211,9 @@ Optionally, you can also run
 ts-node src/main.ts
 ```
 
-which will compile the Typescript source into Javascript on the fly and run the results. (You will have to install `ts-node` separately, though.)
+which will compile the TypeScript source into Javascript on the fly and run the results. (You will have to install `ts-node` separately, though.)
 
-Optionally, you can install it globally with:
+You can install it globally with:
 
 ```bash
 sudo npm i -g .
