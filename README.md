@@ -2,7 +2,7 @@
 
 # RSSAgent IRC Logs Into Minutes in Markdown
 
-This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary]([features.md](https://w3c.github.io/scribejs/features.html)) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
+This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of [David Booth's script](https://dev.w3.org/2002/scribe/scribedoc.htm) are retained. See also a separate [feature summary](https://w3c.github.io/scribejs/features.html) for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.
 
 The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. The current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members. As an extra bonus, if the group’s Web site is also on github, the minutes can become integral part of that Web Site (including the look-and-feel).
 
@@ -46,7 +46,6 @@ scribejs [options] [filename]
 
 Some notes:
 
-
 - On the usage of the `--final` and `--auto` flags: by default, the script considers the minutes as drafts, and adds a "DRAFT" notice right after the title. This is in line with the practice that minutes are to be reviewed before the subsequent call before being considered as final. If the `--final` flag is used, this notice is not added to the final minutes; this is useful for minutes taken at a task force meeting, for example. The `--auto` flag provides an alternative to the explicit notice: instead of an explicit notice that title element (in the final HTML) a `class` value of `draft_notice_needed` is added to the title elements. Client side scripts may be used to control the appearance of a "Draft" notice, depending on, e.g., the date of the minutes.
 
 ### Configuration files
@@ -65,6 +64,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `torepo`       : `true`\|`false`; whether the generated minutes should be uploaded to the group’s repository
 * `pandoc`       : `true`\|`false`; whether the goal is to post-process the minutes via the `pandoc` program (this requires minor adjustment on the output)
 * `jekyll`       : `"none"`\|`"md"`\|`"kd"`; controls the exact markdown dialect to be used for the output
+* `schema`       : `true`\|`false`; whether the output should include schema.org metadata, encoded in JSON-LD, and added as part of the front matter. Default is `true`.
 * `irc_format`   : `"textual"`\|`"irccloud"`\|`undefined`; choice among available IRC log formats
 * `ghrepo`       : repository name, e.g., `w3c/epub-wg`; this is where the minutes are to be stored
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
@@ -153,7 +153,13 @@ If the generated minutes are in kramdown format then a number of sections/paragr
 
 ### Schema.org data in JSON-LD
 
-The generated minutes may contain schema.org metadata, encoded in JSON-LD as part of the page header. Various client-side scripts can make use of that.
+The generated minutes may contain schema.org metadata like URL, dates, participants, scribes, etc., encoded in JSON-LD as part of the page header. The metadata also includes the list of resolutions and actions, when applicable. Client-side scripts can make use of that data.
+
+At the moment, a [companion post-processing script](https://iherman.github.io/scribejs-postprocessing/) performs the following post-processing actions:
+
+* extracts the resolutions into a separate JSON file that can be used to display the resolutions client-side
+* extracts the actions recorded during the call to raise special issues on a group-specific GitHub repository
+* extracts parts of the minutes assigned to specific issues and adds a comment to those with the relevant portion of the minutes for cross-reference
 
 ## Installation
 
@@ -165,14 +171,13 @@ cd scribejs
 npm install
 ```
 
-The code itself is in Typescript. The sources are in the `src` directory in the repository. If you do any change, run
+The code itself is in TypeScript. The sources are in the `src` directory in the repository. If you do any change, run
 
 ```bash
 tsc
 ```
 
 to generate the javascript files. All instructions below refer to the generated javascript versions.
-
 
 Follow specific instructions based on your needs/interests below.
 
@@ -206,9 +211,9 @@ Optionally, you can also run
 ts-node src/main.ts
 ```
 
-which will compile the Typescript source into Javascript on the fly and run the results. (You will have to install `ts-node` separately, though.)
+which will compile the TypeScript source into Javascript on the fly and run the results. (You will have to install `ts-node` separately, though.)
 
-Optionally, you can install it globally with:
+You can install it globally with:
 
 ```bash
 sudo npm i -g .

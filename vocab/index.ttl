@@ -1,0 +1,68 @@
+@prefix scribejs: <https://w3c.github.io/scribjes/vocab/>.
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:      <http://www.w3.org/2002/07/owl#>.
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix schema:   <https://schema.org>.
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@base <https://w3c.github.io/scribjes/vocab/>
+
+
+
+:Resolution a rdfs:Class ;
+    rdfs:comment "a type identifying an object describing a resolution of a meeting, and recorded in the minutes as such"
+.
+
+:resolution a rdf:Property ;
+    rdfs:domain schema:CreativeWork ;
+    rdfs:range scribejs:Resolution ;
+    rdfs:comment "a property referring to a resolution object"
+.
+
+:resolution_number a rdf:Property ;
+    rdfs:domain scribejs:Resolution ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "a property referring to the number identifier of a resolution object"
+.
+
+:resolution_text a rdf:Property ;
+    rdfs:domain scribejs:Resolution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "a property referring to the text of the resolution "
+.
+
+:irc a rdf:Property ;
+    rdfs:domain schema:CreativeWork ;
+    rdfs:range xsd:string ;
+    rdfs:comment "a property referring to the irc channel used for the minutes"
+.
+
+
+:CreativeWorkShape a sh:NodeShape ;
+    sh:targetClass schema:CreativeWork ;
+    sh:property
+        [
+            sh:path :resolution ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:class :Resolution
+        ],[
+            sh:path :irc ;
+            sh:nodeKind sh:Literal ;
+            sh:maxCount 1
+        ];
+.
+
+:ResolutionShape a sh:NodeShape ;
+    sh:targetClass :Resolution ;
+    sh:property
+        [
+            sh:path :resolution_number ;
+            sh:datatype xsd:integer ;
+            sh:maxCount 1
+        ],[
+            sh:path :resolution_text ;
+            sh:datatype xsd:string ;
+            sh:maxCount 1
+        ];
+    sh:closed true ;
+.

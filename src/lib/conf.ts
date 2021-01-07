@@ -22,6 +22,7 @@ const default_config: Global = {
     jekyll        : Constants.JEKYLL_NONE,
     pandoc        : true,
     irc_format    : undefined,
+    schema        : true,
     nick_mappings : {},
 };
 

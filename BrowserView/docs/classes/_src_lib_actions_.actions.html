@@ -75,7 +75,6 @@
 					<ul>
 						<li>set_date</li>
 						<li>add_action</li>
-						<li>raise_action_issues</li>
 					</ul>
 					<p>This methods must be called in this order (with, of course, as many <code>add_action</code> calls as necessary).</p>
 				</div>
@@ -99,10 +98,17 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_lib_actions_.actions.html#actions" class="tsd-kind-icon">actions</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_lib_actions_.actions.html#repo_name" class="tsd-kind-icon">repo_<wbr>name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_lib_actions_.actions.html#valid" class="tsd-kind-icon">valid</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_lib_actions_.actions.html#add_action" class="tsd-kind-icon">add_<wbr>action</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_lib_actions_.actions.html#raise_action_issues" class="tsd-kind-icon">raise_<wbr>action_<wbr>issues</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_src_lib_actions_.actions.html#set_date" class="tsd-kind-icon">set_<wbr>date</a></li>
 							</ul>
 						</section>
@@ -121,7 +127,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/actions.ts#L35">src/lib/actions.ts:35</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L34">src/lib/actions.ts:34</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -147,6 +153,39 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="actions" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> actions</h3>
+					<div class="tsd-signature tsd-kind-icon">actions<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_src_lib_actions_.action.html" class="tsd-signature-type">Action</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L34">src/lib/actions.ts:34</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="repo_name" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> repo_<wbr>name</h3>
+					<div class="tsd-signature tsd-kind-icon">repo_<wbr>name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L32">src/lib/actions.ts:32</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="valid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> valid</h3>
+					<div class="tsd-signature tsd-kind-icon">valid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L33">src/lib/actions.ts:33</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="add_action" class="tsd-anchor"></a>
@@ -158,7 +197,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/actions.ts#L153">src/lib/actions.ts:153</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L79">src/lib/actions.ts:79</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -198,28 +237,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="raise_action_issues" class="tsd-anchor"></a>
-					<h3>raise_<wbr>action_<wbr>issues</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">raise_<wbr>action_<wbr>issues<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/actions.ts#L170">src/lib/actions.ts:170</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Raise all the issues.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="set_date" class="tsd-anchor"></a>
 					<h3>set_<wbr>date</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -229,14 +246,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/10bd3eb/src/lib/actions.ts#L133">src/lib/actions.ts:133</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L59">src/lib/actions.ts:59</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Set the date of all actions. This method is called by the minute generator once the
 										date has been established (e.g., from a &#39;date&#39; line in the IRC log). Based on the date, this method
-									also sets the value of <code>this.url</code>, replacing the patterns in <code>acurlpattern</code>, if necessary.</p>
+									sets the value of <code>this.url</code>, replacing the patterns in <code>acurlpattern</code>, if necessary.</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -270,6 +287,9 @@
 						<a href="../modules/_src_lib_convert_.html">&quot;src/lib/convert&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="../modules/_src_lib_front_matter_.html">&quot;src/lib/front_<wbr>matter&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="../modules/_src_lib_io_.html">&quot;src/lib/io&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -280,9 +300,6 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/_src_lib_js_githubapi_d_.html">&quot;src/lib/js/githubapi.d&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/_src_lib_jsonld_header_.html">&quot;src/lib/jsonld_<wbr>header&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/_src_lib_schemas_.html">&quot;src/lib/schemas&quot;</a>
@@ -308,11 +325,17 @@
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_src_lib_actions_.actions.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_src_lib_actions_.actions.html#add_action" class="tsd-kind-icon">add_<wbr>action</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_src_lib_actions_.actions.html#actions" class="tsd-kind-icon">actions</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_src_lib_actions_.actions.html#repo_name" class="tsd-kind-icon">repo_<wbr>name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_src_lib_actions_.actions.html#valid" class="tsd-kind-icon">valid</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_src_lib_actions_.actions.html#raise_action_issues" class="tsd-kind-icon">raise_<wbr>action_<wbr>issues</a>
+								<a href="_src_lib_actions_.actions.html#add_action" class="tsd-kind-icon">add_<wbr>action</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_src_lib_actions_.actions.html#set_date" class="tsd-kind-icon">set_<wbr>date</a>
@@ -321,6 +344,9 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_src_lib_actions_.action.html" class="tsd-kind-icon">Action</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -340,6 +366,7 @@
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">

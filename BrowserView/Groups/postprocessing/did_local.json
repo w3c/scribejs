@@ -1,7 +1,8 @@
 {
-    "dir"           : "/Users/ivan/W3C/github/DID/did-wg",
-    "minutes"       : "_minutes",
-    "current"       : "assets/minute_processing.json",
-    "handle_issues" : true,
-    "local"         : true
+    "dir"            : "/Users/ivan/W3C/github/DID/did-wg",
+    "minutes"        : "_minutes",
+    "current"        : "assets/minute_processing.json",
+    "handle_issues"  : true,
+    "handle_actions" : true,
+    "local"          : true
 }

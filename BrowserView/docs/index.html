@@ -66,7 +66,7 @@
 				<a href="#rssagent-irc-logs-into-minutes-in-markdown" id="rssagent-irc-logs-into-minutes-in-markdown" style="color: inherit; text-decoration: none;">
 					<h1>RSSAgent IRC Logs Into Minutes in Markdown</h1>
 				</a>
-				<p>This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of <a href="https://dev.w3.org/2002/scribe/scribedoc.htm">David Booth&#39;s script</a> are retained. See also a separate <a href="%5Bfeatures.md%5D(https://w3c.github.io/scribejs/features.html)">feature summary</a> for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.</p>
+				<p>This script takes an IRC output as produced by the RRSAgent on W3C’s IRC, and converts it into minutes in markdown. Most of the features of <a href="https://dev.w3.org/2002/scribe/scribedoc.htm">David Booth&#39;s script</a> are retained. See also a separate <a href="https://w3c.github.io/scribejs/features.html">feature summary</a> for an easier reference. The IRC log can either be provided as an input to the script on the command line, or can be fetched directly from the W3C site. The generated minutes are either stored locally or are committed to a GitHub repository directly.</p>
 				<p>The reason of writing this script is that the current approach of producing HTML minutes on the W3C date space has become difficult to handle these days when Working Groups typically work on GitHub and WG members do not have CVS access to W3C. The current process relies heavily on the staff contact on the slightest possible change of the minutes. In a GitHub working environment the “obvious” approach is to produce the minutes in markdown and push that onto the group’s repository; if so, the minutes can be read and, if necessary, updated, changed, improved, etc, by other Group members. As an extra bonus, if the group’s Web site is also on github, the minutes can become integral part of that Web Site (including the look-and-feel).</p>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
@@ -124,6 +124,7 @@
 					<li><code>torepo</code>       : <code>true</code>|<code>false</code>; whether the generated minutes should be uploaded to the group’s repository</li>
 					<li><code>pandoc</code>       : <code>true</code>|<code>false</code>; whether the goal is to post-process the minutes via the <code>pandoc</code> program (this requires minor adjustment on the output)</li>
 					<li><code>jekyll</code>       : <code>&quot;none&quot;</code>|<code>&quot;md&quot;</code>|<code>&quot;kd&quot;</code>; controls the exact markdown dialect to be used for the output</li>
+					<li><code>schema</code>       : <code>true</code>|<code>false</code>; whether the output should include schema.org metadata, encoded in JSON-LD, and added as part of the front matter. Default is <code>true</code>.</li>
 					<li><code>irc_format</code>   : <code>&quot;textual&quot;</code>|<code>&quot;irccloud&quot;</code>|<code>undefined</code>; choice among available IRC log formats</li>
 					<li><code>ghrepo</code>       : repository name, e.g., <code>w3c/epub-wg</code>; this is where the minutes are to be stored</li>
 					<li><code>ghpath</code>       : path in the repository to the folder where the minutes are to be stored</li>
@@ -228,7 +229,13 @@
 				<a href="#schemaorg-data-in-json-ld" id="schemaorg-data-in-json-ld" style="color: inherit; text-decoration: none;">
 					<h3>Schema.org data in JSON-LD</h3>
 				</a>
-				<p>The generated minutes may contain schema.org metadata, encoded in JSON-LD as part of the page header. Various client-side scripts can make use of that.</p>
+				<p>The generated minutes may contain schema.org metadata like URL, dates, participants, scribes, etc., encoded in JSON-LD as part of the page header. The metadata also includes the list of resolutions and actions, when applicable. Client-side scripts can make use of that data.</p>
+				<p>At the moment, a <a href="https://iherman.github.io/scribejs-postprocessing/">companion post-processing script</a> performs the following post-processing actions:</p>
+				<ul>
+					<li>extracts the resolutions into a separate JSON file that can be used to display the resolutions client-side</li>
+					<li>extracts the actions recorded during the call to raise special issues on a group-specific GitHub repository</li>
+					<li>extracts parts of the minutes assigned to specific issues and adds a comment to those with the relevant portion of the minutes for cross-reference</li>
+				</ul>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
@@ -236,7 +243,7 @@
 				<pre><code class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/w3c/scribejs.git
 <span class="hljs-built_in">cd</span> scribejs
 npm install</code></pre>
-				<p>The code itself is in Typescript. The sources are in the <code>src</code> directory in the repository. If you do any change, run</p>
+				<p>The code itself is in TypeScript. The sources are in the <code>src</code> directory in the repository. If you do any change, run</p>
 				<pre><code class="language-bash">tsc</code></pre>
 				<p>to generate the javascript files. All instructions below refer to the generated javascript versions.</p>
 				<p>Follow specific instructions based on your needs/interests below.</p>
@@ -256,8 +263,8 @@ npm run serve</code></pre>
 				<pre><code class="language-bash">node main.js</code></pre>
 				<p>Optionally, you can also run</p>
 				<pre><code class="language-bash">ts-node src/main.ts</code></pre>
-				<p>which will compile the Typescript source into Javascript on the fly and run the results. (You will have to install <code>ts-node</code> separately, though.)</p>
-				<p>Optionally, you can install it globally with:</p>
+				<p>which will compile the TypeScript source into Javascript on the fly and run the results. (You will have to install <code>ts-node</code> separately, though.)</p>
+				<p>You can install it globally with:</p>
 				<pre><code class="language-bash">sudo npm i -g .</code></pre>
 				<p>which will create a symbolic link to <code>main.js</code> in the user&#39;s search path with the name <code>scribejs</code>, so you should be able to invoke it this way, too:</p>
 				<pre><code class="language-bash">scribejs</code></pre>
@@ -296,6 +303,9 @@ npm run serve</code></pre>
 						<a href="modules/_src_lib_convert_.html">&quot;src/lib/convert&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_front_matter_.html">&quot;src/lib/front_<wbr>matter&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="modules/_src_lib_io_.html">&quot;src/lib/io&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -306,9 +316,6 @@ npm run serve</code></pre>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_src_lib_js_githubapi_d_.html">&quot;src/lib/js/githubapi.d&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_src_lib_jsonld_header_.html">&quot;src/lib/jsonld_<wbr>header&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_src_lib_schemas_.html">&quot;src/lib/schemas&quot;</a>

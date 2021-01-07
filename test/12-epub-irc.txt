@@ -28,6 +28,7 @@
 00:05:03 <dauwhe> ... and perhaps not very many files use this?
 00:05:13 <toshiakikoike> +q
 00:06:05 <shiestyle> ack toshiakikoike
+00:06:21 <dauwhe> action: ivan to report some wonderful things
 00:06:21 <dauwhe> toshiakikoike: proposed on github
 00:06:43 <dauwhe> https://github.com/w3c/epub-specs/issues/1380#issuecomment-719108924
 00:06:59 <dauwhe> ... every reader can implement
@@ -84,6 +85,7 @@
 00:23:54 <dauwhe> q+
 00:27:31 <dauwhe> florian: [makes same points (presumably!) in Japanese]
 00:30:10 <shiestyle> ack dauwhe
+00:30:10 <shiestyle> action: ivan to do something very different together with dauwhe
 00:32:22 <dauwhe> dauwhe: so we can just point to the current spec, and identify aliases to current syntax and behaviours
 00:34:05 <dauwhe> dauwhe: I think there's work for the editors to do to clean up this section, then we can get feedback from the wg
 00:34:27 <dauwhe> shiestyle: that sounds good

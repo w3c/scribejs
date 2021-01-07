@@ -102,14 +102,9 @@ export function issue_directives(config: Configuration, directive: string, issue
                     .join(', ');
 
                 const md_part =  `_See github ${issue_or_pr} ${all_issues}._`;
+                const md_comment = `<!-- issue ${issue_ids.join(' ')} -->`;
 
-                // Add, if necessary, the comment to the return.
-                if (config.jekyll !== 'none') {
-                    const md_comment = `<!-- issue ${issue_ids.join(' ')} -->`;
-                    return `\n\n${md_part}\n\n${md_comment}\n\n`;
-                } else {
-                    return `\n\n${md_part}\n\n`;
-                }
+                return `\n\n${md_part}\n\n${md_comment}\n\n`;
             }
         } catch (e) {
             // No exception should disrupt the flow of the minutes generation; the directive is then simply discarded.

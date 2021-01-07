@@ -51,6 +51,11 @@
             "type": "string",
             "enum": ["none", "md", "kd"]
         },
+        "schema": {
+            "title": "Whether the output should include schema.org metadata",
+            "description": "If true, the front matter of the generated minutes includes (either in the front matter of Jekyll or as a markdown comment) the schema.org metadata in JSON-LD. Default is true",
+            "type": "boolean"
+        },
         "irc_format": {
             "title": "Whether the input is of the log format of a particular IRC client",
             "description": "'undefined' means the RRSAgent output @W3C. 'Textual' is the only client implemented so far.",

@@ -6,7 +6,7 @@
 
 import * as issues                              from './issues';
 import * as utils                               from './utils'
-import { schema_data }                          from './jsonld_header';
+import { generate_front_matter }                from './front_matter';
 import { IssueReference, Global }               from './types';
 import { PersonWithNickname, Person }           from './types';
 import { LineObject, Header }                   from './types';
@@ -17,11 +17,8 @@ import { Actions }                              from './actions';
  * The "top level" class to perform the conversion.
  */
 export class Converter {
-    /** The global data for all things done; an extension of the user configuration with some run-time data */
-    private config: Global;
-
-    /** List of actions, collected while the conversion is done */
-    private action_list: Actions;
+    /** The global data for all things done; an extension of the user configuration with most of the run-time data */
+    private global: Global;
 
     /** Whether kramdown (as opposed to vanilla markdown) is used for output */
     private kramdown: boolean;
@@ -29,11 +26,11 @@ export class Converter {
     /**
      *
      * @param config - the global data. Some of the fields are only placeholders and are filled in while processing
-     * @param action_list - place to accumulate the actions found in the minutes. The action issues themselves are raised after the conversion is done.
      */
-    constructor(config: Global, action_list: Actions) {
-        this.config = config;
-        this.action_list = action_list;
+    constructor(config: Global) {
+        this.global = config;
+        this.global.action_list = new Actions(config);
+        this.global.resolution_list = [];
         this.kramdown = config.jekyll === Constants.JEKYLL_KRAMDOWN;
     }
 
@@ -61,7 +58,7 @@ export class Converter {
          */
         const nick_mapping = (the_nick: string) => {
             try {
-                const retval = this.config.nicks.find((ns: PersonWithNickname): boolean => ns.nick.includes(the_nick));
+                const retval = this.global.nicks.find((ns: PersonWithNickname): boolean => ns.nick.includes(the_nick));
                 return retval || null;
             } catch (e) {
                 return null;
@@ -74,12 +71,12 @@ export class Converter {
         const clean_nick = utils.canonical_nick(nick);
 
         // if this nickname has been used before, just return it
-        if (this.config.nick_mappings[clean_nick]) {
-            return this.config.nick_mappings[clean_nick];
+        if (this.global.nick_mappings[clean_nick]) {
+            return this.global.nick_mappings[clean_nick];
         } else {
             const person: PersonWithNickname = nick_mapping(clean_nick);
             if (person) {
-                this.config.nick_mappings[clean_nick] = person;
+                this.global.nick_mappings[clean_nick] = person;
                 return person;
             } else {
                 // As a minimal measure, remove the '_' characters from the name
@@ -117,18 +114,10 @@ export class Converter {
 
     /** ******************************************************************* */
 
-
     /**
-     * Generate the Header part of the minutes: present, guests, regrets, chair, etc. The nicknames stored in the incoming structure are converted into real names via the [[full_name]] method.
-     *
-     * Returns a string with the (markdown encoded) version of the header.
-     *
-     * @param headers - the full header structure
-     * @returns the header in Markdown
+     * Clean up the names in the header, i.e., make sure that all names are full names instead of nicknames, and that there are also no duplicates.
      */
-    private generate_header_md(headers: Header): string {
-        // This constant is necessary to bind the 'this' value when used in the
-        // chain below...
+    private cleanup_names_in_header(headers: Header): Header {
         const convert_to_full_name = (nick: string): string => this.full_name(nick);
 
         // Clean up all the names in the headers, just to be on the safe side
@@ -143,34 +132,22 @@ export class Converter {
                 headers[key] = utils.uniq(headers[key]);
             }
         }
+        return headers;
+    }
 
-        // Collect the header values into strings
-        let header_start = '';
-        if (this.config.jekyll !== Constants.JEKYLL_NONE) {
-            const json_ld = schema_data(headers, this.config);
-            header_start = `---
-layout: minutes
-date: ${headers.date}
-title: ${headers.meeting} — ${headers.date}
-json-ld: |
-${json_ld}
----
-`;
-        } else if (this.config.pandoc) {
-            // TODO: can jekyll and pandoc be used together?
-            // ...could use some refactoring for clarity
-            header_start = `% ${headers.meeting} — ${headers.date}
 
-![W3C Logo](https://www.w3.org/Icons/w3c_home)
-
-`;
-        } else {
-            header_start = '![W3C Logo](https://www.w3.org/Icons/w3c_home)\n';
-        }
-
+    /**
+     * Generate the preamble part of the minutes: present, guests, regrets, chair, etc. The nicknames stored in the incoming structure are converted into real names via the [[full_name]] method.
+     *
+     * Returns a string with the (markdown encoded) version of the header.
+     *
+     * @param headers - the full header structure
+     * @returns the preamble in Markdown
+     */
+    private generate_preamble(headers: Header): string {
         let header_class = '';
         if (this.kramdown) {
-            header_class = (this.config.final === true || this.config.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
+            header_class = (this.global.final === true || this.global.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
         } else {
             header_class = '';
         }
@@ -179,12 +156,12 @@ ${json_ld}
         const core_header = `
 # ${headers.meeting} — Minutes
 ${header_class}
-${this.config.final === true || this.config.auto === true ? '' : '***– DRAFT Minutes –***'}
-${(this.config.final === true || this.config.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
+${this.global.final === true || this.global.auto === true ? '' : '***– DRAFT Minutes –***'}
+${(this.global.final === true || this.global.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
 
 **Date:** ${headers.date}
 
-See also the [Agenda](${headers.agenda}) and the [IRC Log](${this.config.orig_irc_log})
+See also the [Agenda](${headers.agenda}) and the [IRC Log](${this.global.orig_irc_log})
 
 ## Attendees
 ${no_toc}
@@ -198,7 +175,7 @@ ${no_toc}
 
 **Scribe(s):** ${headers.scribe.join(', ')}
 `;
-        return header_start + core_header;
+        return core_header;
     }
 
 
@@ -218,7 +195,7 @@ ${no_toc}
      * @returns {string} - the body of the minutes encoded in Markdown
      */
     // eslint-disable-next-line max-lines-per-function
-    private generate_content_md(lines: LineObject[]): string {
+    private generate_content(lines: LineObject[]): string {
         // this will be the output
         let final_minutes = '\n---\n';
 
@@ -311,6 +288,10 @@ ${no_toc}
                 // GFM and CommonMark do not support anchor creation...so we can't link to the resolutions :-(
                 resolutions = resolutions.concat(`\n* Resolution #${rcounter}: ${content}`);
             }
+            this.global.resolution_list.push({
+                resolution_number : rcounter,
+                resolution_text   : content,
+            });
             rcounter += 1;
             return retval;
         };
@@ -345,9 +326,7 @@ ${no_toc}
                 // ------
                 // Store the actions, if the separate action list handler is available
                 // add_action(name, action, id)
-                if (this.action_list !== undefined) {
-                    this.action_list.add_action(`${id}`, message, name, ghname);
-                }
+                this.global.action_list.add_action(`${id}`, message, name, ghname);
             } else {
                 console.log(`Warning: incorrect action syntax used: ${words}`);
             }
@@ -398,7 +377,7 @@ ${no_toc}
             if (label !== null && label.toLowerCase() === 'topic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure: IssueReference = issues.titles(this.config, content);
+                const title_structure: IssueReference = issues.titles(this.global, content);
                 final_minutes += add_to_toc(title_structure.title_text, 1);
                 if (title_structure.issue_reference !== '') {
                     final_minutes += title_structure.issue_reference;
@@ -410,7 +389,7 @@ ${no_toc}
             } else if (label !== null && label.toLowerCase() === 'subtopic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure: IssueReference = issues.titles(this.config, content);
+                const title_structure: IssueReference = issues.titles(this.global, content);
                 final_minutes += add_to_toc(title_structure.title_text, 2);
                 if (title_structure.issue_reference !== '') {
                     final_minutes += title_structure.issue_reference;
@@ -448,7 +427,7 @@ ${no_toc}
                 within_scribed_content = false;
                 const directive        = issue_match[2];
                 const issue_references = issue_match[3];
-                final_minutes += issues.issue_directives(this.config, directive, issue_references);
+                final_minutes += issues.issue_directives(this.global, directive, issue_references);
 
             // The 'scribed' line, ie, the lines whose 'nick' is one of the registered scribes.
             } else if (scribes.includes(utils.canonical_nick(line_object.nick))) {
@@ -562,11 +541,11 @@ ${no_toc}
         // 1. cleanup the content, ie, remove the bot commands and the like
         // The lines of text are also converted to LineObject-s on the fly, ie
         // in an array of {nick, content} structures
-        const irc_log: LineObject[] = utils.cleanup(split_body, this.config);
+        const irc_log: LineObject[] = utils.cleanup(split_body, this.global);
 
         // 2. separate the header information
         // eslint-disable-next-line prefer-const
-        let { headers, lines } = utils.separate_header(irc_log, this.config.date as string);
+        let { headers, lines } = utils.separate_header(irc_log, this.global.date as string);
 
         // 3. Perform changes, ie, execute on requests of the "i/.../..." and "s/.../.../" forms in the log:
         lines = utils.perform_insert_requests(lines);
@@ -574,19 +553,25 @@ ${no_toc}
 
         // 4. Store the actions' date, if the separate action list handler is available.
         // (the list of actions is created on the fly...)
-        if (this.action_list !== undefined) {
-            this.action_list.set_date(headers.date);
-        }
+        this.global.action_list.set_date(headers.date);
 
-        // 5. Generate the header part of the minutes (using the 'headers' object)
-        const header_md = this.generate_header_md(headers)
+        // 5. Clean up the header by using the real names rather then the nicknames
+        headers = this.cleanup_names_in_header(headers);
 
-        // 6. Generate the content part; that also includes the TOC, the list of
+        // 7. Generate the general header of the minutes
+        const preamble = this.generate_preamble(headers)
+
+        // 8. Generate the content part; that also includes the TOC, the list of
         //    resolutions and (if any) of actions
-        const content_md = this.generate_content_md(lines)
+        const content = this.generate_content(lines)
 
-        // 7. Return the concatenation of the two.
-        return header_md + content_md;
+        // 9. Generate the front matter part of the minutes (e.g., whatever is necessary for jekyll to work).
+        //    The order is important: the front matter includes the JSON-LD metadata, and that relies on the final
+        //    content (e.g., list of actions)
+        const front_matter = generate_front_matter(headers, this.global);
+
+        // 10. Return the concatenation of all constituent parts.
+        return front_matter + preamble + content;
     }
 }
 

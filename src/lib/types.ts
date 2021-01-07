@@ -5,6 +5,8 @@
  * @packageDocumentation
 */
 
+import { Actions }  from './actions';
+
 export const debug = false;
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -64,6 +66,9 @@ export interface Configuration {
     /** Whether the output should be adapted to a Github+Jekyll combination. Values may be 'none', 'md', or 'kd' */
     jekyll?:        string;
 
+    /** Whether the output front matter should also include the schema.org metadata in schema.org */
+    schema?:        boolean;
+
     /**
      * Whether the input is of the log format of a particular IRC client.
      *
@@ -122,24 +127,35 @@ export interface Global extends Configuration {
      * Message to be used if the script uploads the minutes directly to Github. This is a fixed text
      * at the moment, generated with the right date and generation time.
      */
-    ghmessage?:     string;
+    ghmessage?:       string;
 
     /**
      * Original URL for the IRC log, stored run-time
      */
-    orig_irc_log?:  string;
+    orig_irc_log?:    string;
+
+    /**
+     * List of actions, collected while the conversion is done
+     */
+    action_list?:     Actions;
+
+    /**
+     * List of resolutions, collected while the conversion is done
+     */
+    resolution_list?: Resolution[];
+
 
     /**
      * List of all the nicknames as retrieved from the nickname file.
      *
      * Note: this variable is set run-time, not via the configuration file
      */
-    nicks?:         PersonWithNickname[];
+    nicks?:           PersonWithNickname[];
 
     /**
      * Mapping from names to a Nickname structure
      */
-    nick_mappings?: NicknameMapping;
+    nick_mappings?:   NicknameMapping;
 }
 
 
@@ -232,4 +248,15 @@ export interface IssueReference {
 
     /** The issue reference directives to be added the final minutes */
     issue_reference: string;
+}
+
+/**
+ * Used to structure the resolution data stored in the JSON-LD header
+ */
+export interface Resolution {
+    /** The number of the resolution */
+    resolution_number: number,
+
+    /** The text of the resolution */
+    resolution_text: string
 }

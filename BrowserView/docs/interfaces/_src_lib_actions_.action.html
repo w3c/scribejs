@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IssueData | Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</title>
+	<title>Action | Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</title>
 	<meta name="description" content="Documentation for Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,16 +54,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_src_lib_js_githubapi_d_.html">&quot;src/lib/js/githubapi.d&quot;</a>
+					<a href="../modules/_src_lib_actions_.html">&quot;src/lib/actions&quot;</a>
 				</li>
 				<li>
-					<a href="../classes/_src_lib_js_githubapi_d_.github.html">GitHub</a>
-				</li>
-				<li>
-					<a href="_src_lib_js_githubapi_d_.github.issuedata.html">IssueData</a>
+					<a href="_src_lib_actions_.action.html">Action</a>
 				</li>
 			</ul>
-			<h1>Interface IssueData</h1>
+			<h1>Interface Action</h1>
 		</div>
 	</div>
 </header>
@@ -73,7 +70,8 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Data needed to raise an issue on github</p>
+						<p>Data necessary to raise an action issue. The data is stored in the JSON-LD metadata of the minutes
+						and can be processed by a separate post-processing step to raise the issues.</p>
 					</div>
 				</div>
 			</section>
@@ -81,7 +79,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IssueData</span>
+						<span class="target">Action</span>
 					</li>
 				</ul>
 			</section>
@@ -92,10 +90,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_js_githubapi_d_.github.issuedata.html#assignee" class="tsd-kind-icon">assignee</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_js_githubapi_d_.github.issuedata.html#body" class="tsd-kind-icon">body</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_js_githubapi_d_.github.issuedata.html#labels" class="tsd-kind-icon">labels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_js_githubapi_d_.github.issuedata.html#title" class="tsd-kind-icon">title</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_actions_.action.html#assignee" class="tsd-kind-icon">assignee</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_actions_.action.html#body" class="tsd-kind-icon">body</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_src_lib_actions_.action.html#title" class="tsd-kind-icon">title</a></li>
 							</ul>
 						</section>
 					</div>
@@ -105,18 +102,13 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="assignee" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> assignee</h3>
+					<h3>assignee</h3>
 					<div class="tsd-signature tsd-kind-icon">assignee<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/js/githubapi.d.ts#L80">src/lib/js/githubapi.d.ts:80</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L16">src/lib/actions.ts:16</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Person to assign the issue to</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="body" class="tsd-anchor"></a>
@@ -124,29 +116,9 @@
 					<div class="tsd-signature tsd-kind-icon">body<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/js/githubapi.d.ts#L76">src/lib/js/githubapi.d.ts:76</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L15">src/lib/actions.ts:15</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Text of the issue</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="labels" class="tsd-anchor"></a>
-					<h3>labels</h3>
-					<div class="tsd-signature tsd-kind-icon">labels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/js/githubapi.d.ts#L78">src/lib/js/githubapi.d.ts:78</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Labels to be assigned to the issue</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="title" class="tsd-anchor"></a>
@@ -154,14 +126,9 @@
 					<div class="tsd-signature tsd-kind-icon">title<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/js/githubapi.d.ts#L74">src/lib/js/githubapi.d.ts:74</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/1bdbb92/src/lib/actions.ts#L14">src/lib/actions.ts:14</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Title of the issue</p>
-						</div>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -171,7 +138,7 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-module">
+					<li class="current tsd-kind-module">
 						<a href="../modules/_src_lib_actions_.html">&quot;src/lib/actions&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -192,7 +159,7 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/_src_lib_js_githubapi_.html">&quot;src/lib/js/githubapi&quot;</a>
 					</li>
-					<li class="current tsd-kind-module">
+					<li class=" tsd-kind-module">
 						<a href="../modules/_src_lib_js_githubapi_d_.html">&quot;src/lib/js/githubapi.d&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -211,42 +178,22 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_src_lib_actions_.actions.html" class="tsd-kind-icon">Actions</a>
+					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_src_lib_js_githubapi_d_.github.html" class="tsd-kind-icon">Git<wbr>Hub</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="_src_lib_actions_.action.html" class="tsd-kind-icon">Action</a>
 						<ul>
-							<li class="current tsd-kind-interface tsd-parent-kind-class">
-								<a href="_src_lib_js_githubapi_d_.github.issuedata.html" class="tsd-kind-icon">Issue<wbr>Data</a>
-								<ul>
-									<li class=" tsd-kind-property tsd-parent-kind-interface">
-										<a href="_src_lib_js_githubapi_d_.github.issuedata.html#assignee" class="tsd-kind-icon">assignee</a>
-									</li>
-									<li class=" tsd-kind-property tsd-parent-kind-interface">
-										<a href="_src_lib_js_githubapi_d_.github.issuedata.html#body" class="tsd-kind-icon">body</a>
-									</li>
-									<li class=" tsd-kind-property tsd-parent-kind-interface">
-										<a href="_src_lib_js_githubapi_d_.github.issuedata.html#labels" class="tsd-kind-icon">labels</a>
-									</li>
-									<li class=" tsd-kind-property tsd-parent-kind-interface">
-										<a href="_src_lib_js_githubapi_d_.github.issuedata.html#title" class="tsd-kind-icon">title</a>
-									</li>
-								</ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_src_lib_actions_.action.html#assignee" class="tsd-kind-icon">assignee</a>
 							</li>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="../classes/_src_lib_js_githubapi_d_.github.html#constructor" class="tsd-kind-icon">constructor</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_src_lib_actions_.action.html#body" class="tsd-kind-icon">body</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="../classes/_src_lib_js_githubapi_d_.github.html#commit_data" class="tsd-kind-icon">commit_<wbr>data</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="../classes/_src_lib_js_githubapi_d_.github.html#create_issue" class="tsd-kind-icon">create_<wbr>issue</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="../classes/_src_lib_js_githubapi_d_.github.html#get_assignees" class="tsd-kind-icon">get_<wbr>assignees</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="../classes/_src_lib_js_githubapi_d_.github.html#get_issue_titles" class="tsd-kind-icon">get_<wbr>issue_<wbr>titles</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_src_lib_actions_.action.html#title" class="tsd-kind-icon">title</a>
 							</li>
 						</ul>
 					</li>
