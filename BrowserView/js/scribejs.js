@@ -2542,7 +2542,7 @@ function add_links(line) {
     }
     else {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
+        return replace_links(words).map(simple_link_exchange).join(' ');
     }
 }
 exports.add_links = add_links;

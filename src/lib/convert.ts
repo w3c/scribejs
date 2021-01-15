@@ -364,6 +364,7 @@ ${no_toc}
             // Add links using the the various possibilities offered by the '-> ...' syntax.
             const content_with_links: string = utils.add_links(line_object.content);
 
+
             // Separate the label (ie, "topic:", "proposed:", etc.) from the rest
             const { label, content } = utils.get_label(content_with_links);
 

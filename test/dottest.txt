@@ -1,0 +1,11 @@
+16:50:40 <ivan> Meeting: DID WG Topic Call on Herd Privacy and the Appendix
+16:50:40 <ivan> Chair: ivan
+16:50:40 <ivan> Date: 2021-01-14
+16:50:43 <ivan> Regrets+ brent
+16:51:13 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-did-wg/2021Jan/0014.html
+16:53:42 <rhiaro> scribe+
+16:56:23 <ivan> present+ rhiaro
+16:56:27 <ivan> present+
+17:11:33 <rhiaro> ChristopherA: I'm coming from a history of great intentions
+17:11:42 <rhiaro> ... and consider myself in that category.
+17:58:24 <manu> PROPOSAL: Keep `resource=true` in the DID Core specification.
