@@ -1,0 +1,2616 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:wn="http://xmlns.com/wordnet/1.6/"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<foaf:ChatChannel rdf:about="irc://localhost:6667/did-topic">
+  <foaf:chatEventList>
+    <rdf:Seq>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-23">
+        <dc:date>2021-01-28T17:02:23Z</dc:date>
+        <dc:description>RRSAgent has joined #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-23-1">
+        <dc:date>2021-01-28T17:02:23Z</dc:date>
+        <dc:description>logging to https://www.w3.org/2021/01/28-did-topic-irc</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2021/01/28-did-topic-irc"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-25">
+        <dc:date>2021-01-28T17:02:25Z</dc:date>
+        <dc:description>RRSAgent, make logs Public</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-26">
+        <dc:date>2021-01-28T17:02:26Z</dc:date>
+        <dc:description>please title this meeting ("meeting: ..."), ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-31">
+        <dc:date>2021-01-28T17:02:31Z</dc:date>
+        <dc:description>scribe+</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-36">
+        <dc:date>2021-01-28T17:02:36Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-42">
+        <dc:date>2021-01-28T17:02:42Z</dc:date>
+        <dc:description>present+ dlongley</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-43">
+        <dc:date>2021-01-28T17:02:43Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="shigeya"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-47">
+        <dc:date>2021-01-28T17:02:47Z</dc:date>
+        <dc:description>selfissued has joined #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-48">
+        <dc:date>2021-01-28T17:02:48Z</dc:date>
+        <dc:description>present+ markus_sabadello</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-02-52">
+        <dc:date>2021-01-28T17:02:52Z</dc:date>
+        <dc:description>brent: We're here to help give feedback on PRs today in an effort to get the last issues before CR closed.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-00">
+        <dc:date>2021-01-28T17:03:00Z</dc:date>
+        <dc:description>burn has joined #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-00-1">
+        <dc:date>2021-01-28T17:03:00Z</dc:date>
+        <dc:description>brent: The meeting is yours, I'm here to manage queue.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-02">
+        <dc:date>2021-01-28T17:03:02Z</dc:date>
+        <dc:description>present+ burn</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-09">
+        <dc:date>2021-01-28T17:03:09Z</dc:date>
+        <dc:description>manu: We are waiting on Joe, Drummond, and Jonathan.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-11">
+        <dc:date>2021-01-28T17:03:11Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-13">
+        <dc:date>2021-01-28T17:03:13Z</dc:date>
+        <dc:description>present+ manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-17">
+        <dc:date>2021-01-28T17:03:17Z</dc:date>
+        <dc:description>manu: We have prior notice that their issues would be discussed today.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-22">
+        <dc:date>2021-01-28T17:03:22Z</dc:date>
+        <dc:description>present+ brent</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-30">
+        <dc:date>2021-01-28T17:03:30Z</dc:date>
+        <dc:description>manu: We need them here, we can discuss other issues in the interim, but we need them here.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-33">
+        <dc:date>2021-01-28T17:03:33Z</dc:date>
+        <dc:description>brent: Right.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-35">
+        <dc:date>2021-01-28T17:03:35Z</dc:date>
+        <dc:description>s/have prior/gave prior/</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-40">
+        <dc:date>2021-01-28T17:03:40Z</dc:date>
+        <dc:description>Meeting: DID WG Topic Call on Issue Processing Working Session</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-40-1">
+        <dc:date>2021-01-28T17:03:40Z</dc:date>
+        <dc:description>Chair: brent</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-40-2">
+        <dc:date>2021-01-28T17:03:40Z</dc:date>
+        <dc:description>Date: 2021-01-28</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-03-40-3">
+        <dc:date>2021-01-28T17:03:40Z</dc:date>
+        <dc:description>Agenda: https://lists.w3.org/Archives/Public/public-did-wg/2021Jan/0023.html</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+        <dc:relation rdf:resource="https://lists.w3.org/Archives/Public/public-did-wg/2021Jan/0023.html"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-04-37">
+        <dc:date>2021-01-28T17:04:37Z</dc:date>
+        <dc:description>present+ selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-04-44">
+        <dc:date>2021-01-28T17:04:44Z</dc:date>
+        <dc:description>present+ jonathan</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-04-49">
+        <dc:date>2021-01-28T17:04:49Z</dc:date>
+        <dc:description>present+ drummond</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-04-55">
+        <dc:date>2021-01-28T17:04:55Z</dc:date>
+        <dc:description>agropper has joined #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-04-57">
+        <dc:date>2021-01-28T17:04:57Z</dc:date>
+        <dc:description>present+ agropper</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-05-11">
+        <dc:date>2021-01-28T17:05:11Z</dc:date>
+        <dc:description>manu: Real quick, Drummond, just to check in on your PRs. For appendix and persistence and the URN thing. Can we get an update on those?</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-05-46">
+        <dc:date>2021-01-28T17:05:46Z</dc:date>
+        <dc:description>drummond: Lots of progress on one, not the other. Came down to the amount of time in the day. The PR on persistence... on our last call, I said "Hey, Joe, can I add something on URNs." He said he'd consider it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-06-17">
+        <dc:date>2021-01-28T17:06:17Z</dc:date>
+        <dc:description>jonathan_holt has joined #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-06-17-1">
+        <dc:date>2021-01-28T17:06:17Z</dc:date>
+        <dc:description>drummond: When I looked at his PR it was really about a different set of topics on persistence. In the end I felt that the points I wanted to be made about URNs, and so on should just be in a different section, which I called DIDs as URNs.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-06-18">
+        <dc:date>2021-01-28T17:06:18Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-06-27">
+        <dc:date>2021-01-28T17:06:27Z</dc:date>
+        <dc:description>present+ jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-06-41">
+        <dc:date>2021-01-28T17:06:41Z</dc:date>
+        <dc:description>q+ to note these look like they're on a good glide path.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-07-04">
+        <dc:date>2021-01-28T17:07:04Z</dc:date>
+        <dc:description>drummond: Rather than shoehorn/appending it to Joe's section, I just made a new section. I revised it to just be a standalone section with a different name. Meanwhile, I reviewed Joe's PR and made one suggestion about formatting. That's my full report. Because I changed the substance of what my PR was suggesting, I just went back to the reviewers to ask to look at it again.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-07-12">
+        <dc:date>2021-01-28T17:07:12Z</dc:date>
+        <dc:description>drummond: I completed last night at midnight so maybe no reviews yet.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-07-32">
+        <dc:date>2021-01-28T17:07:32Z</dc:date>
+        <dc:description>present+ Geunhyung_Kim</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-07-45">
+        <dc:date>2021-01-28T17:07:45Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-07-45-1">
+        <dc:date>2021-01-28T17:07:45Z</dc:date>
+        <dc:description>manu, you wanted to note these look like they're on a good glide path.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-07-57">
+        <dc:date>2021-01-28T17:07:57Z</dc:date>
+        <dc:description>manu: I'm hearing persistence PR is on a good glide path, good reviews, will probably go in. You've got another PR that needs review, and maybe there's alignment there with some of Joe's comments on it. Potential alignment there. There were a lot of change suggestions for the appending, but it seems no one is objecting anymore.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-08-48">
+        <dc:date>2021-01-28T17:08:48Z</dc:date>
+        <dc:description>drummond: Everything after Joe had done the same thing and read it closely, he's got a particular way to characterize identification and in the end we agreed. There are like 20 small suggestions, I agree with all of them and just need time to incorporate them. The largest one is a formatting suggestion from Ivan and I just need to reformat to be a single section.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-08-56">
+        <dc:date>2021-01-28T17:08:56Z</dc:date>
+        <dc:description>drummond: Then I need to change the settings inside and do wordsmithing.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-09-26">
+        <dc:date>2021-01-28T17:09:26Z</dc:date>
+        <dc:description>q+ to move on to CBOR concerns.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-09-31">
+        <dc:date>2021-01-28T17:09:31Z</dc:date>
+        <dc:description>drummond: My next highest priority is to get that done by the end of this weekend. My next assignment after that is either another section or adding more to a section on privacy regulations. I've prepared wording for that, short and sweet.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-09-36">
+        <dc:date>2021-01-28T17:09:36Z</dc:date>
+        <dc:description>drummond: Then I can put all my energy into review.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-09-42">
+        <dc:date>2021-01-28T17:09:42Z</dc:date>
+        <dc:description>drummond: That's my report.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-09-58">
+        <dc:date>2021-01-28T17:09:58Z</dc:date>
+        <dc:description>manu: Unless there are any objections, we can move onto concerns around the CBOR section. Anyone want to cover anything else first?</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-10-04">
+        <dc:date>2021-01-28T17:10:04Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-10-04-1">
+        <dc:date>2021-01-28T17:10:04Z</dc:date>
+        <dc:description>manu, you wanted to move on to CBOR concerns.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-10-19">
+        <dc:date>2021-01-28T17:10:19Z</dc:date>
+        <dc:description>Topic: CBOR sections</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-10-25">
+        <dc:date>2021-01-28T17:10:25Z</dc:date>
+        <dc:description>manu: Let's talk about the CBOR section and the DagCBOR section. Jonathan, can you give an overview on those sections now?</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-10-57">
+        <dc:date>2021-01-28T17:10:57Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/585</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/585"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-11-05">
+        <dc:date>2021-01-28T17:11:05Z</dc:date>
+        <dc:description>jonathan_holt: On our call on Tuesday, we're working on a security document. We need to have deterministic encoding of the DID document, especially if the method will be signing and having a deterministic ordering is important.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-11-05-1">
+        <dc:date>2021-01-28T17:11:05Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/551</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/551"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-11-20">
+        <dc:date>2021-01-28T17:11:20Z</dc:date>
+        <dc:description>jonathan_holt: My DID method relies on that and is on dagCBOR. The deterministic encoding of dagCBOR is really important.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-11-53">
+        <dc:date>2021-01-28T17:11:53Z</dc:date>
+        <dc:description>scribejs, pr 552</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-11-55">
+        <dc:date>2021-01-28T17:11:55Z</dc:date>
+        <dc:description>q+ to provide some perspective on CBOR deterministic canonical rules</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-12-10">
+        <dc:date>2021-01-28T17:12:10Z</dc:date>
+        <dc:description>jonathan_holt: I mentioned, I'm by no means a CBOR expert, I do have a lot of reliance on deterministically encoded CBOR in our method. The challenges of writing the requirement are the RFC 7049 gives some guidance but it's up to protocols to clearly state what they mean to be canonical or deterministic. I gave some guidelines. At first I was over zealous to add every possible combination.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-12-29">
+        <dc:date>2021-01-28T17:12:29Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/pull/586</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/pull/586"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-12-34">
+        <dc:date>2021-01-28T17:12:34Z</dc:date>
+        <dc:description>jonathan_holt: Including 64-bit integers and floats, but the language that's now in the dagCBOR section, but should be in the CBOR section. So here's a new PR to fix it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-12-59">
+        <dc:date>2021-01-28T17:12:59Z</dc:date>
+        <dc:description>jonathan_holt: To get us onto a fresh discussion on deterministically encoded CBOR. So we can dice out, what does that mean, is it canonical, is it deterministic, we can decide how to move forward.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-13-07">
+        <dc:date>2021-01-28T17:13:07Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-13-07-1">
+        <dc:date>2021-01-28T17:13:07Z</dc:date>
+        <dc:description>manu, you wanted to provide some perspective on CBOR deterministic canonical rules</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-13-44">
+        <dc:date>2021-01-28T17:13:44Z</dc:date>
+        <dc:description>manu: Thanks for that overview, Jonathan. There are numerous concerns around deterministic canonical form for CBOR. Just so everyone is on the same page for deterministic canonical form. Typically when you digitally sign things you want to have them in a deterministic canonical form.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-14-24">
+        <dc:date>2021-01-28T17:14:24Z</dc:date>
+        <dc:description>manu: There are other ways to do signing where you, for example, base64 encode anything and just sign that. The issue with that, however, is that if there are any blank space/white space/formatting changes that changes the signature. There are other technologies that use canonicalization with JSON-LD/JCS, and so on.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-15-00">
+        <dc:date>2021-01-28T17:15:00Z</dc:date>
+        <dc:description>manu: When we say deterministic canonicalization form we are transforming the input in some way to ensure that the output is always the same (there's one way to express it) regardless of the input.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-15-03">
+        <dc:date>2021-01-28T17:15:03Z</dc:date>
+        <dc:description>Orie has joined #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-15-07">
+        <dc:date>2021-01-28T17:15:07Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-15-24">
+        <dc:date>2021-01-28T17:15:24Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-15-51">
+        <dc:date>2021-01-28T17:15:51Z</dc:date>
+        <dc:description>manu: With that being said, I personally don't think the group is chartered to do canonical forms and new signature formats and things of that nature. It could be argued that the group is supposed to do things of that nature. I would note we have 2 weeks left and this is something we should have figured this out well before it. So, concerns are, are we chartered to do this work and do we have time.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-16-49">
+        <dc:date>2021-01-28T17:16:49Z</dc:date>
+        <dc:description>manu: The other concern is the current canonical form in the spec makes it impossible for other CBOR flavors to exist; the current mechanism applies to all CBOR encodings. So, for example, any CBOR flavors that don't use strings for properties are illegal. To be fair, Jonathan has said that isn't his intent and he doesn't want that to happen. But fundamentally that's squaring a circle.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-16-49-1">
+        <dc:date>2021-01-28T17:16:49Z</dc:date>
+        <dc:description>q+ to propose solutions for mime types that don't hold us back</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-17-17">
+        <dc:date>2021-01-28T17:17:17Z</dc:date>
+        <dc:description>manu: Defining something for all of CBOR without limiting what certain flavors can do is a problem. We'd be in a greenfield exercise. The last item is that the dagCBOR section, which does require canonical form.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-17-47">
+        <dc:date>2021-01-28T17:17:47Z</dc:date>
+        <dc:description>manu: The dagCBOR spec is an external spec by Protocol Labs and that text there needs to be the minimum necessary without relying on an external spec.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-17-59">
+        <dc:date>2021-01-28T17:17:59Z</dc:date>
+        <dc:description>ack jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-18-01">
+        <dc:date>2021-01-28T17:18:01Z</dc:date>
+        <dc:description>manu: These are the issues we're grappling with in the spec in its current form.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-18-22">
+        <dc:date>2021-01-28T17:18:22Z</dc:date>
+        <dc:description>jonathan_holt: I think the digital signatures are not in scope for the charter. I agree with that. Data modeling is. How we get to data modeling to ordering is relevant for us to sign.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-18-57">
+        <dc:date>2021-01-28T17:18:57Z</dc:date>
+        <dc:description>jonathan_holt: Regarding the reference to external libraries. I think that should be resolved pretty quickly. The reference in the canonical ordering borrows from RFC 7049, and the updated one RFC 8949.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-19-16">
+        <dc:date>2021-01-28T17:19:16Z</dc:date>
+        <dc:description>jonathan_holt: There should be no surprise that there's language on determinstic ordering to ensure we're all doing the same thing.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-19-21">
+        <dc:date>2021-01-28T17:19:21Z</dc:date>
+        <dc:description>ack Orie</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-19-21-1">
+        <dc:date>2021-01-28T17:19:21Z</dc:date>
+        <dc:description>Orie, you wanted to propose solutions for mime types that don't hold us back</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-20-16">
+        <dc:date>2021-01-28T17:20:16Z</dc:date>
+        <dc:description>Orie: I think I agree with most of what jonathan said. We have an ADM and serializations of that ADM in various different forms. If we're limiting ourselves to just JSON forms, there are multiples in JSON alone and the same applies to CBOR. Thinking of a canonical representation of an ADM, I'd like to dispel the idea that that is possible. I don't believe it is. If it were, we'd have a holy war and all the representations would fight to "be</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-20-16-1">
+        <dc:date>2021-01-28T17:20:16Z</dc:date>
+        <dc:description>it".</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-21-01">
+        <dc:date>2021-01-28T17:21:01Z</dc:date>
+        <dc:description>q+ to ask the question -- do we want to specify a canonical form for the ADM? do we want to specify a canonical form for representations?</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-21-02">
+        <dc:date>2021-01-28T17:21:02Z</dc:date>
+        <dc:description>Orie: We moved away from that -- and it feels like people don't know what the ADM has done. There's an ADM and serializations, each with a mimetype, there are an unbounded number of these, an undefined process for adding more of these, and no one has done the work to define these things.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-21-28">
+        <dc:date>2021-01-28T17:21:28Z</dc:date>
+        <dc:description>+1 to Orie, thanks!</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-21-30">
+        <dc:date>2021-01-28T17:21:30Z</dc:date>
+        <dc:description>You don't sign the ADM. You sign the representation. Signatures need to define how to sign the representation. This isn't our fight.</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-21-44">
+        <dc:date>2021-01-28T17:21:44Z</dc:date>
+        <dc:description>+1 to justin_r</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-06">
+        <dc:date>2021-01-28T17:22:06Z</dc:date>
+        <dc:description>Orie: The people who proposed the ADM never finished the work to solve the registration problem and now jonathan is encountering that. It should be trivial to register the mime type, we should say, here's where you reference the external spec that makes it trivial to implement, and this should not be hard. There's tension over what goes in DID core and what goes in the registries. DID core will get frozen, and you should put things you're</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-06-1">
+        <dc:date>2021-01-28T17:22:06Z</dc:date>
+        <dc:description>still working on in the registries and you can update it when you want.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-11">
+        <dc:date>2021-01-28T17:22:11Z</dc:date>
+        <dc:description>Representations need to define how to get in and out. Sometimes that has inherent ordering (like a JSON array for an infra set)</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-17">
+        <dc:date>2021-01-28T17:22:17Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-17-1">
+        <dc:date>2021-01-28T17:22:17Z</dc:date>
+        <dc:description>manu, you wanted to ask the question -- do we want to specify a canonical form for the ADM? do we want to specify a canonical form for representations?</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-21">
+        <dc:date>2021-01-28T17:22:21Z</dc:date>
+        <dc:description>Orie: If you can't create a new mime type after DID core is done then the ADM was a mistake.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-34">
+        <dc:date>2021-01-28T17:22:34Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-39">
+        <dc:date>2021-01-28T17:22:39Z</dc:date>
+        <dc:description>-1 to canonicalization of the ADM</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-47">
+        <dc:date>2021-01-28T17:22:47Z</dc:date>
+        <dc:description>manu: To propose two questions: Do we want to specify a canonical form/rules for the ADM or the information model. I expect everyone to say no to that, no one signed up to do that.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-51">
+        <dc:date>2021-01-28T17:22:51Z</dc:date>
+        <dc:description>(without hearing the actual argument)</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-22-57">
+        <dc:date>2021-01-28T17:22:57Z</dc:date>
+        <dc:description>-1 to canonicalization of the ADM</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-23-10">
+        <dc:date>2021-01-28T17:23:10Z</dc:date>
+        <dc:description>-1 to ADM canonicalization</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-23-27">
+        <dc:date>2021-01-28T17:23:27Z</dc:date>
+        <dc:description>manu: Second question is: Do we want to specify a canonical form for any of the representations? Does this WG want to do that and will we all pitch in to do that work? Then the question becomes do we think we can solve that problem in two weeks? We are supposed to be frozen in two weeks.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-23-30">
+        <dc:date>2021-01-28T17:23:30Z</dc:date>
+        <dc:description>present+ rhiaro</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-23-33">
+        <dc:date>2021-01-28T17:23:33Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-23-34">
+        <dc:date>2021-01-28T17:23:34Z</dc:date>
+        <dc:description>q?</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-23-37">
+        <dc:date>2021-01-28T17:23:37Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="markus_sabadello"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-23-39">
+        <dc:date>2021-01-28T17:23:39Z</dc:date>
+        <dc:description>ack jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-24-08">
+        <dc:date>2021-01-28T17:24:08Z</dc:date>
+        <dc:description>-1 to specifyng canonical forms for representations</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-24-19">
+        <dc:date>2021-01-28T17:24:19Z</dc:date>
+        <dc:description>-1 to canonicalization of the ADM</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-24-25">
+        <dc:date>2021-01-28T17:24:25Z</dc:date>
+        <dc:description>jonathan_holt: I don't think canonicalization of the ADM makes sense to me, but certainly what you're signing is a representation in a particular format. Getting a one way in and one way out -- as suggested by the RFC ... our protocol should say how to sign the CBOR and get into a particular format.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-24-26">
+        <dc:date>2021-01-28T17:24:26Z</dc:date>
+        <dc:description>-1 to specifying canonical forms for representations in DID Core</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-24-42">
+        <dc:date>2021-01-28T17:24:42Z</dc:date>
+        <dc:description>I would propose that "did+dag+cbor" support should be out of scope.... in the same way that "did+xml" should be out of scope... based on where we are now.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-24-42-1">
+        <dc:date>2021-01-28T17:24:42Z</dc:date>
+        <dc:description>(DID Representations outside of DID Core can do whatever they want)</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-24-45">
+        <dc:date>2021-01-28T17:24:45Z</dc:date>
+        <dc:description>signature methods specify canonicalization of data structures if they need it</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-25-02">
+        <dc:date>2021-01-28T17:25:02Z</dc:date>
+        <dc:description>jonathan_holt: Also from the perspective of the order here, the conversations we had ... ordering matters and it matters for signatures, but what I didn't highlight -- is that it's up to the DID Doc producer to put it in the right order.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-25-22">
+        <dc:date>2021-01-28T17:25:22Z</dc:date>
+        <dc:description>jonathan_holt: The way the author puts them in order doesn't matter, but it matters what order it is in when signing it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-25-25">
+        <dc:date>2021-01-28T17:25:25Z</dc:date>
+        <dc:description>ack dlongley</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-25-28">
+        <dc:date>2021-01-28T17:25:28Z</dc:date>
+        <dc:description>scribe+</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-25-45">
+        <dc:date>2021-01-28T17:25:45Z</dc:date>
+        <dc:description>dlongley: in response ot manu's question, -1 for canonicalising the ADM, I don't understand what that would mean</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-25-51">
+        <dc:date>2021-01-28T17:25:51Z</dc:date>
+        <dc:description>... -1 to specifying canonical forms for representations</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-11">
+        <dc:date>2021-01-28T17:26:11Z</dc:date>
+        <dc:description>... if a given representation wants to do that they can do so but I don't think there's support.. this WG would be fine withs omeoen doing that but I don't think we could get it done into DID core</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-19">
+        <dc:date>2021-01-28T17:26:19Z</dc:date>
+        <dc:description>... a lot of these problems could be solved by addressing the problem Orie mentioned</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-21">
+        <dc:date>2021-01-28T17:26:21Z</dc:date>
+        <dc:description>q?</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-22">
+        <dc:date>2021-01-28T17:26:22Z</dc:date>
+        <dc:description>agree, -1 to specifying cannonical forms of JSON, CBOR... not what I signed up for</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-24">
+        <dc:date>2021-01-28T17:26:24Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-30">
+        <dc:date>2021-01-28T17:26:30Z</dc:date>
+        <dc:description>... getting text in the spec that says here is how you can add more representations, and into the registries</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-35">
+        <dc:date>2021-01-28T17:26:35Z</dc:date>
+        <dc:description>... that gets these issues out of the way of DID core</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-41">
+        <dc:date>2021-01-28T17:26:41Z</dc:date>
+        <dc:description>... I support being able to put DID docs in dagCBOR</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-42">
+        <dc:date>2021-01-28T17:26:42Z</dc:date>
+        <dc:description>I agree w/jonathan, the order matters WHEN SIGNING -- which is why it's up to the signature method to specify, including verification. Maybe I need to keep the original byte stream to validate, like with JWS. Maybe I don't.</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-26-56">
+        <dc:date>2021-01-28T17:26:56Z</dc:date>
+        <dc:description>... it's great that jonathan is working on that. I have no idea if the timelines are going ot match up with what we need to freeze for DID Core</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-27-06">
+        <dc:date>2021-01-28T17:27:06Z</dc:date>
+        <dc:description>... I want to make sure we don't lose the entire DID Core spec because of this extra piece that I am in support of</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-27-11">
+        <dc:date>2021-01-28T17:27:11Z</dc:date>
+        <dc:description>... It would be great if DID docs were in ipfs</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-27-14">
+        <dc:date>2021-01-28T17:27:14Z</dc:date>
+        <dc:description>... I'd be interested in using that</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-27-25">
+        <dc:date>2021-01-28T17:27:25Z</dc:date>
+        <dc:description>... but we need to be careful that we don't end up losing the entire DID Core spec because of these issues</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-27-39">
+        <dc:date>2021-01-28T17:27:39Z</dc:date>
+        <dc:description>... if we can find a way to enable people to continue their work and make sure other people can create represntations and help the DID ecosystem flourish we should do that</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-27-47">
+        <dc:date>2021-01-28T17:27:47Z</dc:date>
+        <dc:description>ack markus_sabadello</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-27-58">
+        <dc:date>2021-01-28T17:27:58Z</dc:date>
+        <dc:description>The other thing I wanted to say that I forgot ... was that we must not block other flavors of CBOR in the future.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-28-49">
+        <dc:date>2021-01-28T17:28:49Z</dc:date>
+        <dc:description>agree with markus... we could fix registration of new representations... and it will suck if we dont.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-28-51">
+        <dc:date>2021-01-28T17:28:51Z</dc:date>
+        <dc:description>markus_sabadello: Moving the other representations in to the DID spec registries -- I wanted to do that, would that be ok with jonathan? We have registered properties, parameters, DID methods, so on. If we have a process for representations, that would be ok with that.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-03">
+        <dc:date>2021-01-28T17:29:03Z</dc:date>
+        <dc:description>jonathan_holt: If we can flush out the governance, I may be ok with that. It's just dangling out there right now.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-03-1">
+        <dc:date>2021-01-28T17:29:03Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-12">
+        <dc:date>2021-01-28T17:29:12Z</dc:date>
+        <dc:description>q+ to put forward some proposals.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-21">
+        <dc:date>2021-01-28T17:29:21Z</dc:date>
+        <dc:description>drummond has joined #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-28">
+        <dc:date>2021-01-28T17:29:28Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-42">
+        <dc:date>2021-01-28T17:29:42Z</dc:date>
+        <dc:description>ivan: Just for my understanding, as far as I understood, the only reason we're talking about canonicalization here, is for the purpose of signature. If that is the case, and we're not defining signature for the time being. We don't say how you would sign the JSON representation, and if we don't talk about signature, then there is no reason to have canonicalization in the document.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-44">
+        <dc:date>2021-01-28T17:29:44Z</dc:date>
+        <dc:description>lossless encoding/decoding</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-51">
+        <dc:date>2021-01-28T17:29:51Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-51-1">
+        <dc:date>2021-01-28T17:29:51Z</dc:date>
+        <dc:description>manu, you wanted to put forward some proposals.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-29-51-2">
+        <dc:date>2021-01-28T17:29:51Z</dc:date>
+        <dc:description>ivan: I wanted to have that on record, someone also said this in IRC.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-30-19">
+        <dc:date>2021-01-28T17:30:19Z</dc:date>
+        <dc:description>manu: Seeing some of the feedback in IRC and where the discussion seems to be headed. Two proposals I'd like to emote in IRC to look at before we take them up.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-30-37">
+        <dc:date>2021-01-28T17:30:37Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-30-43">
+        <dc:date>2021-01-28T17:30:43Z</dc:date>
+        <dc:description>ack Orie</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-31-04">
+        <dc:date>2021-01-28T17:31:04Z</dc:date>
+        <dc:description>q+ to note we decided to NOT put the registration process in DID Core -- but we can put it in DID Spec registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-31-16">
+        <dc:date>2021-01-28T17:31:16Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-31-16-1">
+        <dc:date>2021-01-28T17:31:16Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-31-17">
+        <dc:date>2021-01-28T17:31:17Z</dc:date>
+        <dc:description>manu, you wanted to note we decided to NOT put the registration process in DID Core -- but we can put it in DID Spec registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-31-20">
+        <dc:date>2021-01-28T17:31:20Z</dc:date>
+        <dc:description>Orie: The second part of Manu's proposal isn't clear enough to me, if we can be clear about the registration process and that representations are free to define canonical forms, etc. that would help.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-31-52">
+        <dc:date>2021-01-28T17:31:52Z</dc:date>
+        <dc:description>q+ to adjust what i said</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-32-13">
+        <dc:date>2021-01-28T17:32:13Z</dc:date>
+        <dc:description>manu: I think everyone wants the process to be more detailed. I thought we agreed to not put registration processes in DID core. Because those are hard to change. I thought consensus was that the registration processes would go in the DID registries document. I'd be fine with specifying how to define representations in that doc, doing it in DID core would be a problem.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-32-16">
+        <dc:date>2021-01-28T17:32:16Z</dc:date>
+        <dc:description>ack drummond</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-32-26">
+        <dc:date>2021-01-28T17:32:26Z</dc:date>
+        <dc:description>q+ to run the first proposal</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-32-26-1">
+        <dc:date>2021-01-28T17:32:26Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-32-28">
+        <dc:date>2021-01-28T17:32:28Z</dc:date>
+        <dc:description>I think DID core just needs to say you can define more representations via the registries process (see doc over here).</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-32-50">
+        <dc:date>2021-01-28T17:32:50Z</dc:date>
+        <dc:description>drummond: I think if we want to put the process over in the registries, I think that's what we want to do. I totally agree that we need to document it and I want to help work on it and that's where it belongs.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-33-06">
+        <dc:date>2021-01-28T17:33:06Z</dc:date>
+        <dc:description>+1 to drummond, that is what W3C would probably go towards</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-33-09">
+        <dc:date>2021-01-28T17:33:09Z</dc:date>
+        <dc:description>ack Orie</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-33-09-1">
+        <dc:date>2021-01-28T17:33:09Z</dc:date>
+        <dc:description>Orie, you wanted to adjust what i said</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-33-10">
+        <dc:date>2021-01-28T17:33:10Z</dc:date>
+        <dc:description>drummond: I agree with what Dave Longley just said that DID core just needs to say go look at the registries doc for the process.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-33-30">
+        <dc:date>2021-01-28T17:33:30Z</dc:date>
+        <dc:description>^^^ refactored to take Orie's input into account.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-33-46">
+        <dc:date>2021-01-28T17:33:46Z</dc:date>
+        <dc:description>Orie: I recall -- Drummond and Manu are correct that the consensus is that the DID spec registries would define the process and that's where the work needs to get done. And it just hasn't happened. And so that's why it's hard to see how it will work.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-33-53">
+        <dc:date>2021-01-28T17:33:53Z</dc:date>
+        <dc:description>Orie: I think this would help address jonathan's concerns.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-34-14">
+        <dc:date>2021-01-28T17:34:14Z</dc:date>
+        <dc:description>q- later</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-34-23">
+        <dc:date>2021-01-28T17:34:23Z</dc:date>
+        <dc:description>ack jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-34-27">
+        <dc:date>2021-01-28T17:34:27Z</dc:date>
+        <dc:description>Orie: With DID core defining JSON/JSON-LD/etc. then there's a feeling of second class citizenry. I don't know how to address that feeling, but it seems impractical to address that but stuffing everything into the registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-34-57">
+        <dc:date>2021-01-28T17:34:57Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-35-17">
+        <dc:date>2021-01-28T17:35:17Z</dc:date>
+        <dc:description>jonathan_holt: I think I can defer to Mike Jones and Justin Richer on this. Unlike JSON which isn't as strict, CBOR facilitates more strictness in the RFCs to facilitate this problem with base64 encoding with JWT for instance. It's natively supported in the RFC. It's specified that protocols should consider deterministic encoding of the representation.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-35-24">
+        <dc:date>2021-01-28T17:35:24Z</dc:date>
+        <dc:description>q+ to note that's not what the RFC does.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-35-25">
+        <dc:date>2021-01-28T17:35:25Z</dc:date>
+        <dc:description>jonathan_holt: Unlike in other representations.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-35-26">
+        <dc:date>2021-01-28T17:35:26Z</dc:date>
+        <dc:description>imo, this issue has almost nothing to do with canonicalization or cbor... we could be talking about yaml or xml... same problem.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-36-06">
+        <dc:date>2021-01-28T17:36:06Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-36-15">
+        <dc:date>2021-01-28T17:36:15Z</dc:date>
+        <dc:description>q- later</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-36-21">
+        <dc:date>2021-01-28T17:36:21Z</dc:date>
+        <dc:description>jonathan_holt: I'm also reading that other RFCs such as for COSE, the RFC punts that back up to CBOR RFC 7049 and the updated one. It's saying why it's a bad idea ... it battles with the JOSE spec. There's a lot of language, and I wish I had expertise as Jim Schaad, and Carsten, to get some weigh in for the implications of not addressing this right now.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-36-34">
+        <dc:date>2021-01-28T17:36:34Z</dc:date>
+        <dc:description>ack selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-37-12">
+        <dc:date>2021-01-28T17:37:12Z</dc:date>
+        <dc:description>selfissued: With respect to COSE, because there isn't a standard canonical CBOR, is what COSE does, when it wants to sign something it just puts it in a binary string and encapsulates it. It's kind of the equivalent of what JOSE with base64. COSE side steps this by representing it as a binary string.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-37-18">
+        <dc:date>2021-01-28T17:37:18Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-37-18-1">
+        <dc:date>2021-01-28T17:37:18Z</dc:date>
+        <dc:description>manu, you wanted to run the first proposal and to note that's not what the RFC does.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-38-08">
+        <dc:date>2021-01-28T17:38:08Z</dc:date>
+        <dc:description>manu: I'm going to put in the poll, but before doing that. Just real quick. On the CBOR language, that is being referred to. It does not guarantee a canonical form. It was never meant to be that -- that's why it says "These are things you might want to keep in mind". It says "If you want a canonical form, you might want to try and do at least these things" But it's up to other specs to do that and as Mike says other specs just print out a</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-38-08-1">
+        <dc:date>2021-01-28T17:38:08Z</dc:date>
+        <dc:description>binary string and sign it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-38-14">
+        <dc:date>2021-01-28T17:38:14Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-38-51">
+        <dc:date>2021-01-28T17:38:51Z</dc:date>
+        <dc:description>jonathan_holt: I'm thinking that you think that text does more than it does. It only applies to binary serializations that are deserialized -- it does not apply to production and consumption and round trips through ADMs. It just says if you have a binary string and you want two implementations to pull in and understand in the same way -- that's all they go to.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-38-56">
+        <dc:date>2021-01-28T17:38:56Z</dc:date>
+        <dc:description>s/go to/got to/</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-04">
+        <dc:date>2021-01-28T17:39:04Z</dc:date>
+        <dc:description>ack jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-15">
+        <dc:date>2021-01-28T17:39:15Z</dc:date>
+        <dc:description>s/jonathan_holt: I'm thinking/manu: I'm thinking/</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-34">
+        <dc:date>2021-01-28T17:39:34Z</dc:date>
+        <dc:description>jonathan_holt: It is possible, and I'd like to tease out, what parts of it do you have problems with. I'd love to address those concerns.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-38">
+        <dc:date>2021-01-28T17:39:38Z</dc:date>
+        <dc:description>PROPOSAL: The DID Working Group will not define a canonical form for the Abstract Data Model.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-45">
+        <dc:date>2021-01-28T17:39:45Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-46">
+        <dc:date>2021-01-28T17:39:46Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-46-1">
+        <dc:date>2021-01-28T17:39:46Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-47">
+        <dc:date>2021-01-28T17:39:47Z</dc:date>
+        <dc:description>1</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-48">
+        <dc:date>2021-01-28T17:39:48Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-50">
+        <dc:date>2021-01-28T17:39:50Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-53">
+        <dc:date>2021-01-28T17:39:53Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-54">
+        <dc:date>2021-01-28T17:39:54Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-54-1">
+        <dc:date>2021-01-28T17:39:54Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="shigeya"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-39-56">
+        <dc:date>2021-01-28T17:39:56Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="markus_sabadello"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-40-00">
+        <dc:date>2021-01-28T17:40:00Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-40-30">
+        <dc:date>2021-01-28T17:40:30Z</dc:date>
+        <dc:description>RESOLVED: The DID Working Group will not define a canonical form for the Abstract Data Model.</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-40-39">
+        <dc:date>2021-01-28T17:40:39Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-40-46">
+        <dc:date>2021-01-28T17:40:46Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-41-21">
+        <dc:date>2021-01-28T17:41:21Z</dc:date>
+        <dc:description>ack jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-41-25">
+        <dc:date>2021-01-28T17:41:25Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-41-43">
+        <dc:date>2021-01-28T17:41:43Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-42-02">
+        <dc:date>2021-01-28T17:42:02Z</dc:date>
+        <dc:description>q+ to run the next proposal.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-42-11">
+        <dc:date>2021-01-28T17:42:11Z</dc:date>
+        <dc:description>jonathan_holt: You know I'm going to object. I'm really harping on this canonicalization, it makes it so much easier if we have a canonical representation in CBOR. I think the ADM, it's just too abstract. So having a concise binary object representation helps facilitate the lossless encoding and decoding into other formats. It behooves us to tackle this, as it opens the door.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-42-23">
+        <dc:date>2021-01-28T17:42:23Z</dc:date>
+        <dc:description>jonathan_holt: Carsten has a lot of libraries for going back and forth because CBOR is so extensible.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-42-23-1">
+        <dc:date>2021-01-28T17:42:23Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-42-42">
+        <dc:date>2021-01-28T17:42:42Z</dc:date>
+        <dc:description>q+ to say I believe this is out of scope</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-42-56">
+        <dc:date>2021-01-28T17:42:56Z</dc:date>
+        <dc:description>q- later</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-43-16">
+        <dc:date>2021-01-28T17:43:16Z</dc:date>
+        <dc:description>ivan: I could say similar things about other formats. The reasons why I started work on doing various types of constraint languages for json-schema and for JSON-LD -- and I've put them into the registry repo right now... part of that to be discussed. Having your work put there would be what I would expect to happen. That can be done one the CR is published because this is not something absolutely necessary to go ahead with the Cr.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-43-40">
+        <dc:date>2021-01-28T17:43:40Z</dc:date>
+        <dc:description>ack brent</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-43-40-1">
+        <dc:date>2021-01-28T17:43:40Z</dc:date>
+        <dc:description>brent, you wanted to say I believe this is out of scope</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-43-45">
+        <dc:date>2021-01-28T17:43:45Z</dc:date>
+        <dc:description>ivan: Yes, I believe you, I'm not an expert, it's very useful for testing, implementations, all kinds of different things, yes we should produce these things for the various representations we put into core, but it doesn't have to be in core itself.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-44-29">
+        <dc:date>2021-01-28T17:44:29Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-44-29-1">
+        <dc:date>2021-01-28T17:44:29Z</dc:date>
+        <dc:description>manu, you wanted to run the next proposal.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-44-30">
+        <dc:date>2021-01-28T17:44:30Z</dc:date>
+        <dc:description>brent: I'm getting pretty concerned that we're getting close to things that are officially out of scope for our group. It could argued that explaining a deterministic algorithm for signatures could be out of scope because it's too close to signatures. If we're not past the point of our scope we're very close to it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-44-32">
+        <dc:date>2021-01-28T17:44:32Z</dc:date>
+        <dc:description>PROPOSAL: The DID Working Group will not define a canonical form for any representation in DID Core. Representations that want to define a canonical form as a DID Specification Registry extension are free to do so. The DID WG will define the registration process in the DID Specification Registries and provide an example of at least one registration in DID Specification Registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-44-34">
+        <dc:date>2021-01-28T17:44:34Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-02">
+        <dc:date>2021-01-28T17:45:02Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-02-1">
+        <dc:date>2021-01-28T17:45:02Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-03">
+        <dc:date>2021-01-28T17:45:03Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-04">
+        <dc:date>2021-01-28T17:45:04Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-04-1">
+        <dc:date>2021-01-28T17:45:04Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-07">
+        <dc:date>2021-01-28T17:45:07Z</dc:date>
+        <dc:description>q?</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-08">
+        <dc:date>2021-01-28T17:45:08Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-14">
+        <dc:date>2021-01-28T17:45:14Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-16">
+        <dc:date>2021-01-28T17:45:16Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="shigeya"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-17">
+        <dc:date>2021-01-28T17:45:17Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-18">
+        <dc:date>2021-01-28T17:45:18Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-27">
+        <dc:date>2021-01-28T17:45:27Z</dc:date>
+        <dc:description>-.5</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-41">
+        <dc:date>2021-01-28T17:45:41Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-45-57">
+        <dc:date>2021-01-28T17:45:57Z</dc:date>
+        <dc:description>q+ to respond to ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-46-01">
+        <dc:date>2021-01-28T17:46:01Z</dc:date>
+        <dc:description>ivan: I have a question on the proposal. I thought what we'd do in the registries, is not only the canonical forms, but also any kind of additional representations.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-46-02">
+        <dc:date>2021-01-28T17:46:02Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-46-02-1">
+        <dc:date>2021-01-28T17:46:02Z</dc:date>
+        <dc:description>manu, you wanted to respond to ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-46-10">
+        <dc:date>2021-01-28T17:46:10Z</dc:date>
+        <dc:description>manu: Yes, that is correct, do you feel that the proposal doesn't say that?</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-01">
+        <dc:date>2021-01-28T17:47:01Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-03">
+        <dc:date>2021-01-28T17:47:03Z</dc:date>
+        <dc:description>manu: We could put all the representations in the registries to address the second class citizen concern.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-09">
+        <dc:date>2021-01-28T17:47:09Z</dc:date>
+        <dc:description>Representations, with or without a canonical form, may be added to the DID Specification Registry as extensions.</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-20">
+        <dc:date>2021-01-28T17:47:20Z</dc:date>
+        <dc:description>ivan: If I want to have a yaml representation of the model, I should be able to do that in the registry. That, for me, is not clearly in the proposla.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-25">
+        <dc:date>2021-01-28T17:47:25Z</dc:date>
+        <dc:description>ack jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-26">
+        <dc:date>2021-01-28T17:47:26Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-27">
+        <dc:date>2021-01-28T17:47:27Z</dc:date>
+        <dc:description>s/proposla/proposal</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-33">
+        <dc:date>2021-01-28T17:47:33Z</dc:date>
+        <dc:description>manu: Yes. That's the intent.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-47">
+        <dc:date>2021-01-28T17:47:47Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-48">
+        <dc:date>2021-01-28T17:47:48Z</dc:date>
+        <dc:description>jonathan_holt: How about this compromise, only the core model is in the DID core spec, and the representations are all in the registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-47-54">
+        <dc:date>2021-01-28T17:47:54Z</dc:date>
+        <dc:description>ack TallTed</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-48-36">
+        <dc:date>2021-01-28T17:48:36Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-48-46">
+        <dc:date>2021-01-28T17:48:46Z</dc:date>
+        <dc:description>TallTed: I think jonathan, that's roughly the intent at this time. Part of the pushback against you right now is that you have acknowledged that you're not an expert on the thing you want in the spec and we're up against tight timelines right now. Without the expertise to write the PR for what you want to add, I don't see that as possible.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-49-06">
+        <dc:date>2021-01-28T17:49:06Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-49-19">
+        <dc:date>2021-01-28T17:49:19Z</dc:date>
+        <dc:description>TallTed: I think we'll put all the representations in the registry -- and it doesn't say anything about any representations being in DID core right now.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-49-29">
+        <dc:date>2021-01-28T17:49:29Z</dc:date>
+        <dc:description>manu: I think we should take up another proposal to clarify what's going on.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-50-06">
+        <dc:date>2021-01-28T17:50:06Z</dc:date>
+        <dc:description>ack selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-50-23">
+        <dc:date>2021-01-28T17:50:23Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-50-26">
+        <dc:date>2021-01-28T17:50:26Z</dc:date>
+        <dc:description>q+ to ask if we could please focus</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-50-46">
+        <dc:date>2021-01-28T17:50:46Z</dc:date>
+        <dc:description>selfissued: This talk of all the representations being in the registry doesn't match what we've actually done in the spec. The JSON and JSON-LD and the dagCBOR representations are all defined in the core spec, not in any registries. I propose we don't change that and don't make any resolutions so it appears that's not true.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-50-50">
+        <dc:date>2021-01-28T17:50:50Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-50-50-1">
+        <dc:date>2021-01-28T17:50:50Z</dc:date>
+        <dc:description>manu, you wanted to ask if we could please focus</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-50-54">
+        <dc:date>2021-01-28T17:50:54Z</dc:date>
+        <dc:description>manu: I would like the group to focus on getting one proposal passed at a time.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-51-27">
+        <dc:date>2021-01-28T17:51:27Z</dc:date>
+        <dc:description>manu: Does anyone have a proposal they'd like to float for moving all the representations into the registries? I will float one if not.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-51-47">
+        <dc:date>2021-01-28T17:51:47Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-51-56">
+        <dc:date>2021-01-28T17:51:56Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-52-26">
+        <dc:date>2021-01-28T17:52:26Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-52-26-1">
+        <dc:date>2021-01-28T17:52:26Z</dc:date>
+        <dc:description>hence, second class</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-52-32">
+        <dc:date>2021-01-28T17:52:32Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-52-34">
+        <dc:date>2021-01-28T17:52:34Z</dc:date>
+        <dc:description>ack selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-02">
+        <dc:date>2021-01-28T17:53:02Z</dc:date>
+        <dc:description>+1 selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-05">
+        <dc:date>2021-01-28T17:53:05Z</dc:date>
+        <dc:description>selfissued: Yeah, specifications are specifications and registries are registries. Registries are lists of things. Specs have normative text. Talking about moving large blocks of text into a registry is nonsensical.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-06">
+        <dc:date>2021-01-28T17:53:06Z</dc:date>
+        <dc:description>q+ to take this up</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-08">
+        <dc:date>2021-01-28T17:53:08Z</dc:date>
+        <dc:description>ack dlongley</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-12">
+        <dc:date>2021-01-28T17:53:12Z</dc:date>
+        <dc:description>+1 to selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-23">
+        <dc:date>2021-01-28T17:53:23Z</dc:date>
+        <dc:description>+1 to =selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-28">
+        <dc:date>2021-01-28T17:53:28Z</dc:date>
+        <dc:description>dlongley: I put a proposal in IRC. Can we solve the second class citizen issue by being clear in the core spec</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-42">
+        <dc:date>2021-01-28T17:53:42Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-51">
+        <dc:date>2021-01-28T17:53:51Z</dc:date>
+        <dc:description>... by saying there are representations in this spec, but they are not any more important than any other representation in the registries, go look there for others, which will have links to the specs where those are defined</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-51-1">
+        <dc:date>2021-01-28T17:53:51Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-51-2">
+        <dc:date>2021-01-28T17:53:51Z</dc:date>
+        <dc:description>manu, you wanted to take this up</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-53-53">
+        <dc:date>2021-01-28T17:53:53Z</dc:date>
+        <dc:description>+1 to Dave's suggestion</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-11">
+        <dc:date>2021-01-28T17:54:11Z</dc:date>
+        <dc:description>+1 to dlongley too... the only difference between them is that some were ready in time for CR and others were ready later</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-21">
+        <dc:date>2021-01-28T17:54:21Z</dc:date>
+        <dc:description>manu: I don't think that would address the issue, Dave. But let's run proposals.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-21-1">
+        <dc:date>2021-01-28T17:54:21Z</dc:date>
+        <dc:description>+1 to Amy</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-31">
+        <dc:date>2021-01-28T17:54:31Z</dc:date>
+        <dc:description>PROPOSAL: Move the existing representations in the DID Core specification into their own specifications and register each representaion in the DID Specification Registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-36">
+        <dc:date>2021-01-28T17:54:36Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-36-1">
+        <dc:date>2021-01-28T17:54:36Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-37">
+        <dc:date>2021-01-28T17:54:37Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-37-1">
+        <dc:date>2021-01-28T17:54:37Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-37-2">
+        <dc:date>2021-01-28T17:54:37Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-38">
+        <dc:date>2021-01-28T17:54:38Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-38-1">
+        <dc:date>2021-01-28T17:54:38Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-38-2">
+        <dc:date>2021-01-28T17:54:38Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-39">
+        <dc:date>2021-01-28T17:54:39Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-54-44">
+        <dc:date>2021-01-28T17:54:44Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="markus_sabadello"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-55-20">
+        <dc:date>2021-01-28T17:55:20Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-11">
+        <dc:date>2021-01-28T17:56:11Z</dc:date>
+        <dc:description>brent: It is clear from this result that we do not need to run the counter proposal</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-22">
+        <dc:date>2021-01-28T17:56:22Z</dc:date>
+        <dc:description>manu: Do we need to run the opposite proposal? Where we say we're going to keep the core representations in the spec?</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-24">
+        <dc:date>2021-01-28T17:56:24Z</dc:date>
+        <dc:description>brent: the representations in the spec will stay there</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-35">
+        <dc:date>2021-01-28T17:56:35Z</dc:date>
+        <dc:description>PROPOSAL: The DID Working Group will not define a canonical form for any representation in DID Core. Representations, with or without a canonical form, may be added to the DID Specification Registry as extensions. The DID WG will define the registration process in the DID Specification Registries and provide an example of at least one registration in DID Specification Registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-39">
+        <dc:date>2021-01-28T17:56:39Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-49">
+        <dc:date>2021-01-28T17:56:49Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-49-1">
+        <dc:date>2021-01-28T17:56:49Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-52">
+        <dc:date>2021-01-28T17:56:52Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-52-1">
+        <dc:date>2021-01-28T17:56:52Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-54">
+        <dc:date>2021-01-28T17:56:54Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="shigeya"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-55">
+        <dc:date>2021-01-28T17:56:55Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-56">
+        <dc:date>2021-01-28T17:56:56Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-56-1">
+        <dc:date>2021-01-28T17:56:56Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="markus_sabadello"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-57">
+        <dc:date>2021-01-28T17:56:57Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-56-58">
+        <dc:date>2021-01-28T17:56:58Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-05">
+        <dc:date>2021-01-28T17:57:05Z</dc:date>
+        <dc:description>-1</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-07">
+        <dc:date>2021-01-28T17:57:07Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-09">
+        <dc:date>2021-01-28T17:57:09Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-18">
+        <dc:date>2021-01-28T17:57:18Z</dc:date>
+        <dc:description>ack selfissued</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-32">
+        <dc:date>2021-01-28T17:57:32Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-36">
+        <dc:date>2021-01-28T17:57:36Z</dc:date>
+        <dc:description>+1 selfissued that's how I interpreted this</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-48">
+        <dc:date>2021-01-28T17:57:48Z</dc:date>
+        <dc:description>selfissued: This is very strangely worded. You make a representation in a specification. You might also list that specification in a registry. You don't add a representation directly to a registry. A registry is a list not a spec.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-48-1">
+        <dc:date>2021-01-28T17:57:48Z</dc:date>
+        <dc:description>q-</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-54">
+        <dc:date>2021-01-28T17:57:54Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-54-1">
+        <dc:date>2021-01-28T17:57:54Z</dc:date>
+        <dc:description>PROPOSAL: The DID Working Group will not define a canonical form for any representation in DID Core. Representations, with or without a canonical form, may be registered in the DID Specification Registry as extensions. The DID WG will define the registration process in the DID Specification Registries and provide an example of at least one registration in DID Specification Registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-57-58">
+        <dc:date>2021-01-28T17:57:58Z</dc:date>
+        <dc:description>+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-01">
+        <dc:date>2021-01-28T17:58:01Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-01-1">
+        <dc:date>2021-01-28T17:58:01Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-01-2">
+        <dc:date>2021-01-28T17:58:01Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-01-3">
+        <dc:date>2021-01-28T17:58:01Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-02">
+        <dc:date>2021-01-28T17:58:02Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-02-1">
+        <dc:date>2021-01-28T17:58:02Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-03">
+        <dc:date>2021-01-28T17:58:03Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-04">
+        <dc:date>2021-01-28T17:58:04Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-07">
+        <dc:date>2021-01-28T17:58:07Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="shigeya"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-23">
+        <dc:date>2021-01-28T17:58:23Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-39">
+        <dc:date>2021-01-28T17:58:39Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-46">
+        <dc:date>2021-01-28T17:58:46Z</dc:date>
+        <dc:description>acl jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-58-54">
+        <dc:date>2021-01-28T17:58:54Z</dc:date>
+        <dc:description>ack jonathan_holt</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-59-01">
+        <dc:date>2021-01-28T17:59:01Z</dc:date>
+        <dc:description>there's no protocol here</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-59-05">
+        <dc:date>2021-01-28T17:59:05Z</dc:date>
+        <dc:description>q+ to note how it can happen.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-59-15">
+        <dc:date>2021-01-28T17:59:15Z</dc:date>
+        <dc:description>jonathan_holt: I haven't seen this in any protocol/place where some representation isn't able to handle this, the deterministic section in CBOR says it's up to authors. We are supposed to clearly state how to handle a representation. Not kicking the can down the road into some registry process.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-59-33">
+        <dc:date>2021-01-28T17:59:33Z</dc:date>
+        <dc:description>ack drummond</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T17-59-55">
+        <dc:date>2021-01-28T17:59:55Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="selfissued"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-04">
+        <dc:date>2021-01-28T18:00:04Z</dc:date>
+        <dc:description>drummond: My understanding is that everything that is defined in DID core is listed in the registry. Everything in the registry is official. It doesn't really matter whether a representation is in DID core or outside of DID core. All are siblings, all are in the registry.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-07">
+        <dc:date>2021-01-28T18:00:07Z</dc:date>
+        <dc:description>manu: That's correct.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-09">
+        <dc:date>2021-01-28T18:00:09Z</dc:date>
+        <dc:description>ivan: That's correct.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-11">
+        <dc:date>2021-01-28T18:00:11Z</dc:date>
+        <dc:description>That's correct.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-14">
+        <dc:date>2021-01-28T18:00:14Z</dc:date>
+        <dc:description>-0.5</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-30">
+        <dc:date>2021-01-28T18:00:30Z</dc:date>
+        <dc:description>+100 to fleshing out governance of registries!</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-35">
+        <dc:date>2021-01-28T18:00:35Z</dc:date>
+        <dc:description>jonathan_holt: It's a fair compromise, I think we need to flush out the governance of the registry -- in which case it will be seamless, but it's punting it and I don't like that.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-42">
+        <dc:date>2021-01-28T18:00:42Z</dc:date>
+        <dc:description>yes please, help by making PRs!</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-51">
+        <dc:date>2021-01-28T18:00:51Z</dc:date>
+        <dc:description>brent: Thanks for coming, thanks to scribe, thanks for the input.</dc:description>
+        <dc:creator><wn:Person foaf:nick="dlongley"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-00-55">
+        <dc:date>2021-01-28T18:00:55Z</dc:date>
+        <dc:description>Thanks Dave for scribing</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-01-52">
+        <dc:date>2021-01-28T18:01:52Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-01-57">
+        <dc:date>2021-01-28T18:01:57Z</dc:date>
+        <dc:description>q-</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-24">
+        <dc:date>2021-01-28T18:04:24Z</dc:date>
+        <dc:description>rrsagent, draft minutes</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-24-1">
+        <dc:date>2021-01-28T18:04:24Z</dc:date>
+        <dc:description>I have made the request to generate https://www.w3.org/2021/01/28-did-topic-minutes.html ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2021/01/28-did-topic-minutes.html"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-37">
+        <dc:date>2021-01-28T18:04:37Z</dc:date>
+        <dc:description>zakim, end meeting</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-37-1">
+        <dc:date>2021-01-28T18:04:37Z</dc:date>
+        <dc:description>As of this point the attendees have been markus_sabadello, dlongley, ivan, shigeya, burn, TallTed, manu, brent, selfissued, jonathan, drummond, agropper, jonathan_holt,</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-40">
+        <dc:date>2021-01-28T18:04:40Z</dc:date>
+        <dc:description>sorry have to drop</dc:description>
+        <dc:creator><wn:Person foaf:nick="Orie"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-40-1">
+        <dc:date>2021-01-28T18:04:40Z</dc:date>
+        <dc:description>... Geunhyung_Kim, Orie, rhiaro</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-40-2">
+        <dc:date>2021-01-28T18:04:40Z</dc:date>
+        <dc:description>RRSAgent, please draft minutes</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-40-3">
+        <dc:date>2021-01-28T18:04:40Z</dc:date>
+        <dc:description>I have made the request to generate https://www.w3.org/2021/01/28-did-topic-minutes.html Zakim</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2021/01/28-did-topic-minutes.html"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-42">
+        <dc:date>2021-01-28T18:04:42Z</dc:date>
+        <dc:description>I am happy to have been of service, ivan; please remember to excuse RRSAgent.  Goodbye</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T18-04-46">
+        <dc:date>2021-01-28T18:04:46Z</dc:date>
+        <dc:description>Zakim has left #did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+    </rdf:Seq>
+  </foaf:chatEventList>
+</foaf:ChatChannel>
+</rdf:RDF>

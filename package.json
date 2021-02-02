@@ -1,6 +1,6 @@
 {
   "name": "scribejs",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "RSSAgent IRC logs Into Minutes in Markdown",
   "main": "main.js",
   "keywords": [
@@ -38,6 +38,7 @@
     "ajv": "^6.10.2",
     "commander": "^6.2.0",
     "js-yaml": ">=3.13.1",
+    "json-from-xml": "^1.0.0",
     "marked": ">=0.3.18",
     "marked-it-core": "^0.14.1",
     "node-fetch": "^2.6.1",

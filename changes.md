@@ -1,5 +1,9 @@
 # Change log
 
+## Version 2.0.1
+
+* A tool has been added to convert the RDF formatted IRC logs from RSSAgent into a text (to be then edited and ran through scribejs). This is to overcome an issue with the CVS server on W3C.
+
 ## Version 2.0.0
 
 * The package has been fully converted to TypeScript. The generated javascript code _replaces_ the old code at the same place, i.e., deployed scripts should not be affected.
