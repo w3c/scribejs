@@ -1,0 +1,2 @@
+17:07:43 <rhiaro> manu: I'd rather not do that, but I'm hearing people wanting to do that... I think we need to come to ground on the test suite.  I don't think talking about the diagrams is going to get us there. I would like to timebox to 20 past the our
+17:07:46 <rhiaro> s/our/hour/

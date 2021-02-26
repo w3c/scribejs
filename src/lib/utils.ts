@@ -694,11 +694,8 @@ export function perform_insert_requests(lines: LineObject[]): LineObject[] {
 export function perform_change_requests(lines: LineObject[]): LineObject[] {
     // Interestingly, node.js does not have the replaceAll function, although defined for Javascript... oh well...
     const replaceAll = (inp: string, from: string, to: string): string => {
-        let retval = inp;
-        while (retval.includes(from) ) {
-            retval = retval.replace(from, to);
-        }
-        return retval;
+        // Node, until version 15, has not implemented the string.replaceAll() function. This had to be done by hand...
+        return inp.split(from).join(to);
     }
 
     interface ChangeRequest {

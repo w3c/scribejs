@@ -1334,12 +1334,12 @@ ${no_toc}
         this.global.action_list.set_date(headers.date);
         // 5. Clean up the header by using the real names rather then the nicknames
         headers = this.cleanup_names_in_header(headers);
-        // 7. Generate the general header of the minutes
+        // 6. Generate the general header of the minutes
         const preamble = this.generate_preamble(headers);
-        // 8. Generate the content part; that also includes the TOC, the list of
+        // 7. Generate the content part; that also includes the TOC, the list of
         //    resolutions and (if any) of actions
         const content = this.generate_content(lines);
-        // 9. Generate the front matter part of the minutes (e.g., whatever is necessary for jekyll to work).
+        // 8. Generate the front matter part of the minutes (e.g., whatever is necessary for jekyll to work).
         //    The order is important: the front matter includes the JSON-LD metadata, and that relies on the final
         //    content (e.g., list of actions)
         const front_matter = front_matter_1.generate_front_matter(headers, this.global);
@@ -2357,11 +2357,8 @@ exports.perform_insert_requests = perform_insert_requests;
 function perform_change_requests(lines) {
     // Interestingly, node.js does not have the replaceAll function, although defined for Javascript... oh well...
     const replaceAll = (inp, from, to) => {
-        let retval = inp;
-        while (retval.includes(from)) {
-            retval = retval.replace(from, to);
-        }
-        return retval;
+        // Node, until version 15, has not implemented the string.replaceAll() function. This had to be done by hand...
+        return inp.split(from).join(to);
     };
     // This array will contain change request structures:
     // lineno: the line number of the change request

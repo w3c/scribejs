@@ -1,5 +1,10 @@
 # Change log
 
+## Version 2.0.1
+
+* But in the string replacement function: the replaceAll had a nasty bug when the 'to' included the 'from' (got into an infinite cycle). Replaced it by a neat trick found on the Web. (Note: node with version < 15 did not implement the replaceAll function for strings, hence the necessity of having this...).
+
+
 ## Version 2.0.0
 
 * The package has been fully converted to TypeScript. The generated javascript code _replaces_ the old code at the same place, i.e., deployed scripts should not be affected.

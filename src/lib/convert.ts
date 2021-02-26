@@ -559,14 +559,14 @@ ${no_toc}
         // 5. Clean up the header by using the real names rather then the nicknames
         headers = this.cleanup_names_in_header(headers);
 
-        // 7. Generate the general header of the minutes
+        // 6. Generate the general header of the minutes
         const preamble = this.generate_preamble(headers)
 
-        // 8. Generate the content part; that also includes the TOC, the list of
+        // 7. Generate the content part; that also includes the TOC, the list of
         //    resolutions and (if any) of actions
         const content = this.generate_content(lines)
 
-        // 9. Generate the front matter part of the minutes (e.g., whatever is necessary for jekyll to work).
+        // 8. Generate the front matter part of the minutes (e.g., whatever is necessary for jekyll to work).
         //    The order is important: the front matter includes the JSON-LD metadata, and that relies on the final
         //    content (e.g., list of actions)
         const front_matter = generate_front_matter(headers, this.global);
