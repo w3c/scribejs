@@ -31,7 +31,6 @@
         "lib/**/*"
     ],
     "typedocOptions" : {
-        "mode": "module",
         "includeDeclarations": true,
         "excludeExternals": true,
         "excludePrivate" : true,
