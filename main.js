@@ -14,6 +14,7 @@ const io = require("./lib/io");
 const convert = require("./lib/convert");
 const conf = require("./lib/conf");
 const schemas = require("./lib/schemas");
+const rdf = require("./lib/rdf_to_log");
 /* This is just the overall driver of the script... */
 /**
  * Entry point for the package: read the configuration files, get the IRC logs from the command line, convert and output the result in Markdown.
@@ -38,7 +39,12 @@ async function main() {
             config.nicks = [];
         }
         // Get the IRC log itself
-        const irc_log = await io.get_irc_log(config);
+        let irc_log = await io.get_irc_log(config);
+        // If the log is in RDF format of RRSAgent, it is converted to the textual equivalent
+        if (config.irc_format === 'rdf') {
+            irc_log = await rdf.convert(irc_log);
+            delete config.irc_format;
+        }
         const minutes = new convert.Converter(config).convert_to_markdown(irc_log);
         const message = await io.output_minutes(minutes, config);
         // That is it, folks!

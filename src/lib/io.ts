@@ -54,7 +54,8 @@ export async function get_irc_log(conf: Configuration): Promise<string> {
     } else if (url.parse(conf.input).protocol !== null) {
         const response = await my_fetch(conf.input);
         if (response.ok) {
-            if (response.headers.get('content-type') === 'text/plain') {
+            const content_type = response.headers.get('content-type');
+            if (content_type === 'text/plain' || content_type === 'application/rdf+xml') {
                 return response.text();
             } else {
                 throw new Error('IRC log must be of type text/plain');
