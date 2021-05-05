@@ -1,6 +1,6 @@
 {
   "name": "scribejs",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "RSSAgent IRC logs Into Minutes in Markdown",
   "main": "main.js",
   "keywords": [
@@ -31,7 +31,7 @@
     "url": "https://github.com/w3c/scribejs.git"
   },
   "engines": {
-    "node": "14.x"
+    "node": ">=14.x"
   },
   "preferGlobal": true,
   "dependencies": {
@@ -44,7 +44,8 @@
     "octokat": "^0.10.0",
     "terser": "^3.17.0",
     "underscore": "^1.8.3",
-    "valid-url": "^1.0.9"
+    "valid-url": "^1.0.9",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@types/ajv": "^1.0.0",
@@ -56,12 +57,12 @@
     "@types/terser": "^3.12.0",
     "@types/underscore": "^1.10.24",
     "@types/valid-url": "^1.0.3",
+    "@types/xml2js": "^0.4.8",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.2",
     "browserify": "^16.3.0",
     "eslint": "^7.14.0",
     "http-server": "^0.12.3",
-    "mocha": "^5.2.0",
     "typedoc": "^0.19.2",
     "typedoc-plugin-nojekyll": "^1.0.1",
     "typescript": "^4.1.2"

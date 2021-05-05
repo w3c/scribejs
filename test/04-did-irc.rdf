@@ -1,0 +1,2360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:wn="http://xmlns.com/wordnet/1.6/"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<foaf:ChatChannel rdf:about="irc://localhost:6667/did">
+  <foaf:chatEventList>
+    <rdf:Seq>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-45">
+        <dc:date>2021-05-04T14:33:45Z</dc:date>
+        <dc:description>RRSAgent has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-45-1">
+        <dc:date>2021-05-04T14:33:45Z</dc:date>
+        <dc:description>logging to https://www.w3.org/2021/05/04-did-irc</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2021/05/04-did-irc"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-48">
+        <dc:date>2021-05-04T14:33:48Z</dc:date>
+        <dc:description>RRSAgent, make logs Public</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-48-1">
+        <dc:date>2021-05-04T14:33:48Z</dc:date>
+        <dc:description>please title this meeting ("meeting: ..."), ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-53">
+        <dc:date>2021-05-04T14:33:53Z</dc:date>
+        <dc:description>Meeting: DID WG Telco</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-54">
+        <dc:date>2021-05-04T14:33:54Z</dc:date>
+        <dc:description>Chair: brent</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-54-1">
+        <dc:date>2021-05-04T14:33:54Z</dc:date>
+        <dc:description>Date: 2021-05-04</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-54-2">
+        <dc:date>2021-05-04T14:33:54Z</dc:date>
+        <dc:description>Agenda: https://lists.w3.org/Archives/Public/public-did-wg/2021Apr/0040.html</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+        <dc:relation rdf:resource="https://lists.w3.org/Archives/Public/public-did-wg/2021Apr/0040.html"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-33-54-3">
+        <dc:date>2021-05-04T14:33:54Z</dc:date>
+        <dc:description>ivan has changed the topic to: Meeting Agenda 2021-05-04: https://lists.w3.org/Archives/Public/public-did-wg/2021Apr/0040.html</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+        <dc:relation rdf:resource="https://lists.w3.org/Archives/Public/public-did-wg/2021Apr/0040.html"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T14-53-51">
+        <dc:date>2021-05-04T14:53:51Z</dc:date>
+        <dc:description>brent has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-00-36">
+        <dc:date>2021-05-04T15:00:36Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-00-40">
+        <dc:date>2021-05-04T15:00:40Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-00-42">
+        <dc:date>2021-05-04T15:00:42Z</dc:date>
+        <dc:description>present+ brent</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-00-46">
+        <dc:date>2021-05-04T15:00:46Z</dc:date>
+        <dc:description>present+ shigeya</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-00-49">
+        <dc:date>2021-05-04T15:00:49Z</dc:date>
+        <dc:description>TallTed has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-01-00">
+        <dc:date>2021-05-04T15:01:00Z</dc:date>
+        <dc:description>present+ cel</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-01-11">
+        <dc:date>2021-05-04T15:01:11Z</dc:date>
+        <dc:description>justin_r has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-01-31">
+        <dc:date>2021-05-04T15:01:31Z</dc:date>
+        <dc:description>present+ justin_r</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-01-50">
+        <dc:date>2021-05-04T15:01:50Z</dc:date>
+        <dc:description>Geun-Hyung has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="Geun-Hyung"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-01-59">
+        <dc:date>2021-05-04T15:01:59Z</dc:date>
+        <dc:description>present+ chriswinc</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-02-06">
+        <dc:date>2021-05-04T15:02:06Z</dc:date>
+        <dc:description>present+ rhiaro</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-02-11">
+        <dc:date>2021-05-04T15:02:11Z</dc:date>
+        <dc:description>present+ Geun-Hyung</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-02-30">
+        <dc:date>2021-05-04T15:02:30Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-02-33">
+        <dc:date>2021-05-04T15:02:33Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-03-55">
+        <dc:date>2021-05-04T15:03:55Z</dc:date>
+        <dc:description>present+ TallTed</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-04-25">
+        <dc:date>2021-05-04T15:04:25Z</dc:date>
+        <dc:description>present+ drummond</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-04-42">
+        <dc:date>2021-05-04T15:04:42Z</dc:date>
+        <dc:description>drummond has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-05-00">
+        <dc:date>2021-05-04T15:05:00Z</dc:date>
+        <dc:description>scribe: cel</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-05-17">
+        <dc:date>2021-05-04T15:05:17Z</dc:date>
+        <dc:description>brent: first topic: agenda review, along with intros and reintros</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-05-31">
+        <dc:date>2021-05-04T15:05:31Z</dc:date>
+        <dc:description>... announcing special topic, brief test coverage report.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-05-43">
+        <dc:date>2021-05-04T15:05:43Z</dc:date>
+        <dc:description>... then jump into conversation about additional notes our group hoping to publish - impl guide and rubric</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-05-47">
+        <dc:date>2021-05-04T15:05:47Z</dc:date>
+        <dc:description>present+ dmitriz</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-05-56">
+        <dc:date>2021-05-04T15:05:56Z</dc:date>
+        <dc:description>... then go through did-core PRs, issues. any questions, suggestions, changing/adding to agenda?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-06-03">
+        <dc:date>2021-05-04T15:06:03Z</dc:date>
+        <dc:description>chriswinc has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="chriswinc"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-06-14">
+        <dc:date>2021-05-04T15:06:14Z</dc:date>
+        <dc:description>dmitriz has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="dmitriz"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-06-24">
+        <dc:date>2021-05-04T15:06:24Z</dc:date>
+        <dc:description>Topic: special topic call</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-06-30">
+        <dc:date>2021-05-04T15:06:30Z</dc:date>
+        <dc:description>Topic: Special Topic Call</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-06-35">
+        <dc:date>2021-05-04T15:06:35Z</dc:date>
+        <dc:description>... We know eachother well enough - skipping reintros. Moving on...</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-06-45">
+        <dc:date>2021-05-04T15:06:45Z</dc:date>
+        <dc:description>... Special Topic Call: 12pm eastern time - DID Rubric</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-06-57">
+        <dc:date>2021-05-04T15:06:57Z</dc:date>
+        <dc:description>... We will be working on that document, refining it, feedback, making progress.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-07-11">
+        <dc:date>2021-05-04T15:07:11Z</dc:date>
+        <dc:description>q+ to report out on test suite</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-07-14">
+        <dc:date>2021-05-04T15:07:14Z</dc:date>
+        <dc:description>Topic: Test Coverage Report</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-07-16">
+        <dc:date>2021-05-04T15:07:16Z</dc:date>
+        <dc:description>... Thursday 12pm Eastern</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-07-21">
+        <dc:date>2021-05-04T15:07:21Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-07-21-1">
+        <dc:date>2021-05-04T15:07:21Z</dc:date>
+        <dc:description>manu, you wanted to report out on test suite</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-07-22">
+        <dc:date>2021-05-04T15:07:22Z</dc:date>
+        <dc:description>... Now we have a brief test coverage report.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-07-45">
+        <dc:date>2021-05-04T15:07:45Z</dc:date>
+        <dc:description>manu: Over the past month and some change, there have been a number of people implementing tests in the test suite. Thank you to everyone who has submitted tests.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-08-01">
+        <dc:date>2021-05-04T15:08:01Z</dc:date>
+        <dc:description>https://github.com/w3c/did-test-suite/issues/72</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-test-suite/issues/72"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-08-01-1">
+        <dc:date>2021-05-04T15:08:01Z</dc:date>
+        <dc:description>... Linking to a couple of things... First item: set of issues tracking the test suite audit.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-08-40">
+        <dc:date>2021-05-04T15:08:40Z</dc:date>
+        <dc:description>... Issue 72: Amy went through latest specification. This includes latest PRs merged. Went through every normative statement in specification, pulled out by section, created checklist, to ensure every statement intended to test has a test in the test suite.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-08-48">
+        <dc:date>2021-05-04T15:08:48Z</dc:date>
+        <dc:description>present+ by_caballero</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-08-59">
+        <dc:date>2021-05-04T15:08:59Z</dc:date>
+        <dc:description>agropper has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-00">
+        <dc:date>2021-05-04T15:09:00Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-05">
+        <dc:date>2021-05-04T15:09:05Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-07">
+        <dc:date>2021-05-04T15:09:07Z</dc:date>
+        <dc:description>... Editors and contributors have gone through checklist for every test, checked boxes felt needed to check; have not checked boxes for SHOULD/MAY statements, or human-testable statements.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-18">
+        <dc:date>2021-05-04T15:09:18Z</dc:date>
+        <dc:description>... Have completed that as of Sunday. Done full audit pass through specification.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-29">
+        <dc:date>2021-05-04T15:09:29Z</dc:date>
+        <dc:description>... We have tests for everything we believe we wanted to test, except for the CBOR section.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-38">
+        <dc:date>2021-05-04T15:09:38Z</dc:date>
+        <dc:description>present+ agropper</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-40">
+        <dc:date>2021-05-04T15:09:40Z</dc:date>
+        <dc:description>... No tests for the CBOR section - they have not been submitted. Today is cutoff day.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-45">
+        <dc:date>2021-05-04T15:09:45Z</dc:date>
+        <dc:description>... Everything else includes tests.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-09-55">
+        <dc:date>2021-05-04T15:09:55Z</dc:date>
+        <dc:description>... Issues 72 through 77 cover those tests.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-10-01">
+        <dc:date>2021-05-04T15:10:01Z</dc:date>
+        <dc:description>... I believe the audit is complete at this point.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-10-07">
+        <dc:date>2021-05-04T15:10:07Z</dc:date>
+        <dc:description>... Question: what to do about the CBOR section.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-10-32">
+        <dc:date>2021-05-04T15:10:32Z</dc:date>
+        <dc:description>... We did find a couple tests missing, a handful; language had changed, not reflected in tests. There are new PRs in to fix all of those omissions/errors.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-10-45">
+        <dc:date>2021-05-04T15:10:45Z</dc:date>
+        <dc:description>... Haven't pulled in PRs yet but they have reviews; waiting a couple days before merging.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-10-48">
+        <dc:date>2021-05-04T15:10:48Z</dc:date>
+        <dc:description>jonathan_holt has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="jonathan_holt"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-10-53">
+        <dc:date>2021-05-04T15:10:53Z</dc:date>
+        <dc:description>... That's where we are. All documented in issues.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-10-54">
+        <dc:date>2021-05-04T15:10:54Z</dc:date>
+        <dc:description>q?</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-11-24">
+        <dc:date>2021-05-04T15:11:24Z</dc:date>
+        <dc:description>brent: Chair things.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-11-36">
+        <dc:date>2021-05-04T15:11:36Z</dc:date>
+        <dc:description>brent: On the 13th of April, the chairs set a deadline for tests to be written.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-11-37">
+        <dc:date>2021-05-04T15:11:37Z</dc:date>
+        <dc:description>https://www.w3.org/2019/did-wg/Meetings/Minutes/2021-04-13-did#section4</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2019/did-wg/Meetings/Minutes/2021-04-13-did#section4"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-06">
+        <dc:date>2021-05-04T15:12:06Z</dc:date>
+        <dc:description>... for the end of April - and stated at that time that any normative statements that were untestable because no tests were written, would have to be removed from the specification.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-18">
+        <dc:date>2021-05-04T15:12:18Z</dc:date>
+        <dc:description>... What this means for group is need to decide what to do with the CBOR section.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-18-1">
+        <dc:date>2021-05-04T15:12:18Z</dc:date>
+        <dc:description>https://github.com/w3c/did-test-suite/issues/28</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-test-suite/issues/28"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-27">
+        <dc:date>2021-05-04T15:12:27Z</dc:date>
+        <dc:description>... Issue where CBOR production/consumption rules discussed ^</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-42">
+        <dc:date>2021-05-04T15:12:42Z</dc:date>
+        <dc:description>burn has joined #did</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-44">
+        <dc:date>2021-05-04T15:12:44Z</dc:date>
+        <dc:description>https://www.w3.org/2019/did-wg/Meetings/Minutes/2021-04-08-did-topic</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2019/did-wg/Meetings/Minutes/2021-04-08-did-topic"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-46">
+        <dc:date>2021-05-04T15:12:46Z</dc:date>
+        <dc:description>... It is clear from those comments that the concerned parties were aware of the need for tests to be written. There was also a special topic call on the 8th of April ^</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-12-57">
+        <dc:date>2021-05-04T15:12:57Z</dc:date>
+        <dc:description>... that focused primarily on the CBOR section and how to test it, with concerned parties.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-13-27">
+        <dc:date>2021-05-04T15:13:27Z</dc:date>
+        <dc:description>... I outline all of this to make very clear that communication has been clear, and that all efforts have been made, as chairs and editorial staff, to encourage the writing of these tests.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-13-32">
+        <dc:date>2021-05-04T15:13:32Z</dc:date>
+        <dc:description>present+ burn</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-13-39">
+        <dc:date>2021-05-04T15:13:39Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-13-47">
+        <dc:date>2021-05-04T15:13:47Z</dc:date>
+        <dc:description>... With all of that said, we have some options, and will write these up as formal proposals once we get feedback from group.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-13-59">
+        <dc:date>2021-05-04T15:13:59Z</dc:date>
+        <dc:description>... Option 1: remove CBOR from DID Specification, and publish it as separate note.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-10">
+        <dc:date>2021-05-04T15:14:10Z</dc:date>
+        <dc:description>... Option 2: Remove CBOR from Specification to appendix of specification.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-17">
+        <dc:date>2021-05-04T15:14:17Z</dc:date>
+        <dc:description>... Option 3: remove it and don't do anything</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-19">
+        <dc:date>2021-05-04T15:14:19Z</dc:date>
+        <dc:description>move to appendix -&gt; move to informative appendix</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-23">
+        <dc:date>2021-05-04T15:14:23Z</dc:date>
+        <dc:description>... My encouragement is to strongly consider option 1.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-25">
+        <dc:date>2021-05-04T15:14:25Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-31">
+        <dc:date>2021-05-04T15:14:31Z</dc:date>
+        <dc:description>... Opening to group for comments/suggestions.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-32">
+        <dc:date>2021-05-04T15:14:32Z</dc:date>
+        <dc:description>ack justin_r</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-14-52">
+        <dc:date>2021-05-04T15:14:52Z</dc:date>
+        <dc:description>present+</dc:description>
+        <dc:creator><wn:Person foaf:nick="chriswinc"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-15-06">
+        <dc:date>2021-05-04T15:15:06Z</dc:date>
+        <dc:description>justin_r: My concern for CBOR section as forcing function ... interoperability ... make JSON-based spec...</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-15-40">
+        <dc:date>2021-05-04T15:15:40Z</dc:date>
+        <dc:description>+1 option 1 .. makes sense as a note, which can be linked to from the registries, as any representation spec would be</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-15-47">
+        <dc:date>2021-05-04T15:15:47Z</dc:date>
+        <dc:description>... Of options, I think 1 is best (don't know if we are debating that) but concerned that publication as note would give less weight to the specification, and allow it to be functionally ignored by other components, for example the registries, which could morph in such a way to shut out CBOR or other representations.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-16-03">
+        <dc:date>2021-05-04T15:16:03Z</dc:date>
+        <dc:description>brent: For record, I agree with you for my motivations for a CBOR section</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-16-16">
+        <dc:date>2021-05-04T15:16:16Z</dc:date>
+        <dc:description>q+ to agree with Option 1 as best-worst option, new format in registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-16-22">
+        <dc:date>2021-05-04T15:16:22Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-16-22-1">
+        <dc:date>2021-05-04T15:16:22Z</dc:date>
+        <dc:description>manu, you wanted to agree with Option 1 as best-worst option, new format in registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-16-23">
+        <dc:date>2021-05-04T15:16:23Z</dc:date>
+        <dc:description>... Another option: to remove CBOR from spec, and change registries so that it can be registered as a new format in the registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-16-45">
+        <dc:date>2021-05-04T15:16:45Z</dc:date>
+        <dc:description>manu: I agree with Justin's sentiment; I think it becomes fairly difficult to argue... we had an ADM so we could do things like CBOR</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-16-52">
+        <dc:date>2021-05-04T15:16:52Z</dc:date>
+        <dc:description>... But where we are is not tests...</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-17-01">
+        <dc:date>2021-05-04T15:17:01Z</dc:date>
+        <dc:description>We have always said that new representations should be able to be registered in the DID Spec Registries.</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-17-20">
+        <dc:date>2021-05-04T15:17:20Z</dc:date>
+        <dc:description>... I don't think anyone is actually implementing CBOR, they are doing variations on it. Digital Bazaar had: we are interested in CBOR-LD; would be interested in publishing as note.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-17-42">
+        <dc:date>2021-05-04T15:17:42Z</dc:date>
+        <dc:description>... danger of publishing CBOR as it is, it's a bit of an examplar - no one deploying it. would end up publishing note that no one intends to implement.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-18-07">
+        <dc:date>2021-05-04T15:18:07Z</dc:date>
+        <dc:description>... Biggest problem is it's in spec, but no tests, not implemented. I would be supportive of publishing as note, noting no one has implemented tests or implemented it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-18-11">
+        <dc:date>2021-05-04T15:18:11Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-18-25">
+        <dc:date>2021-05-04T15:18:25Z</dc:date>
+        <dc:description>... Noting ... different implementation like CBOR-LD would be better, but not volunteering.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-18-35">
+        <dc:date>2021-05-04T15:18:35Z</dc:date>
+        <dc:description>... Having example of alternative in registry is a good idea.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-18-47">
+        <dc:date>2021-05-04T15:18:47Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-19-23">
+        <dc:date>2021-05-04T15:19:23Z</dc:date>
+        <dc:description>ivan: Just an additional point to what was said before: it may be still too early to talk about the details, but at some point in time in the coming months, we have to begin discussing how we imagine the world post this WG. What kind of continuation, etc.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-19-49">
+        <dc:date>2021-05-04T15:19:49Z</dc:date>
+        <dc:description>... It would be possible to say that in maintenance WG following this one, we put CBOR (or CBOR-LD, etc) as potential agenda item.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-20-00">
+        <dc:date>2021-05-04T15:20:00Z</dc:date>
+        <dc:description>... so to try to message community beyond the note, that we haven't given up.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-20-16">
+        <dc:date>2021-05-04T15:20:16Z</dc:date>
+        <dc:description>... We have to do what we have to do now, but long-term this group still intends to have CBOR coming at some point, when it's ready.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-20-38">
+        <dc:date>2021-05-04T15:20:38Z</dc:date>
+        <dc:description>brent: Comments, suggestions?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-21-23">
+        <dc:date>2021-05-04T15:21:23Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-21-28">
+        <dc:date>2021-05-04T15:21:28Z</dc:date>
+        <dc:description>... Please suggest alternate proposals if needed to +1. More detail needed?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-21-31">
+        <dc:date>2021-05-04T15:21:31Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-21-39">
+        <dc:date>2021-05-04T15:21:39Z</dc:date>
+        <dc:description>ack drummond</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-21-40">
+        <dc:date>2021-05-04T15:21:40Z</dc:date>
+        <dc:description>... Add Ivan's suggestion that it should be input to WG?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-21-53">
+        <dc:date>2021-05-04T15:21:53Z</dc:date>
+        <dc:description>drummond: I'd love it for someone to speak to option 2, the appendix, the +/- of that.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-22-14">
+        <dc:date>2021-05-04T15:22:14Z</dc:date>
+        <dc:description>... My understanding is we are going to have/allow/provide for did-spec-registries to registry new representations, like for other things.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-22-30">
+        <dc:date>2021-05-04T15:22:30Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-22-30-1">
+        <dc:date>2021-05-04T15:22:30Z</dc:date>
+        <dc:description>q+ to talk about registry requirements</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-22-32">
+        <dc:date>2021-05-04T15:22:32Z</dc:date>
+        <dc:description>... It could be a path for that. What is the relationship of publishing as note or in appendix, or as requirement for registry?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-22-36">
+        <dc:date>2021-05-04T15:22:36Z</dc:date>
+        <dc:description>q-</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-22-40">
+        <dc:date>2021-05-04T15:22:40Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-23-09">
+        <dc:date>2021-05-04T15:23:09Z</dc:date>
+        <dc:description>q+ to speak to not doing it in registry, volunteer.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-23-11">
+        <dc:date>2021-05-04T15:23:11Z</dc:date>
+        <dc:description>ivan: Slight reservation about having as note because of time, is do we have someone who will volunteer to write that note?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-23-15">
+        <dc:date>2021-05-04T15:23:15Z</dc:date>
+        <dc:description>ack justin_r</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-23-15-1">
+        <dc:date>2021-05-04T15:23:15Z</dc:date>
+        <dc:description>justin_r, you wanted to talk about registry requirements</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-23-34">
+        <dc:date>2021-05-04T15:23:34Z</dc:date>
+        <dc:description>justin_r: My concern with moving out into note or other thing is that it could allow for greater wiggle room in the registry</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-23-44">
+        <dc:date>2021-05-04T15:23:44Z</dc:date>
+        <dc:description>... since this group has insisted on making its own registries - than is potentially helpful</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-23-54">
+        <dc:date>2021-05-04T15:23:54Z</dc:date>
+        <dc:description>... because then we are functionally creating an abstraction from a single data representation type</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-24-11">
+        <dc:date>2021-05-04T15:24:11Z</dc:date>
+        <dc:description>... - yes there are differences between JSON and JSON-LD but these are bigger than JSON and CBOR (?)</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-24-42">
+        <dc:date>2021-05-04T15:24:42Z</dc:date>
+        <dc:description>... Concern about ... constructs. Any CBOR representation would be prohibited from translating a object key(?) to an abstract property name</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-25-06">
+        <dc:date>2021-05-04T15:25:06Z</dc:date>
+        <dc:description>... We need to maintain flexibilty... Concerned that without the weight of CBOR as first-class citizen, the registry could easily slip away from enabling that.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-25-19">
+        <dc:date>2021-05-04T15:25:19Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-25-19-1">
+        <dc:date>2021-05-04T15:25:19Z</dc:date>
+        <dc:description>manu, you wanted to speak to not doing it in registry, volunteer.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-25-37">
+        <dc:date>2021-05-04T15:25:37Z</dc:date>
+        <dc:description>manu: I'll volunteer to move the spec test. It was written to be easy to move into a note.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-25-48">
+        <dc:date>2021-05-04T15:25:48Z</dc:date>
+        <dc:description>... I note that in the registries we have a section for representations that is empty right now.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-25-56">
+        <dc:date>2021-05-04T15:25:56Z</dc:date>
+        <dc:description>... Having the CBOR note would allow us to point to that.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-26-15">
+        <dc:date>2021-05-04T15:26:15Z</dc:date>
+        <dc:description>wait, but like.. the whole issue with the CBOR section is that nobody's put forth the implementations, test suite, etc. So regardless of if we're worried about its effect on the Registries, etc.. not much we can do here</dc:description>
+        <dc:creator><wn:Person foaf:nick="dmitriz"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-26-21">
+        <dc:date>2021-05-04T15:26:21Z</dc:date>
+        <dc:description>... To Justin's concerns: none of the spec test will change in any dramatic fashion. All the work done to ensure things like translate to binary and round-trip - text remains.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-26-28">
+        <dc:date>2021-05-04T15:26:28Z</dc:date>
+        <dc:description>... Exists in other sections that will be kept.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-26-36">
+        <dc:date>2021-05-04T15:26:36Z</dc:date>
+        <dc:description>... Some concerns others might not understand.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-26-48">
+        <dc:date>2021-05-04T15:26:48Z</dc:date>
+        <dc:description>... For example, CBOR-LD encoding depends on that language remaining.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-27-01">
+        <dc:date>2021-05-04T15:27:01Z</dc:date>
+        <dc:description>... DB uses it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-27-17">
+        <dc:date>2021-05-04T15:27:17Z</dc:date>
+        <dc:description>... I would expect at least one editor to object to that language changing, so that it would enable CBOR-LD to exist</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-27-23">
+        <dc:date>2021-05-04T15:27:23Z</dc:date>
+        <dc:description>... which has stronger needs than vanilla CBOR stuff.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-27-32">
+        <dc:date>2021-05-04T15:27:32Z</dc:date>
+        <dc:description>FWIW I'm not concerned with core spec language changing, but with registry language itself, which is managed separately.</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-27-39">
+        <dc:date>2021-05-04T15:27:39Z</dc:date>
+        <dc:description>... The CBOR-LD translation is a binary transformation from the ADM and back into the ADM.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-27-51">
+        <dc:date>2021-05-04T15:27:51Z</dc:date>
+        <dc:description>... I'm not concerned we will lose that, but there is a risk - not sure what to do</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-04">
+        <dc:date>2021-05-04T15:28:04Z</dc:date>
+        <dc:description>... I don't think the registries will be affected.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-22">
+        <dc:date>2021-05-04T15:28:22Z</dc:date>
+        <dc:description>PROPOSAL: remove CBOR from the DID Core Specification, publish it as a WG Note, and add CBOR to the DID Spec Registries with a reference to the WG Note</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-28">
+        <dc:date>2021-05-04T15:28:28Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-35">
+        <dc:date>2021-05-04T15:28:35Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-36">
+        <dc:date>2021-05-04T15:28:36Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-36-1">
+        <dc:date>2021-05-04T15:28:36Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="drummond"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-40">
+        <dc:date>2021-05-04T15:28:40Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="dmitriz"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-41">
+        <dc:date>2021-05-04T15:28:41Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="TallTed"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-43">
+        <dc:date>2021-05-04T15:28:43Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="shigeya"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-43-1">
+        <dc:date>2021-05-04T15:28:43Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-44">
+        <dc:date>2021-05-04T15:28:44Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="agropper"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-45">
+        <dc:date>2021-05-04T15:28:45Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-28-58">
+        <dc:date>2021-05-04T15:28:58Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-29-10">
+        <dc:date>2021-05-04T15:29:10Z</dc:date>
+        <dc:description>+1</dc:description>
+        <dc:creator><wn:Person foaf:nick="Geun-Hyung"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-29-26">
+        <dc:date>2021-05-04T15:29:26Z</dc:date>
+        <dc:description>RESOLVED: remove CBOR from the DID Core Specification, publish it as a WG Note, and add CBOR to the DID Spec Registries with a reference to the WG Note</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-29-49">
+        <dc:date>2021-05-04T15:29:49Z</dc:date>
+        <dc:description>brent: with sadness, resolved.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-30-02">
+        <dc:date>2021-05-04T15:30:02Z</dc:date>
+        <dc:description>... If there are no more questions or comments on that topic, we will move on to a brief conversation aobut notes</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-30-17">
+        <dc:date>2021-05-04T15:30:17Z</dc:date>
+        <dc:description>... primarily the implementation guide, as the rubric we will talk about mostly on the special topic call.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-30-18">
+        <dc:date>2021-05-04T15:30:18Z</dc:date>
+        <dc:description>Topic: Notes: Implementation Guide and Rubric</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-30-58">
+        <dc:date>2021-05-04T15:30:58Z</dc:date>
+        <dc:description>brent: Chairs would like to say: if we do not have anyone sign up to be an editor of the implementation guide by the end of May, then we're not going to have an implementation guide.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-31-11">
+        <dc:date>2021-05-04T15:31:11Z</dc:date>
+        <dc:description>... At the end of May (possibly sooner), we will be calling for a first public working draft of the rubric note.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-31-26">
+        <dc:date>2021-05-04T15:31:26Z</dc:date>
+        <dc:description>... I know that some work has gone into an implementation guide. Orie and possibly others have been collaborating on it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-31-41">
+        <dc:date>2021-05-04T15:31:41Z</dc:date>
+        <dc:description>https://w3c.github.io/did-imp-guide/</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://w3c.github.io/did-imp-guide/"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-31-59">
+        <dc:date>2021-05-04T15:31:59Z</dc:date>
+        <dc:description>... If you look at the implementation guide ^, there is some content in there, that it may be worth keeping.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-32-34">
+        <dc:date>2021-05-04T15:32:34Z</dc:date>
+        <dc:description>... The clock is ticking... If anyone wishes the implementation guide to move forward and be publishable by the WG as a note, and you are willing to make that happen, please let the chairs know, so we can assign you as an editor and get that work accomplished.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-32-49">
+        <dc:date>2021-05-04T15:32:49Z</dc:date>
+        <dc:description>https://w3c.github.io/did-rubric/</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://w3c.github.io/did-rubric/"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-32-52">
+        <dc:date>2021-05-04T15:32:52Z</dc:date>
+        <dc:description>Note that Orie also has a huge update to the implementation guide here: https://github.com/w3c/did-imp-guide/pull/3</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-imp-guide/pull/3"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-32-54">
+        <dc:date>2021-05-04T15:32:54Z</dc:date>
+        <dc:description>brent: The rubric has had a lot of work going into it, and I understand more is underway.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-33-10">
+        <dc:date>2021-05-04T15:33:10Z</dc:date>
+        <dc:description>... So please, before our special topic call on Thursday, familiarize yourself with the rubric, so that we can get that wrapped up.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-33-17">
+        <dc:date>2021-05-04T15:33:17Z</dc:date>
+        <dc:description>... Any questions or comments about these notes?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-33-36">
+        <dc:date>2021-05-04T15:33:36Z</dc:date>
+        <dc:description>... Any volunteer to be an editor of the implementation guide?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-33-38">
+        <dc:date>2021-05-04T15:33:38Z</dc:date>
+        <dc:description>Topic: https://github.com/w3c/did-core/pulls</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/pulls"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-33-39">
+        <dc:date>2021-05-04T15:33:39Z</dc:date>
+        <dc:description>q+ to note -- request for implementers</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-33-47">
+        <dc:date>2021-05-04T15:33:47Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-33-47-1">
+        <dc:date>2021-05-04T15:33:47Z</dc:date>
+        <dc:description>manu, you wanted to note -- request for implementers</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-34-05">
+        <dc:date>2021-05-04T15:34:05Z</dc:date>
+        <dc:description>manu: Given where we are, that that proposal passed, that I believe means we are done with tests.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-34-21">
+        <dc:date>2021-05-04T15:34:21Z</dc:date>
+        <dc:description>... We have tests for everything we intended to tests, including DID resolution, dereferencing and other sections.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-34-42">
+        <dc:date>2021-05-04T15:34:42Z</dc:date>
+        <dc:description>... Test suite done at this point. Need people to submit implementations. Once PRs merged, good time to get people to submit implementations.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-34-53">
+        <dc:date>2021-05-04T15:34:53Z</dc:date>
+        <dc:description>... Good news: we have a bunch of GitHub handles for DID Method implementors.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+        <dc:relation rdf:resource="news:"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-35-03">
+        <dc:date>2021-05-04T15:35:03Z</dc:date>
+        <dc:description>... Could ask them to submit implementations to test suite.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-35-12">
+        <dc:date>2021-05-04T15:35:12Z</dc:date>
+        <dc:description>... Are we moving on to that phase where we are requesting broad implementation?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-35-14">
+        <dc:date>2021-05-04T15:35:14Z</dc:date>
+        <dc:description>brent: Yes, thank you.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-35-32">
+        <dc:date>2021-05-04T15:35:32Z</dc:date>
+        <dc:description>... The chairs had said mid-May for getting implementations in. I am affirming that, with Dan's permission.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-35-44">
+        <dc:date>2021-05-04T15:35:44Z</dc:date>
+        <dc:description>... Two weeks from today, we'll have another call, and by that meeting, implementations will need to be in.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-35-55">
+        <dc:date>2021-05-04T15:35:55Z</dc:date>
+        <dc:description>burn: Perfect</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-36-30">
+        <dc:date>2021-05-04T15:36:30Z</dc:date>
+        <dc:description>burn: People can continue to send implementations after that date, but the reason giving that date is that that's when we will look to see if we have sufficient implementations to move on in the process.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-36-47">
+        <dc:date>2021-05-04T15:36:47Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-36-49">
+        <dc:date>2021-05-04T15:36:49Z</dc:date>
+        <dc:description>... If you know people who want to submit later, they can do that. Just don't wait - if everyone waits, we don't get to move on in the process.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-36-52">
+        <dc:date>2021-05-04T15:36:52Z</dc:date>
+        <dc:description>brent: Agreed.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-36-54">
+        <dc:date>2021-05-04T15:36:54Z</dc:date>
+        <dc:description>q-</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-14">
+        <dc:date>2021-05-04T15:37:14Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-30">
+        <dc:date>2021-05-04T15:37:30Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/pull/727</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/pull/727"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-30-1">
+        <dc:date>2021-05-04T15:37:30Z</dc:date>
+        <dc:description>brent: Is there an editor who would like to run through the PRs. or the chairs to do it?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-44">
+        <dc:date>2021-05-04T15:37:44Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-44-1">
+        <dc:date>2021-05-04T15:37:44Z</dc:date>
+        <dc:description>subtopic: @pr 727</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-50">
+        <dc:date>2021-05-04T15:37:50Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-50-1">
+        <dc:date>2021-05-04T15:37:50Z</dc:date>
+        <dc:description>q-</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-37-50-2">
+        <dc:date>2021-05-04T15:37:50Z</dc:date>
+        <dc:description>manu: PR: simple update to the diagram that shigeya is doing on behalf of someone else who did a full review of the spec.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-38-04">
+        <dc:date>2021-05-04T15:38:04Z</dc:date>
+        <dc:description>... Their review came back with nothing really wrong.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-38-17">
+        <dc:date>2021-05-04T15:38:17Z</dc:date>
+        <dc:description>... PR is editorial. If you have opinion on the diagram label, please take a look.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-38-34">
+        <dc:date>2021-05-04T15:38:34Z</dc:date>
+        <dc:description>... There is going to be a large series of PRs coming up: editorial fixes, appendices</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-38-55">
+        <dc:date>2021-05-04T15:38:55Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-39-02">
+        <dc:date>2021-05-04T15:39:02Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-39-05">
+        <dc:date>2021-05-04T15:39:05Z</dc:date>
+        <dc:description>... Editors will make a pass... Non-normative sections, not expecting a lot of discussion, just giving heads up, will be getting a lot of PRs about appendices.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-39-20">
+        <dc:date>2021-05-04T15:39:20Z</dc:date>
+        <dc:description>ivan: There is one appendix which is still a thorn in our side: the IANA Considerations one.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-39-21">
+        <dc:date>2021-05-04T15:39:21Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-39-39">
+        <dc:date>2021-05-04T15:39:39Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-39-40">
+        <dc:date>2021-05-04T15:39:40Z</dc:date>
+        <dc:description>... At some point we have to decide what to do with the did+ld+json stuff. We are getting dangerously close to have to make the decision.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-39-52">
+        <dc:date>2021-05-04T15:39:52Z</dc:date>
+        <dc:description>manu: Thank you, Ivan. Amy and I have been moving that conversation along at IETF.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-40-27">
+        <dc:date>2021-05-04T15:40:27Z</dc:date>
+        <dc:description>... Issue is that a number of people have stepped in with comments, which is good... No clear path. people say it's fine, others saying what does it really matter - MIME type supposed to identify completely.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-40-32">
+        <dc:date>2021-05-04T15:40:32Z</dc:date>
+        <dc:description>... Haven't lit a fire yet</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-40-42">
+        <dc:date>2021-05-04T15:40:42Z</dc:date>
+        <dc:description>... Initially they pushed back, wanted discussion.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-41-00">
+        <dc:date>2021-05-04T15:41:00Z</dc:date>
+        <dc:description>... No one is saying can't register these. Either will be a specification that talks about structured media types</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-41-11">
+        <dc:date>2021-05-04T15:41:11Z</dc:date>
+        <dc:description>... or there won't be, but will be allowed to do it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-41-16">
+        <dc:date>2021-05-04T15:41:16Z</dc:date>
+        <dc:description>... Just an opaque string.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-41-19">
+        <dc:date>2021-05-04T15:41:19Z</dc:date>
+        <dc:description>ivan: There has been push-back</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-41-32">
+        <dc:date>2021-05-04T15:41:32Z</dc:date>
+        <dc:description>manu: There was, but we had the discussion.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-41-32-1">
+        <dc:date>2021-05-04T15:41:32Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-41-53">
+        <dc:date>2021-05-04T15:41:53Z</dc:date>
+        <dc:description>... People said there should be meaning to the multiple pluses. If no meaning, can register. If meaning, need spec.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-42-06">
+        <dc:date>2021-05-04T15:42:06Z</dc:date>
+        <dc:description>... That is my interpretation of what folks are saying there.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-42-14">
+        <dc:date>2021-05-04T15:42:14Z</dc:date>
+        <dc:description>... We need a decision; will outline what was said.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-42-40">
+        <dc:date>2021-05-04T15:42:40Z</dc:date>
+        <dc:description>... We can also speak to the Area Director about what the relevant path forward is, and say that the WG really needs a decision, give a concrete timeline.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-42-40-1">
+        <dc:date>2021-05-04T15:42:40Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-04">
+        <dc:date>2021-05-04T15:43:04Z</dc:date>
+        <dc:description>ivan: I would propose first to wait for your overall editorial stuff, so that what we go to IANA with is as final text as possible.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-20">
+        <dc:date>2021-05-04T15:43:20Z</dc:date>
+        <dc:description>... Once that's done, we can just try to register the two media types. One is not a problem. The other... just see what happens.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-20-1">
+        <dc:date>2021-05-04T15:43:20Z</dc:date>
+        <dc:description>q+ to agree with ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-29">
+        <dc:date>2021-05-04T15:43:29Z</dc:date>
+        <dc:description>... That's the only way; we have to do that before we go to PR - ASAP.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-44">
+        <dc:date>2021-05-04T15:43:44Z</dc:date>
+        <dc:description>... I don't really know the mechanism as IETF. I'll follow your lead on that manu, but we have to do it.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-52">
+        <dc:date>2021-05-04T15:43:52Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-52-1">
+        <dc:date>2021-05-04T15:43:52Z</dc:date>
+        <dc:description>manu, you wanted to agree with ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-43-55">
+        <dc:date>2021-05-04T15:43:55Z</dc:date>
+        <dc:description>... Aside: let's not forget, unfortunately, to remove the application for did+cbor</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-44-13">
+        <dc:date>2021-05-04T15:44:13Z</dc:date>
+        <dc:description>manu: Agreed. Not an IETF expert; Justin would probably no better.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-44-32">
+        <dc:date>2021-05-04T15:44:32Z</dc:date>
+        <dc:description>... Multiple plus signs: problem not going away. Other people have same requirement. Really does need to be pushed at IETF.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-44-41">
+        <dc:date>2021-05-04T15:44:41Z</dc:date>
+        <dc:description>... If not this, will be did+ld+cbor.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-44-47">
+        <dc:date>2021-05-04T15:44:47Z</dc:date>
+        <dc:description>... Will try to send email</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-44-55">
+        <dc:date>2021-05-04T15:44:55Z</dc:date>
+        <dc:description>Topic: DID Core issues</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-03">
+        <dc:date>2021-05-04T15:45:03Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-asc+-label%3Adefer-v2</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-asc+-label%3Adefer-v2"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-08">
+        <dc:date>2021-05-04T15:45:08Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-15">
+        <dc:date>2021-05-04T15:45:15Z</dc:date>
+        <dc:description>ack burn</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-28">
+        <dc:date>2021-05-04T15:45:28Z</dc:date>
+        <dc:description>burn: Sorry, this is the previous topic. manu, are there any tests that depend on this result (the registration)?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-31">
+        <dc:date>2021-05-04T15:45:31Z</dc:date>
+        <dc:description>manu: Yes, there are. Good catch.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-41">
+        <dc:date>2021-05-04T15:45:41Z</dc:date>
+        <dc:description>burn: Problem: implementation reports may change as the result of the outcome here.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-48">
+        <dc:date>2021-05-04T15:45:48Z</dc:date>
+        <dc:description>It is marked at risk though</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-45-58">
+        <dc:date>2021-05-04T15:45:58Z</dc:date>
+        <dc:description>ooh good point rhiaro</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-46-02">
+        <dc:date>2021-05-04T15:46:02Z</dc:date>
+        <dc:description>... We can still get implementations in; still valuable; but we may need to reach out to implementors if we need to make an adjustment.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-46-20">
+        <dc:date>2021-05-04T15:46:20Z</dc:date>
+        <dc:description>brent: 11 open issues. First one:</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-46-32">
+        <dc:date>2021-05-04T15:46:32Z</dc:date>
+        <dc:description>subtopic: @issue 583</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-46-34">
+        <dc:date>2021-05-04T15:46:34Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/583</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/583"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-46-52">
+        <dc:date>2021-05-04T15:46:52Z</dc:date>
+        <dc:description>q+ to make a general statement about open issues.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-47-01">
+        <dc:date>2021-05-04T15:47:01Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-47-01-1">
+        <dc:date>2021-05-04T15:47:01Z</dc:date>
+        <dc:description>manu, you wanted to make a general statement about open issues.</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-47-03">
+        <dc:date>2021-05-04T15:47:03Z</dc:date>
+        <dc:description>... There has been a bit of conversation. Need a PR to fix issue.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-47-24">
+        <dc:date>2021-05-04T15:47:24Z</dc:date>
+        <dc:description>manu: General statement: I triaged issue this past weekend, marked everything that was a CR comment. Marked anything ready for a PR as ready for PR.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-47-33">
+        <dc:date>2021-05-04T15:47:33Z</dc:date>
+        <dc:description>... Almost every one except 2 or 3 are ready for PR.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-47-48">
+        <dc:date>2021-05-04T15:47:48Z</dc:date>
+        <dc:description>brent, I'm looking at 583 but I think I'll need help. Will ping people.</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-47-53">
+        <dc:date>2021-05-04T15:47:53Z</dc:date>
+        <dc:description>brent: If you haven't and always wanted to write a PR for a specification, we have a number of issues to choose from, and I encourage you to do so.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-48-11">
+        <dc:date>2021-05-04T15:48:11Z</dc:date>
+        <dc:description>subtopic: @issue 625</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-48-12">
+        <dc:date>2021-05-04T15:48:12Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/625</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/625"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-48-46">
+        <dc:date>2021-05-04T15:48:46Z</dc:date>
+        <dc:description>brent: I believe some work has gone into changing diagrams to SVG format. Or perhaps I am thinking of new diagrams that are SVG.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-48-49">
+        <dc:date>2021-05-04T15:48:49Z</dc:date>
+        <dc:description>brent, descriptions are also on my radar if nobody else gets there first</dc:description>
+        <dc:creator><wn:Person foaf:nick="rhiaro"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-48-53">
+        <dc:date>2021-05-04T15:48:53Z</dc:date>
+        <dc:description>... We need detailed descriptions for each diagram.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-49-08">
+        <dc:date>2021-05-04T15:49:08Z</dc:date>
+        <dc:description>... Pretend that you are telling the diagram to someone who can't see - since that what this is for.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-49-16">
+        <dc:date>2021-05-04T15:49:16Z</dc:date>
+        <dc:description>... The technical level to contribute is low.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-49-28">
+        <dc:date>2021-05-04T15:49:28Z</dc:date>
+        <dc:description>... Currently assigned to Markus.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-49-41">
+        <dc:date>2021-05-04T15:49:41Z</dc:date>
+        <dc:description>suptoc: @issue 707</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-49-42">
+        <dc:date>2021-05-04T15:49:42Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/707</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/707"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-50-00">
+        <dc:date>2021-05-04T15:50:00Z</dc:date>
+        <dc:description>s/suptoc/subtopic/</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-50-05">
+        <dc:date>2021-05-04T15:50:05Z</dc:date>
+        <dc:description>brent: I know that some changes have come in as a result of this. What more needs to happen?</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-50-20">
+        <dc:date>2021-05-04T15:50:20Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/707#issuecomment-826382717</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/707#issuecomment-826382717"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-50-21">
+        <dc:date>2021-05-04T15:50:21Z</dc:date>
+        <dc:description>manu: I proposed for the publicKeyMultibase stuff a path forward in this link</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-50-47">
+        <dc:date>2021-05-04T15:50:47Z</dc:date>
+        <dc:description>... It looks like folks want to use publicKeyMultibase instead of publicKeyBase58. We do have an at-risk marker that this may be done.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-11">
+        <dc:date>2021-05-04T15:51:11Z</dc:date>
+        <dc:description>... One thing could do: update examples. Already have in did-spec-registries, but could add note.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-22">
+        <dc:date>2021-05-04T15:51:22Z</dc:date>
+        <dc:description>... Add to registries, update material in spec.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-29">
+        <dc:date>2021-05-04T15:51:29Z</dc:date>
+        <dc:description>... Not normative.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-32">
+        <dc:date>2021-05-04T15:51:32Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-39">
+        <dc:date>2021-05-04T15:51:39Z</dc:date>
+        <dc:description>... Concerns raised about publicKeyBase58 applies to publicKeyMultibase as well.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-44">
+        <dc:date>2021-05-04T15:51:44Z</dc:date>
+        <dc:description>is it not normative if it's in the registry as a value with a link to a spec?</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-52">
+        <dc:date>2021-05-04T15:51:52Z</dc:date>
+        <dc:description>... I believe we can make these changes; haven't seen any objections. I will put in a PR shortly.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-54">
+        <dc:date>2021-05-04T15:51:54Z</dc:date>
+        <dc:description>(actual question on W3C normativity)</dc:description>
+        <dc:creator><wn:Person foaf:nick="justin_r"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-51-54-1">
+        <dc:date>2021-05-04T15:51:54Z</dc:date>
+        <dc:description>ack ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-52-12">
+        <dc:date>2021-05-04T15:52:12Z</dc:date>
+        <dc:description>justin_r: no, nothing in the registry is normative -- it's just "a helpful document for people that care to know about the ecosystem".</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-52-24">
+        <dc:date>2021-05-04T15:52:24Z</dc:date>
+        <dc:description>ivan: The vocabularies, the constraint languages, also have to updated. There are some contraints expressed using b58, not have to exchange that. JSON Schema, etc.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-52-27">
+        <dc:date>2021-05-04T15:52:27Z</dc:date>
+        <dc:description>s/justin_r: no/justin_r, no/</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-52-34">
+        <dc:date>2021-05-04T15:52:34Z</dc:date>
+        <dc:description>... I'm happy to do that when we have the document done; just listing here to be done.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-52-44">
+        <dc:date>2021-05-04T15:52:44Z</dc:date>
+        <dc:description>subtopic: @issue 712</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-52-56">
+        <dc:date>2021-05-04T15:52:56Z</dc:date>
+        <dc:description>justin_r, it's the specs themselves that make things normative or not.</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-52-57">
+        <dc:date>2021-05-04T15:52:57Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/712</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/712"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-53-27">
+        <dc:date>2021-05-04T15:53:27Z</dc:date>
+        <dc:description>manu: Either Oliver will do it, or I will.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-53-37">
+        <dc:date>2021-05-04T15:53:37Z</dc:date>
+        <dc:description>... I'll add him as an assignee.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-53-49">
+        <dc:date>2021-05-04T15:53:49Z</dc:date>
+        <dc:description>subtopic: @issue 721</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-53-57">
+        <dc:date>2021-05-04T15:53:57Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/721</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/721"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-54-36">
+        <dc:date>2021-05-04T15:54:36Z</dc:date>
+        <dc:description>manu: There is enough there to write something. dbuchner wanted to expand it. Need to explain it; put in list of things to consider for DID method specification.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-55-01">
+        <dc:date>2021-05-04T15:55:01Z</dc:date>
+        <dc:description>q+ to ask something new at end of call, need 2-3 mins</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-55-15">
+        <dc:date>2021-05-04T15:55:15Z</dc:date>
+        <dc:description>subtopic: @issue 724</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-55-17">
+        <dc:date>2021-05-04T15:55:17Z</dc:date>
+        <dc:description>https://github.com/w3c/did-core/issues/724</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-core/issues/724"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-56-12">
+        <dc:date>2021-05-04T15:56:12Z</dc:date>
+        <dc:description>shigeya: I think it is resolved in the latest</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-56-20">
+        <dc:date>2021-05-04T15:56:20Z</dc:date>
+        <dc:description>brent: There is a PR for this; folks should review it</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-56-30">
+        <dc:date>2021-05-04T15:56:30Z</dc:date>
+        <dc:description>ack burn</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-56-30-1">
+        <dc:date>2021-05-04T15:56:30Z</dc:date>
+        <dc:description>burn, you wanted to ask something new at end of call, need 2-3 mins</dc:description>
+        <dc:creator><wn:Person foaf:nick="Zakim"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-57-03">
+        <dc:date>2021-05-04T15:57:03Z</dc:date>
+        <dc:description>burn: Because are ready to call for implementations right now, it would be appropriate to email out to the various organizations that we have communicated with at various stages in the process. Typically the chairs have done this, to email DIF, CCG, any other place as appropriate</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-57-28">
+        <dc:date>2021-05-04T15:57:28Z</dc:date>
+        <dc:description>... Because we don't have a change in official status, but have completed tests: would like someone to volunteer to send out email to ask for implementations.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-57-38">
+        <dc:date>2021-05-04T15:57:38Z</dc:date>
+        <dc:description>... That email needs pointer for instructions on what to do.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-57-44">
+        <dc:date>2021-05-04T15:57:44Z</dc:date>
+        <dc:description>https://github.com/w3c/did-test-suite/#adding-your-did-implementation</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+        <dc:relation rdf:resource="https://github.com/w3c/did-test-suite/#adding-your-did-implementation"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-57-48">
+        <dc:date>2021-05-04T15:57:48Z</dc:date>
+        <dc:description>... Any info for what they need to know needs to be included.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-58-00">
+        <dc:date>2021-05-04T15:58:00Z</dc:date>
+        <dc:description>... Alternatively if someone else can get that information, chairs could send it out.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-58-04">
+        <dc:date>2021-05-04T15:58:04Z</dc:date>
+        <dc:description>q+</dc:description>
+        <dc:creator><wn:Person foaf:nick="manu"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-58-11">
+        <dc:date>2021-05-04T15:58:11Z</dc:date>
+        <dc:description>... A link is nice, if the link is completely self-contained and you believe it has everything necessary.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-58-14">
+        <dc:date>2021-05-04T15:58:14Z</dc:date>
+        <dc:description>ack manu</dc:description>
+        <dc:creator><wn:Person foaf:nick="brent"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-58-15">
+        <dc:date>2021-05-04T15:58:15Z</dc:date>
+        <dc:description>manu: I believe it does.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-58-37">
+        <dc:date>2021-05-04T15:58:37Z</dc:date>
+        <dc:description>... It has instructions. If you are an implementor, this is how to submit your implementations. ... It should be straightforward and easy.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-58-45">
+        <dc:date>2021-05-04T15:58:45Z</dc:date>
+        <dc:description>... Others have done it, without the instructions.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-59-06">
+        <dc:date>2021-05-04T15:59:06Z</dc:date>
+        <dc:description>burn: It's short... Anyone who is aware of the work should be able to follow and understand this.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-59-11">
+        <dc:date>2021-05-04T15:59:11Z</dc:date>
+        <dc:description>... The chairs will take that as an action.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-59-18">
+        <dc:date>2021-05-04T15:59:18Z</dc:date>
+        <dc:description>brent: Thank you everyone.</dc:description>
+        <dc:creator><wn:Person foaf:nick="cel"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-59-37">
+        <dc:date>2021-05-04T15:59:37Z</dc:date>
+        <dc:description>rrsagent, draft minutes</dc:description>
+        <dc:creator><wn:Person foaf:nick="ivan"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T15-59-37-1">
+        <dc:date>2021-05-04T15:59:37Z</dc:date>
+        <dc:description>I have made the request to generate https://www.w3.org/2021/05/04-did-minutes.html ivan</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2021/05/04-did-minutes.html"/>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T16-00-18">
+        <dc:date>2021-05-04T16:00:18Z</dc:date>
+        <dc:description>s/Anyone who is aware/The hope is that anyone who is aware/</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T16-00-25">
+        <dc:date>2021-05-04T16:00:25Z</dc:date>
+        <dc:description>rrsagent, draft minutes</dc:description>
+        <dc:creator><wn:Person foaf:nick="burn"/></dc:creator>
+       </foaf:chatEvent>
+      </rdf:li>
+      <rdf:li>
+       <foaf:chatEvent rdf:ID="T16-00-25-1">
+        <dc:date>2021-05-04T16:00:25Z</dc:date>
+        <dc:description>I have made the request to generate https://www.w3.org/2021/05/04-did-minutes.html burn</dc:description>
+        <dc:creator><wn:Person foaf:nick="RRSAgent"/></dc:creator>
+        <dc:relation rdf:resource="https://www.w3.org/2021/05/04-did-minutes.html"/>
+       </foaf:chatEvent>
+      </rdf:li>
+    </rdf:Seq>
+  </foaf:chatEventList>
+</foaf:ChatChannel>
+</rdf:RDF>

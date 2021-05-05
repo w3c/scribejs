@@ -103,8 +103,8 @@ export function get_config(): Global {
         .option('-j, --jekyll [option]', 'whether the output should be adapted to Github+Jekyll;'
                                          + ' values can be "none", "md", or "kd"')
         .option('-p, --pandoc', 'whether the output is meant for a pandoc conversion input')
-        .option('-i, --irc [format string]', "use an input format of a specific irc client's log,"
-                                             + 'rather than the default RRSAgent log')
+        .option('-i, --irc [format string]', 'use the RRSAgent rdf format, or an input format of a specific irc client\'s log,'
+                                             + ' rather than the default RRSAgent log')
         .on('--help', () => {
             console.log('  file:                      irc log file; if not present, retrieved from the W3C site');
         })

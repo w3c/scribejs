@@ -72,7 +72,10 @@ export interface Configuration {
     /**
      * Whether the input is of the log format of a particular IRC client.
      *
-     * If missing, the format is the RRSAgent output @W3C. 'Textual' and IRCCloud are  only other client format implemented so far.
+     * If missing, the format is the RRSAgent output @W3C. 'textual' and IRCCloud are  only other client format implemented so far.
+     * Additionally, the value can also be set to 'rdf' when by the command line; however, the main entry points catches that
+     * value to convert the log to text and then unsets the value. Ie, the 'rdf' value is not visible to the bulk of the
+     * code.
      */
     irc_format?:    string;
 

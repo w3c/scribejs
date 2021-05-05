@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</title>
-	<meta name="description" content="Documentation for Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0">
+	<title>Converter of RSSAgent IRC logs into minutes in markdown - v2.0.2</title>
+	<meta name="description" content="Documentation for Converter of RSSAgent IRC logs into minutes in markdown - v2.0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</a>
+					<a href="index.html" class="title">Converter of RSSAgent IRC logs into minutes in markdown - v2.0.2</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -54,7 +54,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1>Converter of RSSAgent IRC logs into minutes in markdown - v2.0.0</h1>
+			<h1>Converter of RSSAgent IRC logs into minutes in markdown - v2.0.2</h1>
 		</div>
 	</div>
 </header>
@@ -100,8 +100,9 @@
                      Default: <span class="hljs-string">&quot;md&quot;</span>.
 [--irc|-i] client:   Whether the input is of the <span class="hljs-built_in">log</span> format of a particular IRC client.
                      Value can be <span class="hljs-string">&quot;textual&quot;</span> or <span class="hljs-string">&quot;irccloud&quot;</span>, <span class="hljs-keyword">for</span> the Textual or
-                     IRCCloud IRC clients, respectively; other values are (currently)
-                     ignored.
+                     IRCCloud IRC clients, respectively. It can also be
+                     <span class="hljs-string">&quot;rdf&quot;</span> to consume the RRSAgent RDF/XML dump directly.
+                     Other values are (currently) ignored.
                      Default: undefined, meaning that the <span class="hljs-built_in">log</span> provided by the W3C
                      RRSAgent is used.</code></pre>
 				<p>Some notes:</p>
@@ -125,7 +126,7 @@
 					<li><code>pandoc</code>       : <code>true</code>|<code>false</code>; whether the goal is to post-process the minutes via the <code>pandoc</code> program (this requires minor adjustment on the output)</li>
 					<li><code>jekyll</code>       : <code>&quot;none&quot;</code>|<code>&quot;md&quot;</code>|<code>&quot;kd&quot;</code>; controls the exact markdown dialect to be used for the output</li>
 					<li><code>schema</code>       : <code>true</code>|<code>false</code>; whether the output should include schema.org metadata, encoded in JSON-LD, and added as part of the front matter. Default is <code>true</code>.</li>
-					<li><code>irc_format</code>   : <code>&quot;textual&quot;</code>|<code>&quot;irccloud&quot;</code>|<code>undefined</code>; choice among available IRC log formats</li>
+					<li><code>irc_format</code>   : <code>&quot;textual&quot;</code>|<code>&quot;irccloud&quot;</code>|<code>&quot;rdf&quot;</code>|<code>undefined</code>; choice among available IRC log formats</li>
 					<li><code>ghrepo</code>       : repository name, e.g., <code>w3c/epub-wg</code>; this is where the minutes are to be stored</li>
 					<li><code>ghpath</code>       : path in the repository to the folder where the minutes are to be stored</li>
 					<li><code>ghbranch</code>     : branch of the repository where the minutes should be stored. If not set, default is used</li>
@@ -316,6 +317,9 @@ npm run serve</code></pre>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_src_lib_js_githubapi_d_.html">&quot;src/lib/js/githubapi.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lib_rdf_to_log_.html">&quot;src/lib/rdf_<wbr>to_<wbr>log&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_src_lib_schemas_.html">&quot;src/lib/schemas&quot;</a>

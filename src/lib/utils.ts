@@ -359,7 +359,6 @@ export function get_name_list(current_list: string[], line: LineObject, category
  */
 // eslint-disable-next-line max-lines-per-function
 export function cleanup(minutes: string[], config: Global): LineObject[] {
-
     // Cleanup action on the log lines
     const cleaned_up_lines: string[]  = minutes
         // remove the empty lines

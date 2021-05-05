@@ -13,6 +13,7 @@ import * as io      from './lib/io';
 import * as convert from './lib/convert';
 import * as conf    from './lib/conf';
 import * as schemas from './lib/schemas';
+import * as rdf     from './lib/rdf_to_log';
 import { Global }   from './lib/types';
 
 /* This is just the overall driver of the script... */
@@ -43,7 +44,13 @@ async function main() {
         }
 
         // Get the IRC log itself
-        const irc_log = await io.get_irc_log(config);
+        let irc_log: string|string[] = await io.get_irc_log(config);
+
+        // If the log is in RDF format of RRSAgent, it is converted to the textual equivalent
+        if (config.irc_format === 'rdf') {
+            irc_log = await rdf.convert(irc_log);
+            delete config.irc_format;
+        }
 
         const minutes: string = new convert.Converter(config).convert_to_markdown(irc_log);
 

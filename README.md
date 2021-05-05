@@ -38,8 +38,9 @@ scribejs [options] [filename]
                      Default: "md".
 [--irc|-i] client:   Whether the input is of the log format of a particular IRC client.
                      Value can be "textual" or "irccloud", for the Textual or
-                     IRCCloud IRC clients, respectively; other values are (currently)
-                     ignored.
+                     IRCCloud IRC clients, respectively. It can also be
+                     "rdf" to consume the RRSAgent RDF/XML dump directly.
+                     Other values are (currently) ignored.
                      Default: undefined, meaning that the log provided by the W3C
                      RRSAgent is used.
 ```
@@ -65,7 +66,7 @@ The keys are as follows (see also the [description of the command line](#usage) 
 * `pandoc`       : `true`\|`false`; whether the goal is to post-process the minutes via the `pandoc` program (this requires minor adjustment on the output)
 * `jekyll`       : `"none"`\|`"md"`\|`"kd"`; controls the exact markdown dialect to be used for the output
 * `schema`       : `true`\|`false`; whether the output should include schema.org metadata, encoded in JSON-LD, and added as part of the front matter. Default is `true`.
-* `irc_format`   : `"textual"`\|`"irccloud"`\|`undefined`; choice among available IRC log formats
+* `irc_format`   : `"textual"`\|`"irccloud"`\|`"rdf"`\|`undefined`; choice among available IRC log formats
 * `ghrepo`       : repository name, e.g., `w3c/epub-wg`; this is where the minutes are to be stored
 * `ghpath`       : path in the repository to the folder where the minutes are to be stored
 * `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used

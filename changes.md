@@ -1,8 +1,12 @@
 # Change log
 
+## Version 2.0.2
+
+* Added the possibility to consume the RDF/XML version of the RRSAgent log. This is a fallback that was made necessary by a bug somewhere on the server which, in some cases dumped only a portion of the textual log.
+
 ## Version 2.0.1
 
-* But in the string replacement function: the replaceAll had a nasty bug when the 'to' included the 'from' (got into an infinite cycle). Replaced it by a neat trick found on the Web. (Note: node with version < 15 did not implement the replaceAll function for strings, hence the necessity of having this...).
+* Bug in the string replacement function: the `replaceAll` function had a nasty bug when the 'to' included the 'from' (got into an infinite cycle). Replaced it by a neat trick found on the Web. (Note: node with version < 15 did not implement the `replaceAll` function for strings, hence the necessity of having this...).
 
 
 ## Version 2.0.0
