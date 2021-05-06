@@ -75,6 +75,12 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-is-not-exported"><a href="../interfaces/_src_lib_issues_.issueinformation.html" class="tsd-kind-icon">Issue<wbr>Information</a></li>
+							</ul>
+						</section>
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
@@ -91,13 +97,13 @@
 					<a name="issue_directives" class="tsd-anchor"></a>
 					<h3>issue_<wbr>directives</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">issue_<wbr>directives<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a>, directive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, issue_references<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">issue_<wbr>directives<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a>, directive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, issue_references<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_issues_.issueinformation.html" class="tsd-signature-type">IssueInformation</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/issues.ts#L28">src/lib/issues.ts:28</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/issues.ts#L37">src/lib/issues.ts:37</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -134,7 +140,7 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_lib_issues_.issueinformation.html" class="tsd-signature-type">IssueInformation</a></h4>
 							<p>the markdown lines to be added to the final minutes</p>
 						</li>
 					</ul>
@@ -143,13 +149,13 @@
 					<a name="titles" class="tsd-anchor"></a>
 					<h3>titles</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">titles<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a>, content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.issuereference.html" class="tsd-signature-type">IssueReference</a></li>
+						<li class="tsd-signature tsd-kind-icon">titles<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_src_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a>, content<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_src_lib_types_.issuereference.html" class="tsd-signature-type">IssueReference</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/issues.ts#L125">src/lib/issues.ts:125</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/issues.ts#L137">src/lib/issues.ts:137</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -173,7 +179,7 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_src_lib_types_.issuereference.html" class="tsd-signature-type">IssueReference</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_src_lib_types_.issuereference.html" class="tsd-signature-type">IssueReference</a><span class="tsd-signature-symbol">&gt;</span></h4>
 							<ul>
 								<li>object with <code>title_text</code> set to the title line content (issue number if missing)
 								and <code>issue_reference</code> to the list of issues to display (empty string if missing)</li>
@@ -232,6 +238,9 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module tsd-is-not-exported">
+						<a href="../interfaces/_src_lib_issues_.issueinformation.html" class="tsd-kind-icon">Issue<wbr>Information</a>
+					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_src_lib_issues_.html#issue_directives" class="tsd-kind-icon">issue_<wbr>directives</a>
 					</li>

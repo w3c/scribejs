@@ -3,6 +3,7 @@
 ## Version 2.0.2
 
 * Added the possibility to consume the RDF/XML version of the RRSAgent log. This is a fallback that was made necessary by a bug somewhere on the server which, in some cases dumped only a portion of the textual log.
+* If the (Sub)topic is a single issue/pr directive, the title of the (sub)topic is retrieved from the relevant github issue/pr
 
 ## Version 2.0.1
 
@@ -23,4 +24,4 @@
 
 ---
 
-(This list is incomplete, was introduced starting at version 2.0.0 only… My sloppiness, I guess.)
+(This list is incomplete, was introduced starting at version 2.0.0 only… My sloppiness)

@@ -91,6 +91,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_src_lib_io_.html#check_url" class="tsd-kind-icon">check_<wbr>url</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_src_lib_io_.html#commit" class="tsd-kind-icon">commit</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_io_.html#fetch_text" class="tsd-kind-icon">fetch_<wbr>text</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_io_.html#get_irc_log" class="tsd-kind-icon">get_<wbr>irc_<wbr>log</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_io_.html#get_nick_mapping" class="tsd-kind-icon">get_<wbr>nick_<wbr>mapping</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_src_lib_io_.html#output_minutes" class="tsd-kind-icon">output_<wbr>minutes</a></li>
@@ -107,7 +108,7 @@
 					<div class="tsd-signature tsd-kind-icon">my_<wbr>fetch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = utils.is_browser ? fetch : node_fetch.default</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/io.ts#L36">src/lib/io.ts:36</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/io.ts#L36">src/lib/io.ts:36</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -155,7 +156,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/io.ts#L93">src/lib/io.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/io.ts#L110">src/lib/io.ts:110</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -202,7 +203,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/io.ts#L190">src/lib/io.ts:190</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/io.ts#L207">src/lib/io.ts:207</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -244,6 +245,46 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="fetch_text" class="tsd-anchor"></a>
+					<h3>fetch_<wbr>text</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">fetch_<wbr>text<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/io.ts#L50">src/lib/io.ts:50</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get a text file.</p>
+								</div>
+								<p>The input provided in the configuration is examined whether
+									it is a URL (in which case this is retrieved via HTTP) or not (in which case
+									it is considered to be a local file). Returns a Promise with the content
+								of the input as one string.</p>
+								<dl class="tsd-comment-tags">
+									<dt>async</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>input: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>URL or file name</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>a promise containing the text content as a single string.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="get_irc_log" class="tsd-anchor"></a>
 					<h3>get_<wbr>irc_<wbr>log</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
@@ -253,7 +294,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/io.ts#L49">src/lib/io.ts:49</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/io.ts#L78">src/lib/io.ts:78</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -292,7 +333,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/io.ts#L136">src/lib/io.ts:136</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/io.ts#L153">src/lib/io.ts:153</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -333,7 +374,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/ccb1029/src/lib/io.ts#L206">src/lib/io.ts:206</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/16e2515/src/lib/io.ts#L223">src/lib/io.ts:223</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -425,6 +466,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
 						<a href="_src_lib_io_.html#commit" class="tsd-kind-icon">commit</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_src_lib_io_.html#fetch_text" class="tsd-kind-icon">fetch_<wbr>text</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_src_lib_io_.html#get_irc_log" class="tsd-kind-icon">get_<wbr>irc_<wbr>log</a>
