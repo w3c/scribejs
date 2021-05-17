@@ -31,12 +31,9 @@
         "lib/**/*"
     ],
     "typedocOptions" : {
-        "includeDeclarations": true,
         "excludeExternals": true,
         "excludePrivate" : true,
         "excludeProtected" : false,
-        "stripInternal" : true,
-        "ignoreCompilerErrors": true,
         "out" : "BrowserView/docs",
         "theme": "default",
         "includeVersion": true,
