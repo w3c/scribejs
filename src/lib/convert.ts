@@ -195,7 +195,7 @@ ${no_toc}
      * @returns {string} - the body of the minutes encoded in Markdown
      */
     // eslint-disable-next-line max-lines-per-function
-    private generate_content(lines: LineObject[]): string {
+    private async generate_content(lines: LineObject[]): Promise<string> {
         // this will be the output
         let final_minutes = '\n---\n';
 
@@ -378,7 +378,7 @@ ${no_toc}
             if (label !== null && label.toLowerCase() === 'topic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure: IssueReference = issues.titles(this.global, content);
+                const title_structure: IssueReference = await issues.titles(this.global, content);
                 final_minutes += add_to_toc(title_structure.title_text, 1);
                 if (title_structure.issue_reference !== '') {
                     final_minutes += title_structure.issue_reference;
@@ -390,7 +390,7 @@ ${no_toc}
             } else if (label !== null && label.toLowerCase() === 'subtopic') {
                 // Topic must be combined with handling of issues, because a topic may include the @issue X,Y,Z directive
                 within_scribed_content = false;
-                const title_structure: IssueReference = issues.titles(this.global, content);
+                const title_structure: IssueReference = await issues.titles(this.global, content);
                 final_minutes += add_to_toc(title_structure.title_text, 2);
                 if (title_structure.issue_reference !== '') {
                     final_minutes += title_structure.issue_reference;
@@ -428,7 +428,7 @@ ${no_toc}
                 within_scribed_content = false;
                 const directive        = issue_match[2];
                 const issue_references = issue_match[3];
-                final_minutes += issues.issue_directives(this.global, directive, issue_references);
+                final_minutes += issues.issue_directives(this.global, directive, issue_references).text;
 
             // The 'scribed' line, ie, the lines whose 'nick' is one of the registered scribes.
             } else if (scribes.includes(utils.canonical_nick(line_object.nick))) {
@@ -535,7 +535,7 @@ ${no_toc}
      *
      * @param body - the IRC log; this is either a string or an array of strings (the latter is used when the code is called on the client side).
      */
-    convert_to_markdown(body: string|string[]): string {
+    async convert_to_markdown(body: string|string[]): Promise<string> {
         // An array of lines should be used down from this point.
         const split_body: string[] = Array.isArray(body) ? body : body.split(/\n/);
 
@@ -564,7 +564,7 @@ ${no_toc}
 
         // 7. Generate the content part; that also includes the TOC, the list of
         //    resolutions and (if any) of actions
-        const content = this.generate_content(lines)
+        const content = await this.generate_content(lines)
 
         // 8. Generate the front matter part of the minutes (e.g., whatever is necessary for jekyll to work).
         //    The order is important: the front matter includes the JSON-LD metadata, and that relies on the final

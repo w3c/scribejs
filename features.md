@@ -124,25 +124,31 @@ A line starting with `scribejs, XXX [ARGS]` is a `scribejs` tool, where `XXX` is
 ### Handling issue references
 
 * `scribejs, issue Issuenumber1,Issuenumber2, Issuenumber3`
-    * Expand the issue numbers to their full URL-s, and add a an extra line to the minutes with these references. The `Issuenumber` an be:
-        * an integer, referring to the the relevant github issue in the default repository (see the configuration file)
-        * of the form `repo#number` to use a different repo (within the same github organization) rather than the default discussion issue repository (the default can be set in the configuration file)
-* `scribejs, pr PRnumber1,PRnumber2, PRnumber3`
+    * Expand the issue numbers to their full URL-s, and add a an extra line to the minutes with these references. The `Issuenumber` can be:
+        * an integer, referring to the the relevant github issue in the default repository (see the configuration file);
+        * of the form `repo#number` to use a different repo (within the same github organization) rather than the default discussion issue repository (the default can be set in the configuration file).
+* `scribejs, pr PRnumber1,PRnumber2,PRnumber3`
     * Similar to the handling of issues, except that all references are for Pull Requests
 
-`scribejs` also handles a shorthand of the form:
+`scribejs` also offers a shorthand of the form:
 
 ```
-topic: topic title @issue Issuenumber1, Issuenumber2
+topic: title @issue Issuenumber1,Issuenumber2
 ```
 
 is equivalent to:
 
 ```
-topic: topic title
-scribejs, issue Issuenumber1, Issuenumber2
+topic: title
+scribejs, issue Issuenumber1,Issuenumber2
 ```
 
-This abbreviates an often used pattern in minute taking. (The same shorthand is also available for sub-topics.)
+Finally, `scribejs` has additional feature on automatically finding the title text, namely for
 
-Note that `scribejs` generates some “directives” (in the form of comments) into the generated minutes to these issues. This can be used by post-processing steps to, e.g., extract the discussion on a specific issue from the minutes, and add a comment to github automatically. See, e.g., the separate [scribejs postprocessing tool](https://github.com/iherman/scribejs-postprocessing).
+```
+topic: @issue Issuenumber1,Issuenumber2
+```
+
+it also fetches the title of the issue (or pr) identified by `Issuenumber1` from github and uses it for the in the section heading. This abbreviates a frequent pattern in minute taking. (The same shorthand is also available for sub-topics.)
+
+Note that `scribejs` generates some “directives” (in the form of comments) into the generated minutes for these issues. This can be used by post-processing steps to, e.g., extract the discussion on a specific issue from the minutes, and add a comment to github automatically. See, e.g., the separate [scribejs postprocessing tool](https://github.com/iherman/scribejs-postprocessing).

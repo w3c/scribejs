@@ -28,6 +28,12 @@ export namespace Constants {
 
     export const user_config_name = '.scribejs.json';
     export const user_ghid_file   = '.ghid.json';
+
+    export const text_media_types = [
+        'text/plain',
+        'application/rdf+xml',
+        'application/json',
+    ];
 }
 
 

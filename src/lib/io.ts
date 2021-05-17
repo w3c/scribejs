@@ -10,13 +10,13 @@
  * @packageDocumentation
  */
 
-import * as url                                 from 'url';
-import * as node_fetch                          from 'node-fetch';
-import * as fs                                  from 'fs';
-import * as validUrl                            from 'valid-url';
-import { GitHub }                               from './js/githubapi';
-import { Configuration, PersonWithNickname }    from './types';
-import * as utils                               from './utils';
+import * as url                                          from 'url';
+import * as node_fetch                                   from 'node-fetch';
+import * as fs                                           from 'fs';
+import * as validUrl                                     from 'valid-url';
+import { GitHub }                                        from './js/githubapi';
+import { Configuration, PersonWithNickname, Constants }  from './types';
+import * as utils                                        from './utils';
 
 /** @internal */
 const fsp = fs.promises;
@@ -35,6 +35,35 @@ const fsp = fs.promises;
  */
 const my_fetch: ((arg :string) => Promise<any>) = utils.is_browser ? fetch : node_fetch.default;
 
+/**
+ * Get a text file.
+ *
+ * The input provided in the configuration is examined whether
+ * it is a URL (in which case this is retrieved via HTTP) or not (in which case
+ * it is considered to be a local file). Returns a Promise with the content
+ * of the input as one string.
+ *
+ * @param input - URL or file name
+ * @returns a promise containing the text content as a single string.
+ * @async
+ */
+export async function fetch_text(input: string): Promise<string> {
+    if (url.parse(input).protocol !== null) {
+        const response = await my_fetch(input);
+        if (response.ok) {
+            const content_type = response.headers.get('content-type').split(';')[0];
+            if (Constants.text_media_types.includes(content_type)) {
+                return response.text();
+            } else {
+                throw new Error(`IRC log must be of type text/plain, it is ${content_type}`);
+            }
+        } else {
+            throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
+        }
+    } else {
+        return fsp.readFile(input, 'utf-8');
+    }
+}
 
 /**
  * Get the IRC log. The input provided in the configuration is examined whether
@@ -51,20 +80,8 @@ export async function get_irc_log(conf: Configuration): Promise<string> {
         // This field may be present if called from a CGI script, and the IRC log
         // is uploaded
         return conf.irclog
-    } else if (url.parse(conf.input).protocol !== null) {
-        const response = await my_fetch(conf.input);
-        if (response.ok) {
-            const content_type = response.headers.get('content-type');
-            if (content_type === 'text/plain' || content_type === 'application/rdf+xml') {
-                return response.text();
-            } else {
-                throw new Error('IRC log must be of type text/plain');
-            }
-        } else {
-            throw new Error(`HTTP response ${response.status}: ${response.statusText}`);
-        }
     } else {
-        return fsp.readFile(conf.input, 'utf-8');
+        return fetch_text(conf.input)
     }
 }
 

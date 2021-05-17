@@ -3,17 +3,17 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Converter of RSSAgent IRC logs into minutes in markdown</title>
+	<title>&quot;lib/rdf_to_log&quot; | Converter of RSSAgent IRC logs into minutes in markdown</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
 <header>
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">Converter of RSSAgent IRC logs into minutes in markdown</a>
+					<a href="../index.html" class="title">Converter of RSSAgent IRC logs into minutes in markdown</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -51,87 +51,138 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="globals.html">Globals</a>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="_lib_rdf_to_log_.html">&quot;lib/rdf_to_log&quot;</a>
 				</li>
 			</ul>
-			<h1> Converter of RSSAgent IRC logs into minutes in markdown</h1>
+			<h1>External module &quot;lib/rdf_to_log&quot;</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Conversion of the RRSAgent RDF format to the textual equivalent</p>
+					</div>
+					<p>The reason why this may be necessary: in some cases the W3C CVS server goes wrong and the textual dump of RSSAgent does is
+						not committed (but the RDF version is). This tool converts the
+					RDF version into a text version, compatible with what the RSSAgent does. The converted data can be processed further by scribejs.</p>
+					<p>This method is called, if necessary, on the very top level right after having read the irc log (and if the right flag is used to
+					consider the input as rdf). Ie, the core functionality of scribejs is oblivious to this.</p>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
-							<h3>External modules</h3>
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-external-module"><a href="modules/_lib_actions_.html" class="tsd-kind-icon">&quot;lib/actions&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_conf_.html" class="tsd-kind-icon">&quot;lib/conf&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_convert_.html" class="tsd-kind-icon">&quot;lib/convert&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_front_matter_.html" class="tsd-kind-icon">&quot;lib/front_<wbr>matter&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_io_.html" class="tsd-kind-icon">&quot;lib/io&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_issues_.html" class="tsd-kind-icon">&quot;lib/issues&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_js_githubapi_.html" class="tsd-kind-icon">&quot;lib/js/githubapi&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_rdf_to_log_.html" class="tsd-kind-icon">&quot;lib/rdf_<wbr>to_<wbr>log&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_schemas_.html" class="tsd-kind-icon">&quot;lib/schemas&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_types_.html" class="tsd-kind-icon">&quot;lib/types&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_lib_utils_.html" class="tsd-kind-icon">&quot;lib/utils&quot;</a></li>
-								<li class="tsd-kind-external-module"><a href="modules/_main_.html" class="tsd-kind-icon">&quot;main&quot;</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported"><a href="../interfaces/_lib_rdf_to_log_.one_line.html" class="tsd-kind-icon">One_<wbr><wbr>Line</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_lib_rdf_to_log_.html#convert" class="tsd-kind-icon">convert</a></li>
 							</ul>
 						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="convert" class="tsd-anchor"></a>
+					<h3>convert</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">convert<span class="tsd-signature-symbol">(</span>rdf_xml<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/rdf_to_log.ts#L29">lib/rdf_to_log.ts:29</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert the RDF/XML formatted RRSAgent log to the textual equivalent.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>rdf_xml: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The IRC log in RDF/XML format</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>the IRC log in the textual format as generated by RRSAgent</p>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals current ">
-						<a href="globals.html"><em>Globals</em></a>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_actions_.html">&quot;lib/actions&quot;</a>
+						<a href="_lib_actions_.html">&quot;lib/actions&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_conf_.html">&quot;lib/conf&quot;</a>
+						<a href="_lib_conf_.html">&quot;lib/conf&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_convert_.html">&quot;lib/convert&quot;</a>
+						<a href="_lib_convert_.html">&quot;lib/convert&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_front_matter_.html">&quot;lib/front_<wbr>matter&quot;</a>
+						<a href="_lib_front_matter_.html">&quot;lib/front_<wbr>matter&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_io_.html">&quot;lib/io&quot;</a>
+						<a href="_lib_io_.html">&quot;lib/io&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_issues_.html">&quot;lib/issues&quot;</a>
+						<a href="_lib_issues_.html">&quot;lib/issues&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_js_githubapi_.html">&quot;lib/js/githubapi&quot;</a>
+						<a href="_lib_js_githubapi_.html">&quot;lib/js/githubapi&quot;</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="_lib_rdf_to_log_.html">&quot;lib/rdf_<wbr>to_<wbr>log&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_rdf_to_log_.html">&quot;lib/rdf_<wbr>to_<wbr>log&quot;</a>
+						<a href="_lib_schemas_.html">&quot;lib/schemas&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_schemas_.html">&quot;lib/schemas&quot;</a>
+						<a href="_lib_types_.html">&quot;lib/types&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_types_.html">&quot;lib/types&quot;</a>
+						<a href="_lib_utils_.html">&quot;lib/utils&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_lib_utils_.html">&quot;lib/utils&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_main_.html">&quot;main&quot;</a>
+						<a href="_main_.html">&quot;main&quot;</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../interfaces/_lib_rdf_to_log_.one_line.html" class="tsd-kind-icon">One_<wbr><wbr>Line</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_lib_rdf_to_log_.html#convert" class="tsd-kind-icon">convert</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -198,7 +249,7 @@
 	</div>
 </footer>
 <div class="overlay"></div>
-<script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>

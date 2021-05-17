@@ -41,9 +41,9 @@
     "marked": ">=0.3.18",
     "marked-it-core": "^0.14.1",
     "node-fetch": "^2.6.1",
-    "octokat": "^0.10.0",
+    "octokat": "^0.8.0",
     "terser": "^3.17.0",
-    "underscore": "^1.8.3",
+    "underscore": "^1.13.1",
     "valid-url": "^1.0.9",
     "xml2js": "^0.4.23"
   },
@@ -63,12 +63,12 @@
     "browserify": "^16.3.0",
     "eslint": "^7.14.0",
     "http-server": "^0.12.3",
-    "typedoc": "^0.19.2",
+    "typedoc": "^0.20.36",
     "typedoc-plugin-nojekyll": "^1.0.1",
     "typescript": "^4.1.2"
   },
   "scripts": {
-    "docs": "./node_modules/typedoc/bin/typedoc",
+    "docs": "/usr/local/bin/typedoc",
     "dist": "tsc",
     "build": "tsc && browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
     "lint": "eslint src/*",

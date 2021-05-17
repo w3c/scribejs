@@ -7,6 +7,15 @@
 
 import { zip }                              from './utils';
 import { Configuration, IssueReference }    from './types';
+import { fetch_text }                       from './io';
+
+/**
+ *
+ */
+interface IssueInformation {
+    text: string;
+    ids?: string[];
+}
 
 /**
  * Handling the `scribejs, issue X,Y,Z` type directives. The method returns a set of strings to be added to the
@@ -25,11 +34,11 @@ import { Configuration, IssueReference }    from './types';
  * @param issue_references - comma separated list of issue numbers, possibly of the form `repo#number`
  * @returns the markdown lines to be added to the final minutes
  */
-export function issue_directives(config: Configuration, directive: string, issue_references: string): string {
+export function issue_directives(config: Configuration, directive: string, issue_references: string): IssueInformation {
     // see if there is an issue repository to use:
     const repo = config.issuerepo || config.ghrepo;
     if (repo === undefined) {
-        return '';
+        return {text: ''};
     } else {
         // Previous steps may add a '.' to the end of a line; this is removed here to be on the safe side:
         let final_issue_references = issue_references.trim();
@@ -62,9 +71,9 @@ export function issue_directives(config: Configuration, directive: string, issue
             if (url_part.startsWith('-')) {
                 // This is to stop the effect of the issue discussion
                 if (config.jekyll !== 'none') {
-                    return '\n\n<!-- issue - -->\n\n';
+                    return {text: '\n\n<!-- issue - -->\n\n'};
                 } else {
-                    return '';
+                    return {text: ''};
                 }
             } else {
                 const issue_numbers: string[] = final_issue_references.split(',').map((str) => str.trim());
@@ -104,11 +113,14 @@ export function issue_directives(config: Configuration, directive: string, issue
                 const md_part =  `_See github ${issue_or_pr} ${all_issues}._`;
                 const md_comment = `<!-- issue ${issue_ids.join(' ')} -->`;
 
-                return `\n\n${md_part}\n\n${md_comment}\n\n`;
+                return {
+                    text : `\n\n${md_part}\n\n${md_comment}\n\n`,
+                    ids  : issue_ids,
+                }
             }
         } catch (e) {
             // No exception should disrupt the flow of the minutes generation; the directive is then simply discarded.
-            return '';
+            return {text: ''};
         }
     }
 }
@@ -122,17 +134,44 @@ export function issue_directives(config: Configuration, directive: string, issue
  * @return {object} - object with `title_text` set to the title line content (issue number if missing)
  * and `issue_reference` to the list of issues to display (empty string if missing)
  */
-export function titles(config: Configuration, content: string): IssueReference {
-    const get_values = (directive: string) => {
+export async function titles(config: Configuration, content: string): Promise<IssueReference> {
+    // Get the final title. If there is none, but there is an issue/or reference, the title is
+    // picked up by using the github api
+    const get_final_title = async (title: string, issue_information: IssueInformation, directive: string): Promise<string> => {
+        if (title) {
+            return title;
+        } else if (issue_information.ids && issue_information.ids.length > 0) {
+            const [organization, repo, issue] = issue_information.ids[0].split('/');
+            try {
+                const info = await fetch_text(`https://api.github.com/repos/${organization}/${repo}/issues/${issue}`);
+                const info_js = JSON.parse(info);
+                return `${info_js.title} (${directive} ${repo}#${issue})`;
+            } catch (e) {
+                return '';
+            }
+        } else {
+            return '';
+        }
+    };
+
+    // Extract the title and the issue/pr values if present. Returns an empty string if there are no issues
+    const get_values = async (directive: string): Promise<IssueReference> => {
         if (content.includes(`@${directive}`)) {
             const [title, issue] = content.split(`@${directive}`);
+            const issue_information = issue_directives(config, directive, issue);
+            // If there is no title, only the reference to an issue/pr, the title of that issue is picked up from github and used here.
+            const final_title = await get_final_title(title, issue_information, directive);
             return {
-                title_text      : title || issue,
-                issue_reference : issue_directives(config, directive, issue),
+                title_text      : final_title || issue,
+                issue_reference : issue_information.text,
             };
         } else {
             return undefined;
         }
     };
-    return get_values('issue') || get_values('issues') || get_values('pr') || { title_text: content, issue_reference: '' };
+
+    // Note: it may be cleaner to use Promise.any, but that is not implemented in the TS version I am using...
+    const check_issues: IssueReference[] = await Promise.all([get_values('issue'), get_values('issues'), get_values('pr')]);
+    const final_issue = check_issues.filter((entry) => entry !== undefined);
+    return (final_issue.length === 0) ? { title_text: content, issue_reference: '' } : final_issue[0];
 }
