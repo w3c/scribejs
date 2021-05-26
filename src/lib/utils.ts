@@ -384,23 +384,24 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
                 const stripped_line = line.trim();
                 return !(
                     stripped_line.length === 0
-                        || stripped_line[0] === '•'
-                        || stripped_line.startsWith('Disconnected for Sleep Mode')
-                        || stripped_line.includes('rrsagent')
-                        || stripped_line.includes('zakim')
-                        || stripped_line.includes('github-bot')
-                        || stripped_line.includes('joined the channel')
-                        || stripped_line.includes('------------- Begin Session -------------')
-                        || stripped_line.includes('------------- End Session -------------')
-                        || stripped_line.includes('changed the topic to')
+                    || stripped_line[0] === '•'
+                    || stripped_line.startsWith('Disconnected for Sleep Mode')
+                    || stripped_line.includes('rrsagent')
+                    || stripped_line.includes('zakim')
+                    || stripped_line.includes('github-bot')
+                    || stripped_line.includes('joined the channel')
+                    || stripped_line.includes('------------- Begin Session -------------')
+                    || stripped_line.includes('------------- End Session -------------')
+                    || stripped_line.includes('changed the topic to')
                 );
             } case 'irccloud': {
                 const stripped_line = line.trim();
                 return !(
                     stripped_line.length === 0
-                        || stripped_line[0] === '→'
-                        || stripped_line[0] === '—'
-                        || stripped_line[0] === '⇐'
+                    || stripped_line[0] === '→'
+                    || stripped_line[0] === '—'
+                    || stripped_line[0] === '⇐'
+                    || stripped_line[0] === '←'
                 );
             }
             default: {
