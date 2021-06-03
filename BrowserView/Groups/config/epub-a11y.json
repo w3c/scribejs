@@ -5,9 +5,9 @@
 	"ghrepo"       : "w3c/epub-wg",
 	"issuerepo"    : "w3c/epub-specs",
 	"ghpath"       : "_minutes",
-	"ghbranch"     : "master",
+	"ghbranch"     : "main",
 	"group"        : "epub-a11y",
-    "nicknames"    : "https://www.w3.org/groups/wg/epub/assets/nicknames.json",
+    "nicknames"    : "https://www.w3.org/publishing/groups/epub-wg/assets/nicknames.json",
     "acrepo"       : "w3c/epub-wg",
     "acurlpattern" : "https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%DATE%-epub-a11y"
 }
