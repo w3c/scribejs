@@ -51,7 +51,7 @@ const validator = new AJV({ allErrors: true });
 
 // I am not sure why this is necessary and not done automatically. Oh well...
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-validator.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
+// validator.addMetaSchema(require('ajv/lib/refs/json-schema-draft-07.json'));
 
 /**
 * Validator objects/function for the configuration file checks

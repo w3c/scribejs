@@ -1,105 +1,185 @@
 {
     "title": "Schema for scribejs configuration files",
-    "description": "Configuration for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details",
-    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "Configuration for scribejs. See https://github.com/w3c/scribejs/blob/master/README.md for details.",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://github.com/w3c/scribejs/blob/master/schemas/config_schema.js",
-    "type": "object",
-    "properties": {
-        "date": {
-            "title": "Date in ISO Format",
-            "description": "Note that the format with date works with the AJV processor, but it is not a mandatory schema item",
-            "type": "string",
-            "format": "date"
-        },
-        "group": {
-            "title": "Group name, ie, IRC channel without the staring # or & character",
-            "description": "Per RFC1459, a channel name cannot use space or comma",
-            "type": "string",
-            "pattern": "^[^#& ,][^ ,]+$"
-        },
-        "input": {
-            "title": "IRC log; a file name or a URL",
-            "type": "string"
-        },
-        "output": {
-            "title": "Output file name",
-            "type": "string"
-        },
-        "nicknames": {
-            "title": "Nickname log; a JSON file name or a URL",
-            "type": "string"
-        },
-        "final": {
-            "title": "Whether he minutes are final, i.e., they won't be labeled as 'DRAFT'",
-            "type": "boolean"
-        },
-        "auto": {
-            "title": "Whether the draft label is to be generated automatically into the minutes via a separate script.",
-            "type": "boolean"
-        },
-        "torepo": {
-            "title": "Whether the output should be stored in a github repository",
-            "type": "boolean"
-        },
-        "pandoc": {
-            "title": "Whether the output is meant to be converted further by pandoc",
-            "type": "boolean"
-        },
-        "jekyll": {
-            "title": "Whether the output should be adapted to a Github+Jekyll combination",
-            "description": "If the value is 'md' or 'kd', a jekyll header is added. If it is 'md', the format is markdown, if it is 'kd', the format is kramdown",
-            "type": "string",
-            "enum": ["none", "md", "kd"]
-        },
-        "schema": {
-            "title": "Whether the output should include schema.org metadata",
-            "description": "If true, the front matter of the generated minutes includes (either in the front matter of Jekyll or as a markdown comment) the schema.org metadata in JSON-LD. Default is true",
-            "type": "boolean"
-        },
-        "irc_format": {
-            "title": "Whether the input is of the log format of a particular IRC client",
-            "description": "'undefined' means the RRSAgent output @W3C. 'Textual' is the only client implemented so far.",
-            "type": "string",
-            "enum": ["textual", "undefined"]
-        },
-        "ghrepo": {
-            "title": "Github repo name.",
-            "type": "string"
-        },
-        "ghpath": {
-            "title": "Github path for the upload of the minutes.",
-            "type": "string"
-        },
-        "ghbranch": {
-            "title": "Branch of the repository where the minutes should be stored. If not set, default is used.",
-            "type": "string"
-        },
-        "acrepo": {
-            "title": "Github repo name for action issues.",
-            "type": "string"
-        },
-        "issuerepo": {
-            "title": "(Default) github repo for the issues that are discussed on the call",
-            "type": "string"
-        },
-        "acurlpattern": {
-            "title": "URL pattern used to refer the minutes.",
-            "type": "string"
-        },
-        "ghname": {
-            "title": "Github login name",
-            "type": "string"
-        },
-        "ghemail": {
-            "title": "User's email",
-            "$comment": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
-            "type": "string",
-            "format": "email"
-        },
-        "ghtoken": {
-            "title": "User's OAUTH personal access token.",
-            "description": "This value should NOT appear in any public configuration file!",
-            "type": "string"
+    "$defs" : {
+        "base.schema" : {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "title": "Date in ISO Format",
+                    "description": "Note that the format with date works with the AJV processor, but it is not a mandatory schema item",
+                    "type": "string",
+                    "format": "date"
+                },
+                "group": {
+                    "title": "Group name, ie, IRC channel without the staring # or & character",
+                    "description": "Per RFC1459, a channel name cannot use space or comma",
+                    "type": "string",
+                    "pattern": "^[^#& ,][^ ,]+$"
+                },
+                "input": {
+                    "title": "IRC log; a file name or a URL",
+                    "type": "string"
+                },
+                "output": {
+                    "title": "Output file name",
+                    "type": "string"
+                },
+                "nicknames": {
+                    "title": "Nickname log; a JSON file name or a URL",
+                    "type": "string"
+                },
+                "final": {
+                    "title": "Whether he minutes are final, i.e., they won't be labeled as 'DRAFT'",
+                    "type": "boolean"
+                },
+                "auto": {
+                    "title": "Whether the draft label is to be generated automatically into the minutes via a separate script.",
+                    "type": "boolean"
+                },
+                "torepo": {
+                    "title": "Whether the output should be stored in a github repository",
+                    "type": "boolean"
+                },
+                "pandoc": {
+                    "title": "Whether the output is meant to be converted further by pandoc",
+                    "type": "boolean"
+                },
+                "jekyll": {
+                    "title": "Whether the output should be adapted to a Github+Jekyll combination",
+                    "description": "If the value is 'md' or 'kd', a jekyll header is added. If it is 'md', the format is markdown, if it is 'kd', the format is kramdown",
+                    "type": "string",
+                    "enum": ["none", "md", "kd"]
+                },
+                "schema": {
+                    "title": "Whether the output should include schema.org metadata",
+                    "description": "If true, the front matter of the generated minutes includes (either in the front matter of Jekyll or as a markdown comment) the schema.org metadata in JSON-LD. Default is true",
+                    "type": "boolean"
+                },
+                "irc_format": {
+                    "title": "Whether the input is of the log format of a particular IRC client",
+                    "description": "'undefined' means the RRSAgent output @W3C. 'Textual' is the only client implemented so far.",
+                    "type": "string",
+                    "enum": ["textual", "undefined"]
+                },
+                "ghrepo": {
+                    "title": "Github repo name.",
+                    "type": "string"
+                },
+                "ghpath": {
+                    "title": "Github path for the upload of the minutes.",
+                    "type": "string"
+                },
+                "ghbranch": {
+                    "title": "Branch of the repository where the minutes should be stored. If not set, default is used.",
+                    "type": "string"
+                },
+                "acrepo": {
+                    "title": "Github repo name for action issues.",
+                    "type": "string"
+                },
+                "issuerepo": {
+                    "title": "(Default) github repo for the issues that are discussed on the call",
+                    "type": "string"
+                },
+                "acurlpattern": {
+                    "title": "URL pattern used to refer the minutes.",
+                    "type": "string"
+                },
+                "ghname": {
+                    "title": "Github login name",
+                    "type": "string"
+                },
+                "ghemail": {
+                    "title": "User's email",
+                    "$comment": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
+                    "type": "string",
+                    "format": "email"
+                },
+                "ghtoken": {
+                    "title": "User's OAUTH personal access token.",
+                    "description": "This value should NOT appear in any public configuration file!",
+                    "type": "string"
+                },
+                "smtp_server": {
+                    "title": "SMTP server name.",
+                    "type": "string"
+                },
+                "smtp_port": {
+                    "title": "SMTP server port number.",
+                    "type": "number"
+                },
+                "smtp_secure": {
+                    "title": "SMTP server security.",
+                    "description": "Whether TLS is used or not",
+                    "type": "boolean"
+                },
+                "smtp_user": {
+                    "title": "SMTP login user name.",
+                    "type": "string"
+                },
+                "smtp_pwd": {
+                    "title": "SMTP server user password.",
+                    "description": "This value should NOT appear in any public configuration file! ",
+                    "type": "string"
+                },
+                "smtp_from": {
+                    "title": "Email address for the 'from' part of the email.",
+                    "$comment": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
+                    "type": "string",
+                    "format": "email"
+                },
+                "group_mail" : {
+                    "title" : "mailing list address to send notifications to",
+                    "$comment": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
+                    "type": "string",
+                    "format": "email"
+                },
+                "handle_issues" : {
+                    "title" : "Whether the issue annotation feature should be used",
+                    "type": "boolean"
+                },
+                "handle_actions" : {
+                    "title" : "Whether the action handling feature should be used",
+                    "type": "boolean"
+                },
+                "current" : {
+                    "title" : "Location of the minute processing file, to be updated at post-processing time",
+                    "type" : "string"
+                },
+                "owner" : {
+                    "title": "Owner organization for the github repo where actions should be raised",
+                    "type": "string"
+                },
+                "repo" : {
+                    "title": "Github repo where actions should be raised",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": true
         }
-    }
+    },
+
+    "allOf" : [
+        {
+            "$ref" : "#/$defs/base.schema"
+        },
+        {
+            "properties" : {
+                "local" : {
+                    "$ref" : "#/$defs/base.schema"
+                },
+                "extra_calls" : {
+                    "type" : "object",
+                    "patternProperties" : {
+                        "^[^#& ,][^ ,]+$" : {
+                            "$ref" : "#/$defs/base.schema"
+                        }
+                    }
+                }
+            }
+        }
+    ]
 }

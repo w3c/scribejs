@@ -42,21 +42,28 @@ function json_conf_file(file_name: string, group: string, local: boolean, warn: 
     try {
         file_c = fs.readFileSync(file_name, 'utf-8');
         let js_conf = JSON.parse(file_c);
-        // const valid = schemas.validate_config(js_conf);
 
-        if (local && js_conf.local) {
-            js_conf = {...js_conf, ...js_conf.local}
+        const valid = schemas.validate_config(js_conf);
+        if (!valid) {
+            console.warn(`Warning: validation error in the ${file_name} configuration file:
+                        ${schemas.display_validation_errors(schemas.validate_config)}`);
+            console.warn('(default, minimal configuration used.)');
+            return default_config;
+        } else {
+            if (local && js_conf.local) {
+                js_conf = {...js_conf, ...js_conf.local}
+            }
+
+            if (js_conf.extra_calls && js_conf.extra_calls[group]) {
+                js_conf = {...js_conf, ...js_conf.extra_calls[group]}
+            }
+
+            // Clean the result to avoid confusion with debugging later:
+            if (js_conf.extra_calls) delete js_conf.extra_calls;
+            if (js_conf.local) delete js_conf.local;
+
+            return js_conf as Configuration;
         }
-
-        if (js_conf.extra_calls && js_conf.extra_calls[group]) {
-            js_conf = {...js_conf, ...js_conf.extra_calls[group]}
-        }
-
-        // Clean the result to avoid confusion with debugging later:
-        if (js_conf.extra_calls) delete js_conf.extra_calls;
-        if (js_conf.local) delete js_conf.local;
-
-        return js_conf as Configuration;
     } catch (e) {
         if (warn) throw new Error(`Problem with the configuration file: ${file_name} (${e})!`);
         return {};
