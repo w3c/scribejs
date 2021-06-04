@@ -1,0 +1,30 @@
+{
+    "jekyll"         : "kd",
+    "auto"           : false,
+    "final"          : false,
+    "ghrepo"         : "w3c/did-wg",
+    "issuerepo"      : "w3c/did-core",
+    "ghpath"         : "_minutes",
+    "ghbranch"       : "main",
+    "group"          : "did",
+    "nicknames"      : "https://www.w3.org/2019/did-wg/assets/nicknames.json",
+    "acrepo"         : "w3c/did-wg",
+    "acurlpattern"   : "https://www.w3.org/2019/did-wg/Meetings/Minutes/%DATE%-did",
+    "owner"          : "w3c",
+    "repo"           : "did-wg",
+    "current"        : "assets/minute_processing.json",
+    "handle_issues"  : true,
+    "handle_actions" : true,
+    "group_mail"     : "public-did-wg@w3.org",
+    "local": {
+        "nicknames" : "/Users/ivan/W3C/github/DID/did-wg/assets/nicknames.json",
+        "dir"       : "/Users/ivan/W3C/github/DID/did-wg",
+        "minutes"   : "_minutes"
+    },
+    "extra_calls": {
+        "did-topic": {
+            "acurlpattern" : "https://www.w3.org/2019/did-wg/Meetings/Minutes/%DATE%-did-topic",
+            "final"        : true
+        }
+    }
+}

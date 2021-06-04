@@ -45,7 +45,8 @@ async function main() {
             irc_log = await rdf.convert(irc_log);
             delete config.irc_format;
         }
-        // const converter: string = new convert.Converter(config).convert_to_markdown(irc_log);
+        // console.log(JSON.stringify(config,null,4));
+        // process.exit();
         const minutes = await new convert.Converter(config).convert_to_markdown(irc_log);
         const message = await io.output_minutes(minutes, config);
         // That is it, folks!
