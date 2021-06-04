@@ -13,13 +13,13 @@
     "owner"          : "w3c",
     "repo"           : "did-wg",
     "current"        : "assets/minute_processing.json",
+    "minutes"        : "_minutes",
     "handle_issues"  : true,
     "handle_actions" : true,
     "group_mail"     : "public-did-wg@w3.org",
     "local": {
         "nicknames" : "/Users/ivan/W3C/github/DID/did-wg/assets/nicknames.json",
-        "dir"       : "/Users/ivan/W3C/github/DID/did-wg",
-        "minutes"   : "_minutes"
+        "dir"       : "/Users/ivan/W3C/github/DID/did-wg"
     },
     "extra_calls": {
         "did-topic": {

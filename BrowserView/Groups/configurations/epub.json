@@ -13,12 +13,12 @@
     "owner"          : "owner",
     "repo"           : "epub-wg",
     "current"        : "assets/minute_processing.json",
+    "minutes"        : "_minutes",
     "handle_issues"  : true,
     "handle_actions" : true,
     "group_mail"     : "public-epub-wg@w3.org",
     "local": {
         "dir"       : "/Users/ivan/W3C/github/EPUB/epub-wg",
-        "minutes"   : "_minutes",
         "nicknames" : "/Users/ivan/W3C/github/EPUB/epub-wg/assets/nicknames.json"
     },
     "extra_calls": {

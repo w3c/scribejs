@@ -27,11 +27,15 @@ const default_config: Global = {
 };
 
 /**
-* Read a configuration file
+* Read a configuration file and generate the final combination.
+*
+* The full configuration file may have optional parts for extra calls and may also be used to refer to "local" (as opposed to be on the Web) versions
+* of such files like the nickname collection. The function access the full configuration file and generates a version based on the core values, possibly modified
+* by the information in the optional parts.
 *
 * @param file_name - file name
 * @param group - group name (necessary if the call is an extra call rather than the 'base' one)
-* @param local - if certain files are to be extracted from the local repository (as opposed to be retrieved from github)
+* @param local - whether certain files are to be extracted from the local repository (as opposed to be retrieved from github)
 * @param warn - whether an error should be raised when the file is
 *     not found (e.g., a user level configuration file may be missing)
 * @returns the parsed JSON content
@@ -70,31 +74,6 @@ function json_conf_file(file_name: string, group: string, local: boolean, warn: 
     }
 }
 
-
-
-// function json_conf_file(file_name: string, warn: boolean): Configuration {
-//     let file_c = null;
-//     try {
-//         file_c = fs.readFileSync(file_name, 'utf-8');
-//     } catch (e) {
-//         if (warn) throw new Error(`No such configuration file: ${file_name}!`);
-//         return {};
-//     }
-
-//     // The validation error may throw an exception; in "main.js" this leads to program termination.
-//     // The JSON content is first checked with the schema; once done and successful
-//     // the date value is converted into a 'moment' instance right away.
-//     const js_conf = JSON.parse(file_c);
-//     const valid = schemas.validate_config(js_conf);
-//     if (!valid) {
-//         console.warn(`Warning: validation error in the ${file_name} configuration file:
-//                      ${schemas.display_validation_errors(schemas.validate_config)}`);
-//         console.warn('(default, minimal configuration used.)');
-//         return default_config;
-//     } else {
-//         return js_conf;
-//     }
-// }
 
 /**
  * Return the URL to the input: the RSS IRC script URL on the HTTP Date space, namely

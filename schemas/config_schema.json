@@ -149,6 +149,10 @@
                     "title" : "Location of the minute processing file, to be updated at post-processing time",
                     "type" : "string"
                 },
+                "minutes" : {
+                    "title" : "Location of the minute source file, relative to the enclosing directory or repository",
+                    "type" : "string"
+                },
                 "owner" : {
                     "title": "Owner organization for the github repo where actions should be raised",
                     "type": "string"

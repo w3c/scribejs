@@ -9,5 +9,10 @@
 	"group"        : "pwg",
     "nicknames"    : "https://www.w3.org/publishing/assets/nicknames.json",
     "acrepo"       : "w3c/publ-wg",
-    "acurlpattern" : "https://www.w3.org/publishing/groups/publ-wg/Meetings/Minutes/%YEAR%/%DATE%-pwg"
+    "minutes"      : "_minutes",
+    "acurlpattern" : "https://www.w3.org/publishing/groups/publ-wg/Meetings/Minutes/%YEAR%/%DATE%-pwg",
+    "local" : {
+        "nicknames"    : "/Users/ivan/W3C/github/Publishing/publishing/assets/nicknames.json",
+        "dir"       : "/Users/ivan/W3C/github/EPUB/epub-wg"
+    }
 }
