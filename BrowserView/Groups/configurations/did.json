@@ -17,6 +17,7 @@
     "handle_issues"  : true,
     "handle_actions" : true,
     "group_mail"     : "public-did-wg@w3.org",
+    "mail_subject"   : "DID Working Group",
     "local": {
         "nicknames" : "/Users/ivan/W3C/github/DID/did-wg/assets/nicknames.json",
         "dir"       : "/Users/ivan/W3C/github/DID/did-wg"
@@ -24,7 +25,8 @@
     "extra_calls": {
         "did-topic": {
             "acurlpattern" : "https://www.w3.org/2019/did-wg/Meetings/Minutes/%DATE%-did-topic",
-            "final"        : true
+            "final"        : true,
+            "mail_subject" : "DID Working Group Topic Call"
         }
     }
 }

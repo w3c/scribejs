@@ -17,6 +17,7 @@
     "handle_issues"  : true,
     "handle_actions" : true,
     "group_mail"     : "public-epub-wg@w3.org",
+    "mail_subject"   : "EPUB Working Group",
     "local": {
         "dir"       : "/Users/ivan/W3C/github/EPUB/epub-wg",
         "nicknames" : "/Users/ivan/W3C/github/EPUB/epub-wg/assets/nicknames.json"
@@ -24,15 +25,18 @@
     "extra_calls": {
         "epub-locators": {
             "acurlpattern" : "https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%DATE%-epub-locators",
-            "final"        : true
+            "final"        : true,
+            "mail_subject" : "EPUB Working Group Locator Task Force"
         },
         "epub-fxl": {
             "acurlpattern" : "https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%DATE%-epub-fxl",
-            "final"        : true
+            "final"        : true,
+            "mail_subject" : "EPUB Working Group Fixed Layout Accessibility Task Force"
         },
         "epub-a11y": {
             "acurlpattern" : "https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%DATE%-epub-a11y",
-            "final"        : true
+            "final"        : true,
+            "mail_subject" : "EPUB Working Group Accessibility Task Force"
         }
     }
 }

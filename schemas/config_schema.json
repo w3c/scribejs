@@ -137,6 +137,11 @@
                     "type": "string",
                     "format": "email"
                 },
+                "mail_subject": {
+                    "title" : "reference text to the WG, to appear in the mail header",
+                    "$comment": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
+                    "type": "string"
+                },
                 "handle_issues" : {
                     "title" : "Whether the issue annotation feature should be used",
                     "type": "boolean"

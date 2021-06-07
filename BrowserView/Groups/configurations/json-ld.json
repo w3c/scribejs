@@ -11,6 +11,8 @@
     "acrepo"       : "w3c/json-ld-wg",
     "acurlpattern" : "https://www.w3.org/2018/json-ld-wg/Meetings/Minutes/%YEAR%/%DATE%-json-ld",
     "minutes"      : "_minutes",
+    "group_mail"   : "public-json-ld-wg@w3.org",
+    "mail_subject" : "JSON-LD Working Group",
     "local" : {
         "dir"       : "/Users/ivan/W3C/github/JSON-LD/json-ld-wg",
         "nicknames" : "/Users/ivan/W3C/github/JSON-LD/json-ld-wg/assets/nicknames.json"

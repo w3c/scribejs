@@ -11,6 +11,8 @@
     "acrepo"       : "w3c/publ-wg",
     "minutes"      : "_minutes",
     "acurlpattern" : "https://www.w3.org/publishing/groups/publ-wg/Meetings/Minutes/%YEAR%/%DATE%-pwg",
+    "group_mail"   : "public-publ-wg@w3.org",
+    "mail_subject" : "Audiobooks Working Group",
     "local" : {
         "nicknames"    : "/Users/ivan/W3C/github/Publishing/publishing/assets/nicknames.json",
         "dir"       : "/Users/ivan/W3C/github/EPUB/epub-wg"
