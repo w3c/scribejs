@@ -12,6 +12,9 @@ Current groups:
     * The [configuration file](./configurations/did.json) contains entries for the following extra calls: `epub-topic` for the “Topical Calls” (as they are referred to in the Working Group).
     * The [HTML file with client side processing for the core WG call](./browserview/did.html) can also be used
     * The [HTML file with client side processing for the topical calls](./browserview/did-topic.html) can also be used
+* [Verifiable Credentials Working Group](https://www.w3.org/2017/vc/WG/):
+    * The [configuration file](./configurations/vc.json) conly contains the basic setup.
+    * The [HTML file with client side processing for the core WG call](./browserview/vc.html) can also be used
 * [Audiobook (formerly Publishing) Working Group](https://www.w3.org/publishing/groups/publ-wg/)
     * The [configuration file](./configurations/pwg.json) only contains the basic setup.
     * The [HTML file with client side processing for the core WG call](./browserview/pwg.html) can also be used
