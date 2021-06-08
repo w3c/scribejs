@@ -17,7 +17,7 @@
     "handle_issues"  : true,
     "handle_actions" : true,
     "group_mail"     : "public-vc-wg@w3.org",
-    "mail_subject"   : "VC Working Group",
+    "mail_subject"   : "Verifiable Credentials Working Group",
     "local": {
         "nicknames" : "/Users/ivan/W3C/github/VC/verifiable-claims/assets/nicknames.json",
         "dir"       : "/Users/ivan/W3C/github/VC/verifiable-claims"
