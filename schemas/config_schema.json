@@ -14,7 +14,7 @@
                     "format": "date"
                 },
                 "group": {
-                    "title": "Group name, ie, IRC channel without the staring # or & character",
+                    "title": "Group name, ie, IRC channel without the starting # or & character",
                     "description": "Per RFC1459, a channel name cannot use space or comma",
                     "type": "string",
                     "pattern": "^[^#& ,][^ ,]+$"
@@ -165,7 +165,12 @@
                 "repo" : {
                     "title": "Github repo where actions should be raised",
                     "type": "string"
+                },
+                "dir" : {
+                    "title": "Location of the local clone of the main github repository",
+                    "type" : "string"
                 }
+
             },
             "additionalProperties": true
         }
