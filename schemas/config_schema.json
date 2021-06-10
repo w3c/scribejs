@@ -128,8 +128,7 @@
                 "smtp_from": {
                     "title": "Email address for the 'from' part of the email.",
                     "$comment": "Note that the format with email works with the AJV processor, but it is not a mandatory schema item",
-                    "type": "string",
-                    "format": "email"
+                    "type": "string"
                 },
                 "group_mail" : {
                     "title" : "mailing list address to send notifications to",
