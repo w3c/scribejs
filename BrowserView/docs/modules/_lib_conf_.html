@@ -106,7 +106,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L86">lib/conf.ts:86</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L102">lib/conf.ts:102</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -133,19 +133,22 @@
 					<a name="json_conf_file" class="tsd-anchor"></a>
 					<h3>json_<wbr>conf_<wbr>file</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">json_<wbr>conf_<wbr>file<span class="tsd-signature-symbol">(</span>file_name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, warn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a></li>
+						<li class="tsd-signature tsd-kind-icon">json_<wbr>conf_<wbr>file<span class="tsd-signature-symbol">(</span>file_name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, group<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, local<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, warn<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_lib_types_.configuration.html" class="tsd-signature-type">Configuration</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L38">lib/conf.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L44">lib/conf.ts:44</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Read a configuration file</p>
+									<p>Read a configuration file and generate the final combination.</p>
 								</div>
+								<p>The full configuration file may have optional parts for extra calls and may also be used to refer to &quot;local&quot; (as opposed to be on the Web) versions
+									of such files like the nickname collection. The function access the full configuration file and generates a version based on the core values, possibly modified
+								by the information in the optional parts.</p>
 								<dl class="tsd-comment-tags">
 									<dt>throws</dt>
 									<dd><ul>
@@ -163,7 +166,19 @@
 									</div>
 								</li>
 								<li>
-									<h5>warn: <span class="tsd-signature-type">boolean</span></h5>
+									<h5>group: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>group name (necessary if the call is an extra call rather than the &#39;base&#39; one)</p>
+									</div>
+								</li>
+								<li>
+									<h5>local: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>whether certain files are to be extracted from the local repository (as opposed to be retrieved from github)</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> warn: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;true</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>whether an error should be raised when the file is
 										not found (e.g., a user level configuration file may be missing)</p>
@@ -185,7 +200,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L69">lib/conf.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L85">lib/conf.ts:85</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -219,7 +234,7 @@
 					<div class="tsd-signature tsd-kind-icon">default_<wbr>config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L18">lib/conf.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L18">lib/conf.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -233,7 +248,7 @@
 						<div class="tsd-signature tsd-kind-icon">date<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;utils.today</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L19">lib/conf.ts:19</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L19">lib/conf.ts:19</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -243,7 +258,7 @@
 						<div class="tsd-signature tsd-kind-icon">final<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> =&nbsp;false</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L20">lib/conf.ts:20</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L20">lib/conf.ts:20</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -253,7 +268,7 @@
 						<div class="tsd-signature tsd-kind-icon">irc_<wbr>format<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> =&nbsp;undefined</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L24">lib/conf.ts:24</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L24">lib/conf.ts:24</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -263,7 +278,7 @@
 						<div class="tsd-signature tsd-kind-icon">jekyll<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;Constants.JEKYLL_NONE</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L22">lib/conf.ts:22</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L22">lib/conf.ts:22</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -273,7 +288,7 @@
 						<div class="tsd-signature tsd-kind-icon">nick_<wbr>mappings<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L26">lib/conf.ts:26</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L26">lib/conf.ts:26</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-type-declaration">
@@ -288,7 +303,7 @@
 						<div class="tsd-signature tsd-kind-icon">pandoc<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> =&nbsp;true</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L23">lib/conf.ts:23</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L23">lib/conf.ts:23</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -298,7 +313,7 @@
 						<div class="tsd-signature tsd-kind-icon">schema<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> =&nbsp;true</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L25">lib/conf.ts:25</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L25">lib/conf.ts:25</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -308,7 +323,7 @@
 						<div class="tsd-signature tsd-kind-icon">torepo<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> =&nbsp;false</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/f278582/src/lib/conf.ts#L21">lib/conf.ts:21</a></li>
+								<li>Defined in <a href="https://github.com/w3c/scribejs/blob/b8b18b3/src/lib/conf.ts#L21">lib/conf.ts:21</a></li>
 							</ul>
 						</aside>
 					</section>

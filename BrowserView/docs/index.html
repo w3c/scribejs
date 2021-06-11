@@ -112,36 +112,12 @@
 				<a href="#configuration-files" id="configuration-files" style="color: inherit; text-decoration: none;">
 					<h3>Configuration files</h3>
 				</a>
-				<p>While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file <code>~/.scribejs.json</code> will be used, if present. A separate, <code>~/.ghid.json</code> can also be used (and shared with other applications), typically used to store the user’s GitHub credentials.</p>
-				<p>The keys are as follows (see also the <a href="#usage">description of the command line</a> for their explanation). Use only those keys that have a meaningful value.</p>
-				<ul>
-					<li><code>date</code>         : Date in ISO Format</li>
-					<li><code>group</code>        : Group&#39;s IRC name</li>
-					<li><code>input</code>        : Input</li>
-					<li><code>output</code>       : Output file name; irrelevant if <code>torepo</code> is <code>true</code></li>
-					<li><code>nicknames</code>    : Nickname file reference in the form of a URL or a filename</li>
-					<li><code>final</code>        : <code>true</code>|<code>false</code></li>
-					<li><code>auto</code>         : <code>true</code>|<code>false</code>; see the notice above on the value of <code>final</code> and <code>auto</code></li>
-					<li><code>torepo</code>       : <code>true</code>|<code>false</code>; whether the generated minutes should be uploaded to the group’s repository</li>
-					<li><code>pandoc</code>       : <code>true</code>|<code>false</code>; whether the goal is to post-process the minutes via the <code>pandoc</code> program (this requires minor adjustment on the output)</li>
-					<li><code>jekyll</code>       : <code>&quot;none&quot;</code>|<code>&quot;md&quot;</code>|<code>&quot;kd&quot;</code>; controls the exact markdown dialect to be used for the output</li>
-					<li><code>schema</code>       : <code>true</code>|<code>false</code>; whether the output should include schema.org metadata, encoded in JSON-LD, and added as part of the front matter. Default is <code>true</code>.</li>
-					<li><code>irc_format</code>   : <code>&quot;textual&quot;</code>|<code>&quot;irccloud&quot;</code>|<code>&quot;rdf&quot;</code>|<code>undefined</code>; choice among available IRC log formats</li>
-					<li><code>ghrepo</code>       : repository name, e.g., <code>w3c/epub-wg</code>; this is where the minutes are to be stored</li>
-					<li><code>ghpath</code>       : path in the repository to the folder where the minutes are to be stored</li>
-					<li><code>ghbranch</code>     : branch of the repository where the minutes should be stored. If not set, default is used</li>
-					<li><code>acrepo</code>       : repository name where action issues should be generated. If not set, the value of <code>ghrepo</code> is used if set.</li>
-					<li><code>issuerepo</code>    : repository name used for issue comments by default, e.g., <code>w3c/epub-specs</code>. If none is set, <code>ghrepo</code> is used if set.</li>
-					<li><code>acurlpattern</code> : url pattern used to refer the minutes. The strings <code>%YEAR%</code>, <code>%MONTH%</code>, <code>%DAY%</code>, and <code>%DATE%</code> are replaced by the respective values. Used to put references into the minutes when generating issues for actions.</li>
-					<li><code>ghname</code>       : github login name</li>
-					<li><code>ghemail</code>      : github email</li>
-					<li><code>ghtoken</code>      : OAUTH personal access token (see the <a href="https://github.com/settings/tokens">relevant GitHub site</a> for further details on OAUTH tokens and how to generate one).</li>
-				</ul>
+				<p>While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file <code>~/.scribejs.json</code> will be used, if present. A separate, <code>~/.credentials.json</code> can also be used (and shared with other applications), typically used to store the user’s GitHub and SMTP credentials. The detailed specification of the configuration file is <a href="https://w3c.github.io/scribejs/configuration.html">documented separately</a></p>
 				<p>The final configuration is a combination of the command line arguments, the (optional) configuration file provided through the command line, and the user-level configuration file (if it exists), in decreasing priority.</p>
 				<p>A typical usage of the configuration files is:</p>
 				<ul>
 					<li>set the group‘s repository data (e.g., <code>ghrepo</code>, <code>ghpath</code>, <code>ghbranch</code>, <code>acrepo</code>, <code>issuerepo</code>, <code>acurlpattern</code>, <code>group</code>, <code>nicknames</code>) in a shared configuration file that can be part of the repository itself;</li>
-					<li>use a user-level configuration (<code>~/.scribejs.json</code> or <code>~/.ghid.json</code>) for the more personal entries like <code>ghname</code>, <code>ghemail</code>, and <code>ghtoken</code>. <strong>This is especially important for <code>ghtoken</code> which should <em>never</em> be part of any repository in clear text</strong> (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)</li>
+					<li>use a user-level configuration (<code>~/.scribejs.json</code> or <code>~/.credentials.json</code>) for the more personal entries like <code>ghname</code>, <code>ghemail</code>, and <code>ghtoken</code>. <strong>This is especially important for <code>ghtoken</code> which should <em>never</em> be part of any repository in clear text</strong> (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)</li>
 					<li>use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the <code>gh*</code> type keys can be ignored if the user choses to never commit minutes automatically on GitHub.</li>
 				</ul>
 				<p>There is a <a href="schemas/config_schema.json">JSON schema</a> to validate the configuration file. The validation is also done run-time; the script warns (on <code>stderr</code>) if the configuration file is invalid, and a minimal default configuration is used instead.</p>

@@ -27,7 +27,7 @@ export namespace Constants {
     export const issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
 
     export const user_config_name = '.scribejs.json';
-    export const user_ghid_file   = '.ghid.json';
+    export const user_ghid_file   = '.credentials.json';
 
     export const text_media_types = [
         'text/plain',

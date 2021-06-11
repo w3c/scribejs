@@ -52,7 +52,9 @@ async function main() {
             delete config.irc_format;
         }
 
-        // const converter: string = new convert.Converter(config).convert_to_markdown(irc_log);
+        // console.log(JSON.stringify(config,null,4));
+        // process.exit();
+
 
         const minutes: string = await new convert.Converter(config).convert_to_markdown(irc_log);
 

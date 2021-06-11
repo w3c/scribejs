@@ -1,0 +1,27 @@
+{
+    "jekyll"         : "kd",
+    "auto"           : false,
+    "final"          : false,
+    "ghrepo"         : "w3c/verifiable-claims/",
+    "issuerepo"      : "w3c/vc-data-model",
+    "ghpath"         : "_minutes",
+    "ghbranch"       : "main",
+    "group"          : "vc",
+    "nicknames"      : "https://www.w3.org/2017/vc/WG/assets/nicknames.json",
+    "acrepo"         : "w3c/did-wg",
+    "acurlpattern"   : "https://www.w3.org/2017/vc/WG/Meetings/Minutes/%DATE%-vc",
+    "owner"          : "w3c",
+    "repo"           : "verifiable-claims",
+    "current"        : "assets/minute_processing.json",
+    "minutes"        : "_minutes",
+    "handle_issues"  : true,
+    "handle_actions" : true,
+    "group_mail"     : "public-vc-wg@w3.org",
+    "mail_subject"   : "Verifiable Credentials Working Group",
+    "local": {
+        "nicknames" : "/Users/ivan/W3C/github/VC/verifiable-claims/assets/nicknames.json",
+        "dir"       : "/Users/ivan/W3C/github/VC/verifiable-claims"
+    },
+    "extra_calls": {
+    }
+}

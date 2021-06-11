@@ -51,38 +51,14 @@ Some notes:
 
 ### Configuration files
 
-While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file `~/.scribejs.json` will be used, if present. A separate, `~/.ghid.json` can also be used (and shared with other applications), typically used to store the user’s GitHub credentials.
-
-The keys are as follows (see also the [description of the command line](#usage) for their explanation). Use only those keys that have a meaningful value.
-
-* `date`         : Date in ISO Format
-* `group`        : Group's IRC name
-* `input`        : Input
-* `output`       : Output file name; irrelevant if `torepo` is `true`
-* `nicknames`    : Nickname file reference in the form of a URL or a filename
-* `final`        : `true`\|`false`
-* `auto`         : `true`\|`false`; see the notice above on the value of `final` and `auto`
-* `torepo`       : `true`\|`false`; whether the generated minutes should be uploaded to the group’s repository
-* `pandoc`       : `true`\|`false`; whether the goal is to post-process the minutes via the `pandoc` program (this requires minor adjustment on the output)
-* `jekyll`       : `"none"`\|`"md"`\|`"kd"`; controls the exact markdown dialect to be used for the output
-* `schema`       : `true`\|`false`; whether the output should include schema.org metadata, encoded in JSON-LD, and added as part of the front matter. Default is `true`.
-* `irc_format`   : `"textual"`\|`"irccloud"`\|`"rdf"`\|`undefined`; choice among available IRC log formats
-* `ghrepo`       : repository name, e.g., `w3c/epub-wg`; this is where the minutes are to be stored
-* `ghpath`       : path in the repository to the folder where the minutes are to be stored
-* `ghbranch`     : branch of the repository where the minutes should be stored. If not set, default is used
-* `acrepo`       : repository name where action issues should be generated. If not set, the value of `ghrepo` is used if set.
-* `issuerepo`    : repository name used for issue comments by default, e.g., `w3c/epub-specs`. If none is set, `ghrepo` is used if set.
-* `acurlpattern` : url pattern used to refer the minutes. The strings `%YEAR%`, `%MONTH%`, `%DAY%`, and `%DATE%` are replaced by the respective values. Used to put references into the minutes when generating issues for actions.
-* `ghname`       : github login name
-* `ghemail`      : github email
-* `ghtoken`      : OAUTH personal access token (see the [relevant GitHub site](https://github.com/settings/tokens) for further details on OAUTH tokens and how to generate one).
+While some of the values can be set on a command line, most of the configuration values are set in a JSON configuration file. The file name can be provided on the command line (see above). Otherwise, a user-level configuration file `~/.scribejs.json` will be used, if present. A separate, `~/.credentials.json` can also be used (and shared with other applications), typically used to store the user’s GitHub and SMTP credentials. The detailed specification of the configuration file is [documented separately](https://w3c.github.io/scribejs/configuration.html)
 
 The final configuration is a combination of the command line arguments, the (optional) configuration file provided through the command line, and the user-level configuration file (if it exists), in decreasing priority.
 
 A typical usage of the configuration files is:
 
 * set the group‘s repository data (e.g., `ghrepo`, `ghpath`, `ghbranch`, `acrepo`, `issuerepo`, `acurlpattern`, `group`, `nicknames`) in a shared configuration file that can be part of the repository itself;
-* use a user-level configuration (`~/.scribejs.json` or `~/.ghid.json`) for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)
+* use a user-level configuration (`~/.scribejs.json` or `~/.credentials.json`) for the more personal entries like `ghname`, `ghemail`, and `ghtoken`. **This is especially important for `ghtoken` which should *never* be part of any repository in clear text** (in fact, GitHub catches those occurrences in a repository and invalidates those tokens immediately…)
 * use the command line for the right date (which is used by the script to retrieve the IRC log) and for the switch whether the output should be a local file (possibly modified locally and committed to the GitHub repository manually) or whether it should be committed automatically. Note that, obviously, the `gh*` type keys can be ignored if the user choses to never commit minutes automatically on GitHub.
 
 There is a [JSON schema](schemas/config_schema.json) to validate the configuration file. The validation is also done run-time; the script warns (on `stderr`) if the configuration file is invalid, and a minimal default configuration is used instead.
