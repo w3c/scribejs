@@ -41,7 +41,7 @@ const default_config: Global = {
 * @returns the parsed JSON content
 * @throws - either not-found error, or schema validation errors
 */
-function json_conf_file(file_name: string, group: string, local: boolean, warn: boolean = true): Configuration {
+function json_conf_file(file_name: string, group: string, local: boolean): Configuration {
     let file_c = null;
     try {
         file_c = fs.readFileSync(file_name, 'utf-8');
