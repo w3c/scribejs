@@ -2,16 +2,16 @@
     "jekyll"         : "kd",
     "auto"           : false,
     "final"          : false,
-    "ghrepo"         : "w3c/verifiable-claims/",
+    "ghrepo"         : "w3c/verifiable-credentials/",
     "issuerepo"      : "w3c/vc-data-model",
     "ghpath"         : "_minutes",
     "ghbranch"       : "main",
     "group"          : "vcwg",
     "nicknames"      : "https://www.w3.org/2017/vc/WG/assets/nicknames.json",
-    "acrepo"         : "w3c/verifiable-claims",
+    "acrepo"         : "w3c/verifiable-credentials",
     "acurlpattern"   : "https://www.w3.org/2017/vc/WG/Meetings/Minutes/%DATE%-vcwg",
     "owner"          : "w3c",
-    "repo"           : "verifiable-claims",
+    "repo"           : "verifiable-credentials",
     "current"        : "assets/minute_processing.json",
     "minutes"        : "_minutes",
     "handle_issues"  : true,
@@ -19,8 +19,8 @@
     "group_mail"     : "public-vc-wg@w3.org",
     "mail_subject"   : "Verifiable Credentials Working Group",
     "local": {
-        "nicknames" : "/Users/ivan/W3C/github/VC/verifiable-claims/assets/nicknames.json",
-        "dir"       : "/Users/ivan/W3C/github/VC/verifiable-claims"
+        "nicknames" : "/Users/ivan/W3C/github/VC/verifiable-credentials/assets/nicknames.json",
+        "dir"       : "/Users/ivan/W3C/github/VC/verifiable-credentials"
     },
     "extra_calls": {
     }
