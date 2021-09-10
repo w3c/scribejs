@@ -1,0 +1,323 @@
+13:41:08 <RRSAgent> RRSAgent has joined #epub-a11y
+13:41:08 <RRSAgent> logging to https://www.w3.org/2021/09/09-epub-a11y-irc
+13:41:20 <Zakim> Zakim has joined #epub-a11y
+13:41:27 <avneeshsingh> zakim, this will be epub-a11y
+13:41:27 <Zakim> ok, avneeshsingh
+13:41:37 <avneeshsingh> present+
+13:41:44 <avneeshsingh> chair: avneeshsingh
+13:42:40 <avneeshsingh> agenda+ Pull request for issue #1767 (Is zero tolerance for accessibility conformance practical): https://github.com/w3c/epub-specs/pull/1795
+13:43:10 <avneeshsingh> agenda+ Pull request for issue #1789 (Clarify certifier needs to be associated with conformance statement) https://github.com/w3c/epub-specs/pull/1796
+13:43:33 <avneeshsingh> agenda+ Pull request for issue #1590 (Date of certification) https://github.com/w3c/epub-specs/pull/1798
+13:44:22 <avneeshsingh> agenda+ TPAC meetings to schedule with APA
+13:45:05 <avneeshsingh> agenda+ some github issues to highlight
+13:55:54 <wendyreid> wendyreid has joined #epub-a11y
+13:57:18 <mgarrish> mgarrish has joined #epub-a11y
+13:58:28 <dkaplan3> dkaplan3 has joined #epub-a11y
+13:58:42 <MattChan> MattChan has joined #epub-a11y
+13:59:10 <wendyreid> present+
+13:59:23 <MattChan> present+
+14:00:22 <dkaplan3> present+
+14:00:35 <Will> Will has joined #epub-a11y
+14:00:39 <CharlesL> CharlesL has joined #epub-a11y
+14:00:48 <CharlesL> CharlesL has left #epub-a11y
+14:01:18 <MattChan> scribe+
+14:01:36 <tzviya> tzviya has joined #epub-a11y
+14:01:36 <CharlesL> CharlesL has joined #epub-a11y
+14:01:38 <g_pellegrino> g_pellegrino has joined #epub-a11y
+14:01:42 <g_pellegrino> present+
+14:01:48 <avneeshsingh> zakim, next agendum
+14:01:48 <CharlesL> present+
+14:01:48 <Zakim> agendum 1 -- @pr 1795 -- taken up [from
+14:01:48 <Zakim> ... avneeshsingh]
+14:01:53 <tzviya> present+
+14:02:08 <George> George has joined #epub-a11y
+14:02:11 <MattChan> avneeshsingh: mgarrish has done a lot of work in PRs
+14:02:25 <George> present+
+14:02:47 <MattChan> ... we had a lot of discussion on WCAG zero-tolerance. We've decided on an option to address this in an editor's meeting last week
+14:03:26 <MattChan> mgarrish: this is to address almost-conformance. We're not trying to create something new. Rather have publishers be able to provide a disclaimer that says they did their best, but there could still be minor imperfections
+14:03:54 <MattChan> ... this PR adds disclaimer property. Nothing similar already exists in Schema.org
+14:04:28 <MattChan> ... this will not be a requirement for publisher to use this. Only an option
+14:04:49 <MattChan> avneeshsingh: backwards compat was important to us in picking this solution. And minimizing disruption to existing workflows
+14:04:53 <avneeshsingh> q?
+14:04:58 <George> George has joined #epub-a11y
+14:05:25 <Will> q
+14:05:33 <JF> JF has joined #epub-a11y
+14:05:39 <JF> Present+
+14:05:43 <avneeshsingh> q?
+14:06:03 <CharlesL> q+
+14:06:09 <MattChan> will: is this disclaimer different from the a11y statement that a publisher would put on their website?
+14:06:20 <MattChan> avneeshsingh: this would be in the epub metadata
+14:06:59 <George> George has joined #epub-a11y
+14:07:00 <MattChan> mgarrish: the reality is that things slip through when a11y conformance is a combination of machine and human checking
+14:07:07 <avneeshsingh> q?
+14:07:13 <JF> Q+
+14:07:19 <MattChan> ... so publisher is saying that to the best of their ability the epub meets the standard they are claiming
+14:07:41 <avneeshsingh> ack charl
+14:07:41 <MattChan> Will: so will it be a failure of conformance if they leave out disclaimer?
+14:08:31 <MattChan> CharlesL: so you have a conformance statement. But what we're doing in addition to a11y summary statement is to have a more formal disclaimer property that publisher can add
+14:08:52 <avneeshsingh> q?
+14:08:58 <George> George has joined #epub-a11y
+14:09:36 <MattChan> ... for Benetech certification conformance is the same, but this will be one more thing that certified publishers can put in their epubs (to mitigate liability, etc.)
+14:09:41 <avneeshsingh> ack jf
+14:09:57 <CharlesL> q+
+14:10:10 <MattChan> JF: so the statement says that the epub is WCAG compliant, but then the disclaimer says "not really"?
+14:10:31 <MattChan> george: when I contacted Bruce Bailey from 508 access board I asked about this
+14:10:40 <MattChan> ... and in 508 the standard is black and white as well
+14:10:48 <MattChan> ... he said if you look hard enough, you will be able to find some defect
+14:10:59 <George> George has joined #epub-a11y
+14:11:00 <MattChan> ... but the industry has come to peace with this issue and don't have any problems with that
+14:11:14 <JF> Q+
+14:11:16 <MattChan> ... our disclaimer says exactly that, and no more
+14:11:21 <avneeshsingh> ack charles
+14:11:36 <MattChan> CharlesL: and we also have to be backwards compat with existing epubs, which this solution is
+14:11:38 <avneeshsingh> ack jf
+14:11:39 <George> George has joined #epub-a11y
+14:12:02 <mgarrish> q+
+14:12:34 <MattChan> JF: but the statement and the disclaimer are contradictory right? So at what point are there too many non-compliances?
+14:12:35 <avneeshsingh> ack mg
+14:12:52 <tzviya> q+
+14:12:59 <George> George has joined #epub-a11y
+14:13:07 <MattChan> mgarrish: not sure that there is a contradiction. But disclaimer acknowledges that we live in an imperfect world.
+14:13:29 <MattChan> ... and it creates an avenue for reporting when defects are found
+14:13:46 <MattChan> s/defects/incidents of non-compliance
+14:14:27 <MattChan> JF: I understand, but, I still think that the disclaimer is contradictory. WCAG is explicit in that it requires 100% perfection.
+14:14:36 <avneeshsingh> q?
+14:14:45 <MattChan> ... WCAG3 will acknowledge this issue of 100% compliance or nothing
+14:14:59 <George> George has joined #epub-a11y
+14:14:59 <CharlesL> q+
+14:15:06 <mgarrish> q+
+14:15:15 <MattChan> ... but right now, I'm concerned that in the real world a lot of organizations won't put in the work to do a11y compliance anymore
+14:15:15 <avneeshsingh> ack tz
+14:15:39 <JF> +1 Tzviya
+14:15:45 <MattChan> tzviya: my concern is that a disclaimer like this doesn't accomplish anything. If the point is to make sure that publishers are covered legally, I'm not sure this does it
+14:15:54 <avneeshsingh> q?
+14:16:23 <MattChan> ... i'd have to check with out legal team to see if something like this is useful
+14:16:36 <avneeshsingh> ack charl
+14:16:36 <MattChan> ... and if not, then I don't see what the purpose of this is
+14:16:59 <George> George has joined #epub-a11y
+14:17:54 <avneeshsingh> ack mg
+14:18:08 <MattChan> CharlesL: the disclaimer adds credibility for publishers that choose to go out and get 3rd party certification
+14:18:09 <avneeshsingh> q?
+14:18:12 <JF> Q+
+14:18:34 <MattChan> mgarrish: if you don't disclaim it, you still have a false claim
+14:18:49 <MattChan> ... if we don't have anything, are we any better off?
+14:18:59 <George> George has joined #epub-a11y
+14:19:03 <tzviya> q+ to ask if intent is to say WCAG AA except x
+14:19:05 <George> q+
+14:19:06 <avneeshsingh> ack jf
+14:19:24 <wendyreid> q+
+14:19:37 <MattChan> JF: part of the answer is how we apply the metadata. One way is to ref to a URL. And the other is using a meta-element that is a text field.
+14:19:53 <MattChan> ... 2nd way i think is a path towards a more accurate statement
+14:19:55 <g_pellegrino> q+
+14:19:59 <avneeshsingh> q?
+14:20:22 <MattChan> ... from a legal perspective VPATs have a ability to say partially supports
+14:20:59 <George> George has joined #epub-a11y
+14:20:59 <avneeshsingh> ack tz
+14:20:59 <Zakim> tzviya, you wanted to ask if intent is to say WCAG AA except x
+14:21:10 <avneeshsingh> q?
+14:21:20 <MattChan> tzviya: part of my concern is that the document doesn't say how to use this
+14:21:41 <MattChan> ... maybe if you want to say "epub is WCAG compliant except for this particular criteria in this particular circumstance"
+14:21:50 <MattChan> ... seems like there is a lot of wiggle room here
+14:22:12 <avneeshsingh> ack george
+14:22:39 <mgarrish> q+
+14:22:59 <George> George has joined #epub-a11y
+14:23:09 <JF> Q+
+14:23:13 <MattChan> george: if JF and tzviya think this disclaimer does nothing, maybe we should get rid of it and leave things they way they have been. There are a lot of documents out there that are reporting WCAG AA, companies that sell to universities that claim WCAG AA, and if you look close enough you'll find that many of those are incorrect statements
+14:23:18 <avneeshsingh> ack wen
+14:23:24 <MattChan> ... the industry has come to terms with this, and maybe its not up to us to solve it
+14:23:46 <MattChan> wendyreid: second tzviya that we should be clear about what is allowed
+14:24:12 <avneeshsingh> q?
+14:24:42 <MattChan> ... but i think this has value particularly in the retail space. When retailers start to display a11y metadata, the disclaimer is going to be important to both retailers and users. Users should be made aware of that before it gets escalated to a customer care call.
+14:24:59 <George> George has joined #epub-a11y
+14:25:00 <MattChan> ... retailer gets accused to having a problem when the issue is in the epub
+14:25:13 <MattChan> ... this is already happening, and we don't even display a11y metadata yet
+14:25:24 <MattChan> ... this gives users as much information as possible
+14:25:36 <George> George has joined #epub-a11y
+14:25:38 <MattChan> ... not just a legal issue, but empowers users to know what they are purchasing
+14:25:53 <avneeshsingh> ack gp
+14:25:57 <MattChan> avneeshsingh: one option for doing this is to include such information in the a11y summary
+14:26:11 <avneeshsingh> ack next
+14:26:59 <George> George has joined #epub-a11y
+14:27:12 <MattChan> g_pellegrino: we have to define what it means to strive for WCAG AA if, for example, there is something in your document that don't meet WCAG A
+14:27:13 <avneeshsingh> ack mg
+14:27:39 <MattChan> mgarrish: i pictured this mostly being used for errors that slip though, where nobody could have caught it
+14:28:05 <MattChan> ... once we get to partial conformance you're not complying to epub a11y spec either
+14:28:28 <MattChan> ... so the other option is that we accept that epub just shouldn't have a DC:conforms statement
+14:28:47 <MattChan> ... include details in VPAT
+14:28:59 <George> George has joined #epub-a11y
+14:29:05 <avneeshsingh> ack jf
+14:29:11 <JF> <meta ... content="my VPAT.html">
+14:29:13 <MattChan> ... for content that has known and potentially serious issues with it, then let's not try to solve that from a conformance perspective
+14:29:27 <MattChan> JF: maybe part of the problem is that we don't want to be pointing to a specific WCAG
+14:29:49 <MattChan> ... if we use a meta-declaration, could we open the spec to point to, for example, a VPAT statement?
+14:30:08 <avneeshsingh> q?
+14:30:19 <MattChan> ... re. george's statement of institutions that already claim conformance, some EDUs want very richly annotated VPATs
+14:30:23 <mgarrish> q+
+14:30:44 <MattChan> ... so in some ways a short, patterned conformance statement is less useful than a detailed document
+14:30:52 <avneeshsingh> ack mg
+14:30:59 <George> George has joined #epub-a11y
+14:31:02 <MattChan> avneeshsingh: there are some mechanisms already built into metadata to deal with this
+14:31:26 <MattChan> mgarrish: doesn't seem right to say that VPAT is a conformance statement. A VPAT is a report of how you conform to something else
+14:31:38 <MattChan> ... there's nothing something can determine from that sort of URL
+14:32:31 <MattChan> ... you can put it in if you want. The spec can't prevent you from doing that. But not sure we want to put that in the spec.
+14:32:39 <avneeshsingh> q?
+14:32:44 <MattChan> avneeshsingh: certifierReport is the right place for that sort of thing
+14:32:59 <George> George has joined #epub-a11y
+14:33:08 <MattChan> ... to summarize, we don't like the disclaimer. It may be useful, but not for the purpose for which it was created.
+14:33:12 <MattChan> ... let's leave it for now
+14:33:30 <MattChan> ... mgarrish are you satisfied with the certifierReport and other metadata that can meet this need?
+14:33:52 <MattChan> mgarrish: maybe we can make it clear that even if you aren't providing a conformance claim you can still provide a link to a certifierReport
+14:34:06 <MattChan> avneeshsingh: i think it would be nice to explain that these can be used in this way
+14:34:08 <avneeshsingh> q?
+14:34:23 <George> George has joined #epub-a11y
+14:34:31 <JF> Q+
+14:34:54 <MattChan> george: if we have no conformance statement you could still include certifiedby and you could clarify in your a11y summary what you conform to
+14:35:10 <MattChan> ... when the metadata is shown according to the UX guide, for conformsto it would say none provided, right?
+14:35:23 <MattChan> avneeshsingh: yes, for now, but we still have to revisit the UX guide
+14:35:28 <avneeshsingh> ack jf
+14:35:35 <MattChan> JF: the only other potential problem i see is WCAG3
+14:35:52 <MattChan> ... from the start WCAG3 is being built for various levels of conformance: bronze, silver, gold
+14:36:05 <MattChan> ... and a scoring mechanism still being sorted out
+14:36:39 <MattChan> ... so we're going to have to be able to declare which which level an epub is at
+14:36:59 <George> George has joined #epub-a11y
+14:37:14 <avneeshsingh> q?
+14:37:27 <CharlesL> q+
+14:37:27 <MattChan> avneeshsingh: no, we've decided that we're not going with this disclaimer route, so we don't need to state closeness of conformance
+14:37:47 <MattChan> ... and if you don't completely conform, then the epub shouldn't include a conformance statement
+14:37:47 <avneeshsingh> ack charl
+14:38:39 <JF> Q+ human error OR difference of opinion/interpretation
+14:38:39 <MattChan> CharlesL: I'm not in favor of pulling the disclaimer. The disclaimer puts publishers at ease, acknowledges forgiveness for human error, provides route for reporting. I think having it is better than not.
+14:38:56 <avneeshsingh> q?
+14:38:59 <George> George has joined #epub-a11y
+14:39:01 <MattChan> avneeshsingh: let's continue discussion in issue tracker, as I don't think we can resolve on this issue today
+14:39:12 <mgarrish> q+
+14:39:26 <avneeshsingh> q?
+14:39:27 <MattChan> CharlesL: I think we should vote on this today
+14:40:13 <MattChan> avneeshsingh: per W3C practice we need consensus
+14:40:33 <avneeshsingh> q?
+14:40:39 <MattChan> ... at 2 months away from CR, and with some publishers missing, I'm not sure a vote is a good idea right now
+14:40:50 <avneeshsingh> ack next
+14:40:59 <George> George has joined #epub-a11y
+14:41:11 <CharlesL> +1 to Matts suggestion.
+14:41:33 <MattChan> mgarrish: we don't need to make this either/or. Disclaimer is optional. But we can still add explanatory statement that people can leave out conformsto and link to VPAT.
+14:41:44 <MattChan> JF: I like that route. Choice is good.
+14:41:59 <George> George has joined #epub-a11y
+14:42:07 <MattChan> mgarrish: from an editing perspective I can let you look at both and see how you feel
+14:42:21 <George> George has joined #epub-a11y
+14:42:27 <avneeshsingh> q?
+14:42:32 <JF> Q+
+14:42:40 <MattChan> avneeshsingh: so, for people who were opposed to this, does the non-compulsory nature of the disclaimer change your mind?
+14:42:55 <George> George has joined #epub-a11y
+14:42:56 <MattChan> tzviya: I think it needs to be clearer how the disclaimer is intended to be used
+14:43:04 <MattChan> mgarrish: sure, I can try to work on that
+14:43:18 <avneeshsingh> ack jf
+14:43:26 <MattChan> george: in my mind bottom line is that there is no catastrophic failure
+14:43:29 <George> George has joined #epub-a11y
+14:43:52 <MattChan> JF: even though disclaimer is optional, I think we're going to see it all the time. We're back to the contradictory statements.
+14:44:44 <g_pellegrino> q+
+14:44:52 <avneeshsingh> q?
+14:45:03 <MattChan> avneeshsingh: so it would serve the purpose of allowing the publisher to make a more accurate statement, rather than providing any legal certainty
+14:45:20 <MattChan> mgarrish: and we can clarify that putting in a disclaimer doesn't absolve you from legal liability
+14:45:59 <George> George has joined #epub-a11y
+14:46:39 <MattChan> mgarrish: do we want to rename it to contact information rather than disclaimer?
+14:47:00 <MattChan> ... I think ONIX does a similar thing
+14:47:10 <MattChan> JF: and that contact info is baked into VPATs as well
+14:47:27 <avneeshsingh> ack next
+14:47:39 <MattChan> g_pellegrino: if its only simple text we could put it in the last sentence of the a11y summary
+14:47:59 <George> George has joined #epub-a11y
+14:48:23 <MattChan> CharlesL: the whole reason for this was because publishers were worried about saying conformsto WCAG AA. I don't think adding a contact us address that issue.
+14:48:32 <JF> +1 to Charles, we need both
+14:48:40 <avneeshsingh> q?
+14:48:46 <MattChan> avneeshsingh: it seems we don't have consensus. So let's continue discussion in issue tracker.
+14:49:12 <MattChan> ... and let's remember that we are just 2 months away from CR, so we can't many too many changes this time around
+14:49:18 <avneeshsingh> zakim, next agendum
+14:49:18 <Zakim> agendum 2 -- Pull request for issue #1789 (Clarify certifier needs to be associated with conformance statement) https://github.com/w3c/epub-specs/pull/1796 -- taken up [from
+14:49:21 <Zakim> ... avneeshsingh]
+14:49:31 <MattChan> s/many too many/make too many
+14:49:59 <George> George has joined #epub-a11y
+14:50:22 <MattChan> mgarrish: this was a problem with tying conformance statement to certifier
+14:50:37 <MattChan> ... this restores the refines attribute so that you can explicitly make that link between those metadata
+14:50:37 <avneeshsingh> q?
+14:50:57 <MattChan> ... at the time we had removed this on the expectation that refines was going to be gone
+14:51:11 <avneeshsingh> q?
+14:51:25 <avneeshsingh> zakim, next agendum
+14:51:25 <Zakim> agendum 3 -- Pull request for issue #1590 (Date of certification) https://github.com/w3c/epub-specs/pull/1798 -- taken up [from avneeshsingh]
+14:51:27 <MattChan> avneeshsingh: okay, so let's do that
+14:51:50 <MattChan> ... this one is about potentially having a certification date
+14:51:59 <George> George has joined #epub-a11y
+14:52:13 <MattChan> mgarrish: if you want to put a date in your can use a dc:terms value, and to attach that to the certifier
+14:52:27 <avneeshsingh> q?
+14:52:31 <MattChan> ... its not something we're defining, or that we require, but the question keeps coming up
+14:52:34 <George> George has joined #epub-a11y
+14:52:37 <MattChan> ... so this just adds an example to the spec
+14:52:40 <CharlesL> q+
+14:52:45 <avneeshsingh> q?
+14:52:47 <MattChan> avneeshsingh: any objections?
+14:53:01 <avneeshsingh> ack charl
+14:53:07 <MattChan> CharlesL: and so you would use refines to point to the certifier?
+14:53:09 <MattChan> mgarrish: yes
+14:53:18 <avneeshsingh> zakim, next agendum
+14:53:18 <Zakim> agendum 4 -- TPAC meetings to schedule with APA -- taken up [from avneeshsingh]
+14:53:36 <MattChan> avneeshsingh: TPAC meetings. There are 4 topics suggested.
+14:53:38 <avneeshsingh> * Horizontal review of the Epub suite
+14:53:45 <avneeshsingh> * Related work in APA, Epub, CSS (and possibly other WG)
+14:53:56 <avneeshsingh> * on spoken presentation.
+14:53:59 <George> George has joined #epub-a11y
+14:54:01 <avneeshsingh> * Normative use of schema in W3C specifications in the light of introduction of registries in Process 2021.
+14:54:48 <MattChan> avneeshsingh: all of these are not specific to epub. 1 is. But 2-3 are publishing in general.
+14:54:51 <CharlesL> q+
+14:55:13 <MattChan> ... 4 is a boarder discussion
+14:55:15 <avneeshsingh> q?
+14:55:29 <tzviya> q+
+14:55:31 <MattChan> CharlesL: on #3, is that about personalization and pronunciation?
+14:55:32 <tzviya> q-
+14:55:36 <CharlesL> ack me
+14:55:44 <avneeshsingh> q?
+14:55:49 <MattChan> avneeshsingh: yes, it's about TTS, CSS speech, etc
+14:55:49 <JF> not so much personalization
+14:55:59 <George> George has joined #epub-a11y
+14:56:07 <MattChan> avneeshsingh: are there any other suggestions for topics?
+14:56:28 <MattChan> ... if not, then the dates: Oct 25, 26, 28, or 29th.
+14:56:50 <MattChan> ... which date is most appropriate? What time - 14 to 16 UTC?
+14:56:58 <g_pellegrino> q+
+14:57:00 <avneeshsingh> q?
+14:57:19 <MattChan> ... wendyreid, when is the epub3 WG meeting?
+14:57:36 <MattChan> wendyreid: 28th and 29th. 28th JP. 29th NA.
+14:57:37 <avneeshsingh> q?
+14:57:49 <avneeshsingh> ack next
+14:57:53 <MattChan> g_pellegrino: I propose doing it on the 28th, at the same time slot as this call now
+14:57:59 <George> George has joined #epub-a11y
+14:57:59 <CharlesL> +1 on 28th
+14:58:02 <MattChan> avneeshsingh: any objection?
+14:58:07 <wendyreid> +1
+14:58:12 <g_pellegrino> +1
+14:58:15 <mgarrish> +1
+14:58:19 <Will> +1
+14:58:28 <MattChan> avneeshsingh: okay, that's resolved then
+14:58:59 <avneeshsingh> proposed: meeting with APA: Oct 28, 14 UTC to 16:15 UTC
+14:59:12 <g_pellegrino> +1
+14:59:21 <avneeshsingh> resolved
+14:59:24 <MattChan> avneeshsingh: if we need more time, do we have a 2nd best option for the date?
+14:59:33 <wendyreid> +1 to 25th
+14:59:42 <MattChan> ... 25th as well for additional agenda items?
+14:59:48 <CharlesL> +1 as well
+14:59:48 <g_pellegrino> +1 to 25th
+14:59:53 <avneeshsingh> proposed: 25th otctber as backup
+14:59:54 <tzviya> +1 to 25th
+14:59:59 <George> George has joined #epub-a11y
+15:00:05 <Will> +1
+15:00:05 <MattChan> avneeshsingh: okay, thank you.
+15:00:11 <avneeshsingh> resolved
+15:00:39 <George> George has joined #epub-a11y
+15:00:44 <JF> Q+
+15:00:45 <MattChan> tzviya: looking at the proposed agenda, re. #4, what is that?
+15:01:16 <MattChan> avneeshsingh: its a brainstorming session affecting specs in general
+15:01:59 <George> George has joined #epub-a11y
+15:02:33 <MattChan> TF: at a higher level there is a discussion within W3C for having a normative place to put fragments. e.g. In WCAG 2.1 success criteria 1.3.5 has a taxonomy of terms that is in the spec. This would look at a place for storing such things to be referenced by normative specs
+15:02:46 <MattChan> ... a11y is one area this would affect, but other W3C groups would have a use for this as well
+15:03:03 <MattChan> avneeshsingh: let's adjourn the call for now
+15:03:08 <MattChan> ... see you all in 2 weeks
+15:03:24 <CharlesL> CharlesL has left #epub-a11y
+15:03:51 <avneeshsingh> rrsagent, draft minutes
+15:03:51 <RRSAgent> I have made the request to generate https://www.w3.org/2021/09/09-epub-a11y-minutes.html avneeshsingh
+15:03:59 <George> George has joined #epub-a11y
