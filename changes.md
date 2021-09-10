@@ -1,5 +1,9 @@
 # Change log
 
+## Version 2.0.3
+
+* The zakim "agendum" line is converted into a bona fide Topic line
+
 ## Version 2.0.2
 
 * Added the possibility to consume the RDF/XML version of the RRSAgent log. This is a fallback that was made necessary by a bug somewhere on the server which, in some cases dumped only a portion of the textual log.
