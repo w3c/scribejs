@@ -431,12 +431,26 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
             return line_object;
         })
 
+        // Agenda handling: the agendum display should be converted into a bona fide topic
+        .map((line_object: LineObject): LineObject => {
+            if ((line_object.nick === 'Zakim' || line_object.nick === 'zakim') && line_object.content.startsWith('agendum')) {
+                // The "real" agenda item is surrounded by a '--' string.
+                const topic = line_object.content.match(Constants.agenda_regexp);
+                line_object.content = `Topic: ${topic[1]}`;
+                // Replacing the nickname; it should not remain "zakim" because that is removed later;
+                // because it is a topic line, the nickname will not appear in the output
+                line_object.nick = 'scribejs';
+            }
+            return line_object;
+        })
+
         // Add a lower case version of the content to the objects; this will be used
         // for comparisons later
         .map((line_object: LineObject): LineObject => {
             line_object.content_lower = line_object.content.toLowerCase();
             return line_object;
         })
+
 
         // Bunch of filters, removing the unnecessary lines
         .filter((line_object: LineObject): boolean => (
