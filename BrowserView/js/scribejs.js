@@ -2068,6 +2068,7 @@ var Constants;
     Constants.textual_preamble_size = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
     Constants.textual_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
     Constants.issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
+    Constants.agenda_regexp = /.* \-\- (.*) \-\-.*/;
     Constants.user_config_name = '.scribejs.json';
     Constants.user_ghid_file = '.credentials.json';
     Constants.text_media_types = [
@@ -2495,6 +2496,18 @@ function cleanup(minutes, config) {
         // Unless... the scribe or the commenter has already put the tag into back quotes!
         .map((line_object) => {
         line_object.content = line_object.content.replace(/([^`])<(\w*\/?)>([^`])/g, '$1`<$2>`$3');
+        return line_object;
+    })
+        // Agenda handling: the agendum display should be converted into a bona fide topic
+        .map((line_object) => {
+        if ((line_object.nick === 'Zakim' || line_object.nick === 'zakim') && line_object.content.startsWith('agendum')) {
+            // The "real" agenda item is surrounded by a '--' string.
+            const topic = line_object.content.match(types_1.Constants.agenda_regexp);
+            line_object.content = `Topic: ${topic[1]}`;
+            // Replacing the nickname; it should not remain "zakim" because that is removed later;
+            // because it is a topic line, the nickname will not appear in the output
+            line_object.nick = 'scribejs';
+        }
         return line_object;
     })
         // Add a lower case version of the content to the objects; this will be used

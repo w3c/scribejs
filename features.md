@@ -79,6 +79,8 @@ Subsequent IRC entries with that nickname are considered to be the “main” mi
 
 See also the subsection on issue management with `scribejs` commands below.
 
+Note that the output of the [zakim bot 'agenda' command](https://www.w3.org/2001/12/zakim-irc-bot) is automatically converted into a `Topic:`.
+
 
 ## Resolutions, actions
 

@@ -2,7 +2,7 @@
 
 ## Version 2.0.3
 
-* The zakim "agendum" line is converted into a bona fide Topic line
+* The zakim "agendum" line output is converted into a bona fide `Topic:` line
 
 ## Version 2.0.2
 
