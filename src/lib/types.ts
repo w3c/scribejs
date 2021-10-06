@@ -36,6 +36,11 @@ export namespace Constants {
         'application/rdf+xml',
         'application/json',
     ];
+
+    export const issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/w3c\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
+    export const ip_repo_index = 3;
+    export const ip_type = 4;
+    export const ip_issue = 5;
 }
 
 

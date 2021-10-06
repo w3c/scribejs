@@ -28,42 +28,12 @@
 15:33:38 <brent> Topic: Pull Requests https://github.com/w3c/did-core/pulls
 15:37:30 <cel> brent: Is there an editor who would like to run through the PRs. or the chairs to do it?
 15:37:14 <manu> q+
-15:37:44 <brent> subtopic: Updating figure 2 to include example values @pr 727
+15:37:44 <brent> subtopic: https://github.com/w3c/did-core/pull/727
 15:37:44 <ivan> https://github.com/w3c/did-core/pull/799
 15:37:50 <brent> ack manu
 15:37:50 <ivan> q-
 15:37:50 <cel> manu: PR: simple update to the diagram that shigeya is doing on behalf of someone else who did a full review of the spec.
 15:38:04 <cel> ... Their review came back with nothing really wrong.
 15:38:17 <cel> ... PR is editorial. If you have opinion on the diagram label, please take a look.
-15:44:55 <brent> Topic: DID Core issues
-15:45:03 <brent> https://github.com/w3c/did-core/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-asc+-label%3Adefer-v2
-15:45:08 <burn> q+
 15:45:15 <brent> ack burn
 15:46:20 <cel> brent: 11 open issues.
-15:46:32 <brent> subtopic: @issue 583
-15:46:52 <manu> q+ to make a general statement about open issues.
-15:47:01 <brent> ack manu
-15:47:01 <Zakim> manu, you wanted to make a general statement about open issues.
-15:47:03 <cel> ... There has been a bit of conversation. Need a PR to fix issue.
-15:47:24 <cel> manu: General statement: I triaged issue this past weekend, marked everything that was a CR comment. Marked anything ready for a PR as ready for PR.
-15:47:33 <cel> ... Almost every one except 2 or 3 are ready for PR.
-15:49:41 <brent> subtopic: @issue 707
-15:50:05 <cel> brent: I know that some changes have come in as a result of this. What more needs to happen?
-15:50:20 <manu> -> comment on the things to do https://github.com/w3c/did-core/issues/707#issuecomment-826382717
-15:50:21 <cel> manu: I proposed for the `publicKeyMultibase` stuff a path forward in this link
-15:50:47 <cel> ... It looks like folks want to use `publicKeyMultibase` instead of `publicKeyBase58`. We do have an at-risk marker that this may be done.
-15:51:11 <cel> ... One thing could do: update examples. Already have in did-spec-registries, but could add note.
-15:51:22 <cel> ... Add to registries, update material in spec.
-15:51:29 <cel> ... Not normative.
-15:51:32 <ivan> q+
-15:58:15 <cel> manu: I believe it does.
-15:58:37 <cel> ... It has instructions. If you are an implementor, this is how to submit your implementations. ... It should be straightforward and easy.
-15:58:45 <cel> ... Others have done it, without the instructions.
-15:59:06 <cel> burn: It's short... Anyone who is aware of the work should be able to follow and understand this.
-15:59:11 <cel> ... The chairs will take that as an action.
-15:59:18 <cel> brent: Thank you everyone.
-15:59:37 <ivan> rrsagent, draft minutes
-15:59:37 <RRSAgent> I have made the request to generate https://www.w3.org/2021/05/04-did-minutes.html ivan
-16:00:18 <burn> s/Anyone who is aware/The hope is that anyone who is aware/
-16:00:25 <burn> rrsagent, draft minutes
-16:00:25 <RRSAgent> I have made the request to generate https://www.w3.org/2021/05/04-did-minutes.html burn
