@@ -41,6 +41,11 @@ export namespace Constants {
     export const ip_repo_index = 3;
     export const ip_type = 4;
     export const ip_issue = 5;
+
+    export const i_slide_code = '<script type="module" src="https://w3c.github.io/i-slide/i-slide-1.js"></script>';
+    export const i_slide_reference = '<i-slide src="$1#$2"></i-slide>';
+    export const slide_regexp = /$\[[sS]lide #*([0-9]+)\]/;
+    export const slide_number_index = 1;
 }
 
 
@@ -172,6 +177,11 @@ export interface Global extends Configuration {
      * Mapping from names to a Nickname structure
      */
     nick_mappings?:   NicknameMapping;
+
+    /**
+     * URL of the (current) slideset
+     */
+    slideset?:        string;
 }
 
 
