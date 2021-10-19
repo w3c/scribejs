@@ -1787,9 +1787,64 @@ exports.output_minutes = output_minutes;
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.titles = exports.issue_directives = void 0;
+exports.titles = exports.issue_directives = exports.url_to_issue_directive = void 0;
 const utils_1 = require("./utils");
+const types_1 = require("./types");
 const io_1 = require("./io");
+/**
+ * Convert any line that contains exclusively a URL to an issue/PR URL into a scribejs directive on issues.
+ * Similarly, if the line is a topic setting line, and the only entry for the section title is an
+ * issue/PR URL, the title is modified accordingly.
+ *
+ * @param the_line
+ * @returns
+ */
+function url_to_issue_directive(the_line) {
+    const get_issue_reference = (line) => {
+        // to be on the safe side, trim the line before attempting to match
+        const match = line.trim().match(types_1.Constants.issue_pr_url_regexp);
+        if (match) {
+            const repo = match[types_1.Constants.ip_repo_index];
+            const issue_type = match[types_1.Constants.ip_type];
+            const issue = match[types_1.Constants.ip_issue];
+            return `${issue_type === 'issues' ? 'issue' : 'pr'} ${repo}#${issue}`;
+        }
+        else {
+            return line;
+        }
+    };
+    // If the line begins with (sub)topic, it should be treated differently
+    if (the_line.toLowerCase().startsWith('topic:') || the_line.toLowerCase().startsWith('subtopic:')) {
+        const words = the_line.split(' ');
+        // if there are more than two words, no change
+        if (words.length > 2) {
+            return the_line;
+        }
+        else {
+            // Now we can check whether this is an issue URL
+            const is_issue = get_issue_reference(words[1]);
+            if (is_issue === words[1]) {
+                // This was not an issue reference
+                return the_line;
+            }
+            else {
+                return `${words[0]} @${is_issue}`;
+            }
+        }
+    }
+    else {
+        // Just consider the full line as a go
+        const is_issue = get_issue_reference(the_line);
+        if (is_issue === the_line) {
+            // This was not an issue reference
+            return the_line;
+        }
+        else {
+            return `scribejs, ${is_issue}`;
+        }
+    }
+}
+exports.url_to_issue_directive = url_to_issue_directive;
 /**
  * Handling the `scribejs, issue X,Y,Z` type directives. The method returns a set of strings to be added to the
  * final (markdown) minutes. Two information items are returned
@@ -1951,7 +2006,7 @@ async function titles(config, content) {
 }
 exports.titles = titles;
 
-},{"./io":8,"./utils":12}],10:[function(require,module,exports){
+},{"./io":8,"./types":11,"./utils":12}],10:[function(require,module,exports){
 (function (Buffer){
 
 'use strict';
@@ -2076,6 +2131,10 @@ var Constants;
         'application/rdf+xml',
         'application/json',
     ];
+    Constants.issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/w3c\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
+    Constants.ip_repo_index = 3;
+    Constants.ip_type = 4;
+    Constants.ip_issue = 5;
 })(Constants = exports.Constants || (exports.Constants = {}));
 
 },{}],12:[function(require,module,exports){
@@ -2091,6 +2150,7 @@ var Constants;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.add_links = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
 const types_1 = require("./types");
+const issues_1 = require("./issues");
 const url = require("url");
 /** ******************************************************************* */
 /*                           Generic utilities                          */
@@ -2509,6 +2569,14 @@ function cleanup(minutes, config) {
             line_object.nick = 'scribejs';
         }
         return line_object;
+    })
+        // convert issue/PR URL-s into scribejs directives to handle issues and PRs, if
+        // appropriate
+        .map((line_object) => {
+        return {
+            nick: line_object.nick,
+            content: issues_1.url_to_issue_directive(line_object.content),
+        };
     })
         // Add a lower case version of the content to the objects; this will be used
         // for comparisons later
@@ -2937,7 +3005,7 @@ function add_links(line) {
 exports.add_links = add_links;
 
 }).call(this,require('_process'))
-},{"./types":11,"_process":180,"url":203}],13:[function(require,module,exports){
+},{"./issues":9,"./types":11,"_process":180,"url":203}],13:[function(require,module,exports){
 'use strict';
 
 var compileSchema = require('./compile')
