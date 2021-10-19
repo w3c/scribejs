@@ -8,6 +8,7 @@
 
 import { LineObject, Header, Configuration, Global }    from './types';
 import { Constants }                                    from './types';
+import { url_to_issue_directive }                       from './issues';
 import * as url                                         from 'url';
 
 /** ******************************************************************* */
@@ -444,13 +445,21 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
             return line_object;
         })
 
+        // convert issue/PR URL-s into scribejs directives to handle issues and PRs, if
+        // appropriate
+        .map((line_object: LineObject): LineObject => {
+            return {
+                nick    : line_object.nick,
+                content : url_to_issue_directive(line_object.content),
+            }
+        })
+
         // Add a lower case version of the content to the objects; this will be used
         // for comparisons later
         .map((line_object: LineObject): LineObject => {
             line_object.content_lower = line_object.content.toLowerCase();
             return line_object;
         })
-
 
         // Bunch of filters, removing the unnecessary lines
         .filter((line_object: LineObject): boolean => (

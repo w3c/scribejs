@@ -5,9 +5,60 @@
  * @packageDocumentation
  */
 
-import { zip }                              from './utils';
-import { Configuration, IssueReference }    from './types';
-import { fetch_text }                       from './io';
+import { zip }                                      from './utils';
+import { Configuration, IssueReference, Constants } from './types';
+import { fetch_text }                               from './io';
+
+
+/**
+ * Convert any line that contains exclusively a URL to an issue/PR URL into a scribejs directive on issues.
+ * Similarly, if the line is a topic setting line, and the only entry for the section title is an
+ * issue/PR URL, the title is modified accordingly.
+ *
+ * @param the_line
+ * @returns
+ */
+export function url_to_issue_directive(the_line: string): string {
+    const get_issue_reference = (line: string): string => {
+        // to be on the safe side, trim the line before attempting to match
+        const match: RegExpMatchArray = line.trim().match(Constants.issue_pr_url_regexp);
+        if (match) {
+            const repo: string = match[Constants.ip_repo_index];
+            const issue_type: string = match[Constants.ip_type];
+            const issue: string = match[Constants.ip_issue];
+            return `${issue_type === 'issues' ? 'issue' : 'pr'} ${repo}#${issue}`;
+        } else {
+            return line;
+        }
+    }
+
+    // If the line begins with (sub)topic, it should be treated differently
+    if (the_line.toLowerCase().startsWith('topic:') || the_line.toLowerCase().startsWith('subtopic:')) {
+        const words: string[] = the_line.split(' ');
+        // if there are more than two words, no change
+        if (words.length > 2) {
+            return the_line;
+        } else {
+            // Now we can check whether this is an issue URL
+            const is_issue = get_issue_reference(words[1]);
+            if (is_issue === words[1]) {
+                // This was not an issue reference
+                return the_line
+            } else {
+                return `${words[0]} @${is_issue}`
+            }
+        }
+    } else {
+        // Just consider the full line as a go
+        const is_issue = get_issue_reference(the_line);
+        if (is_issue === the_line) {
+            // This was not an issue reference
+            return the_line
+        } else {
+            return `scribejs, ${is_issue}`;
+        }
+    }
+}
 
 /**
  *
