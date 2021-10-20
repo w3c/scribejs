@@ -104,13 +104,25 @@ Note that the output of the [zakim bot 'agenda' command](https://www.w3.org/2001
 * `i/at/add/` or `i|at|add|`
     * look for the _closest preceding_ line matching `at` and insert a *new line* with the value of `add` as a content *before* that line. A typical usage is to add a (sub)topic line that was forgotten or because the discussion took an unexpected turn.
 
+## Slidesets
+
+It is possible to refer to individual slides in a slideset: the minutes will contain a thumbnail of the relevant slide that is also linked to the slide itself. This is done as follows:
+
+* `slideset: address` or `slideset: -> address some text`
+  * `address` is a URL for a full slide set. At the moment, this can point to a slideset in PDF (e.g., dumped from Keynote or Powerpoint) or slides in HTML using the [shower](https://shwr.me/) tool. The minutes also include a reference to the full slide set
+* `[slide num]` or `[Slide num]`
+  * the line will be replaced with the thumbnail of the slide number `num`, also linked to the slide itself
+
+
+This feature is based on a [tool in development](https://www.w3.org/2021/Talks/i-slide/), developed by Dominique Hazaël-Massieux and François Daoust. New slide formats may be added in future.
+
 ## Miscellaneous
 
 * Handling links:
     * If the text contains a markup-style link `[some text](address)`, that is maintained verbatim
     * If the text contains a pattern of the form `-> some text address`, where `address` is a dereferencable URL, the pattern is turned into `[some text](address)`
     * Any dereferencable URL (that is not part of a pattern) is transformed into a valid link, i.e., `[word](word)`
-    * For historical reasons, a special 'inverse' pattern is also accepted: a _full line_ of the form `-> address some text`, where `address` is a dereferencable URL, is converted into `See [some text](address)`. (Better not to use that, it can be confusing with the main pattern.)
+    * A special 'inverse' pattern is also accepted: a _full line_ of the form `-> address some text`, where `address` is a dereferencable URL, is converted into `See [some text](address)`.
 
     Note, however, that these link patterns should not be used in section titles and subtitles. The generated TOC (e.g., by Jekyll) uses the full section heading as a link text, i.e., it should not contain a link itself... (The script removes those links in case they are used.)
 

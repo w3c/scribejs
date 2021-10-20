@@ -453,7 +453,7 @@ ${no_toc}
             } else if (this.global.slideset && (slide_match = content.match(Constants.slide_regexp))) {
                 within_scribed_content = false;
                 const slide_number = slide_match[Constants.slide_number_index];
-                const slide_reference = Constants.i_slide_reference.replace('$1',this.global.slideset).replace('$2',`${slide_number}`);
+                const slide_reference = Constants.i_slide_reference.replaceAll('$1',this.global.slideset).replaceAll('$2',`${slide_number}`);
                 final_minutes += `\n\n${slide_reference}\n`;
 
             // Handle an issue directive: the line is replaced with a set of references and a possible

@@ -43,7 +43,7 @@ export namespace Constants {
     export const ip_issue = 5;
 
     export const i_slide_code = '<script type="module" src="https://w3c.github.io/i-slide/i-slide-1.js"></script>';
-    export const i_slide_reference = '<i-slide src="$1#$2"></i-slide>';
+    export const i_slide_reference = '<a href="$1#$2"><i-slide src="$1#$2"></i-slide></a>';
     export const slide_regexp = /\[[sS]lide #*([0-9]+)\]/;
     export const slide_number_index = 1;
 }
