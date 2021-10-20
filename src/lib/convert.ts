@@ -364,7 +364,6 @@ ${no_toc}
             // Add links using the the various possibilities offered by the '-> ...' syntax.
             const content_with_links: string = utils.add_links(line_object.content);
 
-
             // Separate the label (ie, "topic:", "proposed:", etc.) from the rest
             const { label, content } = utils.get_label(content_with_links);
 
@@ -426,14 +425,36 @@ ${no_toc}
             // Possible TODO: check whether this is a correct URL?
             } else if (label !== null && label.toLowerCase() === 'slideset') {
                 within_scribed_content = false;
-                this.global.slideset = content;
+                // Warning: 'content' may contain the URL but, if so, it has been transformed into a markdown url syntax.
+                // hence the raw content must be created and used throughout!
+                const raw_content= utils.get_label(line_object.content).content;
+                const words = utils.split_to_words(raw_content);
+
+                // if (utils.check_url(raw_content)) {
+                if (words.length === 1) {
+                    // Of there is a single word, that is considered to be a (possibly relative) URL
+                    this.global.slideset = raw_content;
+
+                    if (utils.check_url(raw_content)) {
+                        final_minutes += `\n\n> _Slideset: [${raw_content}](${raw_content})_\n\n`;
+                    } else {
+                        final_minutes += `\n\n> _Slideset: [${raw_content} (relative URL)](${raw_content})_\n\n`
+                    }
+                } else {
+                    // See if the content is a 'ralph-style link' and, if so, use that
+                    const {link_part, url_part} = utils.ralph_style_links(words);
+                    if (url_part !== undefined) {
+                        this.global.slideset = url_part;
+                    }
+                    final_minutes += `\n\n> _Slideset: [${link_part}](${url_part})_\n\n`
+                }
 
             // Handle a slide reference, if applicable
             } else if (this.global.slideset && (slide_match = content.match(Constants.slide_regexp))) {
                 within_scribed_content = false;
                 const slide_number = slide_match[Constants.slide_number_index];
                 const slide_reference = Constants.i_slide_reference.replace('$1',this.global.slideset).replace('$2',`${slide_number}`);
-                final_minutes += `\n${slide_reference}\n`;
+                final_minutes += `\n\n${slide_reference}\n`;
 
             // Handle an issue directive: the line is replaced with a set of references and a possible
             // extra comment for postprocessing

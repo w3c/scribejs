@@ -805,6 +805,71 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
 
 
 /**
+ * Splitting a line into words. By default, one splits along a space character; however, markdown code
+ * (i.e., anything between a pair pair of "`" characters) should be considered a single word.
+ * @param {String} full_line - the content line
+ * @returns {Array} - array of strings, ie, the words
+ */
+export function split_to_words(full_line: string): string[] {
+    const trimmed = full_line.trim();
+    const REPL_HACK = '$MD_CODE$';
+    const code_regex = /`[^`]+`/g;
+    const codes = trimmed.match(code_regex);
+
+    if (codes) {
+        // ugly hack: replacing the code portions with a fixed pattern
+        // then we can split to get words; each code portion appears a word with REPL_HACK
+        let code_index = 0;
+        const fake = trimmed.replace(code_regex, REPL_HACK);
+        return fake.split(' ').filter((word) => word !== '').map((word) => {
+            if (word.indexOf(REPL_HACK) !== -1) {
+                // eslint-disable-next-line no-plusplus
+                return word.replace(REPL_HACK, codes[code_index++]);
+            } else {
+                return word;
+            }
+        });
+    } else {
+        // no codes to play with
+        // empty words are also filtered out
+        return trimmed.split(' ').filter((word) => word !== '');
+    }
+}
+
+
+/**
+* Rudimentary check whether the string should be considered a dereferencable URL
+*/
+export function check_url(str: string): boolean {
+    const a = url.parse(str);
+    return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
+}
+
+
+// The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
+
+/**
+ * Convert (if applicable) a "Ralph style link", i.e., a '->' followed by a URL and a text, into a structure
+ * with the link data part and a url_part
+ *
+ * @param words
+ * @returns
+ */
+export function ralph_style_links(words: string[]): {link_part: string, url_part: string} {
+    if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
+        const url_part = words[1];
+        const link_part = words.slice(2).join(' ');
+        return {link_part, url_part};
+    } else {
+        return {
+            link_part : words.join(' '),
+            url_part  : undefined,
+        }
+    }
+}
+
+
+/**
 * URL handling: find URL-s in a line and convert it into an active markdown link.
 *
 * There are different possibilities:
@@ -818,46 +883,6 @@ export function perform_change_requests(lines: LineObject[]): LineObject[] {
 * @returns {String} - the converted line
 */
 export function add_links(line: string): string {
-    /**
-    * Rudimentary check whether the string should be considered a dereferencable URL
-    */
-    const check_url = (str: string): boolean => {
-        const a = url.parse(str);
-        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
-    };
-
-    /**
-     * Splitting the line into words. By default, one splits along a space character; however, markdown code
-     * (i.e., anything between a pair pair of "`" characters) should be considered a single word.
-     * @param {String} full_line - the content line
-     * @returns {Array} - array of strings, ie, the words
-     */
-    const split_to_words = (full_line: string): string[] => {
-        const trimmed = full_line.trim();
-        const REPL_HACK = '$MD_CODE$';
-        const code_regex = /`[^`]+`/g;
-        const codes = trimmed.match(code_regex);
-
-        if (codes) {
-            // ugly hack: replacing the code portions with a fixed pattern
-            // then we can split to get words; each code portion appears a word with REPL_HACK
-            let code_index = 0;
-            const fake = trimmed.replace(code_regex, REPL_HACK);
-            return fake.split(' ').filter((word) => word !== '').map((word) => {
-                if (word.indexOf(REPL_HACK) !== -1) {
-                    // eslint-disable-next-line no-plusplus
-                    return word.replace(REPL_HACK, codes[code_index++]);
-                } else {
-                    return word;
-                }
-            });
-        } else {
-            // no codes to play with
-            // empty words are also filtered out
-            return trimmed.split(' ').filter((word) => word !== '');
-        }
-    };
-
     /**
     * Taking care of the case where only URL-s are in the line without a pattern: such words are found
     * and are converted into markup-style links with the URL text as a link text itself.
@@ -904,13 +929,12 @@ export function add_links(line: string): string {
     // 1. separate the line into an array of words (double spaces must be filtered out...)
     const words = split_to_words(line);
 
-    // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
-    if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
-        const url_part = words[1];
-        const link_part = words.slice(2).join(' ');
-        return `See [${link_part}](${url_part}).`;
+    // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") it should be treated separately
+    const {link_part, url_part} = ralph_style_links(words);
+    if (url_part !== undefined) {
+        return `See [${link_part}](${url_part}).`
     } else {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-        return replace_links(words).map(simple_link_exchange).join(' ');
+        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
     }
 }

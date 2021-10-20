@@ -1,0 +1,29 @@
+14:33:45 <RRSAgent> RRSAgent has joined #did
+14:33:45 <RRSAgent> logging to https://www.w3.org/2021/05/04-did-irc
+14:33:48 <Zakim> RRSAgent, make logs Public
+14:33:48 <Zakim> please title this meeting ("meeting: ..."), ivan
+14:33:53 <ivan> Meeting: DID WG Telco
+14:33:54 <ivan> Chair: brent
+14:33:54 <ivan> Date: 2021-05-04
+14:33:54 <ivan> Agenda: https://lists.w3.org/Archives/Public/public-did-wg/2021Apr/0040.html
+14:33:54 <ivan> ivan has changed the topic to: Meeting Agenda 2021-05-04: https://lists.w3.org/Archives/Public/public-did-wg/2021Apr/0040.html
+14:53:51 <brent> brent has joined #did
+15:00:36 <ivan> present+
+15:01:00 <ivan> present+ cel
+15:02:30 <brent> present+
+15:02:33 <justin_r> present+
+15:04:42 <drummond> drummond has joined #did
+15:05:00 <cel> scribe: cel
+15:07:14 <brent> Topic: sliding
+15:05:00 <cel> slideset: ./tpac.pdf
+15:11:24 <cel> brent: Chair things.
+15:12:18 <cel> ... What this means for group is need to decide what to do with the CBOR section.
+15:12:42 <burn> [slide 1]
+15:13:27 <cel> ... I outline all of this to make very clear that communication has been clear, and that all efforts have been made, as chairs and editorial staff, to encourage the writing of these tests.
+15:07:14 <brent> -> Testing the URL part to see if that works https://www.w3.org
+15:07:14 <brent> -> https://www.example.org Test also the Ralph style work
+15:13:32 <ivan> [slide 6]
+15:05:00 <cel> slideset: -> http://localhost:8001/2018/Talks/Frankfurt-IH/Presentation.pdf My own presentation
+15:13:27 <cel> ... I outline all of this to make very clear that communication has been clear, and that all efforts have been made, as chairs and editorial staff, to encourage the writing of these tests.
+15:13:32 <ivan> [slide 3]
+
