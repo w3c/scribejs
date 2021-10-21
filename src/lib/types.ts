@@ -37,17 +37,20 @@ export namespace Constants {
         'application/json',
     ];
 
+    // URL Protocols that are accepted as valid links in the minutes (and are turned into real links).
+    export const protocols = ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'];
+
+    // Parse a github issue/pr URL, and indexes into the regexp result to extract specific data
     export const issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/w3c\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
     export const ip_repo_index = 3;
     export const ip_type = 4;
     export const ip_issue = 5;
 
+    // Constants to handle slide sets
     export const i_slide_code = '<script type="module" src="https://w3c.github.io/i-slide/i-slide-1.js"></script>';
-    export const i_slide_reference = '<a href="$1#$2"><i-slide src="$1#$2"></i-slide></a>';
+    export const i_slide_reference = '<a href="$1#$2"><i-slide src="$3#$4"></i-slide></a>';
     export const slide_regexp = /\[[sS]lide #*([0-9]+)\]/;
     export const slide_number_index = 1;
-
-    export const protocols = ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'];
 }
 
 

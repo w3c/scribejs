@@ -1137,7 +1137,7 @@ ${no_toc}
         // ------------------------------  The main cycle on the content: take each line one-by-one and turn it into Github...
         for (const line_object of lines) {
             // This is declared here to use an assignment in a conditional below...
-            let issue_match;
+            let issue_match, slide_match;
             // What has to be done done depends on some context...
             // Do we have a new scribe? If so, he/she should be added to the list of scribes
             const new_scribe_list = utils.get_name_list(scribes, line_object, 'scribe') || utils.get_name_list(scribes, line_object, 'scribenick');
@@ -1202,6 +1202,39 @@ ${no_toc}
             else if (label !== null && label.toLowerCase() === 'action') {
                 within_scribed_content = false;
                 final_minutes += add_to_actions(content);
+                // Handle a slideset directive: the URL is stored in the global structure
+                // Possible TODO: check whether this is a correct URL?
+            }
+            else if (label !== null && label.toLowerCase() === 'slideset') {
+                within_scribed_content = false;
+                // Warning: 'content' may contain the URL but, if so, it has been transformed into a markdown url syntax.
+                // hence the raw content must be created and used throughout!
+                const raw_content = utils.get_label(line_object.content).content;
+                // split the content into words to separate the URL and the rest
+                const words = utils.split_to_words(raw_content);
+                // by habit, people may start this by the '->' string, this should simply be filtered out...
+                if (words.length > 0 && words[0] === '->') {
+                    // remove this first entry
+                    words.splice(0, 1);
+                }
+                if (words.length !== 0) {
+                    // if there are no words, it is meaningless...
+                    const url_part = words[0];
+                    const link_part = words.length === 1 ? url_part : words.slice(1).join(' ');
+                    this.global.slideset = url_part;
+                    final_minutes += `\n\n> _Slideset: [${link_part}](${url_part})_\n\n`;
+                }
+                // Handle a slide reference, if applicable
+            }
+            else if (this.global.slideset && (slide_match = content.match(types_1.Constants.slide_regexp))) {
+                within_scribed_content = false;
+                const slide_number = slide_match[types_1.Constants.slide_number_index];
+                const slide_reference = types_1.Constants.i_slide_reference
+                    .replace('$1', this.global.slideset)
+                    .replace('$2', `${slide_number}`)
+                    .replace('$3', this.global.slideset)
+                    .replace('$4', `${slide_number}`);
+                final_minutes += `\n\n${slide_reference}\n`;
                 // Handle an issue directive: the line is replaced with a set of references and a possible
                 // extra comment for postprocessing
             }
@@ -1301,6 +1334,9 @@ ${no_toc}
                 TOC += `* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`;
                 final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n${actions}`;
             }
+        }
+        if (this.global.slideset) {
+            final_minutes += `\n${types_1.Constants.i_slide_code}\n`;
         }
         // A final bifurcation: if kramdown is used, it is more advantageous to rely on on the
         // TOC generation of kramdown. It makes the ulterior changes of the minutes (eg, adding
@@ -2131,10 +2167,18 @@ var Constants;
         'application/rdf+xml',
         'application/json',
     ];
+    // URL Protocols that are accepted as valid links in the minutes (and are turned into real links).
+    Constants.protocols = ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'];
+    // Parse a github issue/pr URL, and indexes into the regexp result to extract specific data
     Constants.issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/w3c\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
     Constants.ip_repo_index = 3;
     Constants.ip_type = 4;
     Constants.ip_issue = 5;
+    // Constants to handle slide sets
+    Constants.i_slide_code = '<script type="module" src="https://w3c.github.io/i-slide/i-slide-1.js"></script>';
+    Constants.i_slide_reference = '<a href="$1#$2"><i-slide src="$3#$4"></i-slide></a>';
+    Constants.slide_regexp = /\[[sS]lide #*([0-9]+)\]/;
+    Constants.slide_number_index = 1;
 })(Constants = exports.Constants || (exports.Constants = {}));
 
 },{}],12:[function(require,module,exports){
@@ -2148,7 +2192,7 @@ var Constants;
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.add_links = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
+exports.add_links = exports.check_url = exports.split_to_words = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
 const types_1 = require("./types");
 const issues_1 = require("./issues");
 const url = require("url");
@@ -2893,6 +2937,48 @@ function perform_change_requests(lines) {
 }
 exports.perform_change_requests = perform_change_requests;
 /**
+ * Splitting a line into words. By default, one splits along a space character; however, markdown code
+ * (i.e., anything between a pair pair of "`" characters) should be considered a single word.
+ * @param {String} full_line - the content line
+ * @returns {Array} - array of strings, ie, the words
+ */
+function split_to_words(full_line) {
+    const trimmed = full_line.trim();
+    const REPL_HACK = '$MD_CODE$';
+    const code_regex = /`[^`]+`/g;
+    const codes = trimmed.match(code_regex);
+    if (codes) {
+        // ugly hack: replacing the code portions with a fixed pattern
+        // then we can split to get words; each code portion appears a word with REPL_HACK
+        let code_index = 0;
+        const fake = trimmed.replace(code_regex, REPL_HACK);
+        return fake.split(' ').filter((word) => word !== '').map((word) => {
+            if (word.indexOf(REPL_HACK) !== -1) {
+                // eslint-disable-next-line no-plusplus
+                return word.replace(REPL_HACK, codes[code_index++]);
+            }
+            else {
+                return word;
+            }
+        });
+    }
+    else {
+        // no codes to play with
+        // empty words are also filtered out
+        return trimmed.split(' ').filter((word) => word !== '');
+    }
+}
+exports.split_to_words = split_to_words;
+/**
+* Rudimentary check whether the string should be considered a dereferencable URL
+*/
+function check_url(str) {
+    const a = url.parse(str);
+    return a.protocol !== null && types_1.Constants.protocols.indexOf(a.protocol) !== -1;
+}
+exports.check_url = check_url;
+// The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
+/**
 * URL handling: find URL-s in a line and convert it into an active markdown link.
 *
 * There are different possibilities:
@@ -2907,42 +2993,20 @@ exports.perform_change_requests = perform_change_requests;
 */
 function add_links(line) {
     /**
-    * Rudimentary check whether the string should be considered a dereferencable URL
-    */
-    const check_url = (str) => {
-        const a = url.parse(str);
-        return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
-    };
-    /**
-     * Splitting the line into words. By default, one splits along a space character; however, markdown code
-     * (i.e., anything between a pair pair of "`" characters) should be considered a single word.
-     * @param {String} full_line - the content line
-     * @returns {Array} - array of strings, ie, the words
+     * Convert (if applicable) a "Ralph style link", i.e., a '->' followed by a URL and a text, into a structure
+     * with the link data part and a url_part
      */
-    const split_to_words = (full_line) => {
-        const trimmed = full_line.trim();
-        const REPL_HACK = '$MD_CODE$';
-        const code_regex = /`[^`]+`/g;
-        const codes = trimmed.match(code_regex);
-        if (codes) {
-            // ugly hack: replacing the code portions with a fixed pattern
-            // then we can split to get words; each code portion appears a word with REPL_HACK
-            let code_index = 0;
-            const fake = trimmed.replace(code_regex, REPL_HACK);
-            return fake.split(' ').filter((word) => word !== '').map((word) => {
-                if (word.indexOf(REPL_HACK) !== -1) {
-                    // eslint-disable-next-line no-plusplus
-                    return word.replace(REPL_HACK, codes[code_index++]);
-                }
-                else {
-                    return word;
-                }
-            });
+    const ralph_style_links = (words) => {
+        if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
+            const url_part = words[1];
+            const link_part = words.slice(2).join(' ');
+            return { link_part, url_part };
         }
         else {
-            // no codes to play with
-            // empty words are also filtered out
-            return trimmed.split(' ').filter((word) => word !== '');
+            return {
+                link_part: words.join(' '),
+                url_part: undefined,
+            };
         }
     };
     /**
@@ -2991,15 +3055,14 @@ function add_links(line) {
     };
     // 1. separate the line into an array of words (double spaces must be filtered out...)
     const words = split_to_words(line);
-    // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
-    if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
-        const url_part = words[1];
-        const link_part = words.slice(2).join(' ');
+    // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") it should be treated separately
+    const { link_part, url_part } = ralph_style_links(words);
+    if (url_part !== undefined) {
         return `See [${link_part}](${url_part}).`;
     }
     else {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-        return replace_links(words).map(simple_link_exchange).join(' ');
+        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
     }
 }
 exports.add_links = add_links;
