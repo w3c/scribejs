@@ -23,7 +23,7 @@
 15:07:14 <brent> -> Testing the URL part to see if that works https://www.w3.org
 15:07:14 <brent> -> https://www.example.org Test also the Ralph style work
 15:13:32 <ivan> [slide 6]
-15:05:00 <cel> slideset: -> http://localhost:8001/2018/Talks/Frankfurt-IH/Presentation.pdf My own presentation
+15:05:00 <cel> slideset: http://localhost:8001/2018/Talks/Frankfurt-IH/Presentation.pdf My own presentation
 15:13:27 <cel> ... I outline all of this to make very clear that communication has been clear, and that all efforts have been made, as chairs and editorial staff, to encourage the writing of these tests.
 15:13:32 <ivan> [slide 3]
 

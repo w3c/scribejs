@@ -108,10 +108,12 @@ Note that the output of the [zakim bot 'agenda' command](https://www.w3.org/2001
 
 It is possible to refer to individual slides in a slideset: the minutes will contain a thumbnail of the relevant slide that is also linked to the slide itself. This is done as follows:
 
-* `slideset: address` or `slideset: -> address some text`
-  * `address` is a URL for a full slide set. At the moment, this can point to a slideset in PDF (e.g., dumped from Keynote or Powerpoint) or slides in HTML using the [shower](https://shwr.me/) tool. The minutes also include a reference to the full slide set
+* `slideset: address` or `slideset: address some text`
+  * `address` is a URL for a full slide set. At the moment, this can point to a slideset in PDF (e.g., dumped from Keynote or Powerpoint) or slides in HTML using the [shower](https://shwr.me/) tool. The minutes also include a reference to the full slide set; the text is either `some text` or, as a fall back, the URL itself.
+  * (The `slideset: -> address some text` is also accepted; the `->` string is simply ignored)
 * `[slide num]` or `[Slide num]`
-  * the line will be replaced with the thumbnail of the slide number `num`, also linked to the slide itself
+  * the line is replaced with the thumbnail of the slide with number `num`; the thumbnail is also linked to the slide itself
+
 
 
 This feature is based on a [tool in development](https://www.w3.org/2021/Talks/i-slide/), developed by Dominique Hazaël-Massieux and François Daoust. New slide formats may be added in future.
