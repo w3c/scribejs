@@ -428,25 +428,22 @@ ${no_toc}
                 // Warning: 'content' may contain the URL but, if so, it has been transformed into a markdown url syntax.
                 // hence the raw content must be created and used throughout!
                 const raw_content= utils.get_label(line_object.content).content;
+
+                // split the content into words to separate the URL and the rest
                 const words = utils.split_to_words(raw_content);
 
-                // if (utils.check_url(raw_content)) {
-                if (words.length === 1) {
-                    // Of there is a single word, that is considered to be a (possibly relative) URL
-                    this.global.slideset = raw_content;
+                // by habit, people may start this by the '->' string, this should simply be filtered out...
+                if (words.length > 0 && words[0] === '->') {
+                    // remove this first entry
+                    words.splice(0,1);
+                }
+                if (words.length !== 0) {
+                    // if there are no words, it is meaningless...
+                    const url_part = words[0];
+                    const link_part = words.length === 1 ? url_part : words.slice(1).join(' ');
 
-                    if (utils.check_url(raw_content)) {
-                        final_minutes += `\n\n> _Slideset: [${raw_content}](${raw_content})_\n\n`;
-                    } else {
-                        final_minutes += `\n\n> _Slideset: [${raw_content} (relative URL)](${raw_content})_\n\n`
-                    }
-                } else {
-                    // See if the content is a 'ralph-style link' and, if so, use that
-                    const {link_part, url_part} = utils.ralph_style_links(words);
-                    if (url_part !== undefined) {
-                        this.global.slideset = url_part;
-                    }
-                    final_minutes += `\n\n> _Slideset: [${link_part}](${url_part})_\n\n`
+                    this.global.slideset = url_part;
+                    final_minutes += `\n\n> _Slideset: [${link_part}](${url_part})_\n\n`;
                 }
 
             // Handle a slide reference, if applicable

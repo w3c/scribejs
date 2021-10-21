@@ -46,6 +46,8 @@ export namespace Constants {
     export const i_slide_reference = '<a href="$1#$2"><i-slide src="$1#$2"></i-slide></a>';
     export const slide_regexp = /\[[sS]lide #*([0-9]+)\]/;
     export const slide_number_index = 1;
+
+    export const protocols = ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'];
 }
 
 

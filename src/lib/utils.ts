@@ -842,32 +842,11 @@ export function split_to_words(full_line: string): string[] {
 */
 export function check_url(str: string): boolean {
     const a = url.parse(str);
-    return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
+    return a.protocol !== null && Constants.protocols.indexOf(a.protocol) !== -1;
 }
 
 
 // The case when the first "word" is '->' followed by a URL and a text ("Ralph style links") should be treated separately
-
-/**
- * Convert (if applicable) a "Ralph style link", i.e., a '->' followed by a URL and a text, into a structure
- * with the link data part and a url_part
- *
- * @param words
- * @returns
- */
-export function ralph_style_links(words: string[]): {link_part: string, url_part: string} {
-    if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
-        const url_part = words[1];
-        const link_part = words.slice(2).join(' ');
-        return {link_part, url_part};
-    } else {
-        return {
-            link_part : words.join(' '),
-            url_part  : undefined,
-        }
-    }
-}
-
 
 /**
 * URL handling: find URL-s in a line and convert it into an active markdown link.
@@ -883,6 +862,23 @@ export function ralph_style_links(words: string[]): {link_part: string, url_part
 * @returns {String} - the converted line
 */
 export function add_links(line: string): string {
+    /**
+     * Convert (if applicable) a "Ralph style link", i.e., a '->' followed by a URL and a text, into a structure
+     * with the link data part and a url_part
+     */
+    const ralph_style_links = (words: string[]): {link_part: string, url_part: string} => {
+        if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
+            const url_part = words[1];
+            const link_part = words.slice(2).join(' ');
+            return {link_part, url_part};
+        } else {
+            return {
+                link_part : words.join(' '),
+                url_part  : undefined,
+            }
+        }
+    }
+
     /**
     * Taking care of the case where only URL-s are in the line without a pattern: such words are found
     * and are converted into markup-style links with the URL text as a link text itself.
