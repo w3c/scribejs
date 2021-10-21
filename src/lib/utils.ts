@@ -842,7 +842,7 @@ export function split_to_words(full_line: string): string[] {
 */
 export function check_url(str: string): boolean {
     const a = url.parse(str);
-    return a.protocol !== null && ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'].indexOf(a.protocol) !== -1;
+    return a.protocol !== null && Constants.protocols.indexOf(a.protocol) !== -1;
 }
 
 
