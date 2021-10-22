@@ -48,7 +48,7 @@ export namespace Constants {
 
     // Constants to handle slide sets
     export const i_slide_code = '<script type="module" src="https://w3c.github.io/i-slide/i-slide-1.js"></script>';
-    export const i_slide_reference = '<a href="$1#$2"><i-slide src="$3#$4"></i-slide></a>';
+    export const i_slide_reference = '<a href="$1#$2"><i-slide src="$3#$4" style="border: 1px solid"></i-slide></a>';
     export const slide_regexp = /\[[sS]lide #*([0-9]+)\]/;
     export const slide_number_index = 1;
 }
