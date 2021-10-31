@@ -1,0 +1,59 @@
+15:03:41 <drummond> drummond has joined #did
+15:03:49 <drummond> present+
+15:04:01 <drummond> scribe+
+15:04:07 <nms> nms has joined #did
+15:04:19 <shinta_> shinta_ has joined #did
+15:19:18 <Zakim> agendum 1 -- Intros/greeting -- taken up [from agendabot]
+15:04:23 <drummond> brent: Greetings and agenda review
+15:04:47 <drummond> ...agenda is three topics: 1) conversation with W3C CEO Jeff Jaffe
+15:05:03 <drummond> ...2) DID Rubric - discussing roadmap
+15:05:29 <drummond> ...3) DID Spec Registries  - open issues, DID method registration, etc.
+15:05:45 <kazho> present+
+15:06:01 <drummond> ...next will be introductions
+15:06:35 <drummond> ...Brent Zundel, Chief Cryptography Architect, Evernym, focused on SSI for enterprises
+15:17:08 <drummond> shigeya: KEO University, attending as a member
+15:17:17 <ivan> present+ TallTed
+15:17:33 <drummond> TallTed: Works across a number of W3C groups
+15:18:08 <drummond> Geun-Hyung: member of EID WG, very interested in SSI and decentralized identity
+15:18:27 <drummond> kristina: Kristina Yasuda, Microsoft Identity Standards
+15:18:36 <russStringham> russStringham has joined #did
+15:19:15 <drummond> kdenhartog: Kyle den Hartog, works at Mattr in NZ, editor of Verifiable Credentials spec v1.1
+15:19:18 <brent> zakim, next agendum
+15:19:28 <drummond> brent: grateful to everyone for coming at this time
+15:19:28 <brent> zakim, next agendum
+15:19:28 <Zakim> agendum 1 was just opened, brent
+15:19:42 <pchampin> zakim, close agendum 1
+15:19:42 <Zakim> agendum 1, Intros/greeting - 10 min, closed
+15:19:43 <Zakim> I see 3 items remaining on the agenda; the next one is
+15:19:43 <Zakim> 2. Talk with the CEO - 30 min [from agendabot]
+15:20:01 <brent> zakim, next agendum
+15:20:01 <Zakim> agendum 2 -- Talk with the CEO -- taken up [from agendabot]
+15:20:11 <dmitriz> dmitriz has joined #did
+15:20:18 <burn> burn has joined #did
+15:20:42 <drummond> brent: This is a free-form conversation and will use the queue in IRC for questions
+15:21:03 <drummond> jeff: I'd like to start by thanking the DID community for bringing the work to W3C
+15:21:05 <ivan> present+ burn
+16:10:26 <drummond> ...if no Council is formed, then the Director will delegate it to W3M to review and make a recommendation.
+6:14:01 <markus_sabadello> scribe+
+16:14:04 <rgrant> +1 thanks jeff
+16:14:58 <burn> Yes, many thanks Jeff (and others) for joining today
+16:15:11 <brent> zakim, close agendum
+16:15:11 <Zakim> I don't understand 'close agendum', brent
+16:15:20 <brent> zakim, close this agendum
+16:15:20 <Zakim> agendum 2 closed
+16:15:21 <Zakim> I see 2 items remaining on the agenda; the next one is
+16:15:21 <Zakim> 3. Rubric - prep for future deep dive [from agendabot]
+16:15:30 <dbuc> Let's go Zakrandon!
+16:15:40 <brent> zakim, next agendum
+16:15:40 <Zakim> agendum 3 -- Rubric - prep for future deep dive -- taken up [from agendabot]
+16:15:56 <brent> zakim, open the queue
+16:15:56 <Zakim> ok, brent, the speaker queue is open
+16:16:25 <markus_sabadello> brent: We anticipate in future calls to do deep dives into Rubric discussions. The purpose of this block of time is to queue up some topics that we want to deep-dive into
+16:16:39 <manu> q+
+16:25:59 <markus_sabadello> agropper: The sense in which I meant interoperability has to do with substitutability. This can give individuals more meaningful choice. The Rubric should reflect such issues of substitutability, as one aspect of interoperability.
+16:26:22 <markus_sabadello> cel: Is the SRI review still under consideration for criteria?
+16:26:30 <cel> thanks
+16:26:41 <brent> zakim, next agendum
+16:26:41 <Zakim> agendum 4 -- DID Method Registration -- taken up [from agendabot]
+16:27:24 <manu> q+ to propose some stuff
+16:27:36 <kdenhartog> https://github.com/w3c/did-spec-registries/issues/83

@@ -435,11 +435,16 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
         .map((line_object: LineObject): LineObject => {
             if ((line_object.nick === 'Zakim' || line_object.nick === 'zakim') && line_object.content.startsWith('agendum')) {
                 // The "real" agenda item is surrounded by a '--' string.
-                const topic = line_object.content.match(Constants.agenda_regexp);
-                line_object.content = `Topic: ${topic[1]}`;
-                // Replacing the nickname; it should not remain "zakim" because that is removed later;
-                // because it is a topic line, the nickname will not appear in the output
-                line_object.nick = 'scribejs';
+                try {
+                    const topic = line_object.content.match(Constants.agenda_regexp);
+                    line_object.content = `Topic: ${topic[1]}`;
+                    // Replacing the nickname; it should not remain "zakim" because that is removed later;
+                    // because it is a topic line, the nickname will not appear in the output
+                    line_object.nick = 'scribejs';
+                } catch (error) {
+                    // the agendum prefix can also appear for other commands which may lead to an exception here...
+                    // just finish the stuff
+                }
             }
             return line_object;
         })
