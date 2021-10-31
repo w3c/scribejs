@@ -1,5 +1,7 @@
 # Known bugs or problems, missing features
 
+* Handling of agendum is brittle! If there is no pattern to generate a topic, things go wrong...
+
 * At the moment the handling of XML tags (ie, '<word>') is a bit shaky. Maybe a more radical change that turns all '<', resp. '>' signs into a special tag (e.g., `&ltr;`, resp. `$gt;`) at the start of processing is a better option (currently it is artificially put into a pair of backquotes, but this should be fenced against the user already doing that...)
 
 

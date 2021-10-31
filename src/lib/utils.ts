@@ -421,7 +421,6 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
             content : line.slice(sp + 1).trim(),
         };
     });
-
     // Filtering on the line objects now
     return line_objects
         // Taking care of the accidental appearance of what could be
