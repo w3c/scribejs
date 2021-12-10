@@ -350,7 +350,7 @@ ${no_toc}
         // ------------------------------  The main cycle on the content: take each line one-by-one and turn it into Github...
         for (const line_object of lines) {
             // This is declared here to use an assignment in a conditional below...
-            let issue_match;
+            let issue_match, slide_match;
 
             // What has to be done done depends on some context...
             // Do we have a new scribe? If so, he/she should be added to the list of scribes
@@ -363,7 +363,6 @@ ${no_toc}
 
             // Add links using the the various possibilities offered by the '-> ...' syntax.
             const content_with_links: string = utils.add_links(line_object.content);
-
 
             // Separate the label (ie, "topic:", "proposed:", etc.) from the rest
             const { label, content } = utils.get_label(content_with_links);
@@ -421,6 +420,43 @@ ${no_toc}
             } else if (label !== null && label.toLowerCase() === 'action') {
                 within_scribed_content = false;
                 final_minutes += add_to_actions(content);
+
+            // Handle a slideset directive: the URL is stored in the global structure
+            // Possible TODO: check whether this is a correct URL?
+            } else if (label !== null && label.toLowerCase() === 'slideset') {
+                within_scribed_content = false;
+                // Warning: 'content' may contain the URL but, if so, it has been transformed into a markdown url syntax.
+                // hence the raw content must be created and used throughout!
+                const raw_content= utils.get_label(line_object.content).content;
+
+                // split the content into words to separate the URL and the rest
+                const words = utils.split_to_words(raw_content);
+
+                // by habit, people may start this by the '->' string, this should simply be filtered out...
+                if (words.length > 0 && words[0] === '->') {
+                    // remove this first entry
+                    words.splice(0,1);
+                }
+                if (words.length !== 0) {
+                    // if there are no words, it is meaningless...
+                    const url_part = words[0];
+                    const link_part = words.length === 1 ? url_part : words.slice(1).join(' ');
+
+                    this.global.slideset = url_part;
+                    final_minutes += `\n\n> _Slideset: [${link_part}](${url_part})_\n\n`;
+                }
+
+            // Handle a slide reference, if applicable
+            } else if (this.global.slideset && (slide_match = content.match(Constants.slide_regexp))) {
+                within_scribed_content = false;
+                const slide_number = slide_match[Constants.slide_number_index];
+                const slide_reference = Constants.i_slide_reference
+                    .replace('$1',this.global.slideset)
+                    .replace('$2',`${slide_number}`)
+                    .replace('$3',this.global.slideset)
+                    .replace('$4',`${slide_number}`)
+                ;
+                final_minutes += `\n\n${slide_reference}\n`;
 
             // Handle an issue directive: the line is replaced with a set of references and a possible
             // extra comment for postprocessing
@@ -518,6 +554,9 @@ ${no_toc}
                 TOC += `* [${sec_number_level_1}. Action Items](#${sec_number_level_1}-action-items)\n`;
                 final_minutes += `\n\n### ${sec_number_level_1}. Action Items\n${actions}`;
             }
+        }
+        if (this.global.slideset) {
+            final_minutes += `\n${Constants.i_slide_code}\n`;
         }
 
         // A final bifurcation: if kramdown is used, it is more advantageous to rely on on the
