@@ -390,6 +390,7 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
                     || stripped_line.includes('rrsagent')
                     || stripped_line.includes('zakim')
                     || stripped_line.includes('github-bot')
+                    || stripped_line.includes('agendabot')
                     || stripped_line.includes('joined the channel')
                     || stripped_line.includes('------------- Begin Session -------------')
                     || stripped_line.includes('------------- End Session -------------')
@@ -470,6 +471,7 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
             line_object.nick !== 'RRSAgent'
             && line_object.nick !== 'Zakim'
             && line_object.nick !== 'github-bot'
+            && line_object.nick !== 'agendabot'
             && line_object.nick !== 'trackbot'
         ))
         .filter((line_object: LineObject): boolean => !(
@@ -871,7 +873,7 @@ export function add_links(line: string): string {
      * with the link data part and a url_part
      */
     const ralph_style_links = (words: string[]): {link_part: string, url_part: string} => {
-        if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
+        if ((words[0] === '->' || words[0] === '-->') && words.length >= 3 && check_url(words[1])) {
             const url_part = words[1];
             const link_part = words.slice(2).join(' ');
             return {link_part, url_part};
@@ -901,7 +903,7 @@ export function add_links(line: string): string {
     const replace_links = (list_of_words: string[]): string[] => {
         if (list_of_words.length === 0) return list_of_words;
 
-        const start = list_of_words.findIndex((word) => word === '->');
+        const start = list_of_words.findIndex((word) => (word === '->' || word === '-->'));
         if (start === -1) {
             // No links to worry about
             return list_of_words;
