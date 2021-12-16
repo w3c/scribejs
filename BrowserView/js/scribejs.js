@@ -1851,7 +1851,8 @@ function url_to_issue_directive(the_line) {
     };
     // If the line begins with (sub)topic, it should be treated differently
     if (the_line.toLowerCase().startsWith('topic:') || the_line.toLowerCase().startsWith('subtopic:')) {
-        const words = the_line.split(' ');
+        // The extra filter is necessary to remove the effect of a double space
+        const words = the_line.split(' ').filter((l) => l !== '');
         // if there are more than two words, no change
         if (words.length > 2) {
             return the_line;
@@ -2176,7 +2177,7 @@ var Constants;
     Constants.ip_issue = 5;
     // Constants to handle slide sets
     Constants.i_slide_code = '<script type="module" src="https://w3c.github.io/i-slide/i-slide-1.js"></script>';
-    Constants.i_slide_reference = '<a href="$1#$2"><i-slide src="$3#$4"></i-slide></a>';
+    Constants.i_slide_reference = '<a href="$1#$2"><i-slide src="$3#$4" style="border: 1px solid"></i-slide></a>';
     Constants.slide_regexp = /\[[sS]lide #*([0-9]+)\]/;
     Constants.slide_number_index = 1;
 })(Constants = exports.Constants || (exports.Constants = {}));
@@ -2564,6 +2565,7 @@ function cleanup(minutes, config) {
                     || stripped_line.includes('rrsagent')
                     || stripped_line.includes('zakim')
                     || stripped_line.includes('github-bot')
+                    || stripped_line.includes('agendabot')
                     || stripped_line.includes('joined the channel')
                     || stripped_line.includes('------------- Begin Session -------------')
                     || stripped_line.includes('------------- End Session -------------')
@@ -2606,11 +2608,17 @@ function cleanup(minutes, config) {
         .map((line_object) => {
         if ((line_object.nick === 'Zakim' || line_object.nick === 'zakim') && line_object.content.startsWith('agendum')) {
             // The "real" agenda item is surrounded by a '--' string.
-            const topic = line_object.content.match(types_1.Constants.agenda_regexp);
-            line_object.content = `Topic: ${topic[1]}`;
-            // Replacing the nickname; it should not remain "zakim" because that is removed later;
-            // because it is a topic line, the nickname will not appear in the output
-            line_object.nick = 'scribejs';
+            try {
+                const topic = line_object.content.match(types_1.Constants.agenda_regexp);
+                line_object.content = `Topic: ${topic[1]}`;
+                // Replacing the nickname; it should not remain "zakim" because that is removed later;
+                // because it is a topic line, the nickname will not appear in the output
+                line_object.nick = 'scribejs';
+            }
+            catch (error) {
+                // the agendum prefix can also appear for other commands which may lead to an exception here...
+                // just finish the stuff
+            }
         }
         return line_object;
     })
@@ -2632,6 +2640,7 @@ function cleanup(minutes, config) {
         .filter((line_object) => (line_object.nick !== 'RRSAgent'
         && line_object.nick !== 'Zakim'
         && line_object.nick !== 'github-bot'
+        && line_object.nick !== 'agendabot'
         && line_object.nick !== 'trackbot'))
         .filter((line_object) => !(line_object.content_lower.startsWith('q+')
         || line_object.content_lower.startsWith('+q')
@@ -2997,7 +3006,7 @@ function add_links(line) {
      * with the link data part and a url_part
      */
     const ralph_style_links = (words) => {
-        if (words[0] === '->' && words.length >= 3 && check_url(words[1])) {
+        if ((words[0] === '->' || words[0] === '-->') && words.length >= 3 && check_url(words[1])) {
             const url_part = words[1];
             const link_part = words.slice(2).join(' ');
             return { link_part, url_part };
@@ -3026,7 +3035,7 @@ function add_links(line) {
     const replace_links = (list_of_words) => {
         if (list_of_words.length === 0)
             return list_of_words;
-        const start = list_of_words.findIndex((word) => word === '->');
+        const start = list_of_words.findIndex((word) => (word === '->' || word === '-->'));
         if (start === -1) {
             // No links to worry about
             return list_of_words;
