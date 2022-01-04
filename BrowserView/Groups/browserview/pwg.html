@@ -73,7 +73,7 @@
                     </div>
                     <div class="inline field" style="display:none">
                         <label for="nicknames">Nickname URL:</label>
-                        <input name="nicknames" id="nicknames" size="80" type="text" value="https://www.w3.org/publishing/assets/nicknames.json">
+                        <input name="nicknames" id="nicknames" size="80" type="text" value="https://www.w3.org/publishing/groups/publ-wg/assets/nicknames.json">
                     </div>
                     <div class="inline field" style="display:none">
                         <label for="jekyll">Adapt the output to Jekyll:</label>
@@ -104,7 +104,7 @@
                                 </div>
                                 <div class="inline field" style="display:none">
                                     <label for="acurlpattern">URL pattern used for minutes:</label>
-                                    <input name="acurlpattern" id="acurlpattern" size="77" type="text" value="https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%DATE%-pwg">
+                                    <input name="acurlpattern" id="acurlpattern" size="77" type="text" value="https://www.w3.org/publishing/groups/epub-wg/Meetings/Minutes/%YEAR%/%DATE%-pwg">
                                 </div>
                                 <div class="inline field">
                                     <label for="ghname">Github id:</label>
@@ -198,7 +198,7 @@
         </div>
         <div class="field">
             <button title='save' id='save' type='button' class="ui positive button">
-                <i class="download icon"></i> Save Markdown (as <code>YYYY-MM-DD-pwg.did</code> in the <code>_minutes</code> directory of the repo)
+                <i class="download icon"></i> Save Markdown (as <code>YYYY-MM-DD-pwg.did</code> in the <code>Minutes/%YEAR%</code> directory of the repo)
             </button>
             <a style='display:none' id='download'>test</a>
         </div>
