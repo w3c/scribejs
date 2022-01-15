@@ -38,7 +38,7 @@
     "ajv": "^6.10.2",
     "commander": "^6.2.0",
     "js-yaml": ">=3.13.1",
-    "marked": ">=0.3.18",
+    "marked": ">=4.0.10",
     "marked-it-core": "^0.14.1",
     "node-fetch": "^2.6.1",
     "octokat": "^0.8.0",
