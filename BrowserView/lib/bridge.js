@@ -8,7 +8,7 @@
  * The "bridge" between the HTML Form and the scribejs environment.
  */
 
-const marked = require('marked-it-core');
+const { marked } = require('marked');
 
 const nicknames = require('./nicknames');
 const convert = require('../../lib/convert');
@@ -78,9 +78,9 @@ function emptyNode(n) {
 
 function renderPreview(markdown) {
     const preview = document.getElementById('preview');
-    const results = marked.generate(markdown);
+    const content = marked.parse(markdown);
     emptyNode(preview);
-    preview.insertAdjacentHTML('afterbegin', results.html.text);
+    preview.innerHTML = content;
 }
 
 function previewToggle(ev, minutes) {
