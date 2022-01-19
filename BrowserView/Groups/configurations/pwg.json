@@ -21,7 +21,5 @@
     "local": {
         "dir"       : "/Users/ivan/W3C/github/Audiobooks/publ-wg",
         "nicknames" : "/Users/ivan/W3C/github/Audiobooks/publ-wg/assets/nicknames.json"
-    },
-    "extra_calls":
     }
 }
