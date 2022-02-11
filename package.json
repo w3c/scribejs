@@ -35,7 +35,7 @@
   },
   "preferGlobal": true,
   "dependencies": {
-    "ajv": "^6.10.2",
+    "ajv": "^6.12.3",
     "commander": "^6.2.0",
     "js-yaml": ">=3.13.1",
     "marked": "^4.0.10",
