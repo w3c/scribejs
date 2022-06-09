@@ -65,7 +65,7 @@
     "typescript": "^4.1.2"
   },
   "scripts": {
-    "docs": "/usr/local/bin/typedoc",
+    "docs": "./node_modules/typedoc/bin/typedoc src/main.ts",
     "dist": "tsc",
     "build": "tsc && browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
     "lint": "eslint src/*",
