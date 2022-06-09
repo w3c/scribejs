@@ -60,13 +60,12 @@
     "@typescript-eslint/parser": "^4.8.2",
     "browserify": "^16.3.0",
     "eslint": "^7.14.0",
-    "http-server": "^0.12.3",
-    "typedoc": "^0.20.36",
-    "typedoc-plugin-nojekyll": "^1.0.1",
+    "http-server": "^14.1.1",
+    "typedoc": "^0.22.17",
     "typescript": "^4.1.2"
   },
   "scripts": {
-    "docs": "/usr/local/bin/typedoc",
+    "docs": "./node_modules/typedoc/bin/typedoc src/main.ts",
     "dist": "tsc",
     "build": "tsc && browserify BrowserView/lib/page.js BrowserView/lib/bridge.js > BrowserView/js/scribejs.js && terser BrowserView/js/scribejs.js > BrowserView/js/scribejs.min.js",
     "lint": "eslint src/*",

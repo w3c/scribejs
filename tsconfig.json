@@ -40,8 +40,6 @@
         "categorizeByGroup": true,
         "gitRemote": "origin",
         "hideGenerator": true,
-        "disableOutputCheck": false,
-        "listInvalidSymbolLinks": true,
         "name" : "Converter of RSSAgent IRC logs into minutes in markdown"
     }
 }
