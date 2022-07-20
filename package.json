@@ -41,7 +41,7 @@
     "marked": "^4.0.10",
     "node-fetch": "^2.6.1",
     "octokat": "^0.8.0",
-    "terser": "^3.17.0",
+    "terser": "^4.8.1",
     "underscore": "^1.13.1",
     "valid-url": "^1.0.9",
     "xml2js": "^0.4.23"
