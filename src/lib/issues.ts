@@ -195,9 +195,14 @@ export async function titles(config: Configuration, content: string): Promise<Is
         } else if (issue_information.ids && issue_information.ids.length > 0) {
             const [organization, repo, issue] = issue_information.ids[0].split('/');
             try {
-                const info = await fetch_text(`https://api.github.com/repos/${organization}/${repo}/issues/${issue}`);
-                const info_js = JSON.parse(info);
-                return `${info_js.title} (${directive} ${repo}#${issue})`;
+                if (config.nogh) {
+                    // Just generate a temporary title, do not do any github api access to spare the github api limits
+                    return `${directive} ${repo}#${issue}`;
+                } else {
+                    const info = await fetch_text(`https://api.github.com/repos/${organization}/${repo}/issues/${issue}`);
+                    const info_js = JSON.parse(info);
+                    return `${info_js.title} (${directive} ${repo}#${issue})`;
+                }
             } catch (e) {
                 return '';
             }

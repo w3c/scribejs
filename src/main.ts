@@ -2,7 +2,7 @@
 /**
  * ## RSSAgent IRC logs Into Minutes in Markdown
  *
- * @version: 2.0.0
+ * @version: 2.0.4
  * @author: Ivan Herman, <ivan@w3.org> (https://www.w3.org/People/Ivan/)
  * @license: W3C Software License <https://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
  *

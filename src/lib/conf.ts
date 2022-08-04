@@ -24,6 +24,7 @@ const default_config: Global = {
     irc_format    : undefined,
     schema        : true,
     nick_mappings : {},
+    nogh          : false,
 };
 
 /**
@@ -122,6 +123,7 @@ export function get_config(): Global {
         .option('-p, --pandoc', 'whether the output is meant for a pandoc conversion input')
         .option('-i, --irc [format string]', 'use the RRSAgent rdf format, or an input format of a specific irc client\'s log,'
                                              + ' rather than the default RRSAgent log')
+        .option('-x, --nogh', 'whether this is a "dry run", i.e., no github api fetch is issued for the section titles')
         .on('--help', () => {
             console.log('  file:                      irc log file; if not present, retrieved from the W3C site');
         })
@@ -142,6 +144,7 @@ export function get_config(): Global {
     if (program.nick) argument_config.nicknames = program.nick;
     if (program.irc) argument_config.irc_format = program.irc;
     if (program.args) argument_config.input = program.args[0];
+    if (program.nogh) argument_config.nogh = true;
 
     const local = program.local ? true : false ;
 

@@ -1,5 +1,8 @@
 # Change log
 
+## Version 2.0.4
+
+* A "no gh" option is added to avoid calling out the Github Fetch API for (sub)topics. This is useful when running the script as a test for minutes that involves lots of github issues. The problem is that there is a limit on the number of Fetch API calls (around 60) and this can save some unnecessary calls.
 ## Version 2.0.3
 
 * The zakim "agendum" line output is converted into a bona fide `Topic:` line

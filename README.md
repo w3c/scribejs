@@ -43,11 +43,13 @@ scribejs [options] [filename]
                      Other values are (currently) ignored.
                      Default: undefined, meaning that the log provided by the W3C
                      RRSAgent is used.
+[--nogh|-x]:         To supress calling out to the Fetch API for the (sub)section titles.
 ```
 
 Some notes:
 
 - On the usage of the `--final` and `--auto` flags: by default, the script considers the minutes as drafts, and adds a "DRAFT" notice right after the title. This is in line with the practice that minutes are to be reviewed before the subsequent call before being considered as final. If the `--final` flag is used, this notice is not added to the final minutes; this is useful for minutes taken at a task force meeting, for example. The `--auto` flag provides an alternative to the explicit notice: instead of an explicit notice that title element (in the final HTML) a `class` value of `draft_notice_needed` is added to the title elements. Client side scripts may be used to control the appearance of a "Draft" notice, depending on, e.g., the date of the minutes.
+- On the usage of the `--nogh` flag: by default, the script converts a github issue URL appearing as the (only) title for a (sub)topic into the real issue title as extracted from github. The problem is that there is a limit on the number of github API calls (around 60) that can be issued in an hour and this limited pool can be unnecessary reduced if the script is only used to check the generated minutes (as opposed to the final minutes). This flag can be used for a "dry run".
 
 ### Configuration files
 

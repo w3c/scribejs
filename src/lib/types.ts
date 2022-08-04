@@ -143,6 +143,12 @@ export interface Configuration {
      * IRC log contained in the structure verbatim; this is when the script runs on the client side
      */
     irclog?:        string;
+
+    /**
+     * "Dry-run": whether the github API should really be used to find the topics or should be replaced
+     * by some temporary values.
+     */
+    nogh?:         boolean;
 }
 
 /**
