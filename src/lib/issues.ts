@@ -8,6 +8,7 @@
 import { zip }                                      from './utils';
 import { Configuration, IssueReference, Constants } from './types';
 import { fetch_text }                               from './io';
+import { GitHub }                                   from './js/githubapi';
 
 
 /**
@@ -195,9 +196,9 @@ export async function titles(config: Configuration, content: string): Promise<Is
         } else if (issue_information.ids && issue_information.ids.length > 0) {
             const [organization, repo, issue] = issue_information.ids[0].split('/');
             try {
-                const info = await fetch_text(`https://api.github.com/repos/${organization}/${repo}/issues/${issue}`);
-                const info_js = JSON.parse(info);
-                return `${info_js.title} (${directive} ${repo}#${issue})`;
+                const gh = new GitHub(`${organization}/${repo}`,config);
+                const i_title = await gh.get_issue_title(issue);
+                return `${i_title} (${directive} ${repo}#${issue})`;
             } catch (e) {
                 return '';
             }

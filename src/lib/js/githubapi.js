@@ -67,6 +67,26 @@ class GitHub {
     }
 
     /**
+     * Get the data for a single issue
+     */
+    async get_issue_info(issue_number) {
+        let info = await this.repo.issues.fetch(issue_number);
+        return info.items[0];
+    }
+
+    /**
+     * Get the title for a single issue
+     */
+    async get_issue_title(issue_number) {
+        try {
+            const info = await this.get_issue_info(issue_number);
+            return info.title
+        } catch (e) {
+            return "";
+        }
+    }
+
+    /**
      * Get the list of assignees' logins. The method takes care of paging.
      *
      * @return - list of github login names for the assignees
@@ -97,4 +117,3 @@ class GitHub {
 
 /* ------------------------------------------------------------ */
 module.exports = { GitHub };
-

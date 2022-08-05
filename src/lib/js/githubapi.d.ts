@@ -42,6 +42,19 @@ export class GitHub {
      */
     get_issue_titles(): Promise<string[]>;
 
+    /**
+     * Get the information structure of an issue.
+     * @return - information object for a single issue
+     * @async
+     */
+    get_issue_info(issue_number: number | string): Promise<any>;
+
+    /**
+     * Get the title of an single issue.
+     * @return - information object for a single issue
+     * @async
+     */
+    get_issue_title(issue_number: number | string): Promise<string>;
 
     /**
      * Get the list of assignees' logins. The method takes care of paging.
