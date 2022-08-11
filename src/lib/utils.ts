@@ -9,7 +9,26 @@
 import { LineObject, Header, Configuration, Global }    from './types';
 import { Constants }                                    from './types';
 import { url_to_issue_directive }                       from './issues';
+import { GitHub }                                       from './js/githubapi';
 import * as url                                         from 'url';
+
+/* ******************************************************************** */
+/*                     Cached Github interfaces                         */
+/* ******************************************************************** */
+/** @internal */
+interface GH_Cache {
+    [key:string]: GitHub
+}
+
+export class GitHubCache {
+    private static github_interfaces: GH_Cache = {};
+    static gh(repo_id: string, config: Configuration): GitHub {
+        if (GitHubCache.github_interfaces[repo_id] === undefined) {
+            GitHubCache.github_interfaces[repo_id] = new GitHub(repo_id, config);
+        }
+        return GitHubCache.github_interfaces[repo_id];
+    }
+}
 
 /** ******************************************************************* */
 /*                           Generic utilities                          */

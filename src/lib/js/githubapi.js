@@ -13,6 +13,11 @@ const string_to_base64 = (string) => Buffer.from(string).toString('base64');
  */
 class GitHub {
     /**
+     * Cache of the issue information structures; using this avoids unnecessary and repeated API calls for issue information
+     */
+    issue_infos = [];
+
+    /**
      *
      * @param {string} repo_id - Github repo identifier in a `owner/repo` format
      * @param {Object} conf - program configuration
@@ -49,24 +54,30 @@ class GitHub {
     }
 
     /**
-     * Get the list of issue structures as returned by the github api
+     * Get the list of issue structures as returned by the github API. Note that this method
+     * makes use of the class variable `issues_infos` as a cache.
+     *
+     * This method takes care of paging to get all the issues.
+     *
      * @returns - array of objects
      * @async
      */
     async get_issues() {
         let issues;
-        let retval = [];
-        let page_number = 1;
-        do {
-            issues = await this.repo.issues.fetch({per_page: 100, page: page_number});
-            page_number += 1;
-            retval = [...retval, ...issues.items]
-        } while (issues.nextPageUrl);
-        return retval;
+        if (this.issue_infos.length === 0) {
+            // fill the cache...
+            let page_number = 1;
+            do {
+                issues = await this.repo.issues.fetch({per_page: 100, page: page_number});
+                page_number += 1;
+                this.issue_infos = [...this.issue_infos, ...issues.items]
+            } while (issues.nextPageUrl);
+        }
+        return this.issue_infos;
     }
 
     /**
-     * Get the list of issue titles. The method takes care of paging.
+     * Get the list of issue titles.
      *
      * @return - array of issue titles
      * @async
@@ -84,7 +95,7 @@ class GitHub {
      */
     async get_issue_info(issue_number) {
         let infos = await this.get_issues();
-        return infos.find( (element) => `${element.number}` === `${issue_number}`);
+        return infos.find((element) => `${element.number}` === `${issue_number}`);
     }
 
     /**
