@@ -35,7 +35,17 @@ export class GitHub {
     commit_data(path: string): Promise<string>;
 
     /**
-     * Get the list of issue titles. The method takes care of paging.
+     * Get the list of issue structures as returned by the github api.
+     * The method takes care of paging.
+     *
+     * @param issue_number - issue number
+     * @return - array of objects
+     * @async
+     */
+    get_issues(): Promise<any[]>;
+
+    /**
+     * Get the list of issue titles.
      *
      * @return - array of issue titles
      * @async
@@ -47,7 +57,7 @@ export class GitHub {
      * @return - information object for a single issue
      * @async
      */
-    get_issue_info(issue_number: number | string): Promise<any>;
+    get_issue_info(issue_number: number | string): Promise<any | undefined>;
 
     /**
      * Get the title of an single issue.
