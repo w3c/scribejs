@@ -23,5 +23,11 @@
         "dir"       : "/Users/ivan/W3C/github/VC/verifiable-credentials"
     },
     "extra_calls": {
+        "vcwg-special": {
+            "acurlpattern" : "https://www.w3.org/2017/vc/WG/Meetings/Minutes/%DATE%-vcwg-special",
+            "final"        : true,
+            "mail_subject" : "VC Working Group Special Call"
+
+        }
     }
 }
