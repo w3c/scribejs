@@ -500,6 +500,8 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
             || line_object.content_lower.startsWith('qq+')
             || line_object.content_lower.startsWith('q-')
             || line_object.content_lower.startsWith('q?')
+            || line_object.content_lower.startsWith('q ')
+            || line_object.content_lower === 'q'
             || line_object.content_lower.startsWith('ack')
             || line_object.content_lower.startsWith('agenda+')
             || line_object.content_lower.startsWith('agenda?')

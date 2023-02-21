@@ -1,5 +1,9 @@
 # Change log
 
+## Version 2.0.5
+
+* Filter out the zakim 'q' command (i.e., the standalone 'q' that displays the queue content with possible comments, one line per entry)
+
 ## Version 2.0.4
 
 * Getting the titles of issues (or pull requests) is happening now through the Github/octocat interface layer rather than via direct GET URL-s to the Github API. i.e.,  the data is queried via the OAUTH approach, ie, as an authenticated request. This is necessary to avoid hitting the limit of 60 queries per minutes which is imposed at unauthenticated API accesses. (If a WG call handles _lots_ of issues this limits may be easily reached…)
