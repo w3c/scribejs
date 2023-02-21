@@ -1578,7 +1578,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.titles = exports.issue_directives = exports.url_to_issue_directive = void 0;
 const utils_1 = require("./utils");
 const types_1 = require("./types");
-const githubapi_1 = require("./js/githubapi");
 /**
  * Convert any line that contains exclusively a URL to an issue/PR URL into a scribejs directive on issues.
  * Similarly, if the line is a topic setting line, and the only entry for the section title is an
@@ -1760,7 +1759,8 @@ async function titles(config, content) {
         else if (issue_information.ids && issue_information.ids.length > 0) {
             const [organization, repo, issue] = issue_information.ids[0].split('/');
             try {
-                const gh = new githubapi_1.GitHub(`${organization}/${repo}`, config);
+                //const gh = new GitHub(`${organization}/${repo}`,config);
+                const gh = utils_1.GitHubCache.gh(`${organization}/${repo}`, config);
                 const i_title = await gh.get_issue_title(issue);
                 return `${i_title} (${directive} ${repo}#${issue})`;
             }
@@ -1795,7 +1795,7 @@ async function titles(config, content) {
 }
 exports.titles = titles;
 
-},{"./js/githubapi":9,"./types":10,"./utils":11}],9:[function(require,module,exports){
+},{"./types":10,"./utils":11}],9:[function(require,module,exports){
 (function (Buffer){
 
 'use strict';
@@ -1813,6 +1813,10 @@ class GitHub {
      * @param {Object} conf - program configuration
      */
     constructor(repo_id, conf) {
+        /**
+         * Cache of the issue information structures; using this avoids unnecessary and repeated API calls for issue information
+         */
+        this.issue_infos = [];
         const octo = new Octokat({ token: conf.ghtoken });
         this.repo = octo.repos(...repo_id.split('/'));
     }
@@ -1841,31 +1845,53 @@ class GitHub {
         return retval.content.htmlUrl;
     }
     /**
-     * Get the list of issue titles. The method takes care of paging.
+     * Get the list of issue structures as returned by the github API. Note that this method
+     * makes use of the class variable `issues_infos` as a cache.
+     *
+     * This method takes care of paging to get all the issues.
+     *
+     * @returns - array of objects
+     * @async
+     */
+    async get_issues() {
+        let issues;
+        if (this.issue_infos.length === 0) {
+            // fill the cache...
+            let page_number = 1;
+            do {
+                issues = await this.repo.issues.fetch({ per_page: 100, page: page_number });
+                page_number += 1;
+                this.issue_infos = [...this.issue_infos, ...issues.items];
+            } while (issues.nextPageUrl);
+        }
+        return this.issue_infos;
+    }
+    /**
+     * Get the list of issue titles.
      *
      * @return - array of issue titles
      * @async
      */
     async get_issue_titles() {
-        let issues;
-        let retval = [];
-        let page_number = 1;
-        do {
-            issues = await this.repo.issues.fetch({ per_page: 100, page: page_number });
-            page_number += 1;
-            retval = [...retval, ...issues.items];
-        } while (issues.nextPageUrl);
+        let retval = await this.get_issues();
         return retval.map((issue) => issue.title);
     }
     /**
      * Get the data for a single issue
+     * @param {string|number} issue_number - Issue number
+     * @return - the specific issue structure, or undefined
+     * @async
      */
     async get_issue_info(issue_number) {
-        let info = await this.repo.issues.fetch(issue_number);
-        return info.items[0];
+        let infos = await this.get_issues();
+        return infos.find((element) => `${element.number}` === `${issue_number}`);
     }
     /**
      * Get the title for a single issue
+     *
+     * @param {string|number} issue_number - Issue number
+     * @return {string} - title of the issue, or empty string if issue number is invalid
+     * @async
      */
     async get_issue_title(issue_number) {
         try {
@@ -1964,10 +1990,21 @@ var Constants;
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.add_links = exports.check_url = exports.split_to_words = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
+exports.add_links = exports.check_url = exports.split_to_words = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = exports.GitHubCache = void 0;
 const types_1 = require("./types");
 const issues_1 = require("./issues");
+const githubapi_1 = require("./js/githubapi");
 const url = require("url");
+class GitHubCache {
+    static gh(repo_id, config) {
+        if (GitHubCache.github_interfaces[repo_id] === undefined) {
+            GitHubCache.github_interfaces[repo_id] = new githubapi_1.GitHub(repo_id, config);
+        }
+        return GitHubCache.github_interfaces[repo_id];
+    }
+}
+exports.GitHubCache = GitHubCache;
+GitHubCache.github_interfaces = {};
 /** ******************************************************************* */
 /*                           Generic utilities                          */
 /** ******************************************************************* */
@@ -2419,6 +2456,8 @@ function cleanup(minutes, config) {
         || line_object.content_lower.startsWith('qq+')
         || line_object.content_lower.startsWith('q-')
         || line_object.content_lower.startsWith('q?')
+        || line_object.content_lower.startsWith('q ')
+        || line_object.content_lower === 'q'
         || line_object.content_lower.startsWith('ack')
         || line_object.content_lower.startsWith('agenda+')
         || line_object.content_lower.startsWith('agenda?')
@@ -2848,7 +2887,7 @@ function add_links(line) {
 exports.add_links = add_links;
 
 }).call(this,require('_process'))
-},{"./issues":8,"./types":10,"_process":96,"url":102}],12:[function(require,module,exports){
+},{"./issues":8,"./js/githubapi":9,"./types":10,"_process":96,"url":102}],12:[function(require,module,exports){
 'use strict';
 
 var compileSchema = require('./compile')

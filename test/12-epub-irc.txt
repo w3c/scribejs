@@ -35,7 +35,7 @@
 00:07:52 <dauwhe> toshiakikoike: this feature is supported by voyager reading system, but not many epub files use this feature
 00:08:15 <dauwhe> ... he expects epubcheck would not mark as error
 00:08:28 <dauwhe> q+
-00:08:50 <florian> q?
+00:08:50 <florian> q
 00:09:00 <shiestyle> ack dauwhe
 00:10:23 <dauwhe> dauwhe: not sure how epubcheck will deal with `<meta>` properties... it actually might be easier
 00:10:49 <dauwhe> ... am I correct that people don't really see this as necessary/
