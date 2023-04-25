@@ -44,7 +44,7 @@
     "terser": "^4.8.1",
     "underscore": "^1.13.1",
     "valid-url": "^1.0.9",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.5.0"
   },
   "devDependencies": {
     "@types/ajv": "^1.0.0",
