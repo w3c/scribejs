@@ -195,8 +195,6 @@ export async function titles(config: Configuration, content: string): Promise<Is
         } else if (issue_information.ids && issue_information.ids.length > 0) {
             const [organization, repo, issue] = issue_information.ids[0].split('/');
             try {
-                //const gh = new GitHub(`${organization}/${repo}`,config);
-
                 const gh: GitHub = GitHubCache.gh(`${organization}/${repo}`,config)
                 const i_title = await gh.get_issue_title(issue);
                 return `${i_title} (${directive} ${repo}#${issue})`;

@@ -889,6 +889,7 @@ export function check_url(str: string): boolean {
 * @returns {String} - the converted line
 */
 export function add_links(line: string): string {
+
     /**
      * Convert (if applicable) a "Ralph style link", i.e., a '->' followed by a URL and a text, into a structure
      * with the link data part and a url_part
@@ -958,6 +959,7 @@ export function add_links(line: string): string {
         return `See [${link_part}](${url_part}).`
     } else {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
+        const final_text = replace_links(words).map(simple_link_exchange).join(' ');
+        return final_text.match(/[.!?]$/) === null ? final_text + '.' : final_text;
     }
 }

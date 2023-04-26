@@ -946,8 +946,12 @@ class Converter {
      */
     generate_preamble(headers) {
         let header_class = '';
+        let draft_notice = '';
         if (this.kramdown) {
             header_class = (this.global.final === true || this.global.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
+            if (this.global.final === false && this.global.auto === false) {
+                draft_notice = '{: .draft_notice}';
+            }
         }
         else {
             header_class = '';
@@ -957,7 +961,7 @@ class Converter {
 # ${headers.meeting} — Minutes
 ${header_class}
 ${this.global.final === true || this.global.auto === true ? '' : '***– DRAFT Minutes –***'}
-${(this.global.final === true || this.global.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
+${draft_notice}
 
 **Date:** ${headers.date}
 
@@ -1054,7 +1058,13 @@ ${no_toc}
                 TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`;
             }
             else {
-                const auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
+                let auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
+                // A possible trailing '.' character should be removed from the ID value.
+                // The auto ID provided by GH/markdown does that, and unless it is removed
+                // here the link will not work.
+                if (auto_id.endsWith('.')) {
+                    auto_id = auto_id.slice(0, auto_id.length - 1);
+                }
                 retval = `\n\n${header_level}${numbering}. ${bare_content}`;
                 TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`;
             }
@@ -1759,7 +1769,6 @@ async function titles(config, content) {
         else if (issue_information.ids && issue_information.ids.length > 0) {
             const [organization, repo, issue] = issue_information.ids[0].split('/');
             try {
-                //const gh = new GitHub(`${organization}/${repo}`,config);
                 const gh = utils_1.GitHubCache.gh(`${organization}/${repo}`, config);
                 const i_title = await gh.get_issue_title(issue);
                 return `${i_title} (${directive} ${repo}#${issue})`;
@@ -2881,7 +2890,8 @@ function add_links(line) {
     }
     else {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
+        const final_text = replace_links(words).map(simple_link_exchange).join(' ');
+        return final_text.match(/[.!?]$/) === null ? final_text + '.' : final_text;
     }
 }
 exports.add_links = add_links;

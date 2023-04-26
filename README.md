@@ -33,7 +33,7 @@ scribejs [options] [filename]
 [--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
                      Default: false.
 [--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll
-                     combination. Value can be "none", "md", or "kd"; (see below)
+                     combination. Value can be "none", "md", or "kd"; (see below
                      for further details.)
                      Default: "md".
 [--irc|-i] client:   Whether the input is of the log format of a particular IRC client.
