@@ -1,5 +1,9 @@
 # Change log
 
+## Version 2.0.6
+
+* The "Topic: URL-to-an-issue" feature, that extracted the title from the issue reference and added a directive for the issue, worked for w3c hosted repositories only, even if the configuration file referred to different repo owners. This has been generalized.
+
 ## Version 2.0.5
 
 * Filter out the zakim 'q' command (i.e., the standalone 'q' that displays the queue content with possible comments, one line per entry)
