@@ -29,6 +29,7 @@
 00:05:13 <toshiakikoike> +q
 00:06:05 <shiestyle> ack toshiakikoike
 00:06:21 <dauwhe> action: ivan to report some wonderful things
+00:06:21 <dauwhe> topic: https://github.com/w3c/epub-specs/issues/2583
 00:06:21 <dauwhe> toshiakikoike: proposed on github
 00:06:59 <dauwhe> ... every reader can implement
 00:07:52 <dauwhe> toshiakikoike: this feature is supported by voyager reading system, but not many epub files use this feature
