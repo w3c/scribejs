@@ -1,0 +1,23 @@
+23:40:37 <RRSAgent> RRSAgent has joined #epub
+23:40:37 <RRSAgent> logging to https://www.w3.org/2020/11/12-epub-irc
+23:40:39 <Zakim> RRSAgent, make logs Public
+23:40:41 <Zakim> please title this meeting ("meeting: ..."), dauwhe
+23:40:51 <dauwhe> Meeting: EPUB 3 Working Group Telecon
+23:40:58 <dauwhe> Date: 2020-11-12
+23:54:08 <dauwhe> Guest+ dauwhe
+23:56:46 <shiestyle> present+
+23:59:49 <florian> guest+
+23:59:58 <MasakazuKitahara> present+
+000:04:51 <dauwhe> shiestyle: this is not supported by major reading systems
+00:05:03 <dauwhe> ... and perhaps not very many files use this?
+00:05:13 <toshiakikoike> +q
+00:06:05 <shiestyle> ack toshiakikoike
+00:06:21 <dauwhe> toshiakikoike: proposed on github
+00:06:43 <dauwhe> https://github.com/w3c/epub-specs/issues/1380#issuecomment-719108924
+00:06:59 <dauwhe> ... every reader can implement
+15:16:25 <brent> topic: https://github.com/iherman/mprocessing_tests/issues/21
+00:07:52 <dauwhe> toshiakikoike: this feature is supported by voyager reading system, but not many epub files use this feature
+00:08:15 <dauwhe> ... he expects epubcheck would not mark as error
+00:08:15 <dauwhe> topic: https://github.com/w3c/vc-data-model/pull/1332
+00:08:28 <dauwhe> q+
+00:09:00 <shiestyle> something said

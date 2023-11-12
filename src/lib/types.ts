@@ -41,7 +41,7 @@ export namespace Constants {
     export const protocols = ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'];
 
     // Parse a github issue/pr URL, and indexes into the regexp result to extract specific data
-    export const issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/w3c\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
+    export const issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/[-+a-z0-9_.]+\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
     export const ip_repo_index = 3;
     export const ip_type = 4;
     export const ip_issue = 5;
