@@ -457,10 +457,12 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
                 // The "real" agenda item is surrounded by a '--' string.
                 try {
                     const topic = line_object.content.match(Constants.agenda_regexp);
-                    line_object.content = `Topic: ${topic[1]}`;
-                    // Replacing the nickname; it should not remain "zakim" because that is removed later;
-                    // because it is a topic line, the nickname will not appear in the output
-                    line_object.nick = 'scribejs';
+                    if (topic !== null) {
+                        line_object.content = `Topic: ${topic[1]}`;
+                        // Replacing the nickname; it should not remain "zakim" because that is removed later;
+                        // because it is a topic line, the nickname will not appear in the output
+                        line_object.nick = 'scribejs';
+                    }
                 } catch (error) {
                     // the agendum prefix can also appear for other commands which may lead to an exception here...
                     // just finish the stuff
@@ -493,24 +495,30 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
             && line_object.nick !== 'agendabot'
             && line_object.nick !== 'trackbot'
         ))
-        .filter((line_object: LineObject): boolean => !(
-            line_object.content_lower.startsWith('q+')
-            || line_object.content_lower.startsWith('+q')
-            || line_object.content_lower.startsWith('vq?')
-            || line_object.content_lower.startsWith('qq+')
-            || line_object.content_lower.startsWith('q-')
-            || line_object.content_lower.startsWith('q?')
-            || line_object.content_lower.startsWith('q ')
-            || line_object.content_lower === 'q'
-            || line_object.content_lower.startsWith('ack')
-            || line_object.content_lower.startsWith('agenda+')
-            || line_object.content_lower.startsWith('agenda?')
-            || line_object.content_lower.startsWith('trackbot,')
-            || line_object.content_lower.startsWith('zakim,')
-            || line_object.content_lower.startsWith('rrsagent,')
-            || line_object.content_lower.startsWith('github topic')
-            || line_object.content_lower.startsWith('github-bot,')
-        ))
+        .filter((line_object: LineObject): boolean => {
+            if (line_object === undefined || line_object.content_lower === undefined) {
+                return false;
+            } else {
+                return !(
+                    line_object.content_lower.startsWith('q+')
+                    || line_object.content_lower.startsWith('+q')
+                    || line_object.content_lower.startsWith('vq?')
+                    || line_object.content_lower.startsWith('qq+')
+                    || line_object.content_lower.startsWith('q-')
+                    || line_object.content_lower.startsWith('q?')
+                    || line_object.content_lower.startsWith('q ')
+                    || line_object.content_lower === 'q'
+                    || line_object.content_lower.startsWith('ack')
+                    || line_object.content_lower.startsWith('agenda+')
+                    || line_object.content_lower.startsWith('agenda?')
+                    || line_object.content_lower.startsWith('trackbot,')
+                    || line_object.content_lower.startsWith('zakim,')
+                    || line_object.content_lower.startsWith('rrsagent,')
+                    || line_object.content_lower.startsWith('github topic')
+                    || line_object.content_lower.startsWith('github-bot,')
+                );
+            }
+        })
         // There are some irc messages that should be taken care of
         .filter((line_object: LineObject): boolean => !(
             line_object.content.match(/^\w+ has joined #\w+/)
@@ -894,7 +902,7 @@ export function add_links(line: string): string {
      * Convert (if applicable) a "Ralph style link", i.e., a '->' followed by a URL and a text, into a structure
      * with the link data part and a url_part
      */
-    const ralph_style_links = (words: string[]): {link_part: string, url_part: string} => {
+    const ralph_style_links = (words: string[]): {link_part: string, url_part: string|undefined} => {
         if ((words[0] === '->' || words[0] === '-->') && words.length >= 3 && check_url(words[1])) {
             const url_part = words[1];
             const link_part = words.slice(2).join(' ');
