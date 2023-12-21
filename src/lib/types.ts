@@ -24,6 +24,12 @@ export namespace Constants {
     export const textual_preamble_size  = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
     export const textual_regexp  = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
 
+    /** Number of characters added to each line by The Lounge */
+    export const lounge_preamble_size = 2 + 1 + 2 + 1;
+    /** Regex to filter out the preamble of each line in The Lounge */
+    export const lounge_regexp = /^[0-9]{2}:[0-9]{2}/
+
+
     export const issue_regexp    = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
 
     export const agenda_regexp   = /.* \-\- (.*) \-\-.*/;
