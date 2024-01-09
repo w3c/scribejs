@@ -27,7 +27,7 @@ export namespace Constants {
     /** Number of characters added to each line by The Lounge */
     export const lounge_preamble_size = 2 + 1 + 2 + 1;
     /** Regex to filter out the preamble of each line in The Lounge */
-    export const lounge_regexp = /^[0-9]{2}:[0-9]{2}/
+    export const lounge_regexp = /^[0-9]{2}:[0-9]{2} /
 
 
     export const issue_regexp    = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
