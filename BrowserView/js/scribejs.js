@@ -1965,6 +1965,10 @@ var Constants;
     Constants.irccloud_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/;
     Constants.textual_preamble_size = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
     Constants.textual_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
+    /** Number of characters added to each line by The Lounge */
+    Constants.lounge_preamble_size = 2 + 1 + 2 + 1;
+    /** Regex to filter out the preamble of each line in The Lounge */
+    Constants.lounge_regexp = /^[0-9]{2}:[0-9]{2} /;
     Constants.issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
     Constants.agenda_regexp = /.* \-\- (.*) \-\-.*/;
     Constants.user_config_name = '.scribejs.json';
@@ -2123,6 +2127,7 @@ function remove_preamble(line, config) {
             switch (config.irc_format) {
                 case 'irccloud': return types_1.Constants.irccloud_preamble_size;
                 case 'textual': return types_1.Constants.textual_preamble_size;
+                case 'lounge': return types_1.Constants.lounge_preamble_size;
                 case 'rrsagent':
                 default: return types_1.Constants.rrsagent_preamble_size;
             }
@@ -2134,6 +2139,10 @@ function remove_preamble(line, config) {
         else if (the_line.match(types_1.Constants.textual_regexp) !== null) {
             config.irc_format = 'textual';
             return types_1.Constants.textual_preamble_size;
+        }
+        else if (the_line.match(types_1.Constants.lounge_regexp) !== null) {
+            config.irc_format = 'lounge';
+            return types_1.Constants.lounge_preamble_size;
         }
         else {
             config.irc_format = 'rrsagent';
@@ -2396,6 +2405,16 @@ function cleanup(minutes, config) {
                     || stripped_line[0] === '⇐'
                     || stripped_line[0] === '←');
             }
+            case 'lounge': {
+                const stripped_line = line.trim();
+                return !(stripped_line.length === 0
+                    || stripped_line[0] === '*'
+                    || stripped_line.includes('zakim')
+                    || stripped_line.includes('Zakim')
+                    || stripped_line.includes('RRSAgent')
+                    || stripped_line.includes('github-bot')
+                    || stripped_line.includes('agendabot'));
+            }
             default: {
                 return true;
             }
@@ -2427,10 +2446,12 @@ function cleanup(minutes, config) {
             // The "real" agenda item is surrounded by a '--' string.
             try {
                 const topic = line_object.content.match(types_1.Constants.agenda_regexp);
-                line_object.content = `Topic: ${topic[1]}`;
-                // Replacing the nickname; it should not remain "zakim" because that is removed later;
-                // because it is a topic line, the nickname will not appear in the output
-                line_object.nick = 'scribejs';
+                if (topic !== null) {
+                    line_object.content = `Topic: ${topic[1]}`;
+                    // Replacing the nickname; it should not remain "zakim" because that is removed later;
+                    // because it is a topic line, the nickname will not appear in the output
+                    line_object.nick = 'scribejs';
+                }
             }
             catch (error) {
                 // the agendum prefix can also appear for other commands which may lead to an exception here...
@@ -2459,22 +2480,29 @@ function cleanup(minutes, config) {
         && line_object.nick !== 'github-bot'
         && line_object.nick !== 'agendabot'
         && line_object.nick !== 'trackbot'))
-        .filter((line_object) => !(line_object.content_lower.startsWith('q+')
-        || line_object.content_lower.startsWith('+q')
-        || line_object.content_lower.startsWith('vq?')
-        || line_object.content_lower.startsWith('qq+')
-        || line_object.content_lower.startsWith('q-')
-        || line_object.content_lower.startsWith('q?')
-        || line_object.content_lower.startsWith('q ')
-        || line_object.content_lower === 'q'
-        || line_object.content_lower.startsWith('ack')
-        || line_object.content_lower.startsWith('agenda+')
-        || line_object.content_lower.startsWith('agenda?')
-        || line_object.content_lower.startsWith('trackbot,')
-        || line_object.content_lower.startsWith('zakim,')
-        || line_object.content_lower.startsWith('rrsagent,')
-        || line_object.content_lower.startsWith('github topic')
-        || line_object.content_lower.startsWith('github-bot,')))
+        .filter((line_object) => {
+        if (line_object === undefined || line_object.content_lower === undefined) {
+            return false;
+        }
+        else {
+            return !(line_object.content_lower.startsWith('q+')
+                || line_object.content_lower.startsWith('+q')
+                || line_object.content_lower.startsWith('vq?')
+                || line_object.content_lower.startsWith('qq+')
+                || line_object.content_lower.startsWith('q-')
+                || line_object.content_lower.startsWith('q?')
+                || line_object.content_lower.startsWith('q ')
+                || line_object.content_lower === 'q'
+                || line_object.content_lower.startsWith('ack')
+                || line_object.content_lower.startsWith('agenda+')
+                || line_object.content_lower.startsWith('agenda?')
+                || line_object.content_lower.startsWith('trackbot,')
+                || line_object.content_lower.startsWith('zakim,')
+                || line_object.content_lower.startsWith('rrsagent,')
+                || line_object.content_lower.startsWith('github topic')
+                || line_object.content_lower.startsWith('github-bot,'));
+        }
+    })
         // There are some irc messages that should be taken care of
         .filter((line_object) => !(line_object.content.match(/^\w+ has joined #\w+/)
         || line_object.content.match(/^\w+ has left #\w+/)
