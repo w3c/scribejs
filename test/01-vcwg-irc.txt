@@ -1,0 +1,222 @@
+14:41:05 <RRSAgent> RRSAgent has joined #vcwg
+14:41:10 <RRSAgent> logging to https://www.w3.org/2023/11/01-vcwg-irc
+14:41:10 <Zakim> RRSAgent, make logs Public
+14:41:11 <Zakim> please title this meeting ("meeting: ..."), ivan
+14:41:34 <ivan> Meeting: Verifiable Credentials Working Group Telco
+14:41:34 <ivan> Date: 2023-11-01
+14:41:34 <ivan> Agenda: https://www.w3.org/events/meetings/ae05a21b-c065-4e69-8d5e-352a0d391513/20231101T110000/
+14:41:34 <ivan> chair: brent
+14:58:07 <hsano> hsano has joined #vcwg
+14:59:59 <ivan> present+
+15:00:06 <ivan> present+ identitywoman
+15:00:10 <brent> present+
+15:01:34 <manu> present+
+15:02:02 <andres> andres has joined #vcwg
+15:02:07 <andres> present+
+15:02:30 <ivan> present+ bigbluehat
+15:02:48 <TallTed> TallTed has joined #vcwg
+15:03:20 <ivan> present+ tallted, joeandrieu, hsano
+15:04:06 <JoeAndrieu> JoeAndrieu has joined #vcwg
+15:04:25 <JoeAndrieu> present+
+15:04:30 <TallTed> present+
+15:04:46 <hsano> present+
+15:04:56 <pauld_gs1> pauld_gs1 has joined #vcwg
+15:04:59 <pauld_gs1> present+
+15:06:11 <pauld_gs1> scribe+
+15:06:21 <ivan> present+ dmitri
+15:07:13 <pauld_gs1> brent: review minutes from yesterday.. progress on a number of PRs.
+15:07:18 <ivan> present+ will
+15:07:45 <pauld_gs1> brent: we are now 1 month overdue for CR on core data model. We are going to be more aggressive on closing or deferring issues that we would otherwise love to work on.
+15:08:01 <pauld_gs1> brent: propose additions to agenda?
+15:08:30 <decentralgabe> decentralgabe has joined #vcwg
+15:08:35 <brent> Topic: Work Item status updates/PRs
+15:08:37 <decentralgabe> present+
+15:08:37 <identitywoman> identitywoman has joined #vcwg
+15:08:41 <identitywoman> present+
+15:08:42 <manu> q+
+15:08:48 <brent> ack manu
+15:09:25 <pauld_gs1> manu: VCDM. We went through all PRs yesterday. check minutes.  ECDSA and EDDSA have no active PRs. Waiting for CR publication next tuesday.
+15:09:34 <ivan> q+
+15:10:01 <pauld_gs1> manu: Data integrity BBS specification... getting ready to align with the other specs that Greg did. Thanks Ted for 85 updates.
+15:10:25 <ivan> present+ gabe, dlongley
+15:10:30 <pauld_gs1> manu: VC Bit-string-status-list.  The renaming has been redone on the repo.  A new PR on media types.
+15:10:35 <brent> ack ivan
+15:11:36 <pauld_gs1> ivan: To be precise: the 4 related data integrity specs have been *requested* for CR next Tuesday. Hopefully approval will come in time.
+15:11:37 <decentralgabe> q+
+15:11:46 <manu> q+ to mention controller document
+15:12:05 <brent> ack decentralgabe
+15:12:17 <brent> ack manu
+15:12:17 <Zakim> manu, you wanted to mention controller document
+15:12:22 <pauld_gs1> decentralgabe: For jose/cose: Changes and updates hopefully coming next week.
+15:13:02 <ivan> q+
+15:13:33 <brent> ack ivan
+15:13:33 <pauld_gs1> manu: Working group decided to create a controller document work item vc-controller-document. Mike Jones and Manu will edit.  Manu will pull content from Data integrity.  This will be done over the next couple weeks.  My intention is the group to go to a draft quickly.  We need to move it to CR quickly.  Thoughts?
+15:13:52 <pauld_gs1> … We need: vc-controller-document repository
+15:14:26 <Will> Will has joined #vcwg
+15:14:53 <pauld_gs1> brent: to the question of how soon for CR for this document.  As soon as we can, but its premature to say. When we get a better feel for the scope we can make that determination.
+15:15:23 <pauld_gs1> brent: originally planned to discuss core data model 1271 but Orie is not here.  His is the outstanding request for changes.  Not fruitful.
+15:16:01 <ivan> q+
+15:16:06 <pauld_gs1> brent: we will be merging 1295 and 1297 when they get cleaned up.  Avoiding discussion of post-CR PRs until we get into CR.  So if you have one, that's great.  but we won't be taking group time until after CR.
+15:16:11 <przemek> present+
+15:16:25 <brent> topic: https://github.com/w3c/vc-data-model/pull/1332
+15:16:31 <pauld_gs1> brent: there are two recently opened to take a look at now.
+15:16:59 <pauld_gs1> brent: Adds a comparison to the NIST definition of credentials. Adds a sentence that says its different than the NIST definition.  Comments?
+15:17:03 <brent> ack ivan
+15:17:04 <manu> +1 to straightfoward PR -- would like some editorial changes there, but nothing blocking.
+15:18:31 <brent> subtopic: https://github.com/iherman/mprocessing_tests/issues/21
+15:17:47 <pauld_gs1> ivan: There is one PR 1326 last week that is labeled as Post-CR, but I wonder whether this is not a Pre-CR PR.  It does include a more precise and normative definition on which part of a credential representation the proof property applies to.
+15:18:06 <manu> q+
+15:18:10 <pauld_gs1> brent: I am happy to make that change.
+15:18:21 <brent> ack manu
+15:18:21 <pauld_gs1> ivan: Maybe Dave Manu and Ted have already looked at it.
+15:18:39 <pauld_gs1> manu: The PR needs to be re-based. There are a whole bunch of changes which makes it difficult to review.
+15:18:52 <pauld_gs1> ivan: I put a separate preview into the instance.
+15:19:07 <pauld_gs1> manu: I can try to rebase to see which normative language is modified.
+15:19:17 <pauld_gs1> ivan: Extremely grateful if you did that.
+15:19:24 <pauld_gs1> manu: Do you which normative text?
+15:19:42 <pauld_gs1> ivan: There is a terminology change and the definition of the `proof` property both for a credential and a presentation.
+15:19:51 <pauld_gs1> manu: we need to deal with this pre-CR.
+15:20:11 <pauld_gs1> ivan: As an answer to Henry raised issue. So that issue can be closed if this PR gets accepted.
+15:20:30 <pauld_gs1> brent: I will change from Post-CR to Pre-CR.  Only outstanding requests for changes are from Ted.  Welcome to speak on changes.
+15:20:34 <TallTed> q+
+15:20:43 <brent> ack TallTed
+15:21:04 <pauld_gs1> TallTed: My concern is the reference to the default graph. Its used for the first time in this document. I don't think it has the meaning intended.
+15:21:09 <pauld_gs1> ivan: I think we do disagree on that.
+15:21:30 <pauld_gs1> brent: This conversation can continue in the PR.  Manu has agreed to rebase and cleanup.
+15:21:36 <brent> subtopic: https://github.com/w3c/vc-data-model/pull/1333
+15:21:47 <manu> q+
+15:22:05 <brent> ack manu
+15:22:07 <pauld_gs1> brent: Add comment on localizing vocabulary terms. Raised in response to issue 1289. This is a before CR PR.  Its a relatively minor change. Comments?
+15:22:35 <dlongley> +1 not to merge because the example won't be what we do
+15:23:18 <pauld_gs1> manu: The second part of the change is fine except that it is not what we will end up doing. We can't alias value because schema.org uses it.  Queued for a future call.  The commentary around the vocab is weird.  Not sure why we are saying that. Suggest that we don't put that language in there. Its a low level detail we are raising.
+15:23:44 <brent> Topic: Issue Discussion
+15:24:08 <pauld_gs1> brent: Moving to discussion of issues. Talking about issued labeled before CR.
+15:24:08 <brent> https://github.com/w3c/vc-data-model/issues?q=is%3Aopen+is%3Aissue+label%3Abefore-CR+sort%3Aupdated-asc+-label%3A%22pr+exists%22+-label%3A%22ready+for+PR%22+
+15:24:34 <brent> subtopic: https://github.com/w3c/vc-data-model/issues/1285
+15:25:14 <manu> q+
+15:25:39 <pauld_gs1> brent: This is a long review received from the AC rep for google. My understanding that there are only one or two things requesting that could lead to a formal rejection if not addressed.  Specifically, he is looking for an algorithm that a verifier should run to verify claims from an issuer.
+15:25:52 <brent> ack manu
+15:25:57 <pauld_gs1> brent: a number of things have been extracted into individual issues. The intention is for that to continue.
+15:26:51 <pauld_gs1> manu: I got up to his comments on section 4.1.  Still need to go to section 8.2. Kristina has done a pass as well.  This is in process.  I have the PR where he wants to see the verification algorithm half worked up, but there will be a PR in the next two weeks.
+15:27:15 <pauld_gs1> brent: not seeking to assign a person to this issues because it will be broken into individual issues.
+15:27:31 <brent> subtopic: https://github.com/w3c/vc-data-model/issues/1319
+15:28:43 <manu> q+
+15:29:13 <manu> q-
+15:30:55 <pauld_gs1_> pauld_gs1_ has joined #vcwg
+15:30:59 <pauld_gs1_> present+
+15:32:12 <pauld_gs1_> ivan: Originally people should have reviewed domain and range statements for vocab.  There was an issue where these were incorrect.  Proposal to close 1319 and if there is a specific issue with a property, raise a separate issue
+15:32:26 <pauld_gs1_> ugh
+15:32:48 <brent> subtopic: https://github.com/w3c/vc-data-model/issues/1155
+15:33:15 <pauld_gs1_> brent: this is the generic internationalization. Now that it points to 1264, we can close this one.  Do I remember correctly>
+15:33:36 <pauld_gs1_> brent: 1155 is now closed.
+15:33:43 <brent> subtopic: https://github.com/w3c/vc-data-model/issues/1300
+15:34:00 <manu> q+
+15:34:05 <pauld_gs1_> brent: clarify what conformance means to issuers and verifiers.  Assigned to Manu and Joe. What is the status?
+15:34:06 <brent> ack manu
+15:34:34 <pauld_gs1_> manu: Still needs a PR written. I intend to do this, but cannot give a timeline.  We should try to address this. Maybe someone else can get to it before I do.
+15:34:53 <pauld_gs1_> brent: thank you. Agree we should not close and it should have a PR.
+15:34:59 <brent> subtopic: https://github.com/w3c/vc-data-model/issues/1290
+15:39:57 <ivan> https://github.com/w3c/vc-data-model/pull/1302
+15:35:23 <manu> q+
+15:35:42 <pauld_gs1_> brent: JSON only processor and VCDM 2.0 conformance. Raised by Oliver and not assigned to anyone. He brings up good points about how we define it in the spec. If no one gets assigned it can't move forward.
+15:35:44 <brent> ack manu
+15:36:37 <ivan> q+
+15:36:37 <dlongley> "credential specific" is another to use if application-specific is too broad
+15:37:18 <brent> q+
+15:37:20 <pauld_gs1_> manu: I'm wondering if we can get direction from the group. Its clear that people don't like the term "json processing". There have been two alternative terms proposed.  We stop calling it JSON processing because certain workgroup members feel its misleading. Do we want to call it status versus dynamic or application specific versus generalized. Can we get feedback?
+15:37:22 <brent> ack ivan
+15:37:23 <dlongley> or "context specific"
+15:37:36 <JoeAndrieu> q+ to suggest "limited" or "restricted"
+15:38:11 <pauld_gs1_> ivan: application specific is better than dynamic versus static.  I think that application specific is really very broad. In our case what is relevant is that its credential specific.  Its what we should do.
+15:38:12 <manu> q+ to suggest ranked choice poll w/ all options. :)
+15:38:46 <manu> q+ to note 1302 /does/ apply to the issue.
+15:39:16 <brent> ack brent
+15:39:17 <pauld_gs1_> brent: we do have a somewhat related PR open 1302 which is marked post-CR.  Maybe it doesn't apply?  Does it apply to this issue? How? As far as context specific, I agree that application specific doesn't tell me much. Credential specific might be better.  But that begs the question that if there is credential specific processing, why haven't we defined it.  I would expect that question to be asked.
+15:39:25 <brent> ack JoeAndrieu
+15:39:25 <Zakim> JoeAndrieu, you wanted to suggest "limited" or "restricted"
+15:39:33 <ivan> +1 to be relevant to 1302
+15:39:49 <pauld_gs1_> JoeAndrieu: I think limited might be what we are talking about.  We should do ranked poll and pick.
+15:39:53 <brent> ack manu
+15:39:53 <Zakim> manu, you wanted to suggest ranked choice poll w/ all options. :) and to note 1302 /does/ apply to the issue.
+15:40:23 <pauld_gs1_> manu: We could debate endlessly but a ranked choice poll would be a good option. I can put this out this week and run it for a week and we can review what comes back.
+15:40:43 <dlongley> some choices i heard: credential-specific, context-specific, application-specific, static vs. dynamic, limited, restricted
+15:40:43 <pauld_gs1_> manu: Need to get all the options down. Please put your options into the minutes so it shows up in the poll.
+15:41:08 <JoeAndrieu> q+ to say its a type of processing (a choice of the verifier, not the issuer)
+15:41:24 <pauld_gs1_> manu: The other question was "is 1302 relevant". It is relevant but 1302 does other change beyond what we call these two things.  By naming these two things the rest becomes easier to talk about.
+15:41:36 <brent> ack JoeAndrieu
+15:41:36 <Zakim> JoeAndrieu, you wanted to say its a type of processing (a choice of the verifier, not the issuer)
+15:41:58 <dlongley> q+
+15:42:21 <brent> ack dlongley
+15:42:25 <pauld_gs1_> JoeAndrieu: I think what we are trying to name is not application specific. Its the choice of the verifier what processing they want to do. I think we put the choice at the verifier.  Its not a choice of the issuer, application or credential.  Thats why they didn't resonate with me.
+15:43:38 <pauld_gs1_> dlongley: Agree with Joe. We can fall into a lot of pitfalls if we specify the type of processing. Its really about the specific set of document that you accept. We don't want to confuse people into thinking that data would be understood in a different way. Its whether you accept a lot of things or just what you understand in your context.
+15:43:52 <manu> q+
+15:43:53 <pauld_gs1_> brent: We have another PR and poll going out. But no one is assigned to the issue.
+15:44:01 <brent> ack manu
+15:44:12 <pauld_gs1_> manu: I could pick it up once the poll is done and its clear what people want it to be changed to.
+15:44:15 <pauld_gs1_> ivan: can we do it now.
+15:44:30 <pauld_gs1_> manu: Not sure over IRC. We have a ranked choice poll tool and I suggest we use it.
+15:44:44 <pauld_gs1_> brent: Look forward to seeing the poll. Moving on to the next issue.
+15:44:48 <brent> subtopic: https://github.com/w3c/vc-data-model/issues/1010
+15:49:25 <ivan> https://github.com/w3c/vc-data-model/pull/1295
+15:45:21 <pauld_gs1_> brent: may just need a has-PR label.  My understanding is it has a PR.
+15:45:58 <pauld_gs1_> brent: Question for the group is, Does PR 1295 address this issue?
+15:46:01 <manu> q+
+15:46:09 <brent> ack manu
+15:46:17 <pauld_gs1_> manu: I don't think it does because of Kristina's comment.
+15:46:21 <manu> Kristina is pointing out that there remains an issue: https://github.com/w3c/vc-data-model/issues/1010#issuecomment-1751586092
+15:47:05 <pauld_gs1_> manu: The note talks about delegating a credential. That is the only mention of delegation in the document. What does this mean in terms of use.  David would have to address this in the PR and I don't think he addresses it.
+15:47:16 <pauld_gs1_> pl_asu: I don't recall delegation being relevant to this PR.
+15:47:38 <DavidC> DavidC has joined #vcwg
+15:47:42 <DavidC> present+
+15:47:46 <DavidC> q+
+15:47:49 <pauld_gs1_> brent: I think it the concern is relevant. Its currently assigned to you, david and Kristina. Question is what action is going to be taken to address that concern.
+15:47:50 <manu> q+
+15:47:51 <brent> ack DavidC
+15:48:16 <pauld_gs1_> DavidC: There is something wrong with the timing.  Missed yesterdays.
+15:48:24 <pauld_gs1_> ivan: There are changes with the clock
+15:49:01 <ivan> q+
+15:49:02 <ivan> q-
+15:49:08 <manu> q-
+15:49:12 <pauld_gs1_> DavidC: Apologize for being late.  On terms of use, I did put changes in this morning to address all of Ted concerns except one which we should discuss.  Regarding delegation, I removed from the terms of use, so there is no mention now.
+15:49:33 <pauld_gs1_> brent: That answers the question. This issue is now addressed fully by PR 1295.
+15:49:43 <pauld_gs1_> brent: Can we jump back to 1295 and get to a point to merge this.
+15:49:54 <TallTed> q+
+15:50:08 <pauld_gs1_> brent: David, can you point to the changes requested by TallTed that you did not accept.
+15:51:03 <pauld_gs1_> DavidC: He added a big long paragraph about relationship between issuers and verifiers. I disagreed with this.  The whole point is that the verifier can get an credential from an issues, but the trusted third party can vouch for it.  So I think the text was not correct.
+15:51:07 <brent> ack TallTed
+15:52:16 <pauld_gs1_> TallTed: On this particular sentence, its editorial and advisory text, so it doesn't need in depth processing. However the explanation just given is the minimum needed. That is approximately what I had added. I dont think we will get this processed through oral conversation.  I did respond to the latest change to the PR this morning.
+15:53:03 <DavidC> q+
+15:53:16 <brent> ack DavidC
+15:53:32 <pauld_gs1_> TallTed: There were numerous editorial changes. The line before my modification said the terms of use property should be automatically processed by the verifier.  But there is no language to describe how. Its just insufficient.
+15:53:47 <JoeAndrieu> +1 for removing automated requirement
+15:53:56 <manu>  +1 to remove the automated requirement
+15:54:02 <pauld_gs1_> DavidC: Im happy to remove that sentence because we dont have this language around other properties.  Its implicit in all the properties.
+15:54:26 <DavidC> q+
+15:54:26 <JoeAndrieu> q+ to say humans may be required. depends on the type.
+15:54:29 <pauld_gs1_> TallTed: Unless we are expecting humans to process, the intent is for automated processing.
+15:54:41 <manu> q+
+15:54:51 <dmitriz> q+
+15:54:55 <brent> ack DavidC
+15:55:31 <brent> ack JoeAndrieu
+15:55:31 <Zakim> JoeAndrieu, you wanted to say humans may be required. depends on the type.
+15:55:42 <brent> zakim, close the queue
+15:55:42 <Zakim> ok, brent, the speaker queue is closed
+15:56:40 <brent> ack manu
+15:56:44 <DavidC> +1 JoeAndrieu \
+15:56:55 <TallTed> also in my addition: "Future enhancements of this extension may include defining values and/or structures of `termsOfUse` /property/ values such that any verifier may understand `termsOfUse` /property/ values without prior relationship or communication with the issuer."
+15:57:26 <DavidC> q+
+15:57:31 <pl_asu> +1 to the type telling you what is or is not automatable. And +1 to remove the automated statement.
+15:57:50 <pauld_gs1> pauld_gs1 has joined #vcwg
+15:57:50 <TallTed> TermsOfUse being an extension point makes it "not like all the other properties", it's only "like all the other extension points"
+15:57:53 <pauld_gs1> scribe+
+15:57:55 <pauld_gs1> manu: +1 to Joe. We should remove the statement. I think we do intend this to be automatically processable, we just don't have an example today.  Saying we should and not providing a mechanism is problematic. Lets just stay silent.
+15:58:06 <brent> ack dmitriz
+15:58:38 <pauld_gs1> dmitriz: Similar to what manu said. This is not about whether the field should be manual or automatic.  This is an extension point so the processing should be part of the extension spec.  Not the main spec.
+15:58:45 <DavidC> We already implemented automatic processing of the ToU in the NGI Atlantic project
+15:59:11 <pauld_gs1> brent: thanks for involvement.
+15:59:11 <pauld_gs1> Topic: Meeting schedule
+15:59:11 <pauld_gs1> …A note.  Next weeks meetings are cancelled.  I apologize.
+15:59:30 <pauld_gs1> brent: no meeting next week. Please continue progress on PRs and issues.
+15:59:36 <pauld_gs1> scribe-
+15:59:49 <ivan> rrsagent, draft minutes
+15:59:50 <RRSAgent> I have made the request to generate https://www.w3.org/2023/11/01-vcwg-minutes.html ivan

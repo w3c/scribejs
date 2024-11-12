@@ -946,8 +946,12 @@ class Converter {
      */
     generate_preamble(headers) {
         let header_class = '';
+        let draft_notice = '';
         if (this.kramdown) {
             header_class = (this.global.final === true || this.global.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
+            if (this.global.final === false && this.global.auto === false) {
+                draft_notice = '{: .draft_notice}';
+            }
         }
         else {
             header_class = '';
@@ -957,7 +961,7 @@ class Converter {
 # ${headers.meeting} — Minutes
 ${header_class}
 ${this.global.final === true || this.global.auto === true ? '' : '***– DRAFT Minutes –***'}
-${(this.global.final === true || this.global.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
+${draft_notice}
 
 **Date:** ${headers.date}
 
@@ -1054,7 +1058,13 @@ ${no_toc}
                 TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`;
             }
             else {
-                const auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
+                let auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
+                // A possible trailing '.' character should be removed from the ID value.
+                // The auto ID provided by GH/markdown does that, and unless it is removed
+                // here the link will not work.
+                if (auto_id.endsWith('.')) {
+                    auto_id = auto_id.slice(0, auto_id.length - 1);
+                }
                 retval = `\n\n${header_level}${numbering}. ${bare_content}`;
                 TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`;
             }
@@ -1578,7 +1588,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.titles = exports.issue_directives = exports.url_to_issue_directive = void 0;
 const utils_1 = require("./utils");
 const types_1 = require("./types");
-const githubapi_1 = require("./js/githubapi");
 /**
  * Convert any line that contains exclusively a URL to an issue/PR URL into a scribejs directive on issues.
  * Similarly, if the line is a topic setting line, and the only entry for the section title is an
@@ -1760,7 +1769,7 @@ async function titles(config, content) {
         else if (issue_information.ids && issue_information.ids.length > 0) {
             const [organization, repo, issue] = issue_information.ids[0].split('/');
             try {
-                const gh = new githubapi_1.GitHub(`${organization}/${repo}`, config);
+                const gh = utils_1.GitHubCache.gh(`${organization}/${repo}`, config);
                 const i_title = await gh.get_issue_title(issue);
                 return `${i_title} (${directive} ${repo}#${issue})`;
             }
@@ -1795,7 +1804,7 @@ async function titles(config, content) {
 }
 exports.titles = titles;
 
-},{"./js/githubapi":9,"./types":10,"./utils":11}],9:[function(require,module,exports){
+},{"./types":10,"./utils":11}],9:[function(require,module,exports){
 (function (Buffer){
 
 'use strict';
@@ -1813,6 +1822,10 @@ class GitHub {
      * @param {Object} conf - program configuration
      */
     constructor(repo_id, conf) {
+        /**
+         * Cache of the issue information structures; using this avoids unnecessary and repeated API calls for issue information
+         */
+        this.issue_infos = [];
         const octo = new Octokat({ token: conf.ghtoken });
         this.repo = octo.repos(...repo_id.split('/'));
     }
@@ -1841,31 +1854,53 @@ class GitHub {
         return retval.content.htmlUrl;
     }
     /**
-     * Get the list of issue titles. The method takes care of paging.
+     * Get the list of issue structures as returned by the github API. Note that this method
+     * makes use of the class variable `issues_infos` as a cache.
+     *
+     * This method takes care of paging to get all the issues.
+     *
+     * @returns - array of objects
+     * @async
+     */
+    async get_issues() {
+        let issues;
+        if (this.issue_infos.length === 0) {
+            // fill the cache...
+            let page_number = 1;
+            do {
+                issues = await this.repo.issues.fetch({ per_page: 100, page: page_number });
+                page_number += 1;
+                this.issue_infos = [...this.issue_infos, ...issues.items];
+            } while (issues.nextPageUrl);
+        }
+        return this.issue_infos;
+    }
+    /**
+     * Get the list of issue titles.
      *
      * @return - array of issue titles
      * @async
      */
     async get_issue_titles() {
-        let issues;
-        let retval = [];
-        let page_number = 1;
-        do {
-            issues = await this.repo.issues.fetch({ per_page: 100, page: page_number });
-            page_number += 1;
-            retval = [...retval, ...issues.items];
-        } while (issues.nextPageUrl);
+        let retval = await this.get_issues();
         return retval.map((issue) => issue.title);
     }
     /**
      * Get the data for a single issue
+     * @param {string|number} issue_number - Issue number
+     * @return - the specific issue structure, or undefined
+     * @async
      */
     async get_issue_info(issue_number) {
-        let info = await this.repo.issues.fetch(issue_number);
-        return info.items[0];
+        let infos = await this.get_issues();
+        return infos.find((element) => `${element.number}` === `${issue_number}`);
     }
     /**
      * Get the title for a single issue
+     *
+     * @param {string|number} issue_number - Issue number
+     * @return {string} - title of the issue, or empty string if issue number is invalid
+     * @async
      */
     async get_issue_title(issue_number) {
         try {
@@ -1930,6 +1965,10 @@ var Constants;
     Constants.irccloud_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/;
     Constants.textual_preamble_size = 1 + 10 + 1 + 8 + 1 + 4 + 1 + 1;
     Constants.textual_regexp = /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\+[0-9]{4}\]/;
+    /** Number of characters added to each line by The Lounge */
+    Constants.lounge_preamble_size = 2 + 1 + 2 + 1;
+    /** Regex to filter out the preamble of each line in The Lounge */
+    Constants.lounge_regexp = /^[0-9]{2}:[0-9]{2} /;
     Constants.issue_regexp = /^@?(scribejs|sjs),\s+(issue|pr)\s+(.*)$/;
     Constants.agenda_regexp = /.* \-\- (.*) \-\-.*/;
     Constants.user_config_name = '.scribejs.json';
@@ -1942,7 +1981,7 @@ var Constants;
     // URL Protocols that are accepted as valid links in the minutes (and are turned into real links).
     Constants.protocols = ['http:', 'https:', 'ftp:', 'mailto:', 'doi:', 'did:'];
     // Parse a github issue/pr URL, and indexes into the regexp result to extract specific data
-    Constants.issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/w3c\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
+    Constants.issue_pr_url_regexp = /^(http)([s]*):\/\/github.com\/[-+a-z0-9_.]+\/([-+a-z0-9_.]+)\/(issues|pull)\/([0-9]+)$/i;
     Constants.ip_repo_index = 3;
     Constants.ip_type = 4;
     Constants.ip_issue = 5;
@@ -1964,10 +2003,21 @@ var Constants;
  * @packageDocumentation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.add_links = exports.check_url = exports.split_to_words = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = void 0;
+exports.add_links = exports.check_url = exports.split_to_words = exports.perform_change_requests = exports.perform_insert_requests = exports.separate_header = exports.cleanup = exports.get_name_list = exports.canonical_nick = exports.get_label = exports.every = exports.flatten = exports.difference = exports.union = exports.uniq = exports.zip = exports.today = exports.is_browser = exports.GitHubCache = void 0;
 const types_1 = require("./types");
 const issues_1 = require("./issues");
+const githubapi_1 = require("./js/githubapi");
 const url = require("url");
+class GitHubCache {
+    static gh(repo_id, config) {
+        if (GitHubCache.github_interfaces[repo_id] === undefined) {
+            GitHubCache.github_interfaces[repo_id] = new githubapi_1.GitHub(repo_id, config);
+        }
+        return GitHubCache.github_interfaces[repo_id];
+    }
+}
+exports.GitHubCache = GitHubCache;
+GitHubCache.github_interfaces = {};
 /** ******************************************************************* */
 /*                           Generic utilities                          */
 /** ******************************************************************* */
@@ -2077,6 +2127,7 @@ function remove_preamble(line, config) {
             switch (config.irc_format) {
                 case 'irccloud': return types_1.Constants.irccloud_preamble_size;
                 case 'textual': return types_1.Constants.textual_preamble_size;
+                case 'lounge': return types_1.Constants.lounge_preamble_size;
                 case 'rrsagent':
                 default: return types_1.Constants.rrsagent_preamble_size;
             }
@@ -2088,6 +2139,10 @@ function remove_preamble(line, config) {
         else if (the_line.match(types_1.Constants.textual_regexp) !== null) {
             config.irc_format = 'textual';
             return types_1.Constants.textual_preamble_size;
+        }
+        else if (the_line.match(types_1.Constants.lounge_regexp) !== null) {
+            config.irc_format = 'lounge';
+            return types_1.Constants.lounge_preamble_size;
         }
         else {
             config.irc_format = 'rrsagent';
@@ -2350,6 +2405,16 @@ function cleanup(minutes, config) {
                     || stripped_line[0] === '⇐'
                     || stripped_line[0] === '←');
             }
+            case 'lounge': {
+                const stripped_line = line.trim();
+                return !(stripped_line.length === 0
+                    || stripped_line[0] === '*'
+                    || stripped_line.includes('zakim')
+                    || stripped_line.includes('Zakim')
+                    || stripped_line.includes('RRSAgent')
+                    || stripped_line.includes('github-bot')
+                    || stripped_line.includes('agendabot'));
+            }
             default: {
                 return true;
             }
@@ -2381,10 +2446,12 @@ function cleanup(minutes, config) {
             // The "real" agenda item is surrounded by a '--' string.
             try {
                 const topic = line_object.content.match(types_1.Constants.agenda_regexp);
-                line_object.content = `Topic: ${topic[1]}`;
-                // Replacing the nickname; it should not remain "zakim" because that is removed later;
-                // because it is a topic line, the nickname will not appear in the output
-                line_object.nick = 'scribejs';
+                if (topic !== null) {
+                    line_object.content = `Topic: ${topic[1]}`;
+                    // Replacing the nickname; it should not remain "zakim" because that is removed later;
+                    // because it is a topic line, the nickname will not appear in the output
+                    line_object.nick = 'scribejs';
+                }
             }
             catch (error) {
                 // the agendum prefix can also appear for other commands which may lead to an exception here...
@@ -2413,20 +2480,29 @@ function cleanup(minutes, config) {
         && line_object.nick !== 'github-bot'
         && line_object.nick !== 'agendabot'
         && line_object.nick !== 'trackbot'))
-        .filter((line_object) => !(line_object.content_lower.startsWith('q+')
-        || line_object.content_lower.startsWith('+q')
-        || line_object.content_lower.startsWith('vq?')
-        || line_object.content_lower.startsWith('qq+')
-        || line_object.content_lower.startsWith('q-')
-        || line_object.content_lower.startsWith('q?')
-        || line_object.content_lower.startsWith('ack')
-        || line_object.content_lower.startsWith('agenda+')
-        || line_object.content_lower.startsWith('agenda?')
-        || line_object.content_lower.startsWith('trackbot,')
-        || line_object.content_lower.startsWith('zakim,')
-        || line_object.content_lower.startsWith('rrsagent,')
-        || line_object.content_lower.startsWith('github topic')
-        || line_object.content_lower.startsWith('github-bot,')))
+        .filter((line_object) => {
+        if (line_object === undefined || line_object.content_lower === undefined) {
+            return false;
+        }
+        else {
+            return !(line_object.content_lower.startsWith('q+')
+                || line_object.content_lower.startsWith('+q')
+                || line_object.content_lower.startsWith('vq?')
+                || line_object.content_lower.startsWith('qq+')
+                || line_object.content_lower.startsWith('q-')
+                || line_object.content_lower.startsWith('q?')
+                || line_object.content_lower.startsWith('q ')
+                || line_object.content_lower === 'q'
+                || line_object.content_lower.startsWith('ack')
+                || line_object.content_lower.startsWith('agenda+')
+                || line_object.content_lower.startsWith('agenda?')
+                || line_object.content_lower.startsWith('trackbot,')
+                || line_object.content_lower.startsWith('zakim,')
+                || line_object.content_lower.startsWith('rrsagent,')
+                || line_object.content_lower.startsWith('github topic')
+                || line_object.content_lower.startsWith('github-bot,'));
+        }
+    })
         // There are some irc messages that should be taken care of
         .filter((line_object) => !(line_object.content.match(/^\w+ has joined #\w+/)
         || line_object.content.match(/^\w+ has left #\w+/)
@@ -2842,13 +2918,14 @@ function add_links(line) {
     }
     else {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
+        const final_text = replace_links(words).map(simple_link_exchange).join(' ');
+        return final_text.match(/[.!?]$/) === null ? final_text + '.' : final_text;
     }
 }
 exports.add_links = add_links;
 
 }).call(this,require('_process'))
-},{"./issues":8,"./types":10,"_process":96,"url":102}],12:[function(require,module,exports){
+},{"./issues":8,"./js/githubapi":9,"./types":10,"_process":96,"url":102}],12:[function(require,module,exports){
 'use strict';
 
 var compileSchema = require('./compile')

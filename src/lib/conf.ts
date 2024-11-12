@@ -20,7 +20,7 @@ const default_config: Global = {
     final         : false,
     torepo        : false,
     jekyll        : Constants.JEKYLL_NONE,
-    pandoc        : true,
+    pandoc        : false,
     irc_format    : undefined,
     schema        : true,
     nick_mappings : {},

@@ -19,7 +19,7 @@
 00:01:56 <jyoshii_> present+
 00:02:07 <rkuroda> present+
 00:02:37 <naomi> naomi has joined #epub
-00:02:40 <naomi> present+
+00:02:40 <naomi> present+test
 00:02:44 <Nellie> present+
 00:03:45 <dauwhe> scribe+ dauwhe
 00:03:54 <dauwhe> shiestyle: welcome everyone
@@ -29,13 +29,13 @@
 00:05:13 <toshiakikoike> +q
 00:06:05 <shiestyle> ack toshiakikoike
 00:06:21 <dauwhe> action: ivan to report some wonderful things
+00:06:21 <dauwhe> topic: https://github.com/w3c/epub-specs/issues/2583
 00:06:21 <dauwhe> toshiakikoike: proposed on github
-00:06:43 <dauwhe> https://github.com/w3c/epub-specs/issues/1380#issuecomment-719108924
 00:06:59 <dauwhe> ... every reader can implement
 00:07:52 <dauwhe> toshiakikoike: this feature is supported by voyager reading system, but not many epub files use this feature
 00:08:15 <dauwhe> ... he expects epubcheck would not mark as error
 00:08:28 <dauwhe> q+
-00:08:50 <florian> q?
+00:08:50 <florian> q
 00:09:00 <shiestyle> ack dauwhe
 00:10:23 <dauwhe> dauwhe: not sure how epubcheck will deal with `<meta>` properties... it actually might be easier
 00:10:49 <dauwhe> ... am I correct that people don't really see this as necessary/

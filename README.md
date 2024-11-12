@@ -33,12 +33,12 @@ scribejs [options] [filename]
 [--pandoc|-p]:       Whether the output is meant to be converted further by pandoc.
                      Default: false.
 [--jekyll|-j]:       Whether the output should be adapted to a Github+Jekyll
-                     combination. Value can be "none", "md", or "kd"; (see below)
+                     combination. Value can be "none", "md", or "kd"; (see below
                      for further details.)
                      Default: "md".
 [--irc|-i] client:   Whether the input is of the log format of a particular IRC client.
-                     Value can be "textual" or "irccloud", for the Textual or
-                     IRCCloud IRC clients, respectively. It can also be
+                     Value can be "textual", "irccloud", or "lounge, for the Textual,
+                     IRCCloud, or The Lounge clients, respectively. It can also be
                      "rdf" to consume the RRSAgent RDF/XML dump directly.
                      Other values are (currently) ignored.
                      Default: undefined, meaning that the log provided by the W3C

@@ -1,0 +1,27 @@
+{
+    "jekyll"         : "none",
+    "auto"           : false,
+    "final"          : true,
+    "ghrepo"         : "w3c/pmwg",
+    "issuerepo"      : "w3c/pmwg",
+    "ghpath"         : "minutes",
+    "ghbranch"       : "main",
+    "group"          : "pmwg",
+    "nicknames"      : "https://iherman.github.io/pmwg/assets/nicknames.json",
+    "acrepo"         : "w3c/pm-wg",
+    "acurlpattern"   : "https://iherman.github.io/pmwg/minutes/%DATE%-pmwg",
+    "owner"          : "w3c",
+    "repo"           : "pmwg",
+    "current"        : "assets/minute_processing.json",
+    "minutes"        : "minutes",
+    "handle_issues"  : true,
+    "handle_actions" : true,
+    "group_mail"     : "public-pm-wg@w3.org",
+    "mail_subject"   : "Publishing Maintenance Working Group",
+    "local": {
+        "dir"       : "/Users/ivan/W3C/github/Publishing/pmwg",
+        "nicknames" : "/Users/ivan/W3C/github/Publishing/pmwg/assets/nicknames.json"
+    },
+    "extra_calls": {
+    }
+}

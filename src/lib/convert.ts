@@ -146,8 +146,12 @@ export class Converter {
      */
     private generate_preamble(headers: Header): string {
         let header_class = '';
+        let draft_notice = '';
         if (this.kramdown) {
             header_class = (this.global.final === true || this.global.auto === false) ? '{: .no_toc}' : '{: .no_toc .draft_notice_needed}';
+            if (this.global.final === false && this.global.auto === false) {
+                draft_notice = '{: .draft_notice}';
+            }
         } else {
             header_class = '';
         }
@@ -157,7 +161,7 @@ export class Converter {
 # ${headers.meeting} — Minutes
 ${header_class}
 ${this.global.final === true || this.global.auto === true ? '' : '***– DRAFT Minutes –***'}
-${(this.global.final === true || this.global.auto === true) && this.kramdown ? '' : '{: .draft_notice}'}
+${draft_notice}
 
 **Date:** ${headers.date}
 
@@ -261,7 +265,15 @@ ${no_toc}
                 retval = `\n\n${header_level}${numbering}. ${bare_content}\n{: #${id}}`
                 TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${id})\n`;
             } else {
-                const auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
+                let auto_id = `${numbering}-${bare_content.toLowerCase().replace(/ /g, '-')}`;
+
+                // A possible trailing '.' character should be removed from the ID value.
+                // The auto ID provided by GH/markdown does that, and unless it is removed
+                // here the link will not work.
+                if (auto_id.endsWith('.')) {
+                    auto_id = auto_id.slice(0,auto_id.length-1);
+                }
+
                 retval = `\n\n${header_level}${numbering}. ${bare_content}`
                 TOC += `${toc_spaces}* [${numbering}. ${bare_content}](#${auto_id})\n`;
             }
@@ -349,6 +361,7 @@ ${no_toc}
 
         // ------------------------------  The main cycle on the content: take each line one-by-one and turn it into Github...
         for (const line_object of lines) {
+
             // This is declared here to use an assignment in a conditional below...
             let issue_match, slide_match;
 
@@ -583,6 +596,7 @@ ${no_toc}
         // in an array of {nick, content} structures
         const irc_log: LineObject[] = utils.cleanup(split_body, this.global);
 
+
         // 2. separate the header information
         // eslint-disable-next-line prefer-const
         let { headers, lines } = utils.separate_header(irc_log, this.global.date as string);
@@ -590,6 +604,7 @@ ${no_toc}
         // 3. Perform changes, ie, execute on requests of the "i/.../..." and "s/.../.../" forms in the log:
         lines = utils.perform_insert_requests(lines);
         lines = utils.perform_change_requests(lines);
+
 
         // 4. Store the actions' date, if the separate action list handler is available.
         // (the list of actions is created on the fly...)

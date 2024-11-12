@@ -144,6 +144,7 @@ function remove_preamble(line: string, config: Configuration): string {
             switch (config.irc_format) {
             case 'irccloud': return Constants.irccloud_preamble_size;
             case 'textual' : return Constants.textual_preamble_size;
+            case 'lounge': return Constants.lounge_preamble_size;
             case 'rrsagent':
             default: return Constants.rrsagent_preamble_size;
             }
@@ -153,6 +154,9 @@ function remove_preamble(line: string, config: Configuration): string {
         } else if (the_line.match(Constants.textual_regexp) !== null) {
             config.irc_format = 'textual';
             return Constants.textual_preamble_size;
+        } else if (the_line.match(Constants.lounge_regexp) !== null) {
+            config.irc_format = 'lounge';
+            return Constants.lounge_preamble_size;
         } else {
             config.irc_format = 'rrsagent';
             return Constants.rrsagent_preamble_size;
@@ -425,6 +429,18 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
                     || stripped_line[0] === '←'
                 );
             }
+            case 'lounge': {
+                const stripped_line = line.trim();
+                return !(
+                    stripped_line.length === 0
+                    || stripped_line[0] === '*'
+                    || stripped_line.includes('zakim')
+                    || stripped_line.includes('Zakim')
+                    || stripped_line.includes('RRSAgent')
+                    || stripped_line.includes('github-bot')
+                    || stripped_line.includes('agendabot')
+                );
+            }
             default: {
                 return true;
             }}
@@ -457,10 +473,12 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
                 // The "real" agenda item is surrounded by a '--' string.
                 try {
                     const topic = line_object.content.match(Constants.agenda_regexp);
-                    line_object.content = `Topic: ${topic[1]}`;
-                    // Replacing the nickname; it should not remain "zakim" because that is removed later;
-                    // because it is a topic line, the nickname will not appear in the output
-                    line_object.nick = 'scribejs';
+                    if (topic !== null) {
+                        line_object.content = `Topic: ${topic[1]}`;
+                        // Replacing the nickname; it should not remain "zakim" because that is removed later;
+                        // because it is a topic line, the nickname will not appear in the output
+                        line_object.nick = 'scribejs';
+                    }
                 } catch (error) {
                     // the agendum prefix can also appear for other commands which may lead to an exception here...
                     // just finish the stuff
@@ -493,22 +511,30 @@ export function cleanup(minutes: string[], config: Global): LineObject[] {
             && line_object.nick !== 'agendabot'
             && line_object.nick !== 'trackbot'
         ))
-        .filter((line_object: LineObject): boolean => !(
-            line_object.content_lower.startsWith('q+')
-            || line_object.content_lower.startsWith('+q')
-            || line_object.content_lower.startsWith('vq?')
-            || line_object.content_lower.startsWith('qq+')
-            || line_object.content_lower.startsWith('q-')
-            || line_object.content_lower.startsWith('q?')
-            || line_object.content_lower.startsWith('ack')
-            || line_object.content_lower.startsWith('agenda+')
-            || line_object.content_lower.startsWith('agenda?')
-            || line_object.content_lower.startsWith('trackbot,')
-            || line_object.content_lower.startsWith('zakim,')
-            || line_object.content_lower.startsWith('rrsagent,')
-            || line_object.content_lower.startsWith('github topic')
-            || line_object.content_lower.startsWith('github-bot,')
-        ))
+        .filter((line_object: LineObject): boolean => {
+            if (line_object === undefined || line_object.content_lower === undefined) {
+                return false;
+            } else {
+                return !(
+                    line_object.content_lower.startsWith('q+')
+                    || line_object.content_lower.startsWith('+q')
+                    || line_object.content_lower.startsWith('vq?')
+                    || line_object.content_lower.startsWith('qq+')
+                    || line_object.content_lower.startsWith('q-')
+                    || line_object.content_lower.startsWith('q?')
+                    || line_object.content_lower.startsWith('q ')
+                    || line_object.content_lower === 'q'
+                    || line_object.content_lower.startsWith('ack')
+                    || line_object.content_lower.startsWith('agenda+')
+                    || line_object.content_lower.startsWith('agenda?')
+                    || line_object.content_lower.startsWith('trackbot,')
+                    || line_object.content_lower.startsWith('zakim,')
+                    || line_object.content_lower.startsWith('rrsagent,')
+                    || line_object.content_lower.startsWith('github topic')
+                    || line_object.content_lower.startsWith('github-bot,')
+                );
+            }
+        })
         // There are some irc messages that should be taken care of
         .filter((line_object: LineObject): boolean => !(
             line_object.content.match(/^\w+ has joined #\w+/)
@@ -887,11 +913,12 @@ export function check_url(str: string): boolean {
 * @returns {String} - the converted line
 */
 export function add_links(line: string): string {
+
     /**
      * Convert (if applicable) a "Ralph style link", i.e., a '->' followed by a URL and a text, into a structure
      * with the link data part and a url_part
      */
-    const ralph_style_links = (words: string[]): {link_part: string, url_part: string} => {
+    const ralph_style_links = (words: string[]): {link_part: string, url_part: string|undefined} => {
         if ((words[0] === '->' || words[0] === '-->') && words.length >= 3 && check_url(words[1])) {
             const url_part = words[1];
             const link_part = words.slice(2).join(' ');
@@ -956,6 +983,7 @@ export function add_links(line: string): string {
         return `See [${link_part}](${url_part}).`
     } else {
         // Call out for the possible link constructs and then run the result through a simple converter to take of leftovers.
-        return replace_links(words).map(simple_link_exchange).join(' ') + '.';
+        const final_text = replace_links(words).map(simple_link_exchange).join(' ');
+        return final_text.match(/[.!?]$/) === null ? final_text + '.' : final_text;
     }
 }
