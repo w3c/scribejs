@@ -1,3 +1,6 @@
+***This tool is not in use any more and is therefore discontinued. For the time being the repo is archived; may be removed at a later time***
+
+
 [Generate Minutes in your Browser!](https://w3c.github.io/scribejs/BrowserView/)
 
 # RSSAgent IRC Logs Into Minutes in Markdown
